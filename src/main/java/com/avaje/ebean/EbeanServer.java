@@ -2,12 +2,14 @@ package com.avaje.ebean;
 
 import com.avaje.ebean.cache.ServerCacheManager;
 import com.avaje.ebean.config.ServerConfig;
+import com.avaje.ebean.event.BeanPostConstruct;
 import com.avaje.ebean.meta.MetaInfoManager;
 import com.avaje.ebean.plugin.SpiServer;
 import com.avaje.ebean.text.csv.CsvReader;
 import com.avaje.ebean.text.json.JsonContext;
 import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.PostConstruct;
 import javax.persistence.NonUniqueResultException;
 import javax.persistence.OptimisticLockException;
 import javax.persistence.PersistenceException;
@@ -167,8 +169,9 @@ public interface EbeanServer {
   /**
    * Create a new instance of T that is an EntityBean.
    * <p>
-   * Generally not expected to be useful (now dynamic subclassing support was removed in
-   * favour of always using enhancement).
+   * Useful if you use {@link BeanPostConstruct} or {@link PostConstruct} Annotations.
+   * In this case you should not use "new Bean...()". Making all bean construtors protected
+   * could be a good idea here. 
    * </p>
    */
   <T> T createEntityBean(Class<T> type);

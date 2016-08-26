@@ -16,16 +16,16 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class BeanPostLoadTest extends BaseTestCase {
+public class BeanPostConstructTest extends BaseTestCase {
 
-  PostLoad postLoad = new PostLoad(false);
+  PostConstruct postConstruct = new PostConstruct(false);
 
   @Test
   public void testPostLoad() {
 
     EbeanServer ebeanServer = getEbeanServer();
 
-    EBasicVer bean = new EBasicVer("testPostLoad");
+    EBasicVer bean = new EBasicVer("testPostConstruct");
     bean.setDescription("someDescription");
     bean.setOther("other");
 
@@ -36,10 +36,10 @@ public class BeanPostLoadTest extends BaseTestCase {
         .setId(bean.getId())
         .findUnique();
 
-    assertThat(postLoad.methodsCalled).hasSize(1);
-    assertThat(postLoad.methodsCalled).containsExactly("postLoad");
-    assertThat(postLoad.beanState.getLoadedProps()).containsExactly("id", "name", "other");
-    assertThat(postLoad.bean).isSameAs(found);
+    assertThat(postConstruct.methodsCalled).hasSize(1);
+    assertThat(postConstruct.methodsCalled).containsExactly("postConstruct");
+    assertThat(postConstruct.beanState.getLoadedProps()).containsExactly("id", "name", "other");
+    assertThat(postConstruct.bean).isSameAs(found);
 
     ebeanServer.delete(bean);
   }
@@ -60,12 +60,12 @@ public class BeanPostLoadTest extends BaseTestCase {
     config.setDefaultServer(false);
     config.getClasses().add(EBasicVer.class);
 
-    config.add(postLoad);
+    config.add(postConstruct);
     
     return EbeanServerFactory.create(config);
   }
 
-  static class PostLoad implements BeanPostLoad {
+  static class PostConstruct implements BeanPostConstruct {
 
 
     boolean dummy;
@@ -79,7 +79,7 @@ public class BeanPostLoadTest extends BaseTestCase {
     /**
      * No default constructor so only registered manually.
      */
-    PostLoad(boolean dummy) {
+    PostConstruct(boolean dummy) {
       this.dummy = dummy;
     }
 
@@ -89,8 +89,8 @@ public class BeanPostLoadTest extends BaseTestCase {
     }
 
     @Override
-    public void postLoad(Object bean, BeanDescriptor<?> beanDescriptor) {
-      this.methodsCalled.add("postLoad");
+    public void postConstruct(Object bean, BeanDescriptor<?> beanDescriptor) {
+      this.methodsCalled.add("postConstruct");
       this.bean = bean;
       this.beanState = Ebean.getBeanState(bean);
     }

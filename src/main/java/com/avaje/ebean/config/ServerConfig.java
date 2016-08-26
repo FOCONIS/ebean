@@ -10,6 +10,7 @@ import com.avaje.ebean.config.dbplatform.DbEncrypt;
 import com.avaje.ebean.event.BeanFindController;
 import com.avaje.ebean.event.BeanPersistController;
 import com.avaje.ebean.event.BeanPersistListener;
+import com.avaje.ebean.event.BeanPostConstruct;
 import com.avaje.ebean.event.BeanPostLoad;
 import com.avaje.ebean.event.BeanQueryAdapter;
 import com.avaje.ebean.event.BulkTableEventListener;
@@ -326,6 +327,7 @@ public class ServerConfig {
   private List<BeanFindController> findControllers = new ArrayList<BeanFindController>();
   private List<BeanPersistController> persistControllers = new ArrayList<BeanPersistController>();
   private List<BeanPostLoad> postLoaders = new ArrayList<BeanPostLoad>();
+  private List<BeanPostConstruct> postConstructors = new ArrayList<BeanPostConstruct>();
   private List<BeanPersistListener> persistListeners = new ArrayList<BeanPersistListener>();
   private List<BeanQueryAdapter> queryAdapters = new ArrayList<BeanQueryAdapter>();
   private List<BulkTableEventListener> bulkTableEventListeners = new ArrayList<BulkTableEventListener>();
@@ -412,6 +414,10 @@ public class ServerConfig {
    */
   private boolean disableL2Cache;
 
+  /**
+   * a custom context object. This could be a Spring ApplicationContext, so you can
+   */
+  private Object customContext;
   /**
    * Construct a Server Configuration for programmatically creating an EbeanServer.
    */
@@ -2005,6 +2011,16 @@ public class ServerConfig {
   }
 
   /**
+   * Register a BeanPostConstruct instance.
+   * <p>
+   * Note alternatively you can use {@link #setPostConstructors(List)} to set
+   * all the BeanPostConstruct instances.
+   * </p>
+   */
+  public void add(BeanPostConstruct postLoad) {
+    postConstructors.add(postLoad);
+  } 
+  /**
    * Return the list of BeanFindController instances.
    */
   public List<BeanFindController> getFindControllers() {
@@ -2032,6 +2048,19 @@ public class ServerConfig {
     this.postLoaders = postLoaders;
   }
 
+  /**
+   * Return the list of BeanPostLoader instances.
+   */
+  public List<BeanPostConstruct> getPostConstructors() {
+    return postConstructors;
+  }
+
+  /**
+   * Set the list of BeanPostLoader instances.
+   */
+  public void setPostConstructors(List<BeanPostConstruct> postConstructors) {
+    this.postConstructors = postConstructors;
+  }
   /**
    * Return the BeanPersistController instances.
    */
@@ -2501,6 +2530,22 @@ public class ServerConfig {
    */
   public void setDisableL2Cache(boolean disableL2Cache) {
     this.disableL2Cache = disableL2Cache;
+  }
+  
+  /**
+   * Returns the custom context object that was set with setCustomContext.
+   */
+  public <T> T getCustomContext() {
+    return (T) customContext;
+  }
+  
+  /**
+   * Set a custom context object. e.g. a Spring ApplicationContext.
+   * 
+   * @param customContext
+   */
+  public void setCustomContext(Object customContext) {
+    this.customContext = customContext;
   }
 
   /**

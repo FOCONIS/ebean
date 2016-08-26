@@ -20,6 +20,7 @@ import com.avaje.ebean.config.dbplatform.PlatformIdGenerator;
 import com.avaje.ebean.event.BeanFindController;
 import com.avaje.ebean.event.BeanPersistController;
 import com.avaje.ebean.event.BeanPersistListener;
+import com.avaje.ebean.event.BeanPostConstruct;
 import com.avaje.ebean.event.BeanPostLoad;
 import com.avaje.ebean.event.BeanQueryAdapter;
 import com.avaje.ebean.event.changelog.BeanChange;
@@ -242,6 +243,8 @@ public class BeanDescriptor<T> implements MetaBeanInfo, BeanType<T> {
   private volatile BeanPersistController persistController;
 
   private final BeanPostLoad beanPostLoad;
+  
+  private final BeanPostConstruct beanPostConstruct;
 
   /**
    * Listens for post commit insert update and delete events.
@@ -430,6 +433,7 @@ public class BeanDescriptor<T> implements MetaBeanInfo, BeanType<T> {
     this.beanFinder = deploy.getBeanFinder();
     this.persistController = deploy.getPersistController();
     this.persistListener = deploy.getPersistListener();
+    this.beanPostConstruct = deploy.getPostConstruct();
     this.beanPostLoad = deploy.getPostLoad();
     this.queryAdapter = deploy.getQueryAdapter();
     this.changeLogFilter = deploy.getChangeLogFilter();
@@ -1389,7 +1393,7 @@ public class BeanDescriptor<T> implements MetaBeanInfo, BeanType<T> {
    */
   public void postLoad(Object bean) {
     if (beanPostLoad != null) {
-      beanPostLoad.postLoad(bean);
+      beanPostLoad.postLoad(bean, this);
     }
   }
 
@@ -1575,6 +1579,10 @@ public class BeanDescriptor<T> implements MetaBeanInfo, BeanType<T> {
     try {
       EntityBean bean = (EntityBean) prototypeEntityBean._ebean_newInstance();
 
+      if (beanPostConstruct != null) {
+        beanPostConstruct.postConstruct(bean, this);
+      }
+      
       if (unloadProperties.length > 0) {
         // 'unload' any properties initialised in the default constructor
         EntityBeanIntercept ebi = bean._ebean_getIntercept();

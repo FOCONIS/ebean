@@ -11,6 +11,7 @@ import com.avaje.ebean.config.dbplatform.PlatformIdGenerator;
 import com.avaje.ebean.event.BeanFindController;
 import com.avaje.ebean.event.BeanPersistController;
 import com.avaje.ebean.event.BeanPersistListener;
+import com.avaje.ebean.event.BeanPostConstruct;
 import com.avaje.ebean.event.BeanPostLoad;
 import com.avaje.ebean.event.BeanQueryAdapter;
 import com.avaje.ebean.event.changelog.ChangeLogFilter;
@@ -22,6 +23,7 @@ import com.avaje.ebeaninternal.server.deploy.BeanDescriptor.EntityType;
 import com.avaje.ebeaninternal.server.deploy.BeanDescriptorManager;
 import com.avaje.ebeaninternal.server.deploy.ChainedBeanPersistController;
 import com.avaje.ebeaninternal.server.deploy.ChainedBeanPersistListener;
+import com.avaje.ebeaninternal.server.deploy.ChainedBeanPostConstruct;
 import com.avaje.ebeaninternal.server.deploy.ChainedBeanPostLoad;
 import com.avaje.ebeaninternal.server.deploy.ChainedBeanQueryAdapter;
 import com.avaje.ebeaninternal.server.deploy.IndexDefinition;
@@ -155,7 +157,8 @@ public class DeployBeanDescriptor<T> {
   private final List<BeanPersistListener> persistListeners = new ArrayList<BeanPersistListener>();
   private final List<BeanQueryAdapter> queryAdapters = new ArrayList<BeanQueryAdapter>();
   private final List<BeanPostLoad> postLoaders = new ArrayList<BeanPostLoad>();
-
+  private final List<BeanPostConstruct> postConstructors = new ArrayList<BeanPostConstruct>();
+  
   private CacheOptions cacheOptions = CacheOptions.NO_CACHING;
 
   /**
@@ -174,8 +177,6 @@ public class DeployBeanDescriptor<T> {
   private InheritInfo inheritInfo;
 
   private String name;
-
-  private boolean processedRawSqlExtend;
 
   private ChangeLogFilter changeLogFilter;
 
@@ -533,6 +534,19 @@ public class DeployBeanDescriptor<T> {
     }
   }
 
+  /**
+   * Return the BeanPostCreate(could be a chain of them, 1 or null).
+   */
+  public BeanPostConstruct getPostConstruct() {
+    if (postConstructors.isEmpty()) {
+      return null;
+    } else if (postConstructors.size() == 1) {
+      return postConstructors.get(0);
+    } else {
+      return new ChainedBeanPostConstruct(postConstructors);
+    }
+  }
+  
   public void addPersistController(BeanPersistController controller) {
     persistControllers.add(controller);
   }
@@ -549,6 +563,10 @@ public class DeployBeanDescriptor<T> {
     postLoaders.add(postLoad);
   }
 
+  public void addPostConstruct(BeanPostConstruct postConstruct) {
+    postConstructors.add(postConstruct);
+  }
+  
   public String getDraftTable() {
     return draftTable;
   }

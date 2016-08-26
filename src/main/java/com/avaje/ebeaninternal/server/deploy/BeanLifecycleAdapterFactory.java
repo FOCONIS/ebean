@@ -5,6 +5,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
 import javax.persistence.PersistenceException;
 import javax.persistence.PostLoad;
 import javax.persistence.PostPersist;
@@ -16,7 +17,9 @@ import javax.persistence.PreUpdate;
 
 import com.avaje.ebean.event.BeanPersistAdapter;
 import com.avaje.ebean.event.BeanPersistRequest;
+import com.avaje.ebean.event.BeanPostConstruct;
 import com.avaje.ebean.event.BeanPostLoad;
+import com.avaje.ebeaninternal.server.core.PersistRequest;
 import com.avaje.ebeaninternal.server.deploy.meta.DeployBeanDescriptor;
 
 /**
@@ -50,6 +53,10 @@ public class BeanLifecycleAdapterFactory {
       // has postLoad methods
       deployDesc.addPostLoad(new PostLoadAdapter(methodHolder.postLoads));
     }
+    if (!methodHolder.postConstructs.isEmpty()) {
+      // has postLoad methods
+      deployDesc.addPostConstruct(new PostConstructAdapter(methodHolder.postConstructs));
+    }
   }
 
   /**
@@ -65,6 +72,7 @@ public class BeanLifecycleAdapterFactory {
     private final List<Method> preDeletes = new ArrayList<Method>();
     private final List<Method> postDeletes = new ArrayList<Method>();
     private final List<Method> postLoads = new ArrayList<Method>();
+    private final List<Method> postConstructs = new ArrayList<Method>();
 
     /**
      * Has one of the pre or post insert update delete annotated methods.
@@ -107,6 +115,10 @@ public class BeanLifecycleAdapterFactory {
       if (method.isAnnotationPresent(PostLoad.class)) {
         postLoads.add(method);
       }
+      
+      if (method.isAnnotationPresent(PostConstruct.class)) {
+        postConstructs.add(method);
+      }
     }
   }
 
@@ -141,6 +153,24 @@ public class BeanLifecycleAdapterFactory {
   }
 
   /**
+   * Invokes a lifecycleMethod in the bean. 
+   * If the method has a parameter, the {@link BeanPersistRequest} or {@link BeanDescriptor}
+   * will be passed.
+   */
+  private static void invokeLifecycleMethod(Method method, Object bean, Object param) {
+    try {
+      if (method.getParameterCount() > 0) {
+        method.invoke(bean, param);
+      } else {
+        method.invoke(bean);
+      }
+    } catch (InvocationTargetException e) {
+      throw new PersistenceException("Error invoking lifecycle method", e);
+    } catch (IllegalAccessException e) {
+      throw new PersistenceException("Error invoking lifecycle method", e);
+    }
+  }
+  /**
    * BeanPersistAdapter using reflection to invoke lifecycle methods.
    */
   private static class PersistAdapter extends BeanPersistAdapter {
@@ -157,19 +187,9 @@ public class BeanLifecycleAdapterFactory {
       return false;
     }
 
-    private void invoke(Method method, Object bean) {
-      try {
-        method.invoke(bean);
-      } catch (InvocationTargetException e) {
-        throw new PersistenceException("Error invoking lifecycle method", e);
-      } catch (IllegalAccessException e) {
-        throw new PersistenceException("Error invoking lifecycle method", e);
-      }
-    }
-
     private void invoke(Method[] methods, BeanPersistRequest<?> request) {
       for (int i = 0; i < methods.length; i++) {
-        invoke(methods[i], request.getBean());
+        invokeLifecycleMethod(methods[i], request.getBean(), request);
       }
     }
 
@@ -224,21 +244,40 @@ public class BeanLifecycleAdapterFactory {
       return false;
     }
 
-    private void invoke(Method method, Object bean) {
-      try {
-        method.invoke(bean);
-      } catch (InvocationTargetException e) {
-        throw new PersistenceException("Error invoking lifecycle method", e);
-      } catch (IllegalAccessException e) {
-        throw new PersistenceException("Error invoking lifecycle method", e);
-      }
-    }
+
 
     @Override
-    public void postLoad(Object bean) {
+    public void postLoad(Object bean, BeanDescriptor<?> beanDescriptor) {
       for (int i = 0; i < postLoadMethods.length; i++) {
-        invoke(postLoadMethods[i], bean);
+        invokeLifecycleMethod(postLoadMethods[i], bean, beanDescriptor);
       }
     }
   }
+  /**
+   * BeanPostLoad using reflection to invoke lifecycle methods.
+   */
+  private static class PostConstructAdapter implements BeanPostConstruct {
+
+    private final Method[] postConstructMethods;
+
+    private PostConstructAdapter(List<Method> postLoadMethods) {
+      this.postConstructMethods = toArray(postLoadMethods);
+    }
+
+    @Override
+    public boolean isRegisterFor(Class<?> cls) {
+      // Not used
+      return false;
+    }
+
+
+
+    @Override
+    public void postConstruct(Object bean, BeanDescriptor<?> beanDescriptor) {
+      for (int i = 0; i < postConstructMethods.length; i++) {
+        invokeLifecycleMethod(postConstructMethods[i], bean, beanDescriptor);
+      }
+    }
+  }
+
 }
