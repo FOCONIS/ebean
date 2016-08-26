@@ -255,6 +255,12 @@ public class BeanProperty implements ElPropertyValue, Property {
   final String softDeleteDbSet;
 
   final String softDeleteDbPredicate;
+  
+  /**
+   * A custom object, preferably created in a custom {@link DeployBeanVisitor}.
+   * This can be anything. It is not used by ebean itself. 
+   */
+  private Object customMixin; 
 
   public BeanProperty(DeployBeanProperty deploy) {
     this(null, deploy);
@@ -1384,5 +1390,20 @@ public class BeanProperty implements ElPropertyValue, Property {
 
   public void merge(EntityBean bean, EntityBean existing) {
     // do nothing unless Many property
+  }
+  
+  /**
+   * Set the custom mixin object, e.g. additional meta data.
+   */
+  public void setCustomMixin(Object customMixin) {
+    this.customMixin = customMixin;
+  }
+
+  /**
+   * Get the custom mixin object. It is untyped, so no extra cast is needed.
+   */
+  @SuppressWarnings("unchecked")
+  public <U> U getCustomMixin() {
+    return (U) customMixin;
   }
 }

@@ -399,6 +399,12 @@ public class BeanDescriptor<T> implements MetaBeanInfo, BeanType<T> {
   private final String defaultSelectClause;
 
   private SpiEbeanServer ebeanServer;
+  
+  /**
+   * A custom object, preferably created in a custom {@link BeanVisitor}.
+   * This can be anything. It is not used by ebean itself. 
+   */
+  private Object customMixin;
 
   /**
    * Construct the BeanDescriptor.
@@ -2907,6 +2913,21 @@ public class BeanDescriptor<T> implements MetaBeanInfo, BeanType<T> {
 
   protected T jsonReadObject(ReadJson jsonRead, String path) throws IOException {
     return jsonHelp.jsonReadObject(jsonRead, path);
+  }
+  
+  /**
+   * Set the custom mixin object, e.g. additional meta data.
+   */
+  public void setCustomMixin(Object customMixin) {
+    this.customMixin = customMixin;
+  }
+
+  /**
+   * Get the custom mixin object. It is untyped, so no extra cast is needed.
+   */
+  @SuppressWarnings("unchecked")
+  public <U> U getCustomMixin() {
+    return (U) customMixin;
   }
 
 }
