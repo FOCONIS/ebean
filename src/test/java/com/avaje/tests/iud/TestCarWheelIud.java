@@ -56,6 +56,7 @@ public class TestCarWheelIud extends BaseTestCase {
 		
 		// Do some EL-checking: TODO: File should be reindented.
     ElPropertyValue elValue = getBeanDescriptor(Car.class).getElGetValue("wheels[0].place");
+    assertEquals("wheels[0].place", elValue.getElName());
     assertNotNull(elValue);
     assertEquals("front-left",elValue.pathGet(car));
 
@@ -69,7 +70,14 @@ public class TestCarWheelIud extends BaseTestCase {
     assertEquals("spare",elValue.pathGet(car));
     elValue.pathSet(car, "rear-right");
 
-    assertEquals("rear-right",car.getWheels().get(4).getPlace());
+    assertEquals("rear-right",car.getWheels().get(3).getPlace());
+    
+    // test direct acces
+    elValue = getBeanDescriptor(Car.class).getElGetValue("wheels");
+    assertEquals(ArrayList.class, elValue.pathGet(car).getClass());
+    // and access without "."
+    elValue = getBeanDescriptor(Car.class).getElGetValue("wheels[3]");
+    assertEquals(Wheel.class, elValue.pathGet(car).getClass());
 		// And I'm trying to delete this entry with code:
 		Car car2 = Ebean.find(Car.class, car.getId());
 

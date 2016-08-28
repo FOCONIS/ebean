@@ -2113,7 +2113,7 @@ public class BeanDescriptor<T> implements MetaBeanInfo, BeanType<T> {
 
     BeanProperty property = _findBeanProperty(propName);
     if (chain == null) {
-      return property;
+      return ElPropertyList.wrap(property, index);
     }
     if (property == null) {
       throw new PersistenceException("No property found for [" + propName + "] in expression " + chain.getExpression());
@@ -2121,11 +2121,7 @@ public class BeanDescriptor<T> implements MetaBeanInfo, BeanType<T> {
     if (property.containsMany()) {
       chain.setContainsMany();
     }
-    if (index == -1) {
-      chain.add(property);
-    } else {
-      chain.add(new ElPropertyList(property, index));
-    }
+    chain.add(ElPropertyList.wrap(property, index));
     return chain.build();
   }
 

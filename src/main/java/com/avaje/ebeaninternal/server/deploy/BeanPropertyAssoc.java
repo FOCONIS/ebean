@@ -121,11 +121,7 @@ public abstract class BeanPropertyAssoc<T> extends BeanProperty {
     if (chain == null) {
       chain = new ElPropertyChainBuilder(isEmbedded(), propName);
     }
-    if (index != -1) {
-      chain.add(new ElPropertyList(this, index));
-    } else {
-      chain.add(this);
-    }
+    chain.add(ElPropertyList.wrap(this, index));
     if (containsMany()) {
       chain.setContainsMany();
     }

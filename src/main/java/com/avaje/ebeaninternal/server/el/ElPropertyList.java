@@ -15,18 +15,29 @@ import com.avaje.ebeaninternal.server.deploy.BeanProperty;
  */
 public class ElPropertyList implements ElPropertyValue {
 
-  private BeanProperty delegate;
+  private ElPropertyValue delegate;
   private int index;
 
   /**
    * The delegate and Array/List offset.
    */
-  public ElPropertyList(BeanProperty delegate, int index) {
+  private ElPropertyList(ElPropertyValue delegate, int index) {
     super();
     this.delegate = delegate;
     this.index = index;
   }
 
+  /**
+   * Wraps the given elPropertyValue if neccessary.
+   */
+  public static ElPropertyValue wrap(ElPropertyValue value, int index) {
+    if (index == -1) {
+      return value;
+    } else {
+      return new ElPropertyList(value, index);
+    }
+  }
+  
   public Object pathGet(Object bean) {
     Object arr = delegate.pathGet(bean);
     if (arr == null) {
