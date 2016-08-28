@@ -60,6 +60,7 @@ import com.avaje.ebeaninternal.server.el.ElComparatorCompound;
 import com.avaje.ebeaninternal.server.el.ElComparatorProperty;
 import com.avaje.ebeaninternal.server.el.ElPropertyChainBuilder;
 import com.avaje.ebeaninternal.server.el.ElPropertyDeploy;
+import com.avaje.ebeaninternal.server.el.ElPropertyList;
 import com.avaje.ebeaninternal.server.el.ElPropertyValue;
 import com.avaje.ebeaninternal.server.persist.DmlUtil;
 import com.avaje.ebeaninternal.server.query.CQueryPlan;
@@ -2083,16 +2084,31 @@ public class BeanDescriptor<T> implements MetaBeanInfo, BeanType<T> {
     }
 
     int basePos = propName.indexOf('.');
+    int index = -1;
     if (basePos > -1) {
       // nested or embedded property
       String baseName = propName.substring(0, basePos);
       String remainder = propName.substring(basePos + 1);
-
+      
+      int bracketPos = baseName.indexOf('[');
+      // we have an index: wheel[0].place
+      if (bracketPos != -1) {
+        index = Integer.parseInt(baseName.substring(bracketPos+1, baseName.length()-1));
+        baseName = baseName.substring(0,bracketPos);
+      }
+      
       BeanProperty assocProp = _findBeanProperty(baseName);
       if (assocProp == null) {
         return null;
       }
-      return assocProp.buildElPropertyValue(propName, remainder, chain, propertyDeploy);
+      return assocProp.buildElPropertyValue(propName, index, remainder, chain, propertyDeploy);
+    } else {
+      int bracketPos = propName.indexOf('[');
+      // we have an index: wheel[0].place
+      if (bracketPos != -1) {
+        index = Integer.parseInt(propName.substring(bracketPos+1, propName.length()-1));
+        propName = propName.substring(0,bracketPos);
+      }
     }
 
     BeanProperty property = _findBeanProperty(propName);
@@ -2105,7 +2121,12 @@ public class BeanDescriptor<T> implements MetaBeanInfo, BeanType<T> {
     if (property.containsMany()) {
       chain.setContainsMany();
     }
-    return chain.add(property).build();
+    if (index == -1) {
+      chain.add(property);
+    } else {
+      chain.add(new ElPropertyList(property, index));
+    }
+    return chain.build();
   }
 
   /**

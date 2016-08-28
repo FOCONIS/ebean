@@ -28,6 +28,8 @@ public class Wheel {
 	@ManyToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "car")
 	private Car car;
+	
+	private String place;
 
 	public Long getId() {
 		return id;
@@ -61,4 +63,11 @@ public class Wheel {
 		this.car = car;
 	}
 
+	public String getPlace() {
+    return place;
+  }
+	
+	public void setPlace(String place) {
+    this.place = place;
+  }
 }

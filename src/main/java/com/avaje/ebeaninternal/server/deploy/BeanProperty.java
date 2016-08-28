@@ -461,7 +461,7 @@ public class BeanProperty implements ElPropertyValue, Property {
     this.deployOrder = deployOrder;
   }
 
-  public ElPropertyValue buildElPropertyValue(String propName, String remainder, ElPropertyChainBuilder chain,
+  public ElPropertyValue buildElPropertyValue(String propName, int index, String remainder, ElPropertyChainBuilder chain,
                                               boolean propertyDeploy) {
     return null;
   }

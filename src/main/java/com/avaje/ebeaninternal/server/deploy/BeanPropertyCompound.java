@@ -77,13 +77,16 @@ public class BeanPropertyCompound extends BeanProperty {
     }
   }
 
-  public ElPropertyValue buildElPropertyValue(String propName, String remainder, ElPropertyChainBuilder chain, boolean propertyDeploy) {
+  public ElPropertyValue buildElPropertyValue(String propName, int index, String remainder, ElPropertyChainBuilder chain, boolean propertyDeploy) {
 
     if (chain == null) {
       chain = new ElPropertyChainBuilder(true, propName);
     }
 
     // first add this property
+    if (index != -1  && index != 0) {
+      throw new IllegalArgumentException("Cannot access n-th element on AssocOne");
+    }
     chain.add(this);
 
     // handle all the rest of the chain handled by the

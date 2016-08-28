@@ -168,7 +168,7 @@ public class BeanPropertyAssocOne<T> extends BeanPropertyAssoc<T> {
     }
   }
 
-  public ElPropertyValue buildElPropertyValue(String propName, String remainder, ElPropertyChainBuilder chain, boolean propertyDeploy) {
+  public ElPropertyValue buildElPropertyValue(String propName, int index, String remainder, ElPropertyChainBuilder chain, boolean propertyDeploy) {
 
     if (embedded) {
       BeanProperty embProp = embeddedPropsMap.get(remainder);
@@ -179,11 +179,14 @@ public class BeanPropertyAssocOne<T> extends BeanPropertyAssoc<T> {
       if (chain == null) {
         chain = new ElPropertyChainBuilder(true, propName);
       }
+      if (index != -1  && index != 0) {
+        throw new IllegalArgumentException("Cannot access n-th element on AssocOne");
+      }
       chain.add(this);
       return chain.add(embProp).build();
     }
 
-    return createElPropertyValue(propName, remainder, chain, propertyDeploy);
+    return createElPropertyValue(propName, index, remainder, chain, propertyDeploy);
   }
 
   @Override

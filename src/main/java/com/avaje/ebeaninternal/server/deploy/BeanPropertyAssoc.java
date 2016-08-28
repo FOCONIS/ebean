@@ -9,6 +9,7 @@ import com.avaje.ebeaninternal.server.deploy.id.ImportedIdEmbedded;
 import com.avaje.ebeaninternal.server.deploy.id.ImportedIdSimple;
 import com.avaje.ebeaninternal.server.deploy.meta.DeployBeanPropertyAssoc;
 import com.avaje.ebeaninternal.server.el.ElPropertyChainBuilder;
+import com.avaje.ebeaninternal.server.el.ElPropertyList;
 import com.avaje.ebeaninternal.server.el.ElPropertyValue;
 import com.avaje.ebeaninternal.server.query.SplitName;
 import com.avaje.ebeaninternal.server.query.SqlJoinType;
@@ -112,7 +113,7 @@ public abstract class BeanPropertyAssoc<T> extends BeanProperty {
   /**
    * Create a ElPropertyValue for a *ToOne or *ToMany.
    */
-  protected ElPropertyValue createElPropertyValue(String propName, String remainder, ElPropertyChainBuilder chain, boolean propertyDeploy) {
+  protected ElPropertyValue createElPropertyValue(String propName, int index, String remainder, ElPropertyChainBuilder chain, boolean propertyDeploy) {
 
     // associated or embedded bean
     BeanDescriptor<?> embDesc = getTargetDescriptor();
@@ -120,7 +121,11 @@ public abstract class BeanPropertyAssoc<T> extends BeanProperty {
     if (chain == null) {
       chain = new ElPropertyChainBuilder(isEmbedded(), propName);
     }
-    chain.add(this);
+    if (index != -1) {
+      chain.add(new ElPropertyList(this, index));
+    } else {
+      chain.add(this);
+    }
     if (containsMany()) {
       chain.setContainsMany();
     }

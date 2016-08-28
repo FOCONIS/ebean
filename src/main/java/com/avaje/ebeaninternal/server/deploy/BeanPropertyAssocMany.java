@@ -268,8 +268,8 @@ public class BeanPropertyAssocMany<T> extends BeanPropertyAssoc<T> {
     }
   }
 
-  public ElPropertyValue buildElPropertyValue(String propName, String remainder, ElPropertyChainBuilder chain, boolean propertyDeploy) {
-    return createElPropertyValue(propName, remainder, chain, propertyDeploy);
+  public ElPropertyValue buildElPropertyValue(String propName, int index, String remainder, ElPropertyChainBuilder chain, boolean propertyDeploy) {
+    return createElPropertyValue(propName, index, remainder, chain, propertyDeploy);
   }
 
   @Override
