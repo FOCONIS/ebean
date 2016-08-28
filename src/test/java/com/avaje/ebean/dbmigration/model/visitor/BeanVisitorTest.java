@@ -160,6 +160,21 @@ public class BeanVisitorTest extends BaseTestCase {
     public void visitCompound(BeanPropertyCompound p) {
       p.setCustomMixin(new AdditionalBeanPropertyInfos(parent, "Compound", p.getName(), p.getField()));
     }
+    
+    @Override
+    public void visitFormula(BeanProperty p) {
+      p.setCustomMixin(new AdditionalBeanPropertyInfos(parent, "Formula", p.getName(), p.getField()));
+    }
+
+    @Override
+    public void visitSecondaryTable(BeanProperty p) {
+      p.setCustomMixin(new AdditionalBeanPropertyInfos(parent, "SecondaryTable", p.getName(), p.getField()));
+    }
+
+    @Override
+    public void visitTransient(BeanProperty p) {
+      p.setCustomMixin(new AdditionalBeanPropertyInfos(parent, "Transient", p.getName(), p.getField()));
+    }
   };
 
   @Before 

@@ -63,14 +63,18 @@ public class VisitAllUsing {
         visit(propertyVisitor, unidirectional);
       }
 
-      BeanProperty[] propertiesNonTransient = desc.propertiesNonTransient();
-      for (int i = 0; i < propertiesNonTransient.length; i++) {
-        BeanProperty p = propertiesNonTransient[i];
-        if (!p.isFormula() && !p.isSecondaryTable()) {
+      for (BeanProperty p : desc.propertiesNonTransient()) {
+        if (p.isFormula()) {
+          propertyVisitor.visitFormula(p);
+        } else if (p.isSecondaryTable()) {
+          propertyVisitor.visitSecondaryTable(p);
+        } else {
           visit(propertyVisitor, p);
         }
       }
-
+      for (BeanProperty p : desc.propertiesTransient()) {
+        propertyVisitor.visitTransient(p);
+      }
       visitInheritanceProperties(desc, propertyVisitor);
       propertyVisitor.visitEnd();
     }

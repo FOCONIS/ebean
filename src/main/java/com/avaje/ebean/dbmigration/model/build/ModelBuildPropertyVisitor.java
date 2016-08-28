@@ -368,4 +368,19 @@ public class ModelBuildPropertyVisitor extends BaseTablePropertyVisitor {
     return val != null && !val.isEmpty();
   }
 
+  @Override
+  public void visitFormula(BeanProperty p) {
+    // not interesting here
+  }
+
+  @Override
+  public void visitSecondaryTable(BeanProperty p) {
+    // not interesting here
+  }
+
+  @Override
+  public void visitTransient(BeanProperty p) {
+    // not interesting here
+  }
+
 }

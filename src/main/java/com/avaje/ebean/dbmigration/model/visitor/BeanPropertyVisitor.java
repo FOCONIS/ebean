@@ -46,6 +46,22 @@ public interface BeanPropertyVisitor {
   void visitScalar(BeanProperty p);
 
   /**
+   * Visit a formula property.
+   */
+  void visitFormula(BeanProperty p);
+
+  /**
+   * Visit a secondary table property.
+   */
+  void visitSecondaryTable(BeanProperty p);
+
+  /**
+   * Visit a transient property.
+   */
+  void visitTransient(BeanProperty p);
+
+  
+  /**
    * Visit a compound value object.
    */
   void visitCompound(BeanPropertyCompound p);
