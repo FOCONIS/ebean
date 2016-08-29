@@ -6,6 +6,7 @@ import com.avaje.ebean.bean.PersistenceContext;
 import com.avaje.ebean.config.EncryptKey;
 import com.avaje.ebean.config.dbplatform.DbEncryptFunction;
 import com.avaje.ebean.config.dbplatform.DbType;
+import com.avaje.ebean.plugin.Plugin;
 import com.avaje.ebean.plugin.Property;
 import com.avaje.ebean.text.StringParser;
 import com.avaje.ebeaninternal.api.SpiExpressionRequest;
@@ -42,9 +43,11 @@ import javax.persistence.PersistenceException;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -257,10 +260,10 @@ public class BeanProperty implements ElPropertyValue, Property {
   final String softDeleteDbPredicate;
   
   /**
-   * A custom object, preferably created in a custom {@link DeployBeanVisitor}.
+   * A map that holds custom attributes, preferably created at startup with a {@link Plugin}.
    * This can be anything. It is not used by ebean itself. 
    */
-  private Object customMixin; 
+  private Map<Object, Object> attributes; 
 
   public BeanProperty(DeployBeanProperty deploy) {
     this(null, deploy);
@@ -1395,15 +1398,30 @@ public class BeanProperty implements ElPropertyValue, Property {
   /**
    * Set the custom mixin object, e.g. additional meta data.
    */
-  public void setCustomMixin(Object customMixin) {
-    this.customMixin = customMixin;
+  public void setAttribute(Object key, Object value) {
+    if (attributes == null) {
+      attributes = new HashMap<Object, Object>();
+    }
+    attributes.put(key, value);
   }
 
   /**
    * Get the custom mixin object. It is untyped, so no extra cast is needed.
    */
   @SuppressWarnings("unchecked")
-  public <U> U getCustomMixin() {
-    return (U) customMixin;
+  public <U> U getAttribute(Object key) {
+    if (attributes == null) {
+      return null;
+    }
+    return (U) attributes.get(key);
   }
+  
+  /**
+   * returns the annotated element (=field) for this Property 
+   */
+  @Override
+  public AnnotatedElement getAnnotatedElement() {
+    return getField();
+  }
+  
 }

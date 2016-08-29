@@ -69,9 +69,9 @@ public class ChainedBeanPostLoad implements BeanPostLoad {
    * Fire postLoad on all registered BeanPostLoad implementations.
    */
   @Override
-	public void postLoad(Object bean, BeanDescriptor<?> beanDescriptor) {
+	public void postLoad(Object bean) {
 		for (int i = 0; i < chain.length; i++) {
-			chain[i].postLoad(bean, beanDescriptor);
+			chain[i].postLoad(bean);
 		}
 	}
 }

@@ -415,10 +415,6 @@ public class ServerConfig {
   private boolean disableL2Cache;
 
   /**
-   * a custom context object. This could be a Spring ApplicationContext, so you can
-   */
-  private Object customContext;
-  /**
    * Construct a Server Configuration for programmatically creating an EbeanServer.
    */
   public ServerConfig() {
@@ -2532,22 +2528,6 @@ public class ServerConfig {
     this.disableL2Cache = disableL2Cache;
   }
   
-  /**
-   * Returns the custom context object that was set with setCustomContext.
-   */
-  public <T> T getCustomContext() {
-    return (T) customContext;
-  }
-  
-  /**
-   * Set a custom context object. e.g. a Spring ApplicationContext.
-   * 
-   * @param customContext
-   */
-  public void setCustomContext(Object customContext) {
-    this.customContext = customContext;
-  }
-
   /**
    * Specify how UUID is stored.
    */

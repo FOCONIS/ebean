@@ -11,14 +11,7 @@ import javax.persistence.PrePersist;
 import javax.persistence.PreRemove;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 import javax.persistence.Version;
-
-import com.avaje.ebean.event.BeanPersistRequest;
-import com.avaje.ebeaninternal.server.deploy.BeanDescriptor;
-import com.avaje.tests.lifecycle.SimpleContext;
-
-import static org.junit.Assert.*;
 
 @Entity
 @Table(name = "e_basic_withlife")
@@ -34,18 +27,14 @@ public class EBasicWithLifecycle {
 
   transient StringBuilder buffer = new StringBuilder();
 
-  @Transient
-  private String contextValue;
-
   @PrePersist
   public void prePersist1() {
     buffer.append("prePersist1");
   }
 
   @PrePersist
-  public void prePersist2(BeanPersistRequest<?> o) {
-    assertNotNull(o);
-    buffer.append("prePersist2 " + o.getClass());
+  public void prePersist2() {
+    buffer.append("prePersist2");
   }
 
   @PostPersist
@@ -54,9 +43,8 @@ public class EBasicWithLifecycle {
   }
 
   @PostPersist
-  public void postPersist2(BeanPersistRequest<?> o) {
-    assertNotNull(o);
-    buffer.append("postPersist2 " + o.getClass());
+  public void postPersist2() {
+    buffer.append("postPersist2");
   }
 
   @PreUpdate
@@ -65,9 +53,8 @@ public class EBasicWithLifecycle {
   }
 
   @PreUpdate
-  public void preUpdate2(BeanPersistRequest<?> o) {
-    assertNotNull(o);
-    buffer.append("preUpdate2 " + o.getClass());
+  public void preUpdate2() {
+    buffer.append("preUpdate2");
   }
 
   @PostUpdate
@@ -76,9 +63,8 @@ public class EBasicWithLifecycle {
   }
 
   @PostUpdate
-  public void postUpdate2(BeanPersistRequest<?> o) {
-    assertNotNull(o);
-    buffer.append("postUpdate2 " + o.getClass());
+  public void postUpdate2() {
+    buffer.append("postUpdate2");
   }
 
   @PreRemove
@@ -87,9 +73,8 @@ public class EBasicWithLifecycle {
   }
 
   @PreRemove
-  public void preRemove2(BeanPersistRequest<?> o) {
-    assertNotNull(o);
-    buffer.append("preRemove2 " + o.getClass());
+  public void preRemove2() {
+    buffer.append("preRemove2");
   }
 
   @PostRemove
@@ -98,9 +83,8 @@ public class EBasicWithLifecycle {
   }
 
   @PostRemove
-  public void postRemove2(BeanPersistRequest<?> o) {
-    assertNotNull(o);
-    buffer.append("postRemove2 " + o.getClass());
+  public void postRemove2() {
+    buffer.append("postRemove2");
   }
 
   @PostLoad
@@ -109,9 +93,8 @@ public class EBasicWithLifecycle {
   }
 
   @PostLoad
-  public void postLoad2(BeanDescriptor<?> o) {
-    assertNotNull(o);
-    buffer.append("postLoad2 " + o.getClass());
+  public void postLoad2() {
+    buffer.append("postLoad2");
   }
 
   @PostConstruct
@@ -120,15 +103,8 @@ public class EBasicWithLifecycle {
   }
 
   @PostConstruct
-  public void postConstruct2(BeanDescriptor<?> o) {
-    assertNotNull(o);
-    buffer.append("postConstruct2 " + o.getClass());
-    
-    
-    SimpleContext ctx = o.getEbeanServer().getServerConfig().getCustomContext();
-    if (ctx != null) {
-      contextValue = ctx.getContextValue();
-    }
+  public void postConstruct2() {
+    buffer.append("postConstruct2");
   }
   
   public Long getId() {
@@ -159,7 +135,4 @@ public class EBasicWithLifecycle {
     return buffer.toString();
   }
 
-  public String getContextValue() {
-    return contextValue;
-  }
 }

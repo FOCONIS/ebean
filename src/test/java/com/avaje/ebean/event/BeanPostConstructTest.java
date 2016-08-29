@@ -89,7 +89,7 @@ public class BeanPostConstructTest extends BaseTestCase {
     }
 
     @Override
-    public void postConstruct(Object bean, BeanDescriptor<?> beanDescriptor) {
+    public void postConstruct(Object bean) {
       this.methodsCalled.add("postConstruct");
       this.bean = bean;
       this.beanState = Ebean.getBeanState(bean);

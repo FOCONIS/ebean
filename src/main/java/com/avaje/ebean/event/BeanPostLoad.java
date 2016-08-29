@@ -1,7 +1,5 @@
 package com.avaje.ebean.event;
 
-import com.avaje.ebeaninternal.server.deploy.BeanDescriptor;
-
 /**
  * Fired after a bean is fetched and loaded from the database.
  * <p>
@@ -21,6 +19,6 @@ public interface BeanPostLoad {
    * Called after every each bean is loaded from the database. You
    * can implement this to derive some information to set to the bean.
    */
-  void postLoad(Object bean, BeanDescriptor<?> beanDescriptor);
+  void postLoad(Object bean);
 
 }

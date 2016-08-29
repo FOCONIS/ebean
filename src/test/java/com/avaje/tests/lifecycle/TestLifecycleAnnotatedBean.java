@@ -109,7 +109,6 @@ public class TestLifecycleAnnotatedBean extends BaseTestCase {
   @Test
   public void shouldExecutePostConstructMethodsWhenFindingBean() {
 
-    ((SpiEbeanServer)server()).getServerConfig().setCustomContext(new SimpleContext("42"));
     EBasicWithLifecycle bean = new EBasicWithLifecycle();
     bean.setName("PostConstruct");
 
@@ -121,12 +120,10 @@ public class TestLifecycleAnnotatedBean extends BaseTestCase {
     // assert also that postLoad was executed
     assertThat(loaded.getBuffer()).contains("postLoad1");
     assertThat(loaded.getBuffer()).contains("postLoad2");
-    assertThat(loaded.getContextValue()).isEqualTo("42");
   }
   
   @Test
   public void shouldExecutePostConstructMethodsWhenInstantiated() {
-    ((SpiEbeanServer)server()).getServerConfig().setCustomContext(new SimpleContext("43"));
     EBasicWithLifecycle bean = Ebean.getDefaultServer().createEntityBean(EBasicWithLifecycle.class);
     bean.setName("PostConstruct");
 
@@ -136,7 +133,6 @@ public class TestLifecycleAnnotatedBean extends BaseTestCase {
     // assert also that postLoad is not executed now
     assertThat(bean.getBuffer()).doesNotContain("postLoad1");
     assertThat(bean.getBuffer()).doesNotContain("postLoad2");
-    assertThat(bean.getContextValue()).isEqualTo("43");
   }
   
   
@@ -144,7 +140,6 @@ public class TestLifecycleAnnotatedBean extends BaseTestCase {
   @Test
   public void testLazyLoadBehaviour() {
 
-    ((SpiEbeanServer)server()).getServerConfig().setCustomContext(new SimpleContext("44"));
     EBasicWithLifecycle bean = new EBasicWithLifecycle();
     bean.setName("LazyLoad");
 
@@ -155,7 +150,6 @@ public class TestLifecycleAnnotatedBean extends BaseTestCase {
     
     // Here you see the big difference.
     // @PostLoad is executed always, also on lazy loaded beans
-    assertThat(loaded.getContextValue()).isEqualTo("44");
     assertThat(loaded.getBuffer()).contains("postConstruct1");
     assertThat(loaded.getBuffer()).contains("postConstruct2");
     

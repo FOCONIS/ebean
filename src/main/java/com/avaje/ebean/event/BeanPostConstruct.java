@@ -25,6 +25,6 @@ public interface BeanPostConstruct {
   /**
    * Called after every each bean is created by ebean.
    */
-  void postConstruct(Object bean, BeanDescriptor<?> beanDescriptor);
+  void postConstruct(Object bean);
 
 }

@@ -89,7 +89,7 @@ public class BeanPostLoadTest extends BaseTestCase {
     }
 
     @Override
-    public void postLoad(Object bean, BeanDescriptor<?> beanDescriptor) {
+    public void postLoad(Object bean) {
       this.methodsCalled.add("postLoad");
       this.bean = bean;
       this.beanState = Ebean.getBeanState(bean);

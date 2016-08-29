@@ -69,9 +69,9 @@ public class ChainedBeanPostConstruct implements BeanPostConstruct {
    * Fire postLoad on all registered BeanPostCreate implementations.
    */
   @Override
-	public void postConstruct(Object bean, BeanDescriptor<?> beanDescriptor) {
+	public void postConstruct(Object bean) {
 		for (int i = 0; i < chain.length; i++) {
-			chain[i].postConstruct(bean, beanDescriptor);
+			chain[i].postConstruct(bean);
 		}
 	}
 }

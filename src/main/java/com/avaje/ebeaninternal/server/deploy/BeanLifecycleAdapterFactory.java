@@ -54,7 +54,7 @@ public class BeanLifecycleAdapterFactory {
       deployDesc.addPostLoad(new PostLoadAdapter(methodHolder.postLoads));
     }
     if (!methodHolder.postConstructs.isEmpty()) {
-      // has postLoad methods
+      // has postConstruct methods
       deployDesc.addPostConstruct(new PostConstructAdapter(methodHolder.postConstructs));
     }
   }
@@ -154,16 +154,10 @@ public class BeanLifecycleAdapterFactory {
 
   /**
    * Invokes a lifecycleMethod in the bean. 
-   * If the method has a parameter, the {@link BeanPersistRequest} or {@link BeanDescriptor}
-   * will be passed.
    */
-  private static void invokeLifecycleMethod(Method method, Object bean, Object param) {
+  private static void invokeLifecycleMethod(Method method, Object bean) {
     try {
-      if (method.getParameterCount() > 0) {
-        method.invoke(bean, param);
-      } else {
-        method.invoke(bean);
-      }
+       method.invoke(bean);
     } catch (InvocationTargetException e) {
       throw new PersistenceException("Error invoking lifecycle method", e);
     } catch (IllegalAccessException e) {
@@ -189,7 +183,7 @@ public class BeanLifecycleAdapterFactory {
 
     private void invoke(Method[] methods, BeanPersistRequest<?> request) {
       for (int i = 0; i < methods.length; i++) {
-        invokeLifecycleMethod(methods[i], request.getBean(), request);
+        invokeLifecycleMethod(methods[i], request.getBean());
       }
     }
 
@@ -247,14 +241,14 @@ public class BeanLifecycleAdapterFactory {
 
 
     @Override
-    public void postLoad(Object bean, BeanDescriptor<?> beanDescriptor) {
+    public void postLoad(Object bean) {
       for (int i = 0; i < postLoadMethods.length; i++) {
-        invokeLifecycleMethod(postLoadMethods[i], bean, beanDescriptor);
+        invokeLifecycleMethod(postLoadMethods[i], bean);
       }
     }
   }
   /**
-   * BeanPostLoad using reflection to invoke lifecycle methods.
+   * BeanPostConstruct using reflection to invoke lifecycle methods.
    */
   private static class PostConstructAdapter implements BeanPostConstruct {
 
@@ -273,9 +267,9 @@ public class BeanLifecycleAdapterFactory {
 
 
     @Override
-    public void postConstruct(Object bean, BeanDescriptor<?> beanDescriptor) {
+    public void postConstruct(Object bean) {
       for (int i = 0; i < postConstructMethods.length; i++) {
-        invokeLifecycleMethod(postConstructMethods[i], bean, beanDescriptor);
+        invokeLifecycleMethod(postConstructMethods[i], bean);
       }
     }
   }
