@@ -1,6 +1,7 @@
 package com.avaje.ebeaninternal.server.deploy;
 
 import com.avaje.ebean.bean.EntityBean;
+import com.avaje.ebean.plugin.Property;
 import com.avaje.ebean.text.StringParser;
 import com.avaje.ebeaninternal.api.SpiExpressionRequest;
 import com.avaje.ebeaninternal.server.el.ElPropertyValue;
@@ -164,6 +165,10 @@ public final class BeanFkeyProperty implements ElPropertyValue {
   }
 
   public BeanProperty getBeanProperty() {
+    return null;
+  }
+
+  public Property getProperty() {
     return null;
   }
 

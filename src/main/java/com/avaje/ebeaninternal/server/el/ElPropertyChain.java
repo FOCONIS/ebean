@@ -1,6 +1,7 @@
 package com.avaje.ebeaninternal.server.el;
 
 import com.avaje.ebean.bean.EntityBean;
+import com.avaje.ebean.plugin.Property;
 import com.avaje.ebean.text.StringParser;
 import com.avaje.ebeaninternal.api.SpiExpressionRequest;
 import com.avaje.ebeaninternal.server.deploy.BeanProperty;
@@ -204,6 +205,9 @@ public class ElPropertyChain implements ElPropertyValue {
     return lastBeanProperty;
   }
 
+  public Property getProperty() {
+    return getBeanProperty();
+  }
 
   public boolean isDateTimeCapable() {
     return scalarType != null && scalarType.isDateTimeCapable();

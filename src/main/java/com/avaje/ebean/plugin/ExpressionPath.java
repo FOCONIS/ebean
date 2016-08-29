@@ -73,4 +73,9 @@ public interface ExpressionPath {
    * Return the Id values for the given bean value.
    */
   Object[] getAssocIdValues(EntityBean bean);
+  
+  /**
+   * Return the underlying property.
+   */
+  Property getProperty();
 }

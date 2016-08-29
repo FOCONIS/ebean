@@ -1,6 +1,7 @@
 package com.avaje.ebeaninternal.server.type;
 
 import com.avaje.ebean.bean.EntityBean;
+import com.avaje.ebean.plugin.Property;
 import com.avaje.ebean.text.StringParser;
 import com.avaje.ebeaninternal.api.SpiExpressionRequest;
 import com.avaje.ebeaninternal.server.deploy.BeanProperty;
@@ -73,7 +74,11 @@ public class CtCompoundPropertyElAdapter implements ElPropertyValue {
   public BeanProperty getBeanProperty() {
     return null;
   }
-
+  
+  public Property getProperty() {
+    return null;
+  }
+  
   public StringParser getStringParser() {
     return null;
   }

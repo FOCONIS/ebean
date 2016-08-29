@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.List;
 
 import com.avaje.ebean.bean.EntityBean;
+import com.avaje.ebean.plugin.Property;
 import com.avaje.ebean.text.StringParser;
 import com.avaje.ebeaninternal.api.SpiExpressionRequest;
 import com.avaje.ebeaninternal.server.deploy.BeanProperty;
@@ -170,6 +171,10 @@ public class ElPropertyList implements ElPropertyValue {
     return delegate.getBeanProperty();
   }
 
+  public Property getProperty() {
+    return delegate.getProperty();
+  }
+  
   public Object[] getAssocIdValues(EntityBean bean) {
     return delegate.getAssocIdValues(bean);
   }

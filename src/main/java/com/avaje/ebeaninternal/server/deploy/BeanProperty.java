@@ -1424,4 +1424,8 @@ public class BeanProperty implements ElPropertyValue, Property {
     return getField();
   }
   
+  @Override
+  public Property getProperty() {
+    return getBeanProperty();
+  }
 }

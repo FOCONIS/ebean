@@ -1170,10 +1170,12 @@ public class BeanDescriptorManager implements BeanDescriptorMap {
 
     desc.setUpdateChangesOnly(updateChangesOnly);
 
+    // set global bean controller, finder and listener
+    setBeanControllerFinderListener(desc);
+
+    // add local lifecycle methods (global lifecycle methods are executed first!)
     beanLifecycleAdapterFactory.addLifecycleMethods(desc);
 
-    // set bean controller, finder and listener
-    setBeanControllerFinderListener(desc);
     deplyInherit.process(desc);
     desc.checkInheritanceMapping();
 
