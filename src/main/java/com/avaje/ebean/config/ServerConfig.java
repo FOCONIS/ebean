@@ -2009,7 +2009,7 @@ public class ServerConfig {
   /**
    * Register a BeanPostConstructListner instance.
    * <p>
-   * Note alternatively you can use {@link #BeanPostConstructListener(List)} to set
+   * Note alternatively you can use {@link #setPostConstructListners(List)} to set
    * all the BeanPostConstructListener instances.
    * </p>
    */
