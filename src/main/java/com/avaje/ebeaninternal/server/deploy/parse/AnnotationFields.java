@@ -169,7 +169,7 @@ public class AnnotationFields extends AnnotationParser {
     }
     SoftDelete softDelete = get(prop, SoftDelete.class);
     if (softDelete != null) {
-      prop.setSoftDelete();
+	  prop.setSoftDelete(softDelete.includeInQueries());
     }
 
     DbComment comment = get(prop, DbComment.class);

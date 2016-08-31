@@ -251,6 +251,8 @@ public class BeanProperty implements ElPropertyValue, Property {
   final boolean draftReset;
 
   final boolean softDelete;
+  final boolean softDeleteIncludeInQueries;
+
 
   final String softDeleteDbSet;
 
@@ -326,6 +328,7 @@ public class BeanProperty implements ElPropertyValue, Property {
     this.elPlaceHolderEncrypted = tableAliasIntern(descriptor, deploy.getElPlaceHolder(), dbEncrypted, dbColumn);
 
     this.softDelete = deploy.isSoftDelete();
+	this.softDeleteIncludeInQueries = deploy.isSoftDeleteIncludeInQueries();
     if (softDelete) {
       ScalarTypeBoolean.BooleanBase boolType = (ScalarTypeBoolean.BooleanBase) scalarType;
       this.softDeleteDbSet = dbColumn + "=" + boolType.getDbTrueLiteral();
@@ -377,6 +380,7 @@ public class BeanProperty implements ElPropertyValue, Property {
     this.draftOnly = source.draftOnly;
     this.draftReset = source.draftReset;
     this.softDelete = source.softDelete;
+	this.softDeleteIncludeInQueries = source.softDeleteIncludeInQueries;
     this.softDeleteDbSet = source.softDeleteDbSet;
     this.softDeleteDbPredicate = source.softDeleteDbPredicate;
     this.fetchEager = source.fetchEager;
@@ -1215,6 +1219,13 @@ public class BeanProperty implements ElPropertyValue, Property {
    */
   public boolean isSoftDelete() {
     return softDelete;
+  }
+
+  /**
+   * Return true if the soft delete property should appear in queries.
+   */
+  public boolean isSoftDeleteIncludeInQueries() {
+	return softDeleteIncludeInQueries;
   }
 
   /**

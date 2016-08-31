@@ -2399,6 +2399,10 @@ public class BeanDescriptor<T> implements MetaBeanInfo, BeanType<T> {
     return softDelete;
   }
 
+  public boolean isSoftDeleteIncludeInQueries() {
+	  return softDelete && softDeleteProperty.isSoftDeleteIncludeInQueries();
+  }
+  
   public void setSoftDeleteValue(EntityBean bean) {
     softDeleteProperty.setSoftDeleteValue(bean);
   }

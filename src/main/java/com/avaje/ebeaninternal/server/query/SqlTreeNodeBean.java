@@ -491,7 +491,7 @@ public class SqlTreeNodeBean implements SqlTreeNode {
 
   public void addSoftDeletePredicate(SpiQuery<?> query) {
 
-    if (desc.isSoftDelete()) {
+	if (desc.isSoftDelete() && desc.isSoftDeleteIncludeInQueries()) {
       query.addSoftDeletePredicate(desc.getSoftDeletePredicate(baseTableAlias));
     }
     for (int i = 0; i < children.length; i++) {
