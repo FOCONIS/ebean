@@ -2,8 +2,6 @@ package com.avaje.tests.softdelete;
 
 import static org.assertj.core.api.StrictAssertions.assertThat;
 
-import javax.persistence.EntityNotFoundException;
-
 import org.junit.Test;
 
 import com.avaje.ebean.BaseTestCase;
@@ -48,13 +46,7 @@ public class TestSoftDeleteReferenceEntity extends BaseTestCase {
 		// Further properties are then loaded via lazy loading. So:
 		assertThat(reference).isNotNull();
 		System.out.println("Soft-deleted reference object is not NULL");
-		try {
-			System.out.println("Desc=" + reference.getDescription());
-		} catch (Exception e) {
-			assertThat(e).isInstanceOf(EntityNotFoundException.class);
-			assertThat(e.getMessage().startsWith("Lazy loading failed")).isTrue();
-			System.out.println("Got an EntityNotFoundException only when accessing its properties");
-		}
+		assertThat(reference.getDeleted()).isTrue();
 	}
 
 	@Test

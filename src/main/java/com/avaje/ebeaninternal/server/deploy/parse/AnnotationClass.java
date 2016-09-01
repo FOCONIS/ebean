@@ -9,6 +9,7 @@ import com.avaje.ebean.annotation.History;
 import com.avaje.ebean.annotation.Index;
 import com.avaje.ebean.annotation.Indices;
 import com.avaje.ebean.annotation.ReadAudit;
+import com.avaje.ebean.annotation.SoftDeleteAlwaysFetch;
 import com.avaje.ebean.annotation.UpdateMode;
 import com.avaje.ebean.annotation.View;
 import com.avaje.ebean.config.TableName;
@@ -199,6 +200,8 @@ public class AnnotationClass extends AnnotationParser {
     if (namedQuery != null) {
       descriptor.addNamedQuery(namedQuery.name(), namedQuery.query());
     }
+    SoftDeleteAlwaysFetch sdaf = AnnotationBase.findAnnotation(cls, SoftDeleteAlwaysFetch.class);
+    descriptor.setSoftDeleteAlwaysFetch(sdaf != null);
   }
 
 }

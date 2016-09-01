@@ -4,8 +4,10 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 
 import com.avaje.ebean.annotation.SoftDelete;
+import com.avaje.ebean.annotation.SoftDeleteAlwaysFetch;
 
 @Entity
+@SoftDeleteAlwaysFetch
 public class ReferencedEntityNoSDQ {
 
 	static final long serialVersionUID = 1L;
@@ -13,7 +15,7 @@ public class ReferencedEntityNoSDQ {
 	@Id
 	Long id;
 
-	@SoftDelete(includeInQueries = false)
+	@SoftDelete
 	boolean deleted;
 
 	public Long getId() {

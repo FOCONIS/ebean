@@ -195,6 +195,7 @@ public class BeanDescriptor<T> implements MetaBeanInfo, BeanType<T> {
 
   private final BeanProperty softDeleteProperty;
   private final boolean softDelete;
+  private final boolean softDeleteAlwaysFetch;
 
   private final String draftTable;
 
@@ -457,6 +458,7 @@ public class BeanDescriptor<T> implements MetaBeanInfo, BeanType<T> {
 
     this.softDeleteProperty = listHelper.getSoftDeleteProperty();
     this.softDelete = (softDeleteProperty != null);
+    this.softDeleteAlwaysFetch = this.softDelete && deploy.isSoftDeleteAlwaysFetch();
     this.idProperty = listHelper.getId();
     this.versionProperty = listHelper.getVersionProperty();
     this.draft = listHelper.getDraft();
@@ -2399,8 +2401,8 @@ public class BeanDescriptor<T> implements MetaBeanInfo, BeanType<T> {
     return softDelete;
   }
 
-  public boolean isSoftDeleteIncludeInQueries() {
-	  return softDelete && softDeleteProperty.isSoftDeleteIncludeInQueries();
+  public boolean isSoftDeleteAlwaysFetch() {
+	  return softDeleteAlwaysFetch;
   }
   
   public void setSoftDeleteValue(EntityBean bean) {

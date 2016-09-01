@@ -21,14 +21,5 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
 public @interface SoftDelete {
-	/**
-	 * If set to <code>false</code>, the clause <code>where deleted=false</code>
-	 * won't be added to queries, i.e. the evaluation has to be done
-	 * programmatically.
-	 * <p/>
-	 * It is useful in case a ManyToOne property refers to a possibly
-	 * soft-deleted entity, which is lazy-loaded. (And you don't want to get an
-	 * EntityNotFoundException, if it is indeed soft-deleted.)
-	 */
-	boolean includeInQueries() default true;
+
 }

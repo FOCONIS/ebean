@@ -200,7 +200,6 @@ public class DeployBeanProperty {
   private boolean draftReset;
 
   private boolean softDelete;
-  private boolean softDeleteIncludeInQueries;
 
   private String dbComment;
 
@@ -890,19 +889,14 @@ public class DeployBeanProperty {
     return draftReset;
   }
 
-  public void setSoftDelete(boolean includeInQueries) {
+  public void setSoftDelete() {
 	this.softDelete = true;
-	this.softDeleteIncludeInQueries = includeInQueries;
     this.nullable = false;
     this.dbColumnDefault = DbDefaultValue.FALSE;
   }
 
   public boolean isSoftDelete() {
     return softDelete;
-  }
-
-  public boolean isSoftDeleteIncludeInQueries() {
-	return softDeleteIncludeInQueries;
   }
 
   public void setDbComment(String dbComment) {

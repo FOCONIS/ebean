@@ -200,6 +200,8 @@ public class DeployBeanDescriptor<T> {
   private DocStoreMode docStoreInsert;
   private DocStoreMode docStoreUpdate;
   private DocStoreMode docStoreDelete;
+  
+  private boolean softDeleteAlwaysFetch;
 
   private List<DeployBeanProperty> idProperties;
 
@@ -442,6 +444,10 @@ public class DeployBeanDescriptor<T> {
 
   public boolean isUpdateChangesOnly() {
     return updateChangesOnly;
+  }
+  
+  public boolean isSoftDeleteAlwaysFetch(){
+	  return softDeleteAlwaysFetch;
   }
 
   public void setUpdateChangesOnly(boolean updateChangesOnly) {
@@ -796,6 +802,10 @@ public class DeployBeanDescriptor<T> {
     this.idType = IdType.EXTERNAL;
     this.idGeneratorName = idGenerator.getName();
     this.idGenerator = idGenerator;
+  }
+  
+  public void setSoftDeleteAlwaysFetch(boolean how){
+	  softDeleteAlwaysFetch = how;
   }
 
   /**
