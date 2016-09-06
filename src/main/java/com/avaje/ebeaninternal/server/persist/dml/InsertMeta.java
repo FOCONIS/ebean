@@ -88,6 +88,9 @@ public final class InsertMeta {
       this.sqlDraftNullId = desc.isDraftable() ? genSql(IdGeneration.BY_SERVER, draftTableName, true) : sqlNullId;
     }
     boolean idIsServerGenerated = (desc.getIdType() == IdType.IDENTITY || desc.getIdType() == IdType.SEQUENCE);
+    if (idIsServerGenerated &&  desc.getIdProperty().isEmbedded()) {
+      idIsServerGenerated = false; // AFAIK there is no support for embedded auto generated keys.
+    }
     if (idIsServerGenerated && dbPlatform.needsIdentityInsert()) {
       this.sqlWithId = genSql(IdGeneration.BY_CLIENT_WITH_IDENTIY_INSERT, tableName, false);
       this.sqlDraftWithId = desc.isDraftable() ? genSql(IdGeneration.BY_CLIENT_WITH_IDENTIY_INSERT, draftTableName, true) : sqlWithId;
