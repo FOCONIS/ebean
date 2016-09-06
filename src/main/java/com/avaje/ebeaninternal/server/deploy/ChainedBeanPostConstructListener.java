@@ -81,4 +81,11 @@ public class ChainedBeanPostConstructListener implements BeanPostConstructListen
       chain[i].autowire(bean);
     }
   }
+  
+  @Override
+  public void postCreate(Object bean) {
+    for (int i = 0; i < chain.length; i++) {
+      chain[i].postCreate(bean);
+    }
+  }
 }

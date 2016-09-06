@@ -290,5 +290,10 @@ public class BeanLifecycleAdapterFactory {
     public void autowire(Object bean) {
       // autowire is done by global PostConstructListener only
     }
+    
+    @Override
+    public void postCreate(Object bean) {
+      // postCreate is done by global PostConstructListener only
+    }
   }
 }

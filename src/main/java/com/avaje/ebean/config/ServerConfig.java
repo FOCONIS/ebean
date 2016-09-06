@@ -2007,9 +2007,9 @@ public class ServerConfig {
   }
 
   /**
-   * Register a BeanPostConstructListner instance.
+   * Register a BeanPostConstructListener instance.
    * <p>
-   * Note alternatively you can use {@link #setPostConstructListners(List)} to set
+   * Note alternatively you can use {@link #setPostConstructListeners(List)} to set
    * all the BeanPostConstructListener instances.
    * </p>
    */
@@ -2054,7 +2054,7 @@ public class ServerConfig {
   /**
    * Set the list of BeanPostLoader instances.
    */
-  public void setPostConstructListners(List<BeanPostConstructListener> listeners) {
+  public void setPostConstructListeners(List<BeanPostConstructListener> listeners) {
     this.postConstructListeners = listeners;
   }
   /**

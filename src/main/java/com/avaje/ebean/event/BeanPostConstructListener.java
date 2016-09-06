@@ -31,5 +31,11 @@ public interface BeanPostConstructListener {
    * Called after every &#64;PostConstruct annotated method of the bean is executed
    */
   void postConstruct(Object bean);
+  
+  /**
+   * Called after {@link EbeanServer#createEntityBean(Class)}. Only for new beans.
+   * intended to set default values here.
+   */
+  void postCreate(Object bean);
 
 }

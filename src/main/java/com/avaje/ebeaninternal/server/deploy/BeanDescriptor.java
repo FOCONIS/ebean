@@ -1561,14 +1561,18 @@ public class BeanDescriptor<T> implements MetaBeanInfo, BeanType<T> {
   @Override
   @SuppressWarnings("unchecked")
   public T createBean() {
-    return (T) createEntityBean();
+    return (T) createEntityBean(true);
   }
 
   /**
    * Creates a new EntityBean.
+   * The parameter <code>isNew</code> controls either this is a new bean (then
+   * {@link BeanPostConstructListener#postCreate(Object)} will be invoked) or
+   * a reference (then {@link BeanPostLoad#postLoad(Object)} will be invoked 
+   * on first access (lazy load) or immediately (eager load) 
    */
   @SuppressWarnings("unchecked")
-  public EntityBean createEntityBean() {
+  public EntityBean createEntityBean(boolean isNew) {
     try {
       EntityBean bean = (EntityBean) prototypeEntityBean._ebean_newInstance();
 
@@ -1584,11 +1588,22 @@ public class BeanDescriptor<T> implements MetaBeanInfo, BeanType<T> {
           ebi.setPropertyUnloaded(unloadProperties[i]);
         }
       }
+      if (beanPostConstructListener != null && isNew) {
+        beanPostConstructListener.postCreate(bean);
+        // if bean is not new, postLoad will be executed later in the bean's lifecycle
+      }
       return bean;
 
     } catch (Exception ex) {
       throw new PersistenceException(ex);
     }
+  }
+ 
+  /**
+   * Creates a new entitybean without invoking {@link BeanPostConstructListener#postCreate(Object)}
+   */
+  public EntityBean createEntityBean() {
+    return createEntityBean(false);
   }
 
   /**
