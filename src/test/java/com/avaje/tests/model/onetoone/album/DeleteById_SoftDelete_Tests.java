@@ -1,5 +1,6 @@
 package com.avaje.tests.model.onetoone.album;
 
+import com.avaje.ebean.BaseTestCase;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.EbeanServer;
 import com.avaje.ebean.Transaction;
@@ -13,7 +14,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
-public class DeleteById_SoftDelete_Tests {
+public class DeleteById_SoftDelete_Tests extends BaseTestCase {
 
   @Test
   public void ebean_deleteById_when_softDelete() {
@@ -27,7 +28,7 @@ public class DeleteById_SoftDelete_Tests {
 
     List<String> sql = LoggedSqlCollector.stop();
     assertThat(sql).hasSize(1);
-    assertThat(sql.get(0)).contains("update cover set deleted=true where id = ?");
+    assertThat(sql.get(0)).contains("update cover set deleted="+quoteValue("true")+" where id = ?");
 
     cover.deletePermanent();
   }
@@ -76,7 +77,7 @@ public class DeleteById_SoftDelete_Tests {
 
     List<String> sql = LoggedSqlCollector.stop();
     assertThat(sql).hasSize(1);
-    assertThat(sql.get(0)).contains("update cover set deleted=true where id = ?");
+    assertThat(sql.get(0)).contains("update cover set deleted="+quoteValue("true")+" where id = ?");
 
     cover.deletePermanent();
   }
@@ -109,7 +110,7 @@ public class DeleteById_SoftDelete_Tests {
 
     List<String> sql = LoggedSqlCollector.stop();
     assertThat(sql).hasSize(1);
-    assertThat(sql.get(0)).contains("update cover set deleted=true where id  in (?,?)");
+    assertThat(sql.get(0)).contains("update cover set deleted="+quoteValue("true")+" where id  in (?,?)");
   }
 
   @Test
@@ -131,7 +132,7 @@ public class DeleteById_SoftDelete_Tests {
 
     List<String> sql = LoggedSqlCollector.stop();
     assertThat(sql).hasSize(1);
-    assertThat(sql.get(0)).contains("update cover set deleted=true where id  in (?,?)");
+    assertThat(sql.get(0)).contains("update cover set deleted="+quoteValue("true")+" where id  in (?,?)");
   }
 
   @Test

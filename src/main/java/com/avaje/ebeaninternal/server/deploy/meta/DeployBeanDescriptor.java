@@ -1110,4 +1110,8 @@ public class DeployBeanDescriptor<T> {
     }
     namedRawSql.put(name, rawSql);
   }
+  
+  public ServerConfig getServerConfig() {
+    return serverConfig;
+  }
 }

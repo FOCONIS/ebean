@@ -22,10 +22,12 @@ public class MsSqlServer2005Platform extends DatabasePlatform {
     this.name = "mssqlserver2005";
     // effectively disable persistBatchOnCascade mode for SQL Server
     // due to lack of support for getGeneratedKeys in batch mode
+    this.historySupport = new MsSqlServer2005HistorySupport();
     this.persistBatchOnCascade = PersistBatch.NONE;
     this.idInExpandedForm = true;
     this.selectCountWithAlias = true;
     this.sqlLimiter = new MsSqlServer2005SqlLimiter();
+    this.basicSqlLimiter = new BasicMsSqlLimiter();
     this.platformDdl = new MsSqlServerDdl(this);
     this.dbIdentity.setIdType(IdType.IDENTITY);
     this.dbIdentity.setSupportsGetGeneratedKeys(true);
@@ -54,4 +56,13 @@ public class MsSqlServer2005Platform extends DatabasePlatform {
 
   }
 
+  @Override
+  public String quoteValue(String value) {
+    return value == null ? null: "'" + value.replace("'","''") + "'";
+  }
+  
+  @Override
+  public boolean needsIdentityInsert() {
+    return true;
+  }
 }
