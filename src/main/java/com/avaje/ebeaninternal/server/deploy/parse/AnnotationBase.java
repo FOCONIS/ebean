@@ -1,5 +1,7 @@
 package com.avaje.ebeaninternal.server.deploy.parse;
 
+import com.avaje.ebean.annotation.Formula;
+import com.avaje.ebean.annotation.Where;
 import com.avaje.ebean.config.NamingConvention;
 import com.avaje.ebean.config.dbplatform.DatabasePlatform;
 import com.avaje.ebeaninternal.server.deploy.meta.DeployBeanProperty;
@@ -7,9 +9,12 @@ import com.avaje.ebeaninternal.server.deploy.meta.DeployBeanProperty;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.Set;
+
+import javax.validation.constraints.Size;
 
 /**
  * Provides some base methods for processing deployment annotations.
@@ -38,14 +43,50 @@ public abstract class AnnotationBase {
     return s == null || s.trim().isEmpty();
   }
 
-
   /**
-   * Return the annotation for the property.
+   * Return the annotation for the property. Does not find repeatable annotations
+   */
+  protected <T extends Annotation> T get(DeployBeanProperty prop, Class<T> annClass) {
+    return get(prop, annClass, null);
+  }
+  
+  
+  /**
+   * Return the annotation for the property. 
    * <p>
    * Looks first at the field and then at the getter method.
    * </p>
+   * <p>
+   * If a <code>repeatable</code> annotation class is specified (See {@link Size} and {@link Size.List})
+   * the platform specific(*) or first annotation will be returned.
+   * </p>
+   * <p>
+   * *) see {@link #selectByPlatform(Annotation[], Class)}. This mechanism is currently used
+   * by {@link Where} and {@link Formula}
    */
-  protected <T extends Annotation> T get(DeployBeanProperty prop, Class<T> annClass) {
+  protected <T extends Annotation> T get(DeployBeanProperty prop, Class<T> annClass, Class<? extends Annotation> repeatable) {
+    if (repeatable != null) {
+      // To stay java 1.6 compatible we must find repeatable annotations by reflection.
+      Annotation repeatableAnnotation = get(prop,repeatable);
+      if (repeatableAnnotation != null) {
+        // OK, repeatable annotation found - find the getter that returns the Array of "annClass" and invoke it
+        for (Method m : repeatableAnnotation.annotationType().getDeclaredMethods()) {
+          if (m.getReturnType().isArray() && m.getReturnType().getComponentType() == annClass) {
+            try {
+              @SuppressWarnings("unchecked")
+              T[] arr = (T[]) m.invoke(repeatableAnnotation);
+              if (arr == null || arr.length == 0) {
+                return null;
+              }
+              return selectByPlatform(arr, annClass);
+            } catch (Exception e) {
+              throw new RuntimeException();
+            }
+          }
+        }
+        throw new IllegalStateException("the repeatable class " + repeatable + " must declare a method that returns " + annClass + "[]");
+      }
+    } 
     T a = null;
     Field field = prop.getField();
     if (field != null) {
@@ -58,6 +99,58 @@ public abstract class AnnotationBase {
       }
     }
     return a;
+    
+  }
+
+  /**
+   * Finds a suitable annotation from <code>T[] ann</code> for this platform.
+   * To distinguish between platforms, <code>T</code> must define a method with
+   * this signature: 
+   * <p>
+   * <code>Class<? extends DatabasePlatform>[] platforms() default {};</code>
+   * </p>
+   * The finding rules are:
+   * <ol>
+   * <li>Check if T has method "platforms" if not, return <code>ann[0]</code></code>
+   * <li>Check if exactly one annotation is defined for <code>databasePlatform</code></li>
+   * <li>Check if exactly one annotation is defined for default platform</li>
+   * <li>Return null
+   * </ol>
+   * @throws IllegalStateException if there are more annotations defined for the same platform.
+   */
+  private <T extends Annotation> T selectByPlatform(T[] ann, Class<T> annClass) {
+    try {
+      Method getPlatformsMethod = annClass.getMethod("platforms");
+      if (Class[].class.isAssignableFrom(getPlatformsMethod.getReturnType())) {
+        T defaultAnn = null;
+        T platformAnn = null;
+        for (T cand : ann) {
+          Class<?>[] platforms = (Class[]) getPlatformsMethod.invoke(cand);
+          // found the annotation that returns no platform -> store as default
+          if (platforms == null || platforms.length == 0) {
+            if (defaultAnn != null) {
+              throw new IllegalStateException("There is a platform inconsistency in " + annClass + " declaration");
+            }
+            defaultAnn = cand;
+          } else {
+            for (Class<?> platform : platforms) {
+              if (platform == databasePlatform.getClass()) {
+                if (platformAnn != null) {
+                  throw new IllegalStateException("There is a platform inconsistency in " + annClass + " declaration");
+                }
+                platformAnn = cand;
+              }
+            }
+          }
+        }
+        return platformAnn == null ? defaultAnn : platformAnn;
+      }
+    } catch (NoSuchMethodException e) {
+      // does not have a "platforms" method - fall thru and return first annotation in array  
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+    return ann[0];
   }
 
   /**

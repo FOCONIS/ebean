@@ -80,7 +80,7 @@ public class AnnotationAssocManys extends AnnotationParser {
 			prop.setMapKey(mapKey.name());
 		}
 
-		Where where = get(prop, Where.class);
+		Where where = get(prop, Where.class, Where.List.class);
 		if (where != null) {
 			prop.setExtraWhere(where.clause());
 		}
