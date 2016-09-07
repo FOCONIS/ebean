@@ -2,6 +2,7 @@ package com.avaje.ebean.config.dbplatform;
 
 /**
  * Adds MS-SQL Limiter.
+ * Support introduced in MS SQL Server 2012 enhancing the ORDER BY clause in with OFFSET/FETCH support.
  */
 public class BasicMsSqlLimiter implements BasicSqlLimiter {
 

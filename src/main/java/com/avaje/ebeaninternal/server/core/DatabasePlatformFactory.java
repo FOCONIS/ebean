@@ -76,7 +76,10 @@ public class DatabasePlatformFactory {
       return new OraclePlatform();
     }
     if (dbName.equals("sqlserver")) {
-      return new MsSqlServer2005Platform();
+      return new MsSqlServer2012Platform();
+    }
+    if (dbName.equals("sqlserver2012")) {
+      return new MsSqlServer2012Platform();
     }
     if (dbName.equals("sqlserver2005")) {
       return new MsSqlServer2005Platform();
@@ -137,7 +140,9 @@ public class DatabasePlatformFactory {
       return new OraclePlatform();
     }
     else if (dbProductName.contains("microsoft")) {
-      if (majorVersion > 8) {
+      if (majorVersion > 10) {
+        return new MsSqlServer2012Platform();
+      } else if (majorVersion > 8) {
         return new MsSqlServer2005Platform();
       } else {
         return new MsSqlServer2000Platform();
