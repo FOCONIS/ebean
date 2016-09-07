@@ -16,7 +16,8 @@ import com.avaje.tests.compositekeys.db.TypeKey;
 import com.avaje.tests.lib.EbeanTestCase;
 
 /**
- * Test some of the Avaje core functionality in conjunction with composite keys like
+ * Test some of the Avaje core functionality in conjunction with composite keys.
+ * like:
  * <ul>
  * <li>write</li>
  * <li>find</li>
@@ -24,8 +25,11 @@ import com.avaje.tests.lib.EbeanTestCase;
  */
 public class TestCore extends EbeanTestCase {
 
+  // FIXME: Use Assume instead if (isMsSqlServer()) return; not possible in EbeanTestCase
+  // Tests should ideally be skipped instead of passed with return;
   @Override
   public void setUp() throws Exception {
+    
     if (isMsSqlServer()) return;
 
     Ebean.createUpdate(Item.class, "delete from Item").execute();
@@ -102,6 +106,7 @@ public class TestCore extends EbeanTestCase {
   }
 
   public void testFind() {
+
     if (isMsSqlServer()) return;
 
     List<Item> items = getServer().find(Item.class).findList();
@@ -110,7 +115,7 @@ public class TestCore extends EbeanTestCase {
     assertEquals(2, items.size());
 
     Query<Item> qItems = getServer().find(Item.class);
-//        qItems.where(Expr.eq("key.customer", Integer.valueOf(1)));
+    // qItems.where(Expr.eq("key.customer", Integer.valueOf(1)));
 
     // I want to discourage the direct use of Expr
     qItems.where().eq("key.customer", Integer.valueOf(1));
@@ -121,7 +126,7 @@ public class TestCore extends EbeanTestCase {
   }
 
   /**
-   * This partially loads the item and then lazy loads the ManyToOne assoc
+   * This partially loads the item and then lazy loads the ManyToOne assoc.
    */
   public void testDoubleLazyLoad() {
 
@@ -131,7 +136,8 @@ public class TestCore extends EbeanTestCase {
     itemKey.setCustomer(2);
     itemKey.setItemNumber("ITEM1");
 
-    Item item = getServer().find(Item.class).select("description").where().idEq(itemKey).findUnique();
+    Item item = getServer()
+        .find(Item.class).select("description").where().idEq(itemKey).findUnique();
     assertNotNull(item);
     assertNotNull(item.getUnits());
     assertEquals("P", item.getUnits());
@@ -149,7 +155,8 @@ public class TestCore extends EbeanTestCase {
 
     if (isMsSqlServer()) return;
 
-    List<Item> items = getServer().find(Item.class).order("auditInfo.created asc, type asc").findList();
+    List<Item> items = getServer()
+        .find(Item.class).order("auditInfo.created asc, type asc").findList();
 
     assertNotNull(items);
     assertEquals(2, items.size());

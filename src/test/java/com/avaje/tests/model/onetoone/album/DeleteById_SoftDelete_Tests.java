@@ -201,6 +201,7 @@ public class DeleteById_SoftDelete_Tests extends BaseTestCase {
 
     List<String> sql = LoggedSqlCollector.stop();
     assertThat(sql).hasSize(2);
+    // FIXME: s3url is missing from Covers in MS SQL Queries
     assertThat(sql.get(0)).contains("update cover set s3url=?, deleted=? where id=?");
   }
 

@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertThat;
+import static org.hamcrest.CoreMatchers.containsString;
 
 public class TestJsonMap extends BaseTestCase {
 
@@ -28,7 +30,9 @@ public class TestJsonMap extends BaseTestCase {
 
     JsonWriteOptions jsonWriteOptions = JsonWriteOptions.parsePath("(id,status,name)");
     String jsonString = jsonContext.toJson(customers, jsonWriteOptions);
-    assertTrue(jsonString.contains("{\"id\":1,\"status\":\"NEW\",\"name\":\"Rob\"}"));
+    assertThat(jsonString, containsString("{\"id\":1,\"status\":\"NEW\",\"name\":\"Rob\"}"));
+    // FIXME: test can be affected by other tests and should be fixed
+    // assertTrue(jsonString.contains("{\"id\":1,\"status\":\"NEW\",\"name\":\"Rob\"}"));
 
     jsonWriteOptions = JsonWriteOptions.parsePath("status,name");
     jsonString = jsonContext.toJson(customers, jsonWriteOptions);
