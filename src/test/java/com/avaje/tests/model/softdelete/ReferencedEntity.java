@@ -1,24 +1,11 @@
 package com.avaje.tests.model.softdelete;
 
 import javax.persistence.Entity;
-import javax.persistence.Id;
-
-import com.avaje.ebean.annotation.SoftDelete;
 
 @Entity
-public class ReferencedEntity {
+public class ReferencedEntity extends BaseSoftDelete {
 
 	static final long serialVersionUID = 1L;
-
-	@Id
-	Long id;
-
-	@SoftDelete
-	boolean deleted;
-
-	public Long getId() {
-		return id;
-	}
 
 	String name;
 
@@ -34,8 +21,5 @@ public class ReferencedEntity {
 	}
 	public String getDescription() {
 		return description;
-	}
-	public boolean getDeleted() {
-		return deleted;
 	}
 }

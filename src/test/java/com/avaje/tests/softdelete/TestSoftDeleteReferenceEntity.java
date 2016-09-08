@@ -16,8 +16,11 @@ public class TestSoftDeleteReferenceEntity extends BaseTestCase {
 	@Test
 	public void testFindWithSDQ() {
 		System.out.println("*** Test: testFindWithSDQ ***");
+		CountingBeanPersistController.reset();
 		long id = runWithA1();
 		runWithA2(id);
+		CountingBeanPersistController.printCounts();
+		CountingBeanPersistController.assertCounts();
 	}
 
 	private long runWithA1() {
@@ -47,7 +50,7 @@ public class TestSoftDeleteReferenceEntity extends BaseTestCase {
 		// Further properties are then loaded via lazy loading. So:
 		assertThat(reference).isNotNull();
 		System.out.println("testWith: Soft-deleted reference object is not NULL");
-		assertThat(reference.getDeleted()).isTrue();
+		assertThat(reference.isDeleted()).isTrue();
 		assertThat(reference.getDescription()).isNull();
 		System.out.println("Desc=" + reference.getDescription());
 	}
@@ -55,8 +58,11 @@ public class TestSoftDeleteReferenceEntity extends BaseTestCase {
 	@Test
 	public void testFindWithoutSDQ() {
 		System.out.println("*** Test: testFindWithoutSDQ ***");
+		CountingBeanPersistController.reset();
 		long id = runWithoutA1();
 		runWithoutA2(id);
+		CountingBeanPersistController.printCounts();
+		CountingBeanPersistController.assertCounts();
 	}
 
 	private long runWithoutA1() {
@@ -91,7 +97,7 @@ public class TestSoftDeleteReferenceEntity extends BaseTestCase {
 		reference = bean.getReference();
 		assertThat(reference).isNotNull();
 		System.out.println("testWithout: Soft-deleted reference object is not NULL");
-		assertThat(reference.getDeleted()).isTrue();
+		assertThat(reference.isDeleted()).isTrue();
 		assertThat(reference.getDescription()).isNotNull();
 		System.out.println("Desc=" + reference.getDescription());
 	}

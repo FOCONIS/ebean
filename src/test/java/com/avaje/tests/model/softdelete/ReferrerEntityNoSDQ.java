@@ -1,20 +1,12 @@
 package com.avaje.tests.model.softdelete;
 
 import javax.persistence.Entity;
-import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
 @Entity
-public class ReferrerEntityNoSDQ {
+public class ReferrerEntityNoSDQ extends BaseSoftDelete {
 
 	static final long serialVersionUID = 1L;
-
-	@Id
-	Long id;
-
-	public Long getId() {
-		return id;
-	}
 
 	@ManyToOne
 	ReferencedEntityNoSDQ reference;
