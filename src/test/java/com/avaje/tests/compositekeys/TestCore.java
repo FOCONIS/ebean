@@ -1,7 +1,15 @@
 package com.avaje.tests.compositekeys;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeFalse;
+
 import java.util.List;
 
+import org.junit.*;
+
+import com.avaje.ebean.BaseTestCase;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.Query;
 import com.avaje.ebean.Transaction;
@@ -13,7 +21,6 @@ import com.avaje.tests.compositekeys.db.SubType;
 import com.avaje.tests.compositekeys.db.SubTypeKey;
 import com.avaje.tests.compositekeys.db.Type;
 import com.avaje.tests.compositekeys.db.TypeKey;
-import com.avaje.tests.lib.EbeanTestCase;
 
 /**
  * Test some of the Avaje core functionality in conjunction with composite keys.
@@ -23,28 +30,30 @@ import com.avaje.tests.lib.EbeanTestCase;
  * <li>find</li>
  * </ul>
  */
-public class TestCore extends EbeanTestCase {
+public class TestCore extends BaseTestCase {
+
+  private Transaction testCaseTxn;
 
   // FIXME: Use Assume instead if (isMsSqlServer()) return; not possible in EbeanTestCase
   // Tests should ideally be skipped instead of passed with return;
-  @Override
+  @Before
   public void setUp() throws Exception {
     
-    if (isMsSqlServer()) return;
+    assumeFalse(isMsSqlServer());
 
     Ebean.createUpdate(Item.class, "delete from Item").execute();
     Ebean.createUpdate(Region.class, "delete from Region").execute();
     Ebean.createUpdate(Type.class, "delete from Type").execute();
     Ebean.createUpdate(SubType.class, "delete from SubType").execute();
 
-    Transaction tx = getServer().beginTransaction();
+    testCaseTxn = server().beginTransaction();
 
     SubType subType = new SubType();
     SubTypeKey subTypeKey = new SubTypeKey();
     subTypeKey.setSubTypeId(1);
     subType.setKey(subTypeKey);
     subType.setDescription("ANY SUBTYPE");
-    getServer().save(subType);
+    server().save(subType);
 
     Type type = new Type();
     TypeKey typeKey = new TypeKey();
@@ -53,7 +62,7 @@ public class TestCore extends EbeanTestCase {
     type.setKey(typeKey);
     type.setDescription("Type Old-Item - Customer 1");
     type.setSubType(subType);
-    getServer().save(type);
+    server().save(type);
 
     type = new Type();
     typeKey = new TypeKey();
@@ -62,7 +71,7 @@ public class TestCore extends EbeanTestCase {
     type.setKey(typeKey);
     type.setDescription("Type Old-Item - Customer 2");
     type.setSubType(subType);
-    getServer().save(type);
+    server().save(type);
 
     Region region = new Region();
     RegionKey regionKey = new RegionKey();
@@ -70,7 +79,7 @@ public class TestCore extends EbeanTestCase {
     regionKey.setType(500);
     region.setKey(regionKey);
     region.setDescription("Region West - Customer 1");
-    getServer().save(region);
+    server().save(region);
 
     region = new Region();
     regionKey = new RegionKey();
@@ -78,7 +87,7 @@ public class TestCore extends EbeanTestCase {
     regionKey.setType(500);
     region.setKey(regionKey);
     region.setDescription("Region West - Customer 2");
-    getServer().save(region);
+    server().save(region);
 
     Item item = new Item();
     ItemKey itemKey = new ItemKey();
@@ -89,7 +98,7 @@ public class TestCore extends EbeanTestCase {
     item.setDescription("Fancy Car - Customer 1");
     item.setRegion(500);
     item.setType(10);
-    getServer().save(item);
+    server().save(item);
 
     item = new Item();
     itemKey = new ItemKey();
@@ -100,21 +109,31 @@ public class TestCore extends EbeanTestCase {
     item.setDescription("Another Fancy Car - Customer 2");
     item.setRegion(500);
     item.setType(10);
-    getServer().save(item);
+    server().save(item);
 
-    tx.commit();
+    testCaseTxn.commit();
+  }
+  
+  @After
+  public void tearDown() {
+    if (testCaseTxn != null && testCaseTxn.isActive()) {
+      // transaction left running after the test, rollback it to make
+      // the environment ready for the next test
+      testCaseTxn.rollback();
+    }
   }
 
+  @Test
   public void testFind() {
 
     if (isMsSqlServer()) return;
 
-    List<Item> items = getServer().find(Item.class).findList();
+    List<Item> items = server().find(Item.class).findList();
 
     assertNotNull(items);
     assertEquals(2, items.size());
 
-    Query<Item> qItems = getServer().find(Item.class);
+    Query<Item> qItems = server().find(Item.class);
     // qItems.where(Expr.eq("key.customer", Integer.valueOf(1)));
 
     // I want to discourage the direct use of Expr
@@ -128,6 +147,7 @@ public class TestCore extends EbeanTestCase {
   /**
    * This partially loads the item and then lazy loads the ManyToOne assoc.
    */
+  @Test  
   public void testDoubleLazyLoad() {
 
     if (isMsSqlServer()) return;
@@ -136,7 +156,7 @@ public class TestCore extends EbeanTestCase {
     itemKey.setCustomer(2);
     itemKey.setItemNumber("ITEM1");
 
-    Item item = getServer()
+    Item item = server()
         .find(Item.class).select("description").where().idEq(itemKey).findUnique();
     assertNotNull(item);
     assertNotNull(item.getUnits());
@@ -151,23 +171,24 @@ public class TestCore extends EbeanTestCase {
     assertNotNull(subType.getDescription());
   }
 
+  @Test
   public void testEmbeddedWithOrder() {
 
     if (isMsSqlServer()) return;
 
-    List<Item> items = getServer()
+    List<Item> items = server()
         .find(Item.class).order("auditInfo.created asc, type asc").findList();
 
     assertNotNull(items);
     assertEquals(2, items.size());
   }
 
-
+  @Test
   public void testFindAndOrderByEType() {
 
     if (isMsSqlServer()) return;
 
-    List<Item> items = getServer().find(Item.class).order("eType").findList();
+    List<Item> items = server().find(Item.class).order("eType").findList();
 
     assertNotNull(items);
     assertEquals(2, items.size());

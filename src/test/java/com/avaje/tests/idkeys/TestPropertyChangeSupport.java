@@ -1,9 +1,17 @@
 package com.avaje.tests.idkeys;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
+import com.avaje.ebean.BaseTestCase;
 import com.avaje.ebean.Transaction;
 import com.avaje.ebean.bean.EntityBean;
 import com.avaje.tests.idkeys.db.AuditLog;
-import com.avaje.tests.lib.EbeanTestCase;
+
+import org.junit.After;
+import org.junit.Test;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -15,9 +23,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Test various aspects of the PropertyChangeSupport
+ * Test various aspects of the PropertyChangeSupport.
  */
-public class TestPropertyChangeSupport extends EbeanTestCase implements PropertyChangeListener {
+public class TestPropertyChangeSupport extends BaseTestCase implements PropertyChangeListener {
   private int nuofEvents = 0;
   private List<PropertyChangeEvent> pces = new ArrayList<PropertyChangeEvent>();
   private PropertyChangeEvent lastPce;
@@ -29,8 +37,9 @@ public class TestPropertyChangeSupport extends EbeanTestCase implements Property
   }
 
   /**
-   * Test the core property change functionality
+   * Test the core property change functionality.
    */
+  @Test
   public void testPropertyChange() throws SQLException {
     resetEvent();
 
@@ -60,7 +69,7 @@ public class TestPropertyChangeSupport extends EbeanTestCase implements Property
     resetEvent();
 
     // test if we get change notification if EBean assigns an id to the bean
-    getServer().save(al);
+    server().save(al);
 
     assertNotNull(lastPce);
     assertEquals("id", lastPce.getPropertyName());
@@ -72,8 +81,9 @@ public class TestPropertyChangeSupport extends EbeanTestCase implements Property
     resetEvent();
 
     // simulate external change and test if we get change notification when we refresh the entity
-    Transaction tx = getServer().beginTransaction();
-    PreparedStatement pstm = tx.getConnection().prepareStatement("update audit_log set description = ? where id = ?");
+    Transaction tx = server().beginTransaction();
+    PreparedStatement pstm = 
+        tx.getConnection().prepareStatement("update audit_log set description = ? where id = ?");
     pstm.setString(1, "GHI");
     pstm.setLong(2, al.getId());
     int updated = pstm.executeUpdate();
@@ -86,7 +96,7 @@ public class TestPropertyChangeSupport extends EbeanTestCase implements Property
     assertNull(lastPce);
     assertEquals(0, nuofEvents);
 
-    getServer().refresh(al);
+    server().refresh(al);
 
     assertEquals("GHI", al.getDescription());
 
@@ -96,7 +106,8 @@ public class TestPropertyChangeSupport extends EbeanTestCase implements Property
     assertEquals(prevLogDesc, lastPce.getOldValue());
     assertNotNull("GHI", lastPce.getNewValue());
 
-    // check if we fire with the real new value which might be a modified version of what we passed to the set method
+    // check if we fire with the real new value which might be a modified version
+    // of what we passed to the set method
     resetEvent();
     al.setModifiedDescription("MODIFIED_VALUE");
 
@@ -113,17 +124,18 @@ public class TestPropertyChangeSupport extends EbeanTestCase implements Property
    * <li>updating a lazy loaded property fires two events</li>
    * </ul>
    */
+  @Test
   public void testPartialLoad() throws SQLException {
     AuditLog log = new AuditLog();
     log.setDescription("log");
 
-    getServer().save(log);
+    server().save(log);
 
     assertNotNull(log.getId());
 
     resetEvent();
 
-    List<AuditLog> logs = getServer().find(AuditLog.class)
+    List<AuditLog> logs = server().find(AuditLog.class)
         .where().eq("id", log.getId())
         .select("id")
         .findList();
@@ -141,13 +153,26 @@ public class TestPropertyChangeSupport extends EbeanTestCase implements Property
     // which should result in one PCE events
     assertEquals(1, pces.size());
 
-    // test for the acutal update of the value
+    // test for the actual update of the value
     PropertyChangeEvent propertyChangeEvent = pces.get(0);
 
     assertEquals("description", propertyChangeEvent.getPropertyName());
     assertEquals("log", propertyChangeEvent.getOldValue());
     assertEquals("updated log", propertyChangeEvent.getNewValue());
 
+  }
+  
+  /**
+   * Some cleanup stuff after a test has run.
+   */
+  @After
+  public void tearDown() {
+    Transaction tx = server().currentTransaction();
+    if (tx != null && tx.isActive()) {
+      // transaction left running after the test, rollback it to make
+      // the environment ready for the next test
+      tx.rollback();
+    }
   }
 
   private void resetEvent() {

@@ -4,12 +4,18 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import org.junit.After;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+import static org.junit.Assume.*;
+
+import com.avaje.ebean.BaseTestCase;
 import com.avaje.ebean.Transaction;
 import com.avaje.ebean.config.dbplatform.IdType;
 import com.avaje.ebeaninternal.api.SpiEbeanServer;
 import com.avaje.tests.idkeys.db.GenKeyIdentity;
 import com.avaje.tests.idkeys.db.GenKeySequence;
-import com.avaje.tests.lib.EbeanTestCase;
 
 /**
  * Test various key generation strategies.
@@ -17,7 +23,7 @@ import com.avaje.tests.lib.EbeanTestCase;
  * Notice: The strategy {@link javax.persistence.GenerationType#AUTO} is not easy to test as it is database dependent
  * which of the strategies will be used. 
  */
-public class TestGeneratedKeys extends EbeanTestCase
+public class TestGeneratedKeys extends BaseTestCase
 {
     /**
      * Test key generation using a sequence.
@@ -26,27 +32,22 @@ public class TestGeneratedKeys extends EbeanTestCase
      * <p/>
      * Notice: Actually, this test depends on H2 as used database as we are going to fetch the current value from the sequence
      */
+    @Test
     public void testSequence() throws SQLException
     {
-    	SpiEbeanServer server = (SpiEbeanServer)getServer();
+    	SpiEbeanServer server = (SpiEbeanServer)server();
     	IdType idType = server.getDatabasePlatform().getDbIdentity().getIdType();
     	String platformName = server.getDatabasePlatform().getName();
-    	if (!IdType.SEQUENCE.equals(idType)){
-    		// only run this test when SEQUENCE is being used
-    		return;
-    	}
-    	if (!"h2".equals(platformName)){
-    		// readSequenceValue is H2 specific
-    		return;
-    	}
+    	assumeTrue("only run this test when SEQUENCE is being used", IdType.SEQUENCE.equals(idType));
+    	assumeTrue("readSequenceValue is H2 specific.", isH2()); 
     	
-        Transaction tx = getServer().beginTransaction();
+        Transaction tx = server().beginTransaction();
 
         long sequenceStart = readSequenceValue(tx, GenKeySequence.SEQUENCE_NAME);        
         
         GenKeySequence al = new GenKeySequence();
         al.setDescription("my description");
-        getServer().save(al);
+        server().save(al);
 
         
         long sequenceCurrent = readSequenceValue(tx, GenKeySequence.SEQUENCE_NAME);
@@ -88,10 +89,11 @@ public class TestGeneratedKeys extends EbeanTestCase
      * This test just checks if a generated value has been passed back from the database.
      * EBean should simply fetch the generated key after inserting.
      */
+    @Test    
     public void testIdentity() throws SQLException
     {
 
-    	SpiEbeanServer server = (SpiEbeanServer)getServer();
+    	SpiEbeanServer server = (SpiEbeanServer)server();
     	IdType idType = server.getDatabasePlatform().getDbIdentity().getIdType();
     	
     	if (!IdType.IDENTITY.equals(idType)){
@@ -99,11 +101,11 @@ public class TestGeneratedKeys extends EbeanTestCase
     		return;
     	}
 
-        Transaction tx = getServer().beginTransaction();
+        Transaction tx = server().beginTransaction();
 
         GenKeyIdentity al = new GenKeyIdentity();
         al.setDescription("my description");
-        getServer().save(al);
+        server().save(al);
 
         // For JDBC batching we won't get the id until after
         // the batch has been flushed explicitly or via commit
@@ -141,4 +143,14 @@ public class TestGeneratedKeys extends EbeanTestCase
          tx.commit();
      }
      */
+    
+    @After
+    public void tearDown() {
+      Transaction tx = server().currentTransaction();
+      if (tx != null && tx.isActive()) {
+        // transaction left running after the test, rollback it to make
+        // the environment ready for the next test
+        tx.rollback();
+      }
+    }
 }
