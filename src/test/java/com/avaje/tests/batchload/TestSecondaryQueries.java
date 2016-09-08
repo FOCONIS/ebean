@@ -55,8 +55,11 @@ public class TestSecondaryQueries extends BaseTestCase {
     List<String> sql = LoggedSqlCollector.stop();
 
     assertThat(sql).hasSize(1);
-    assertThat(sql.get(0)).contains("select t0.id c0, t0.status c1, t0.kcustomer_id c2 from o_order t0");
-
+    if (isMsSqlServer()) {
+      assertThat(sql.get(0)).contains("select  top 10 t0.id c0, t0.status c1, t0.kcustomer_id c2 from o_order t0");
+    } else {
+      assertThat(sql.get(0)).contains("select t0.id c0, t0.status c1, t0.kcustomer_id c2 from o_order t0");
+    }
     LoggedSqlCollector.start();
 
     // invoke lazy loading

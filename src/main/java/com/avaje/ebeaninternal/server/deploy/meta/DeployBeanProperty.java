@@ -11,6 +11,7 @@ import com.avaje.ebean.annotation.WhenModified;
 import com.avaje.ebean.annotation.WhoCreated;
 import com.avaje.ebean.annotation.WhoModified;
 import com.avaje.ebean.config.ScalarTypeConverter;
+import com.avaje.ebean.config.dbplatform.DatabasePlatform;
 import com.avaje.ebean.config.dbplatform.DbDefaultValue;
 import com.avaje.ebean.config.dbplatform.DbEncrypt;
 import com.avaje.ebean.config.dbplatform.DbEncryptFunction;
@@ -261,6 +262,10 @@ public class DeployBeanProperty {
 
   public String getFullBeanName() {
     return desc.getFullName() + "." + name;
+  }
+  
+  public String quoteValue(String value) {
+    return desc.getServerConfig().getDatabasePlatform().quoteValue(value);
   }
 
   /**

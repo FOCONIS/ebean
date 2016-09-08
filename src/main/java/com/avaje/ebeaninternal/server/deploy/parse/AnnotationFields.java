@@ -207,7 +207,7 @@ public class AnnotationFields extends AnnotationParser {
       prop.setDocProperty(docProperty);
     }
 
-    Formula formula = get(prop, Formula.class);
+    Formula formula = get(prop, Formula.class, Formula.List.class);
     if (formula != null) {
       prop.setSqlFormula(formula.select(), formula.join());
     }

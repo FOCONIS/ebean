@@ -567,4 +567,19 @@ public class DatabasePlatform {
       logger.error("Error closing resultSet", e);
     }
   }
+
+  /**
+   * Quotes a DB value when manually building SQL-strings. (e.g. when softDelete is in place)
+   */
+  public String quoteValue(String value) {
+    return value == null ? "null" : value;
+  }
+  /**
+   * Returns TRUE if platform requires a "SET IDENTITY_INSERT table ON" statement before inserting
+   * entities where the id is set and also server-generated.
+   * @return
+   */
+  public boolean needsIdentityInsert() {
+    return false;
+  }
 }

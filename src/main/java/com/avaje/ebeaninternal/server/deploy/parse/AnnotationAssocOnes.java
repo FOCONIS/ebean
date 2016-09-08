@@ -85,7 +85,7 @@ public class AnnotationAssocOnes extends AnnotationParser {
       prop.setNullable(false);
     }
 
-    Where where = get(prop, Where.class);
+    Where where = get(prop, Where.class, Where.List.class);
     if (where != null) {
       // not expecting this to be used on assoc one properties
       prop.setExtraWhere(where.clause());

@@ -1,5 +1,6 @@
 package com.avaje.ebean;
 
+import com.avaje.ebean.config.dbplatform.DatabasePlatform;
 import com.avaje.ebeaninternal.api.SpiEbeanServer;
 import com.avaje.ebeaninternal.server.deploy.BeanDescriptor;
 import com.avaje.tests.model.basic.Country;
@@ -61,5 +62,13 @@ public class BaseTestCase {
     Ebean.find(Country.class)
         .setLoadBeanCache(true)
         .findList();
+  }
+  
+  protected DatabasePlatform getDatabasePlatform() {
+    return ((SpiEbeanServer)Ebean.getDefaultServer()).getDatabasePlatform();
+  }
+  
+  protected String quoteValue(String value) {
+    return getDatabasePlatform().quoteValue(value);
   }
 }

@@ -19,8 +19,12 @@ public class EbeanServer_eqlTest extends BaseTestCase {
     Query<Customer> query = server().createQuery(Customer.class, "order by id limit 10");
     query.setMaxRows(100);
     query.findList();
-
-    assertThat(query.getGeneratedSql()).contains("order by t0.id ");
+    
+    // MSSQL use "SELECT top 10 ... order by t0.id" instead of
+    //           "SELECT ... order by t0.id limit 10"
+    // so trailing space must be removed.
+    // assertThat(query.getGeneratedSql()).contains("order by t0.id ");
+    assertThat(query.getGeneratedSql()).contains("order by t0.id");
   }
 
   @Test
@@ -31,7 +35,7 @@ public class EbeanServer_eqlTest extends BaseTestCase {
     Query<Customer> query = Ebean.createQuery(Customer.class, "order by id limit 10");
     query.findList();
 
-    assertThat(query.getGeneratedSql()).contains("order by t0.id ");
+    assertThat(query.getGeneratedSql()).contains("order by t0.id");
   }
 
   @Test

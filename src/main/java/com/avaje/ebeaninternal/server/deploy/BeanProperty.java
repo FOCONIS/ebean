@@ -4,6 +4,7 @@ import com.avaje.ebean.ValuePair;
 import com.avaje.ebean.bean.EntityBean;
 import com.avaje.ebean.bean.PersistenceContext;
 import com.avaje.ebean.config.EncryptKey;
+import com.avaje.ebean.config.dbplatform.DatabasePlatform;
 import com.avaje.ebean.config.dbplatform.DbEncryptFunction;
 import com.avaje.ebean.config.dbplatform.DbType;
 import com.avaje.ebean.plugin.Property;
@@ -324,12 +325,14 @@ public class BeanProperty implements ElPropertyValue, Property {
 
     this.elPlaceHolder = tableAliasIntern(descriptor, deploy.getElPlaceHolder(), false, null);
     this.elPlaceHolderEncrypted = tableAliasIntern(descriptor, deploy.getElPlaceHolder(), dbEncrypted, dbColumn);
+    
+    
 
     this.softDelete = deploy.isSoftDelete();
     if (softDelete) {
       ScalarTypeBoolean.BooleanBase boolType = (ScalarTypeBoolean.BooleanBase) scalarType;
-      this.softDeleteDbSet = dbColumn + "=" + boolType.getDbTrueLiteral();
-      this.softDeleteDbPredicate = "." + dbColumn + "," + boolType.getDbFalseLiteral() + ")=" + boolType.getDbFalseLiteral();
+      this.softDeleteDbSet = dbColumn + "=" + deploy.quoteValue(boolType.getDbTrueLiteral());
+      this.softDeleteDbPredicate = "." + dbColumn + "," + deploy.quoteValue(boolType.getDbFalseLiteral()) + ")=" + deploy.quoteValue(boolType.getDbFalseLiteral());
     } else {
       this.softDeleteDbSet = null;
       this.softDeleteDbPredicate = null;

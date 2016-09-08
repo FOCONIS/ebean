@@ -36,7 +36,11 @@ public class TestRawSqlOrmQuery extends BaseTestCase {
     }
 
     String sql = query.getGeneratedSql();
-    assertThat(sql).contains("select o.id, o.status, o.ship_date, c.id, c.name, a.id, a.line_1, a.line_2, a.city from o_order o");
+    if (isMsSqlServer()) {
+      assertThat(sql).contains("select  top 10 o.id, o.status, o.ship_date, c.id, c.name, a.id, a.line_1, a.line_2, a.city from o_order o");
+    } else {
+      assertThat(sql).contains("select o.id, o.status, o.ship_date, c.id, c.name, a.id, a.line_1, a.line_2, a.city from o_order o");
+    }
     assertThat(sql).contains("join o_customer c on o.kcustomer_id = c.id ");
     assertThat(sql).contains("where o.status = ?  order by c.name, c.id");
   }

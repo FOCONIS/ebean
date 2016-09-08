@@ -33,7 +33,11 @@ public class SqlQueryTests extends BaseTestCase {
 
     List<String> sql = LoggedSqlCollector.stop();
 
-    assertThat(sql.get(0)).contains("Select * from o_order limit 10 offset 3; --bind()");
+    if (isMsSqlServer()) {
+      assertThat(sql.get(0)).contains("offset 3 rows fetch next 10 rows only");
+    } else {
+      assertThat(sql.get(0)).contains("Select * from o_order limit 10 offset 3; --bind()");
+    }
     assertThat(list).isNotEmpty();
   }
 
@@ -67,7 +71,11 @@ public class SqlQueryTests extends BaseTestCase {
     sqlQuery.findList();
     List<String> sql = LoggedSqlCollector.stop();
 
-    assertThat(sql.get(0)).contains("Select * from o_order order by id limit 10");
+    if (isMsSqlServer()) {
+      assertThat(sql.get(0)).contains("Select * from o_order order by id offset 0 rows fetch next 10 rows only");
+    } else {
+      assertThat(sql.get(0)).contains("Select * from o_order order by id limit 10");
+    }
   }
 
   @Test
@@ -82,8 +90,11 @@ public class SqlQueryTests extends BaseTestCase {
     LoggedSqlCollector.start();
     sqlQuery.findList();
     List<String> sql = LoggedSqlCollector.stop();
-
-    assertThat(sql.get(0)).contains("select * from o_order where o_order.id > ? order by id  limit 10;");
+    if (isMsSqlServer()) {
+      assertThat(sql.get(0)).contains("select * from o_order where o_order.id > ? order by id  offset 0 rows fetch next 10 rows only;");
+    } else {
+      assertThat(sql.get(0)).contains("select * from o_order where o_order.id > ? order by id  limit 10;");
+    }
   }
 
   @Test
@@ -103,7 +114,11 @@ public class SqlQueryTests extends BaseTestCase {
     });
     List<String> sql = LoggedSqlCollector.stop();
 
-    assertThat(sql.get(0)).contains("limit 10");
+    if (isMsSqlServer()) {
+      assertThat(sql.get(0)).contains("offset 0 rows fetch next 10 rows only");
+    } else {
+      assertThat(sql.get(0)).contains("limit 10");
+    }
   }
 
   @Test
