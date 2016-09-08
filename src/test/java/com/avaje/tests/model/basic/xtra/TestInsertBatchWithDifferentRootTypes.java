@@ -11,13 +11,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assume.assumeFalse;
 
 public class TestInsertBatchWithDifferentRootTypes extends BaseTestCase {
 
   @Test
   public void testDifferRootTypes() {
 
-    if (isMsSqlServer()) return;
+    assumeFalse("Skipping test because batching not yet supported for MS SQL Server.",
+        isMsSqlServer());
 
     LoggedSqlCollector.start();
     Transaction txn = Ebean.beginTransaction();
@@ -67,6 +69,5 @@ public class TestInsertBatchWithDifferentRootTypes extends BaseTestCase {
       Ebean.endTransaction();
     }
   }
-
 
 }

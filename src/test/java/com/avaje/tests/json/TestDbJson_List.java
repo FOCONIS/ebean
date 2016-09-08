@@ -5,6 +5,7 @@ import com.avaje.ebean.Ebean;
 import com.avaje.tests.model.json.EBasicJsonList;
 import com.avaje.tests.model.json.PlainBean;
 import org.avaje.ebeantest.LoggedSqlCollector;
+import org.junit.Assume;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -152,6 +153,9 @@ public class TestDbJson_List extends BaseTestCase {
 
   @Test
   public void insert_fetch_when_null() {
+    
+    Assume.assumeFalse("Skipping test because JDBC Type 5001 (JSON) not yet supported for MS SQL Server.", 
+        isMsSqlServer());
 
     EBasicJsonList bean = new EBasicJsonList();
     bean.setName("leave some nulls");

@@ -5,6 +5,7 @@ import java.util.concurrent.ExecutionException;
 
 import com.avaje.tests.model.basic.Order;
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Test;
 
 import com.avaje.ebean.BaseTestCase;
@@ -19,6 +20,7 @@ import com.avaje.tests.model.basic.Customer;
 import com.avaje.tests.model.basic.ResetBasicData;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assume.assumeFalse;
 
 public class TestRawSqlOrmQuery extends BaseTestCase {
 
@@ -67,8 +69,6 @@ public class TestRawSqlOrmQuery extends BaseTestCase {
     
   @Test
   public void testFirstRowsMaxRows() throws InterruptedException, ExecutionException {
-
-    if (isMsSqlServer()) return;
 
     ResetBasicData.reset();
     
@@ -134,6 +134,8 @@ public class TestRawSqlOrmQuery extends BaseTestCase {
   @Test
   public void testPaging_with_existingRawSqlOrderBy_expect_id_appendToOrderBy() {
 
+    Assume.assumeFalse("Skipping test because nulls not yet supported for MS SQL Server.", isMsSqlServer());
+    
     ResetBasicData.reset();
 
     RawSql rawSql = RawSqlBuilder.parse("select o.id, o.order_date, o.ship_date from o_order o order by o.ship_date desc nulls last")
@@ -154,6 +156,8 @@ public class TestRawSqlOrmQuery extends BaseTestCase {
   @Test
   public void testPaging_when_setOrderBy_expect_id_appendToOrderBy() {
 
+    Assume.assumeFalse("Skipping test because nulls not yet supported for MS SQL Server.", isMsSqlServer());
+    
     ResetBasicData.reset();
 
     RawSql rawSql = RawSqlBuilder.parse("select o.id, o.order_date, o.ship_date from o_order o order by o.ship_date desc nulls last")
@@ -175,6 +179,8 @@ public class TestRawSqlOrmQuery extends BaseTestCase {
   @Test
   public void testPaging_when_setOrderBy_containsId_expect_leaveAsIs() {
 
+    Assume.assumeFalse("Skipping test because nulls not yet supported for MS SQL Server.", isMsSqlServer());
+    
     ResetBasicData.reset();
 
     RawSql rawSql = RawSqlBuilder.parse("select o.id, o.order_date, o.ship_date from o_order o order by o.ship_date desc nulls last")

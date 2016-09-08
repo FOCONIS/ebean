@@ -34,12 +34,10 @@ public class TestCore extends BaseTestCase {
 
   private Transaction testCaseTxn;
 
-  // FIXME: Use Assume instead if (isMsSqlServer()) return; not possible in EbeanTestCase
-  // Tests should ideally be skipped instead of passed with return;
   @Before
   public void setUp() throws Exception {
     
-    assumeFalse(isMsSqlServer());
+    assumeFalse("Skipping test because key feature in setUp not yet supported for MS SQL Server.", isMsSqlServer());
 
     Ebean.createUpdate(Item.class, "delete from Item").execute();
     Ebean.createUpdate(Region.class, "delete from Region").execute();
@@ -126,7 +124,7 @@ public class TestCore extends BaseTestCase {
   @Test
   public void testFind() {
 
-    if (isMsSqlServer()) return;
+    assumeFalse("Skipping test because key feature in setUp not yet supported for MS SQL Server.", isMsSqlServer());
 
     List<Item> items = server().find(Item.class).findList();
 
@@ -150,7 +148,7 @@ public class TestCore extends BaseTestCase {
   @Test  
   public void testDoubleLazyLoad() {
 
-    if (isMsSqlServer()) return;
+    assumeFalse("Skipping test because key feature in setUp not yet supported for MS SQL Server.", isMsSqlServer());
 
     ItemKey itemKey = new ItemKey();
     itemKey.setCustomer(2);
@@ -174,7 +172,7 @@ public class TestCore extends BaseTestCase {
   @Test
   public void testEmbeddedWithOrder() {
 
-    if (isMsSqlServer()) return;
+    assumeFalse("Skipping test because key feature in setUp not yet supported for MS SQL Server.", isMsSqlServer());
 
     List<Item> items = server()
         .find(Item.class).order("auditInfo.created asc, type asc").findList();
@@ -186,7 +184,7 @@ public class TestCore extends BaseTestCase {
   @Test
   public void testFindAndOrderByEType() {
 
-    if (isMsSqlServer()) return;
+    assumeFalse("Skipping test because key feature in setUp not yet supported for MS SQL Server.", isMsSqlServer());
 
     List<Item> items = server().find(Item.class).order("eType").findList();
 

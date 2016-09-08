@@ -6,6 +6,7 @@ import com.avaje.ebean.Transaction;
 import com.avaje.ebean.config.PersistBatch;
 import com.avaje.tests.model.basic.OCachedBean;
 import org.avaje.ebeantest.LoggedSqlCollector;
+import org.junit.Assume;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -18,7 +19,7 @@ public class TestBatchInsertWithInitialisedCollection extends BaseTestCase {
   @Test
   public void test() {
 
-    if (isMsSqlServer()) return;
+    Assume.assumeFalse("Skipping test because batching not yet supported for MS SQL Server.", isMsSqlServer());
 
     List<OCachedBean> list = new ArrayList();
 

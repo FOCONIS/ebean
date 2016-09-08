@@ -1,24 +1,27 @@
 package com.avaje.tests.model.basic.xtra;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assume.assumeFalse;
+
 import com.avaje.ebean.BaseTestCase;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.Transaction;
 import com.avaje.ebean.config.PersistBatch;
 import org.avaje.ebeantest.LoggedSqlCollector;
+import org.junit.Assume;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
 
 public class TestInsertBatchThenUpdate extends BaseTestCase {
 
   @Test
   public void test() {
 
-    if (isMsSqlServer()) return;
+    assumeFalse("Skipping test because batching not yet supported for MS SQL Server.", 
+        isMsSqlServer());
 
     LoggedSqlCollector.start();
     Transaction txn = Ebean.beginTransaction();
@@ -55,6 +58,5 @@ public class TestInsertBatchThenUpdate extends BaseTestCase {
       Ebean.endTransaction();
     }
   }
-
 
 }

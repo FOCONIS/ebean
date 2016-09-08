@@ -13,6 +13,8 @@ import org.slf4j.LoggerFactory;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
+import org.junit.Assume;
+
 public class TestCommitAndContinue extends BaseTestCase {
 
   private static final Logger logger = LoggerFactory.getLogger("org.avaje.ebean.TXN");
@@ -154,6 +156,10 @@ public class TestCommitAndContinue extends BaseTestCase {
 
   @Test
   public void basic() {
+
+    // CHECKME: Using Assume to skip test because not supported on MS SQL Server yet.
+    Assume.assumeFalse("Skipping test because batching not yet supported for MS SQL Server.", 
+        isMsSqlServer());
 
     MnyB a = new MnyB("a");
     MnyB b = new MnyB("b");

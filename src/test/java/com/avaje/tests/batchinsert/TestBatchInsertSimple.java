@@ -7,6 +7,8 @@ import com.avaje.ebean.annotation.Transactional;
 import com.avaje.ebean.config.PersistBatch;
 import com.avaje.tests.model.basic.UTDetail;
 import com.avaje.tests.model.basic.UTMaster;
+
+import org.junit.Assume;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -48,7 +50,7 @@ public class TestBatchInsertSimple extends BaseTestCase {
   @Test
   public void testTransactional() {
 
-    if (isMsSqlServer()) return;
+    Assume.assumeFalse("Skipping test because batching not yet supported for MS SQL Server.", isMsSqlServer());
 
     saveWithFullBatchMode();
   }
@@ -69,7 +71,7 @@ public class TestBatchInsertSimple extends BaseTestCase {
 //  @Test
 //  public void testTransactional_skipGeneratedBeans() {
 //
-//    if (isMsSqlServer()) return;
+//    Assume.assumeFalse("Skipping test because feature not yet supported for MS SQL Server.", isMsSqlServer());
 //
 //    List<UTMaster> beans = saveWithFullBatchMode_skipGeneratedKeys();
 //    for (UTMaster bean : beans) {
@@ -123,8 +125,7 @@ public class TestBatchInsertSimple extends BaseTestCase {
   @Test
   public void testJdbcBatchOnCollection() {
 
-    // MS SQL Server doesn't like batch inserts when we need getGeneratedKeys
-    if (isMsSqlServer()) return;
+    Assume.assumeFalse("Skipping test because batching not yet supported for MS SQL Server.", isMsSqlServer());
 
     int numOfMasters = 3;
 

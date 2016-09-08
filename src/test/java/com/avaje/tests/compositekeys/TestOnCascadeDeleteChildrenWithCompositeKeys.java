@@ -1,6 +1,7 @@
 package com.avaje.tests.compositekeys;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assume.assumeFalse;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -35,8 +36,6 @@ public class TestOnCascadeDeleteChildrenWithCompositeKeys extends BaseTestCase {
 
   @Before public void before() {
 
-    if (isMsSqlServer()) return;
-
     // remove all the User records first
     Ebean.deleteAll(Ebean.find(User.class).findList());
 
@@ -50,8 +49,6 @@ public class TestOnCascadeDeleteChildrenWithCompositeKeys extends BaseTestCase {
    */
   @Test public void testDeleteById() {
 
-    if (isMsSqlServer()) return;
-
     assertEquals(2, Ebean.find(User.class).findList().size());
     Ebean.delete(User.class, 1L);
     Ebean.delete(User.class, 2L);
@@ -64,8 +61,6 @@ public class TestOnCascadeDeleteChildrenWithCompositeKeys extends BaseTestCase {
    */
   @Test public void testDeleteByIdList() {
 
-    if (isMsSqlServer()) return;
-
     assertEquals(2, Ebean.find(User.class).findList().size());
     List<Long> ids = new ArrayList<Long>();
     ids.add(1L);
@@ -77,8 +72,6 @@ public class TestOnCascadeDeleteChildrenWithCompositeKeys extends BaseTestCase {
   
   @Test
   public void testFindByParentIdList() {
-
-    if (isMsSqlServer()) return;
 
     assertEquals(2, Ebean.find(User.class).findList().size());
     

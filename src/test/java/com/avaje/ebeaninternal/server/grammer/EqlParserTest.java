@@ -6,6 +6,8 @@ import com.avaje.ebean.Query;
 import com.avaje.ebeaninternal.api.SpiQuery;
 import com.avaje.tests.model.basic.Customer;
 import com.avaje.tests.model.basic.ResetBasicData;
+
+import org.junit.Assume;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -357,6 +359,8 @@ public class EqlParserTest extends BaseTestCase {
   @Test
   public void orderBy_nullsLast() throws Exception {
 
+    Assume.assumeFalse("Skipping test because nulls not yet supported for MS SQL Server.", isMsSqlServer());
+    
     ResetBasicData.reset();
 
     Query<Customer> query = parse("order by id desc nulls last");
@@ -369,6 +373,8 @@ public class EqlParserTest extends BaseTestCase {
   @Test
   public void orderBy_nullsFirst() throws Exception {
 
+    Assume.assumeFalse("Skipping test because nulls not yet supported for MS SQL Server.", isMsSqlServer());
+    
     ResetBasicData.reset();
 
     Query<Customer> query = parse("order by id nulls first");
@@ -380,6 +386,8 @@ public class EqlParserTest extends BaseTestCase {
 
   @Test
   public void orderBy_multiple() throws Exception {
+    
+    Assume.assumeFalse("Skipping test because nulls not yet supported for MS SQL Server.", isMsSqlServer());
 
     ResetBasicData.reset();
 

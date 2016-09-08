@@ -3,6 +3,7 @@ package com.avaje.tests.delete;
 import java.util.Arrays;
 
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Test;
 
 import com.avaje.ebean.BaseTestCase;
@@ -15,8 +16,6 @@ public class TestDeleteByIdWithPersistenceContext extends BaseTestCase {
 
   @Test
   public void test() {
-
-    if (isMsSqlServer()) return;
 
     ResetBasicData.reset();
 

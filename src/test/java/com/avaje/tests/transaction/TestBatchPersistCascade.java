@@ -1,5 +1,8 @@
 package com.avaje.tests.transaction;
 
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeFalse;
+
 import com.avaje.ebean.BaseTestCase;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.EbeanServer;
@@ -14,8 +17,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-import static org.junit.Assert.assertTrue;
-
 public class TestBatchPersistCascade extends BaseTestCase {
 
   Logger logger = LoggerFactory.getLogger(TestBatchPersistCascade.class);
@@ -23,7 +24,8 @@ public class TestBatchPersistCascade extends BaseTestCase {
   @Test
   public void test() {
 
-    if (isMsSqlServer()) return;
+    assumeFalse("Skipping test because batching not yet supported for MS SQL Server.", 
+        isMsSqlServer());
 
     EbeanServer ebeanServer = Ebean.getServer(null);
 

@@ -1,6 +1,9 @@
 package com.avaje.tests.rawsql;
 
 import com.avaje.tests.idkeys.db.AuditLog;
+
+import static org.junit.Assume.assumeFalse;
+
 import org.junit.Test;
 
 import com.avaje.ebean.BaseTestCase;
@@ -12,7 +15,7 @@ public class TestInsertSqlLogging extends BaseTestCase {
   @Test
   public void test() {
 
-    if (isMsSqlServer()) return;
+    assumeFalse("Skipping test because logging not yet supported for MS SQL Server.", isMsSqlServer());
 
     Ebean.delete(AuditLog.class, 10000);
 
