@@ -1,16 +1,15 @@
 package com.avaje.tests.delete;
 
-import java.util.Arrays;
-
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.Test;
-
 import com.avaje.ebean.BaseTestCase;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.EbeanServer;
 import com.avaje.tests.model.basic.Product;
 import com.avaje.tests.model.basic.ResetBasicData;
+
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.util.Arrays;
 
 public class TestDeleteByIdWithPersistenceContext extends BaseTestCase {
 
@@ -43,7 +42,6 @@ public class TestDeleteByIdWithPersistenceContext extends BaseTestCase {
     Assert.assertNull(shadow2);
     
     server.endTransaction();
-    
   }
   
   private Product createProduct(Integer id, String name) {

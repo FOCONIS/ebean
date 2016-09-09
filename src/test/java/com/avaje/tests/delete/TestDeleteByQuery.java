@@ -1,5 +1,7 @@
 package com.avaje.tests.delete;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.avaje.ebean.BaseTestCase;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.EbeanServer;
@@ -11,8 +13,6 @@ import org.avaje.ebeantest.LoggedSqlCollector;
 import org.junit.Test;
 
 import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestDeleteByQuery extends BaseTestCase {
 

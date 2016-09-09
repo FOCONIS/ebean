@@ -1,12 +1,7 @@
 package com.avaje.tests.rawsql;
 
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-
-import com.avaje.tests.model.basic.Order;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.Test;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assume.assumeFalse;
 
 import com.avaje.ebean.BaseTestCase;
 import com.avaje.ebean.Ebean;
@@ -17,10 +12,15 @@ import com.avaje.ebean.Query;
 import com.avaje.ebean.RawSql;
 import com.avaje.ebean.RawSqlBuilder;
 import com.avaje.tests.model.basic.Customer;
+import com.avaje.tests.model.basic.Order;
 import com.avaje.tests.model.basic.ResetBasicData;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assume.assumeFalse;
+import org.junit.Assert;
+import org.junit.Assume;
+import org.junit.Test;
+
+import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 public class TestRawSqlOrmQuery extends BaseTestCase {
 
@@ -72,12 +72,10 @@ public class TestRawSqlOrmQuery extends BaseTestCase {
 
     ResetBasicData.reset();
     
-    RawSql rawSql = 
-        RawSqlBuilder
-            .parse("select r.id, r.name from o_customer r ")
-            .columnMapping("r.id", "id")
-            .columnMapping("r.name", "name")
-            .create();
+    RawSql rawSql = RawSqlBuilder.parse("select r.id, r.name from o_customer r ")
+        .columnMapping("r.id", "id")
+        .columnMapping("r.name", "name")
+        .create();
                 
     Query<Customer> query = Ebean.find(Customer.class);
     query.setRawSql(rawSql);
@@ -134,7 +132,8 @@ public class TestRawSqlOrmQuery extends BaseTestCase {
   @Test
   public void testPaging_with_existingRawSqlOrderBy_expect_id_appendToOrderBy() {
 
-    Assume.assumeFalse("Skipping test because nulls not yet supported for MS SQL Server.", isMsSqlServer());
+    Assume.assumeFalse("Skipping test because nulls not yet supported for MS SQL Server.", 
+        isMsSqlServer());
     
     ResetBasicData.reset();
 
@@ -156,7 +155,8 @@ public class TestRawSqlOrmQuery extends BaseTestCase {
   @Test
   public void testPaging_when_setOrderBy_expect_id_appendToOrderBy() {
 
-    Assume.assumeFalse("Skipping test because nulls not yet supported for MS SQL Server.", isMsSqlServer());
+    Assume.assumeFalse("Skipping test because nulls not yet supported for MS SQL Server.",
+        isMsSqlServer());
     
     ResetBasicData.reset();
 
@@ -179,7 +179,8 @@ public class TestRawSqlOrmQuery extends BaseTestCase {
   @Test
   public void testPaging_when_setOrderBy_containsId_expect_leaveAsIs() {
 
-    Assume.assumeFalse("Skipping test because nulls not yet supported for MS SQL Server.", isMsSqlServer());
+    Assume.assumeFalse("Skipping test because nulls not yet supported for MS SQL Server.",
+        isMsSqlServer());
     
     ResetBasicData.reset();
 

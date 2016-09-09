@@ -1,19 +1,19 @@
 package com.avaje.tests.model.onetoone.album;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assume.assumeFalse;
+
 import com.avaje.ebean.BaseTestCase;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.EbeanServer;
 import com.avaje.ebean.Transaction;
 import org.avaje.ebeantest.LoggedSqlCollector;
-import org.junit.Assume;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 
 public class DeleteById_SoftDelete_Tests extends BaseTestCase {
 
@@ -193,7 +193,8 @@ public class DeleteById_SoftDelete_Tests extends BaseTestCase {
   @Test
   public void ebean_deleteAll_when_softDelete() {
     
-    Assume.assumeFalse("Skipping test because Soft-Delete not yet supported for MS SQL Server. (s3url missing from update statement)", isMsSqlServer());
+    assumeFalse("Skipping test because Soft-Delete not yet supported for MS SQL Server. "
+        + "(s3url missing from update statement)", isMsSqlServer());
 
     List<Cover> beans = beans(2);
     Ebean.saveAll(beans);
@@ -210,7 +211,8 @@ public class DeleteById_SoftDelete_Tests extends BaseTestCase {
   @Test
   public void deleteAll_when_softDelete() {
 
-    Assume.assumeFalse("Skipping test because Soft-Delete not yet supported for MS SQL Server. (s3url missing from update statement)", isMsSqlServer());
+    assumeFalse("Skipping test because Soft-Delete not yet supported for MS SQL Server. "
+        + "(s3url missing from update statement)", isMsSqlServer());
     
     EbeanServer server = Ebean.getDefaultServer();
     List<Cover> beans = beans(2);
@@ -228,7 +230,8 @@ public class DeleteById_SoftDelete_Tests extends BaseTestCase {
   @Test
   public void deleteAll_when_softDelete_withTransaction() {
     
-    Assume.assumeFalse("Skipping test because Soft-Delete not yet supported for MS SQL Server. (s3url missing from update statement)", isMsSqlServer());
+    assumeFalse("Skipping test because Soft-Delete not yet supported for MS SQL Server. "
+        + "(s3url missing from update statement)", isMsSqlServer());
 
     EbeanServer server = Ebean.getDefaultServer();
     List<Cover> beans = beans(2);
@@ -302,4 +305,5 @@ public class DeleteById_SoftDelete_Tests extends BaseTestCase {
     }
     return beans;
   }
+  
 }

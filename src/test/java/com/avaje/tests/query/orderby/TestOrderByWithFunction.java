@@ -16,7 +16,8 @@ public class TestOrderByWithFunction extends BaseTestCase {
   @Test
   public void testWithFunction() {
 
-    assumeFalse("Skipping test because order by with function not yet supported for MS SQL Server.", isMsSqlServer());
+    assumeFalse("Skipping test because order by with function not yet supported for MS SQL Server.",
+        isMsSqlServer());
 
     ResetBasicData.reset();
 

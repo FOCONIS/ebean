@@ -1,5 +1,7 @@
 package com.avaje.tests.softdelete;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.avaje.ebean.BaseTestCase;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.Query;
@@ -10,8 +12,6 @@ import org.avaje.ebeantest.LoggedSqlCollector;
 import org.junit.Test;
 
 import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestSoftDeleteBasic extends BaseTestCase {
 
@@ -67,19 +67,21 @@ public class TestSoftDeleteBasic extends BaseTestCase {
   @Test
   public void testDeleteById_and_findRowCount() {
 
+    final int rowCountBefore;
+    final int rowCountAfter;
+    
     EBasicSoftDelete bean = new EBasicSoftDelete();
     bean.setName("two");
     Ebean.save(bean);
 
-    int rowCountBefore = Ebean.find(EBasicSoftDelete.class).findCount();
+    rowCountBefore = Ebean.find(EBasicSoftDelete.class).findCount();
 
     Ebean.delete(EBasicSoftDelete.class, bean.getId());
-
 
     // -- test .findRowCount()
 
     LoggedSqlCollector.start();
-    int rowCountAfter = Ebean.find(EBasicSoftDelete.class).findCount();
+    rowCountAfter = Ebean.find(EBasicSoftDelete.class).findCount();
 
     List<String> loggedSql = LoggedSqlCollector.stop();
     assertThat(loggedSql).hasSize(1);
@@ -149,10 +151,9 @@ public class TestSoftDeleteBasic extends BaseTestCase {
     assertThat(loggedSql.get(0)).contains("where owner_id = ?");
 
     // second statement is the top level bean
-    assertThat(loggedSql.get(1)).contains("update ebasic_soft_delete set version=?, deleted=? where id=? and version=?");
-
+    assertThat(loggedSql.get(1)).contains(
+        "update ebasic_soft_delete set version=?, deleted=? where id=? and version=?");
   }
-
 
   @Test
   public void testFetch() {
@@ -202,4 +203,5 @@ public class TestSoftDeleteBasic extends BaseTestCase {
 
     assertThat(fetchAllWithLazy.getChildren()).hasSize(3);
   }
+  
 }

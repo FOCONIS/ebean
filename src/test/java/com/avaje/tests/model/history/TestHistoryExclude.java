@@ -1,12 +1,14 @@
 package com.avaje.tests.model.history;
 
+import static org.assertj.core.api.StrictAssertions.assertThat;
+import static org.junit.Assume.assumeFalse;
+
 import com.avaje.ebean.BaseTestCase;
 import com.avaje.ebean.Ebean;
+
 import org.junit.Test;
 
 import java.sql.Timestamp;
-
-import static org.assertj.core.api.StrictAssertions.assertThat;
 
 public class TestHistoryExclude extends BaseTestCase {
 
@@ -25,6 +27,7 @@ public class TestHistoryExclude extends BaseTestCase {
       link.save();
     }
   }
+  
   @Test
   public void testLazyLoad() {
 
@@ -37,6 +40,9 @@ public class TestHistoryExclude extends BaseTestCase {
   @Test
   public void testAsOfThenLazy() {
 
+    assumeFalse("Skipping test because history not yet supported for MS SQL Server.",
+        isMsSqlServer());
+    
     prepare();
 
     HeLink linkFound = Ebean.find(HeLink.class)

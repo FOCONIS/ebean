@@ -1,5 +1,9 @@
 package com.avaje.tests.transaction;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assume.assumeFalse;
+
 import com.avaje.ebean.BaseTestCase;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.EbeanServer;
@@ -9,11 +13,6 @@ import com.avaje.tests.model.m2m.MnyB;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-
-import org.junit.Assume;
 
 public class TestCommitAndContinue extends BaseTestCase {
 
@@ -157,8 +156,7 @@ public class TestCommitAndContinue extends BaseTestCase {
   @Test
   public void basic() {
 
-    // CHECKME: Using Assume to skip test because not supported on MS SQL Server yet.
-    Assume.assumeFalse("Skipping test because batching not yet supported for MS SQL Server.", 
+    assumeFalse("Skipping test because batching not yet supported for MS SQL Server.", 
         isMsSqlServer());
 
     MnyB a = new MnyB("a");

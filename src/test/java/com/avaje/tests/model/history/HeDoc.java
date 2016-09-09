@@ -2,10 +2,9 @@ package com.avaje.tests.model.history;
 
 import com.avaje.tests.model.draftable.BaseDomain;
 
+import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.ManyToMany;
-import java.util.List;
-
 
 @Entity
 public class HeDoc extends BaseDomain {

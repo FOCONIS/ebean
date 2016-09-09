@@ -1,5 +1,7 @@
 package com.avaje.tests.batchinsert;
 
+import static org.junit.Assume.assumeFalse;
+
 import com.avaje.ebean.BaseTestCase;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.Transaction;
@@ -8,7 +10,6 @@ import com.avaje.ebean.config.PersistBatch;
 import com.avaje.tests.model.basic.UTDetail;
 import com.avaje.tests.model.basic.UTMaster;
 
-import org.junit.Assume;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -50,7 +51,7 @@ public class TestBatchInsertSimple extends BaseTestCase {
   @Test
   public void testTransactional() {
 
-    Assume.assumeFalse("Skipping test because batching not yet supported for MS SQL Server.", isMsSqlServer());
+    assumeFalse("Skipping test because batching not yet supported for MS SQL Server.", isMsSqlServer());
 
     saveWithFullBatchMode();
   }
@@ -71,7 +72,7 @@ public class TestBatchInsertSimple extends BaseTestCase {
 //  @Test
 //  public void testTransactional_skipGeneratedBeans() {
 //
-//    Assume.assumeFalse("Skipping test because feature not yet supported for MS SQL Server.", isMsSqlServer());
+//    assumeFalse("Skipping test because feature not yet supported for MS SQL Server.", isMsSqlServer());
 //
 //    List<UTMaster> beans = saveWithFullBatchMode_skipGeneratedKeys();
 //    for (UTMaster bean : beans) {
@@ -125,7 +126,7 @@ public class TestBatchInsertSimple extends BaseTestCase {
   @Test
   public void testJdbcBatchOnCollection() {
 
-    Assume.assumeFalse("Skipping test because batching not yet supported for MS SQL Server.", isMsSqlServer());
+    assumeFalse("Skipping test because batching not yet supported for MS SQL Server.", isMsSqlServer());
 
     int numOfMasters = 3;
 

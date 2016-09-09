@@ -1,7 +1,15 @@
 package com.avaje.tests.compositekeys;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assume.assumeFalse;
+
+import com.avaje.ebean.BaseTestCase;
+import com.avaje.ebean.Ebean;
+import com.avaje.ebeaninternal.api.SpiEbeanServer;
+import com.avaje.ebeaninternal.server.deploy.BeanDescriptor;
+import com.avaje.ebeaninternal.server.deploy.BeanPropertyAssocMany;
+
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -18,23 +26,17 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-import org.junit.Before;
-import org.junit.Test;
-
-import com.avaje.ebean.BaseTestCase;
-import com.avaje.ebean.Ebean;
-import com.avaje.ebeaninternal.api.SpiEbeanServer;
-import com.avaje.ebeaninternal.server.deploy.BeanDescriptor;
-import com.avaje.ebeaninternal.server.deploy.BeanPropertyAssocMany;
-
 /**
  * @see https://groups.google.com/forum/#!topic/ebean/VD1MV2-LrOc
  */
 public class TestOnCascadeDeleteChildrenWithCompositeKeys extends BaseTestCase {
 
-
-
-  @Before public void before() {
+  /**
+   * Setup the test environment.
+   * This is executed before every test.
+   */
+  @Before 
+  public void before() {
 
     // remove all the User records first
     Ebean.deleteAll(Ebean.find(User.class).findList());
@@ -45,7 +47,7 @@ public class TestOnCascadeDeleteChildrenWithCompositeKeys extends BaseTestCase {
   }
 
   /**
-   * work fine when delete User one by one
+   * works fine when delete User one by one.
    */
   @Test public void testDeleteById() {
 
@@ -56,7 +58,7 @@ public class TestOnCascadeDeleteChildrenWithCompositeKeys extends BaseTestCase {
   }
 
   /**
-   * Wrong SQL is generated when deleting user by list of ID
+   * Wrong SQL is generated when deleting user by list of ID.
    * SQL generated: delete from user_role where (user_id) in ((?,?),(?,?))
    */
   @Test public void testDeleteByIdList() {
@@ -80,7 +82,8 @@ public class TestOnCascadeDeleteChildrenWithCompositeKeys extends BaseTestCase {
     BeanDescriptor<TestOnCascadeDeleteChildrenWithCompositeKeys.User> beanDescriptor = 
         spiServer.getBeanDescriptor(TestOnCascadeDeleteChildrenWithCompositeKeys.User.class);
     
-    BeanPropertyAssocMany<?> beanProperty = (BeanPropertyAssocMany<?>)beanDescriptor.getBeanProperty("userRoles");
+    BeanPropertyAssocMany<?> beanProperty =
+        (BeanPropertyAssocMany<?>)beanDescriptor.getBeanProperty("userRoles");
 
     List<Object> ids = new ArrayList<Object>();
     ids.add(1L);
@@ -90,7 +93,9 @@ public class TestOnCascadeDeleteChildrenWithCompositeKeys extends BaseTestCase {
     beanProperty.findIdsByParentId(1L, null, null, null);
   }
 
-  @Entity @Table(name = "em_user") public static class User {
+  @Entity
+  @Table(name = "em_user")
+  public static class User {
     private Long id;
     private String name;
     private Set<UserRole> userRoles;
@@ -126,21 +131,25 @@ public class TestOnCascadeDeleteChildrenWithCompositeKeys extends BaseTestCase {
     }
   }
 
-  @Entity @Table(name = "em_user_role") public static class UserRole implements Serializable {
+  @Entity
+  @Table(name = "em_user_role")
+  public static class UserRole implements Serializable {
     private static final long serialVersionUID = 1L;
-    private UserRolePK pk;
+    private UserRolePrivateKey pk;
     private User user;
     private Role role;
 
-    @EmbeddedId public UserRolePK getPk() {
+    @EmbeddedId public UserRolePrivateKey getPk() {
       return pk;
     }
 
-    public void setPk(UserRolePK pk) {
+    public void setPk(UserRolePrivateKey pk) {
       this.pk = pk;
     }
 
-    @ManyToOne @JoinColumn(name = "user_id", nullable = false, insertable = false, updatable = false) public User getUser() {
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false, insertable = false, updatable = false)
+    public User getUser() {
       return user;
     }
 
@@ -148,7 +157,9 @@ public class TestOnCascadeDeleteChildrenWithCompositeKeys extends BaseTestCase {
       this.user = user;
     }
 
-    @ManyToOne @JoinColumn(name = "role_id", nullable = false, insertable = false, updatable = false) public Role getRole() {
+    @ManyToOne
+    @JoinColumn(name = "role_id", nullable = false, insertable = false, updatable = false)
+    public Role getRole() {
       return role;
     }
 
@@ -156,7 +167,8 @@ public class TestOnCascadeDeleteChildrenWithCompositeKeys extends BaseTestCase {
       this.role = role;
     }
 
-    @Embeddable public static class UserRolePK implements Serializable {
+    @Embeddable
+    public static class UserRolePrivateKey implements Serializable {
       private static final long serialVersionUID = 1L;
       private Long userId;
       private Long roleId;
@@ -166,9 +178,11 @@ public class TestOnCascadeDeleteChildrenWithCompositeKeys extends BaseTestCase {
       }
 
       @Override public boolean equals(Object other) {
-        if (userId == null || roleId == null) return false;
-        if (other instanceof UserRolePK) {
-          UserRolePK otherPk = (UserRolePK) other;
+        if (userId == null || roleId == null) { 
+          return false;
+        }
+        if (other instanceof UserRolePrivateKey) {
+          UserRolePrivateKey otherPk = (UserRolePrivateKey) other;
           return userId.equals(otherPk.userId) && roleId.equals(otherPk.roleId);
         }
         return false;
@@ -192,7 +206,9 @@ public class TestOnCascadeDeleteChildrenWithCompositeKeys extends BaseTestCase {
     }
   }
 
-  @Entity @Table(name = "em_role") public static class Role {
+  @Entity
+  @Table(name = "em_role")
+  public static class Role {
     private Long id;
     private String name;
     private Set<UserRole> userRoles;

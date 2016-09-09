@@ -1,23 +1,23 @@
 package com.avaje.tests.json;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeFalse;
+
 import com.avaje.ebean.BaseTestCase;
 import com.avaje.ebean.Ebean;
 import com.avaje.tests.model.json.EBasicJsonList;
 import com.avaje.tests.model.json.PlainBean;
 import org.avaje.ebeantest.LoggedSqlCollector;
-import org.junit.Assume;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 
 public class TestDbJson_List extends BaseTestCase {
 
@@ -73,7 +73,7 @@ public class TestDbJson_List extends BaseTestCase {
   }
 
   //@Test//(dependsOnMethods = "insert")
-  public void json_parse_format() {
+  private void json_parse_format() {
 
     String asJson = Ebean.json().toJson(found);
     assertThat(asJson).contains("\"tags\":[\"one\",\"two\"]");
@@ -99,7 +99,7 @@ public class TestDbJson_List extends BaseTestCase {
   }
 
   //@Test//(dependsOnMethods = "insert")
-  public void update_when_notDirty() {
+  private void update_when_notDirty() {
 
     found.setName("mod");
     LoggedSqlCollector.start();
@@ -110,7 +110,7 @@ public class TestDbJson_List extends BaseTestCase {
     assertThat(sql.get(0)).contains("update ebasic_json_list set name=?, plain_bean=?, version=? where");
   }
 
-  public void update_when_dirty() {
+  private void update_when_dirty() {
 
     //found.setName("modAgain");
     found.getTags().add("three");
@@ -123,7 +123,7 @@ public class TestDbJson_List extends BaseTestCase {
     assertThat(sql.get(0)).contains("update ebasic_json_list set plain_bean=?, tags=?, version=? where id=? and version=?");
   }
 
-  public void update_when_dirty_flags() {
+  private void update_when_dirty_flags() {
 
     //found.setName("modAgain");
     found.getFlags().remove(42L);
@@ -136,7 +136,7 @@ public class TestDbJson_List extends BaseTestCase {
     assertThat(sql.get(0)).contains("update ebasic_json_list set plain_bean=?, flags=?, version=? where id=? and version=?;");
   }
 
-  public void update_when_dirty_SetListMap() {
+  private void update_when_dirty_SetListMap() {
 
     //found.setName("modAgain");
     found.getBeanSet().clear();
@@ -154,7 +154,7 @@ public class TestDbJson_List extends BaseTestCase {
   @Test
   public void insert_fetch_when_null() {
     
-    Assume.assumeFalse("Skipping test because JDBC Type 5001 (JSON) not yet supported for MS SQL Server.", 
+    assumeFalse("Skipping test because JDBC Type 5001 (JSON) not yet supported for MS SQL Server.", 
         isMsSqlServer());
 
     EBasicJsonList bean = new EBasicJsonList();

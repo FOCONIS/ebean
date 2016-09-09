@@ -4,9 +4,9 @@ import com.avaje.ebean.annotation.History;
 import com.avaje.ebean.annotation.HistoryExclude;
 import com.avaje.tests.model.draftable.BaseDomain;
 
+import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.ManyToMany;
-import java.util.List;
 
 @History
 @Entity

@@ -1,5 +1,8 @@
 package com.avaje.tests.batchinsert;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assume.assumeFalse;
+
 import com.avaje.ebean.BaseTestCase;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.EbeanServer;
@@ -8,12 +11,9 @@ import com.avaje.ebean.annotation.Transactional;
 import com.avaje.ebean.config.PersistBatch;
 import com.avaje.tests.model.basic.EBasicVer;
 
-import org.junit.Assume;
 import org.junit.Test;
 
 import java.sql.Timestamp;
-
-import static org.junit.Assert.assertNotNull;
 
 public class TestBatchInsertFlush extends BaseTestCase {
   
@@ -21,7 +21,7 @@ public class TestBatchInsertFlush extends BaseTestCase {
   @Transactional(batch = PersistBatch.ALL)
   public void transactional_flushOnGetId() {
 
-    Assume.assumeFalse("Skipping test because batching not yet supported for MS SQL Server.", isMsSqlServer());
+    assumeFalse("Skipping test because batching not yet supported for MS SQL Server.", isMsSqlServer());
     
     EbeanServer server = Ebean.getDefaultServer();
 
@@ -40,7 +40,7 @@ public class TestBatchInsertFlush extends BaseTestCase {
   @Test
   public void testFlushOnGetId() {
     
-    Assume.assumeFalse("Skipping test because batching not yet supported for MS SQL Server.", isMsSqlServer());
+    assumeFalse("Skipping test because batching not yet supported for MS SQL Server.", isMsSqlServer());
 
     EbeanServer server = Ebean.getDefaultServer();
     Transaction txn = server.beginTransaction();
@@ -69,7 +69,7 @@ public class TestBatchInsertFlush extends BaseTestCase {
   @Test
   public void testFlushOnGetProperty() {
 
-    Assume.assumeFalse("Skipping test because batching not yet supported for MS SQL Server.", isMsSqlServer());
+    assumeFalse("Skipping test because batching not yet supported for MS SQL Server.", isMsSqlServer());
     
     EbeanServer server = Ebean.getDefaultServer();
     Transaction txn = server.beginTransaction();
@@ -99,7 +99,7 @@ public class TestBatchInsertFlush extends BaseTestCase {
   @Test
   public void testFlushOnSetProperty() {
 
-    Assume.assumeFalse("Skipping test because batching not yet supported for MS SQL Server.", isMsSqlServer());
+    assumeFalse("Skipping test because batching not yet supported for MS SQL Server.", isMsSqlServer());
     
     EbeanServer server = Ebean.getDefaultServer();
     Transaction txn = server.beginTransaction();

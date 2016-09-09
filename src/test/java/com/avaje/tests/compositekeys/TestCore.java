@@ -2,12 +2,7 @@ package com.avaje.tests.compositekeys;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeFalse;
-
-import java.util.List;
-
-import org.junit.*;
 
 import com.avaje.ebean.BaseTestCase;
 import com.avaje.ebean.Ebean;
@@ -22,6 +17,12 @@ import com.avaje.tests.compositekeys.db.SubTypeKey;
 import com.avaje.tests.compositekeys.db.Type;
 import com.avaje.tests.compositekeys.db.TypeKey;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.util.List;
+
 /**
  * Test some of the Avaje core functionality in conjunction with composite keys.
  * like:
@@ -34,10 +35,16 @@ public class TestCore extends BaseTestCase {
 
   private Transaction testCaseTxn;
 
+  /**
+   * Setup test environment.
+   * This setup is executed before every executed test in this class.
+   * @throws Exception during test setup
+   */
   @Before
   public void setUp() throws Exception {
     
-    assumeFalse("Skipping test because key feature in setUp not yet supported for MS SQL Server.", isMsSqlServer());
+    assumeFalse("Skipping test because key feature in setUp not yet supported for MS SQL Server.",
+        isMsSqlServer());
 
     Ebean.createUpdate(Item.class, "delete from Item").execute();
     Ebean.createUpdate(Region.class, "delete from Region").execute();
@@ -112,6 +119,10 @@ public class TestCore extends BaseTestCase {
     testCaseTxn.commit();
   }
   
+  /**
+   * Tears down the test environment.
+   * This happens after every test case regardless if it passed or failed.
+   */
   @After
   public void tearDown() {
     if (testCaseTxn != null && testCaseTxn.isActive()) {
@@ -123,8 +134,6 @@ public class TestCore extends BaseTestCase {
 
   @Test
   public void testFind() {
-
-    assumeFalse("Skipping test because key feature in setUp not yet supported for MS SQL Server.", isMsSqlServer());
 
     List<Item> items = server().find(Item.class).findList();
 
@@ -148,8 +157,6 @@ public class TestCore extends BaseTestCase {
   @Test  
   public void testDoubleLazyLoad() {
 
-    assumeFalse("Skipping test because key feature in setUp not yet supported for MS SQL Server.", isMsSqlServer());
-
     ItemKey itemKey = new ItemKey();
     itemKey.setCustomer(2);
     itemKey.setItemNumber("ITEM1");
@@ -172,8 +179,6 @@ public class TestCore extends BaseTestCase {
   @Test
   public void testEmbeddedWithOrder() {
 
-    assumeFalse("Skipping test because key feature in setUp not yet supported for MS SQL Server.", isMsSqlServer());
-
     List<Item> items = server()
         .find(Item.class).order("auditInfo.created asc, type asc").findList();
 
@@ -183,8 +188,6 @@ public class TestCore extends BaseTestCase {
 
   @Test
   public void testFindAndOrderByEType() {
-
-    assumeFalse("Skipping test because key feature in setUp not yet supported for MS SQL Server.", isMsSqlServer());
 
     List<Item> items = server().find(Item.class).order("eType").findList();
 

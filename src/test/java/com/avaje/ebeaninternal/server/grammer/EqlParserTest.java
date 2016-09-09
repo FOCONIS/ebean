@@ -1,5 +1,7 @@
 package com.avaje.ebeaninternal.server.grammer;
 
+import static org.junit.Assume.assumeFalse;
+
 import com.avaje.ebean.BaseTestCase;
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.Query;
@@ -7,7 +9,6 @@ import com.avaje.ebeaninternal.api.SpiQuery;
 import com.avaje.tests.model.basic.Customer;
 import com.avaje.tests.model.basic.ResetBasicData;
 
-import org.junit.Assume;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -359,7 +360,7 @@ public class EqlParserTest extends BaseTestCase {
   @Test
   public void orderBy_nullsLast() throws Exception {
 
-    Assume.assumeFalse("Skipping test because nulls not yet supported for MS SQL Server.", isMsSqlServer());
+    assumeFalse("Skipping test because nulls not yet supported for MS SQL Server.", isMsSqlServer());
     
     ResetBasicData.reset();
 
@@ -373,7 +374,7 @@ public class EqlParserTest extends BaseTestCase {
   @Test
   public void orderBy_nullsFirst() throws Exception {
 
-    Assume.assumeFalse("Skipping test because nulls not yet supported for MS SQL Server.", isMsSqlServer());
+    assumeFalse("Skipping test because nulls not yet supported for MS SQL Server.", isMsSqlServer());
     
     ResetBasicData.reset();
 
@@ -387,7 +388,7 @@ public class EqlParserTest extends BaseTestCase {
   @Test
   public void orderBy_multiple() throws Exception {
     
-    Assume.assumeFalse("Skipping test because nulls not yet supported for MS SQL Server.", isMsSqlServer());
+    assumeFalse("Skipping test because nulls not yet supported for MS SQL Server.", isMsSqlServer());
 
     ResetBasicData.reset();
 

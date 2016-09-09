@@ -53,7 +53,6 @@ public class TestBatchPersistCascade extends BaseTestCase {
     List<String> loggedSql = LoggedSqlCollector.stop();
     assertTrue(loggedSql.size() > 2);
 
-
     testUpdates();
 
   }
