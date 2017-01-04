@@ -75,26 +75,22 @@ public class TestAggregationCount extends BaseTestCase {
 
     List<TEventOne> list = query2.findList();
     for (TEventOne eventOne : list) {
-      System.out.println(eventOne.getId() + " " + eventOne.getName() + " count:" + eventOne.getCount() + " units:" + eventOne.getTotalUnits() + " amount:" + eventOne.getTotalAmount()  + " custom: " + eventOne.getCustomFormlua());
+      System.out.println(eventOne.getId() + " " + eventOne.getName() + " count:" + eventOne.getCount() + " units:" + eventOne.getTotalUnits() + " amount:" + eventOne.getTotalAmount()  + " custom: " + eventOne.getCustomFormula());
     }
 
     assertThat(list).isNotEmpty();
 
     String sql = sqlOf(query2, 5);
     
-    // FIXME: Here I get a wrong result
-    // "select t0.id, t0.name, count(u1.id), sum(u1.units), sum(u1.units * u1.amount), t0.id from tevent_one t0 join tevent_many u1 on u1.event_id = t0.id  where u1.description like"
-    //         ^^^^^                                                                   ^^^^^
-    // with current ebean version. In 9.3.1-SNAPSHOT i got 
-    // "select t0.id, t0.name, count(u1.id), sum(u1.units), sum(u1.units * u1.amount), f1.child_count from tevent_one t0"
-    //         ^^^^^                                                                   ^^^^^^^^^^^^^^
     assertThat(sql).contains("select t0.id, t0.name, count(u1.id), sum(u1.units), sum(u1.units * u1.amount), f1.child_count from tevent_one t0");
     
     
-    assertThat(sql).contains("from tevent_one t0 join tevent_many u1 on u1.event_id = t0.id ");
+    assertThat(sql).contains("from tevent_one t0");
+    assertThat(sql).contains("left join (select event_id, count(*) as child_count from tevent_many GROUP BY event_id ) as f1 on f1.event_id = t0.id");
+    assertThat(sql).contains("join tevent_many u1 on u1.event_id = t0.id ");
     assertThat(sql).contains("where u1.description like ? ");
     //assertThat(sql).contains(" group by t0.id, t0.name having count(u1.id) >= ?  order by t0.name");
-    assertThat(sql).contains(" group by t0.id, t0.name, f1.child_count having count(u1.*) >= ?  order by t0.name");
+    assertThat(sql).contains(" group by t0.id, t0.name, f1.child_count having count(u1.id) >= ?  order by t0.name");
     // invoke lazy loading
     Long version = list.get(0).getVersion();
     assertThat(version).isNotNull();
