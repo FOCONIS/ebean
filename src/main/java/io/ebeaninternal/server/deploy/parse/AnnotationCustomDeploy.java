@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Constructor;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -31,10 +32,14 @@ public class AnnotationCustomDeploy extends AnnotationParser {
    */
   public void parse() {
     Set<CustomAnnotationParser> customParserAnnotations = AnnotationBase.findAnnotations(descriptor.getBeanType(), CustomAnnotationParser.class);
+    Set<Class<? extends AnnotationParser>> parserClasses = new HashSet<>();
     for (CustomAnnotationParser customParserAnnotation : customParserAnnotations) {
       for (Class<? extends AnnotationParser> annotationParserClass : customParserAnnotation.value()) {
-        createInstance(annotationParserClass).parse();
+        parserClasses.add(annotationParserClass);
       }
+    }
+    for (Class<? extends AnnotationParser> annotationParserClass: parserClasses) {
+      createInstance(annotationParserClass).parse();
     }
   }
 
