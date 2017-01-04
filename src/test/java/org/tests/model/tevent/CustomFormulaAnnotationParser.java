@@ -47,7 +47,7 @@ public class CustomFormulaAnnotationParser extends AnnotationParser {
       DeployBeanPropertyAssocMany<?> countProp =  (DeployBeanPropertyAssocMany<?>) descriptor.getBeanProperty(countAnnot.value());
       counter++;
       String tmpTable = "f"+counter;
-      String sqlSelect = tmpTable+".child_count";
+      String sqlSelect = "coalesce(" + tmpTable + ".child_count, 0)";
       String parentId = countProp.getMappedBy() + "_id";
       String tableName = countProp.getBeanTable().getBaseTable();
       String sqlJoin = "left join (select " + parentId +", count(*) as child_count from " + tableName + " GROUP BY " + parentId + " )"
