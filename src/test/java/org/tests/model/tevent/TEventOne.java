@@ -1,6 +1,7 @@
 package org.tests.model.tevent;
 
 import io.ebean.annotation.Aggregation;
+import io.ebean.annotation.Formula;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -8,9 +9,11 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Version;
+
 import java.util.List;
 
 @Entity
+//@CustomAnnotationParser(CustomFormulaAnnotationParser.class)
 public class TEventOne {
 
   @Id
@@ -33,6 +36,11 @@ public class TEventOne {
   @Aggregation("sum(logs.units * logs.amount)")
   Double totalAmount;
 
+  //@Count("logs")
+  @Formula(select = "f1.child_count", 
+  join = "join (select event_id, count(*) as child_count from tevent_many GROUP BY event_id ) as f1 on f1.event_id = ${ta}.id")
+  Long customFormlua;
+  
   @OneToMany(mappedBy = "event", cascade = CascadeType.ALL)
   List<TEventMany> logs;
 
@@ -52,6 +60,10 @@ public class TEventOne {
     return count;
   }
 
+  public Long getCustomFormlua() {
+    return customFormlua;
+  }
+  
   public Double getTotalUnits() {
     return totalUnits;
   }
