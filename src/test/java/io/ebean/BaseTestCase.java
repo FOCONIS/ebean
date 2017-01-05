@@ -15,7 +15,8 @@ public class BaseTestCase {
 
   static {
     logger.debug("... preStart");
-    if (!AgentLoader.loadAgentFromClasspath("ebean-agent", "debug=1;packages=com.avaje.tests,org.avaje.test")) {
+    // FIX: Agentloader for eclipse test runner
+    if (!AgentLoader.loadAgentFromClasspath("ebean-agent", "debug=1;packages=org.tests,io.ebean,org.avaje.test")) {
       logger.info("avaje-ebeanorm-agent not found in classpath - not dynamically loaded");
     }
   }
