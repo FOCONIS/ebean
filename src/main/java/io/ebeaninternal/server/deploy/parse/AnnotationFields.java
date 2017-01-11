@@ -140,6 +140,17 @@ public class AnnotationFields extends AnnotationParser {
     if (formula != null) {
       prop.setSqlFormula(formula.select(), formula.join());
     }
+
+    initWhoProperties(prop);
+  }
+
+  private void initWhoProperties(DeployBeanProperty prop) {
+    if (get(prop, WhoModified.class) != null) {
+      generatedPropFactory.setWhoModified(prop);
+    }
+    if (get(prop, WhoCreated.class) != null) {
+      generatedPropFactory.setWhoCreated(prop);
+    }
   }
 
   private void readField(DeployBeanProperty prop) {
@@ -282,12 +293,7 @@ public class AnnotationFields extends AnnotationParser {
       generatedPropFactory.setUpdateTimestamp(prop);
     }
 
-    if (get(prop, WhoCreated.class) != null) {
-      generatedPropFactory.setWhoCreated(prop);
-    }
-    if (get(prop, WhoModified.class) != null) {
-      generatedPropFactory.setWhoModified(prop);
-    }
+    initWhoProperties(prop);
 
     if (get(prop, HistoryExclude.class) != null) {
       prop.setExcludedFromHistory();
