@@ -1,7 +1,6 @@
 package org.tests.basic;
 
 import io.ebean.BaseTestCase;
-import io.ebean.annotation.EbeanDDL;
 import io.ebean.annotation.Where;
 import io.ebean.Platform;
 import io.ebeaninternal.server.deploy.BeanDescriptor;
