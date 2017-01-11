@@ -27,6 +27,8 @@ import io.ebean.event.changelog.ChangeLogRegister;
 import io.ebean.event.readaudit.ReadAuditLogger;
 import io.ebean.event.readaudit.ReadAuditPrepare;
 import io.ebean.meta.MetaInfoManager;
+import io.ebeaninternal.server.deploy.parse.AnnotationParser;
+
 import org.avaje.datasource.DataSourceConfig;
 
 import javax.sql.DataSource;
@@ -436,6 +438,16 @@ public class ServerConfig {
    */
   private boolean disableL2Cache;
 
+  /**
+   * The default validation group. If set to "null" (=default), Ebean generates 
+   * <code>NOT NULL</code> columns for<code>&x64;NotNull()</code> or 
+   * <code>&x64;NotNull(groups = javax.validation.groups.Default.class)</code>
+   * annotated properties.
+   * 
+   * See: {@link AnnotationParser#isEbeanValidationGroups}
+   */
+  private Class<?> defaultValidationGroup;
+  
   /**
    * Construct a Server Configuration for programmatically creating an EbeanServer.
    */
@@ -2713,6 +2725,19 @@ public class ServerConfig {
     this.disableL2Cache = disableL2Cache;
   }
 
+  /**
+   * Returns the default validation group.
+   */
+  public Class<?> getDefaultValidationGroup() {
+	return defaultValidationGroup;
+  }
+  /**
+   * Sets the default validation group. This controls, when Ebean generate <code>NOT NULL</code> colums.
+   */
+  public void setDefaultValidationGroup(Class<?> defaultValidationGroup) {
+	this.defaultValidationGroup = defaultValidationGroup;
+  }
+  
   /**
    * Run the DB migration against the DataSource.
    */

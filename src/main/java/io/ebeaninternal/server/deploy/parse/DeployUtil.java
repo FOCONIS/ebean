@@ -63,6 +63,8 @@ public class DeployUtil {
 
   private final Encryptor bytesEncryptor;
 
+  private final Class<?> defaultValidationGroup;
+
   public DeployUtil(TypeManager typeMgr, ServerConfig serverConfig) {
 
     this.typeManager = typeMgr;
@@ -73,6 +75,7 @@ public class DeployUtil {
 
     Encryptor be = serverConfig.getEncryptor();
     this.bytesEncryptor = be != null ? be : new SimpleAesEncryptor();
+    this.defaultValidationGroup = serverConfig.getDefaultValidationGroup();
   }
 
   public TypeManager getTypeManager() {
@@ -329,4 +332,7 @@ public class DeployUtil {
     return type.equals(String.class);
   }
 
+  public Class<?> getDefaultValidationGroup() {
+    return defaultValidationGroup;
+  }
 }

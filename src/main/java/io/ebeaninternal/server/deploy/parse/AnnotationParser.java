@@ -6,9 +6,8 @@ import java.util.Set;
 import javax.persistence.AttributeOverride;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
-import javax.validation.groups.Default;
 
-import io.ebean.annotation.EbeanDDL;
+import io.ebean.config.ServerConfig;
 import io.ebeaninternal.server.deploy.BeanCascadeInfo;
 import io.ebeaninternal.server.deploy.meta.DeployBeanDescriptor;
 import io.ebeaninternal.server.deploy.meta.DeployBeanProperty;
@@ -94,16 +93,19 @@ public abstract class AnnotationParser extends AnnotationBase {
   }
 
   /**
-   * Return true if the validation groups are {@link Default} (respectively empty) or contains {@link EbeanDDL}
-   * can be applied to DDL generation.
+   * Return true if the validation groups applies to {@link javax.validation.groups.Default} (respectively empty) 
+   * xor contains one of the group set with {@link ServerConfig#setDefaultValidationGroup(Class)}
    */
   protected boolean isEbeanValidationGroups(Class<?>[] groups) {
-    if (groups.length == 0
-        || groups.length == 1 && javax.validation.groups.Default.class.isAssignableFrom(groups[0])) {
-      return true;
-    } else {
+	Class<?> defaultGroup = util.getDefaultValidationGroup();
+	if (defaultGroup == null || defaultGroup.isAssignableFrom(javax.validation.groups.Default.class)) {
+	  // no special group specified, we return only NULL, if the annotation matches ONLY to the Default group.
+	  return groups.length == 0 
+	      || groups.length == 1 && javax.validation.groups.Default.class.isAssignableFrom(groups[0]);
+	} else {
+	  // if at least one of the default group is present, use it.
       for (Class<?> group : groups) {
-        if (EbeanDDL.class.isAssignableFrom(group)) {
+        if (defaultGroup.isAssignableFrom(group)) {
           return true;
         }
       }
