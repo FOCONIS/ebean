@@ -2741,9 +2741,9 @@ public class ServerConfig {
   /**
    * Run the DB migration against the DataSource.
    */
-  public DataSource runDbMigration(DataSource dataSource) {
+  public DataSource runDbMigration(DataSource dataSource, String schema) {
     if (migrationConfig.isRunMigration()) {
-      MigrationRunner runner = migrationConfig.createRunner(getClassLoadConfig().getClassLoader());
+      MigrationRunner runner = migrationConfig.createRunner(getClassLoadConfig().getClassLoader(), schema);
       runner.run(dataSource);
     }
     return dataSource;

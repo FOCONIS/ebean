@@ -443,7 +443,7 @@ public class DbMigrationConfig {
   /**
    * Create the MigrationRunner to run migrations if necessary.
    */
-  public MigrationRunner createRunner(ClassLoader classLoader) {
+  public MigrationRunner createRunner(ClassLoader classLoader, String dbSchema) {
 
     MigrationConfig runnerConfig = new MigrationConfig();
     runnerConfig.setMetaTable(metaTable);
@@ -454,6 +454,7 @@ public class DbMigrationConfig {
     runnerConfig.setDbUsername(getDbUsername());
     runnerConfig.setDbPassword(getDbPassword());
     runnerConfig.setClassLoader(classLoader);
+    runnerConfig.setDbSchema(dbSchema);
     return new MigrationRunner(runnerConfig);
   }
 }

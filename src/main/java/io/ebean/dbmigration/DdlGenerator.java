@@ -5,6 +5,7 @@ import io.ebean.config.ServerConfig;
 import io.ebean.dbmigration.model.CurrentModel;
 import io.ebeaninternal.api.SpiEbeanServer;
 import io.ebeaninternal.extraddl.model.ExtraDdlXmlReader;
+import io.ebeaninternal.server.deploy.BeanDescriptor;
 import io.ebean.dbmigration.ddl.DdlRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +21,7 @@ import java.io.LineNumberReader;
 import java.io.Reader;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.function.Predicate;
 
 /**
  * Controls the generation and execution of "Create All" and "Drop All" DDL scripts.
@@ -41,6 +43,8 @@ public class DdlGenerator {
   private String dropAllContent;
   private String createAllContent;
 
+  private Predicate<BeanDescriptor<?>> filter;
+
   public DdlGenerator(SpiEbeanServer server, ServerConfig serverConfig) {
     this.server = server;
     this.generateDdl = serverConfig.isDdlGenerate();
@@ -59,7 +63,7 @@ public class DdlGenerator {
    */
   public void execute(boolean online) {
     generateDdl();
-    if (online) {
+    if (online && runDdl) {
       runDdl();
     }
   }
@@ -79,19 +83,16 @@ public class DdlGenerator {
   /**
    * Run the DDL drop and DDL create scripts if properties have been set.
    */
-  protected void runDdl() {
+  public void runDdl() {
+    try {
+      runInitSql();
+      runDropSql();
+      runCreateSql();
+      runSeedSql();
 
-    if (runDdl) {
-      try {
-        runInitSql();
-        runDropSql();
-        runCreateSql();
-        runSeedSql();
-
-      } catch (IOException e) {
-        String msg = "Error reading drop/create script from file system";
-        throw new RuntimeException(msg, e);
-      }
+    } catch (IOException e) {
+      String msg = "Error reading drop/create script from file system";
+      throw new RuntimeException(msg, e);
     }
   }
 
@@ -198,7 +199,7 @@ public class DdlGenerator {
   protected String generateDropAllDdl() {
 
     try {
-      dropAllContent = currentModel().getDropAllDdl();
+      dropAllContent = currentModel().getDropAllDdl(filter);
       return dropAllContent;
     } catch (IOException e) {
       throw new RuntimeException(e);
@@ -208,7 +209,7 @@ public class DdlGenerator {
   protected String generateCreateAllDdl() {
 
     try {
-      createAllContent = currentModel().getCreateDdl();
+      createAllContent = currentModel().getCreateDdl(filter);
       return createAllContent;
     } catch (IOException e) {
       throw new RuntimeException(e);
@@ -270,4 +271,11 @@ public class DdlGenerator {
     }
   }
 
+  public void setFilter(Predicate<BeanDescriptor<?>> filter) {
+    this.filter = filter;
+  }
+  
+  public Predicate<BeanDescriptor<?>> getFilter() {
+    return filter;
+  }
 }

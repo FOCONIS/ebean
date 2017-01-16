@@ -28,6 +28,8 @@ import io.ebeaninternal.api.SpiEbeanServer;
 import io.ebeaninternal.extraddl.model.DdlScript;
 import io.ebeaninternal.extraddl.model.ExtraDdl;
 import io.ebeaninternal.extraddl.model.ExtraDdlXmlReader;
+import io.ebeaninternal.server.deploy.BeanDescriptor;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,6 +38,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 
 /**
  * Generates DB Migration xml and sql scripts.
@@ -85,6 +88,8 @@ public class DbMigration {
 
   protected DbConstraintNaming constraintNaming;
 
+  protected Predicate<BeanDescriptor<?>> filter;
+  
   /**
    * Create for offline migration generation.
    */
@@ -320,12 +325,14 @@ public class DbMigration {
     final ModelContainer migrated;
     final ModelContainer current;
 
+
     private Request() {
       this.migrationDir = getMigrationDirectory();
       this.modelDir = getModelDirectory(migrationDir);
       this.migrationModel = new MigrationModel(modelDir, migrationConfig.getModelSuffix());
       this.migrated = migrationModel.read();
       this.currentModel = new CurrentModel(server, constraintNaming);
+      this.currentModel.setFilter(getFilter());
       this.current = currentModel.read();
     }
 
@@ -537,6 +544,14 @@ public class DbMigration {
     }
   }
 
+  public void setFilter(Predicate<BeanDescriptor<?>> filter) {
+    this.filter = filter;
+  }
+  
+  public Predicate<BeanDescriptor<?>> getFilter() {
+    return filter;
+  }
+  
   /**
    * Holds a platform and prefix. Used to generate multiple platform specific DDL
    * for a single migration.
