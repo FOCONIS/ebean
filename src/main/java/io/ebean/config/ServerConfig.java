@@ -27,11 +27,11 @@ import io.ebean.event.changelog.ChangeLogRegister;
 import io.ebean.event.readaudit.ReadAuditLogger;
 import io.ebean.event.readaudit.ReadAuditPrepare;
 import io.ebean.meta.MetaInfoManager;
-import io.ebeaninternal.server.deploy.parse.AnnotationParser;
-
 import org.avaje.datasource.DataSourceConfig;
 
 import javax.sql.DataSource;
+
+import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -438,15 +438,8 @@ public class ServerConfig {
    */
   private boolean disableL2Cache;
 
-  /**
-   * The default validation group. If set to "null" (=default), Ebean generates 
-   * <code>NOT NULL</code> columns for<code>&x64;NotNull()</code> or 
-   * <code>&x64;NotNull(groups = javax.validation.groups.Default.class)</code>
-   * annotated properties.
-   * 
-   * See: {@link AnnotationParser#isEbeanValidationGroups}
-   */
-  private Class<?> defaultValidationGroup;
+
+  private Class<? extends Annotation>[] notNullAnnotations;
   
   /**
    * Construct a Server Configuration for programmatically creating an EbeanServer.
@@ -2726,21 +2719,38 @@ public class ServerConfig {
   }
 
   /**
-   * Returns the default validation group.
+   * Returns the not null annotations
    */
-  public Class<?> getDefaultValidationGroup() {
-	return defaultValidationGroup;
-  }
-  /**
-   * Sets the default validation group. This controls, when Ebean generate <code>NOT NULL</code> colums.
-   */
-  public void setDefaultValidationGroup(Class<?> defaultValidationGroup) {
-	this.defaultValidationGroup = defaultValidationGroup;
+  public Class<? extends Annotation>[] getNotNullAnnotations() {
+    return notNullAnnotations;
   }
   
   /**
-   * Run the DB migration against the DataSource.
+   * Sets the annotation classes when Ebean should generate a <code>NOT NULL</code> column. 
+   * If set to "null" (=default) Ebean generates <code>NOT NULL</code> columns only 
+   * for<code>&x64;javax.validation.NotNull</code> when it is in <code>Default</code> group.
+   * (See {@link AnnotationParser#isEbeanValidationGroups})
+   * <br>
+   * If annotation classes are specified, Ebean will generate <code>NOT NULL</code> colums
+   * when annotation is present - it does not check validation group and annotation needs 
+   * not to be "beanValidation compliant". e.g. specify <code>org.jetbrains.NotNull.class</code>
+   * which has no "groups()".
    */
+  @SuppressWarnings("unchecked")
+  public void setNotNullAnnotations(Class<? extends Annotation>... notNullAnnotations) {
+    this.notNullAnnotations = notNullAnnotations;
+  }
+  
+  /**
+   * Run the DB migration against the DataSource and default schema.
+   */
+  public DataSource runDbMigration(DataSource dataSource) {
+    return runDbMigration(dataSource, null);
+  }
+  
+  /**
+   * Run the DB migration against the DataSource and certain schema.
+   */  
   public DataSource runDbMigration(DataSource dataSource, String schema) {
     if (migrationConfig.isRunMigration()) {
       MigrationRunner runner = migrationConfig.createRunner(getClassLoadConfig().getClassLoader(), schema);

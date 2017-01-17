@@ -325,7 +325,6 @@ public class DbMigration {
     final ModelContainer migrated;
     final ModelContainer current;
 
-
     private Request() {
       this.migrationDir = getMigrationDirectory();
       this.modelDir = getModelDirectory(migrationDir);

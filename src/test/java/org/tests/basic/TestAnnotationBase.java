@@ -64,7 +64,7 @@ public class TestAnnotationBase extends BaseTestCase {
     @NotNull(groups = ValidationGroupSomething.class)
     private String null2;
 
-    
+
     public String getDirect() {
       return direct;
     }

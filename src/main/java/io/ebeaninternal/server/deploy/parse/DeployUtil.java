@@ -1,5 +1,6 @@
 package io.ebeaninternal.server.deploy.parse;
 
+import java.lang.annotation.Annotation;
 import java.sql.Types;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -63,7 +64,7 @@ public class DeployUtil {
 
   private final Encryptor bytesEncryptor;
 
-  private final Class<?> defaultValidationGroup;
+  private final Class<? extends Annotation>[] notNullAnnotations;
 
   public DeployUtil(TypeManager typeMgr, ServerConfig serverConfig) {
 
@@ -75,7 +76,7 @@ public class DeployUtil {
 
     Encryptor be = serverConfig.getEncryptor();
     this.bytesEncryptor = be != null ? be : new SimpleAesEncryptor();
-    this.defaultValidationGroup = serverConfig.getDefaultValidationGroup();
+    this.notNullAnnotations = serverConfig.getNotNullAnnotations();
   }
 
   public TypeManager getTypeManager() {
@@ -332,7 +333,7 @@ public class DeployUtil {
     return type.equals(String.class);
   }
 
-  public Class<?> getDefaultValidationGroup() {
-    return defaultValidationGroup;
+  public Class<? extends Annotation>[] getNotNullAnnotations() {
+    return notNullAnnotations;
   }
 }

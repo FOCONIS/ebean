@@ -443,6 +443,13 @@ public class DbMigrationConfig {
   /**
    * Create the MigrationRunner to run migrations if necessary.
    */
+  public MigrationRunner createRunner(ClassLoader classLoader) {
+    return createRunner(classLoader, null);
+  }
+
+  /**
+   * Create the MigrationRunner to run migrations in a certain <code>dbSchema<code> (may be null).
+   */
   public MigrationRunner createRunner(ClassLoader classLoader, String dbSchema) {
 
     MigrationConfig runnerConfig = new MigrationConfig();

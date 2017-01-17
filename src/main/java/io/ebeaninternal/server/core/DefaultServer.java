@@ -381,7 +381,7 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
    */
   public void start() {
     if (!TenantMode.DB.equals(serverConfig.getTenantMode())) {
-      serverConfig.runDbMigration(serverConfig.getDataSource(), null); 
+      serverConfig.runDbMigration(serverConfig.getDataSource());
     }
   }
 
