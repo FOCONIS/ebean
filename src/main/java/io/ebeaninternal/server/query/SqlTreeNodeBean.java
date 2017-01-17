@@ -502,7 +502,10 @@ class SqlTreeNodeBean implements SqlTreeNode {
    * Append to the FROM clause for this node.
    */
   public void appendFrom(DbSqlContext ctx, SqlJoinType joinType) {
-
+    if (nodeBeanProp != null && nodeBeanProp.isFormula()) {
+      // add joins for formula beans
+      nodeBeanProp.appendFrom(ctx, joinType);
+    }
     ctx.pushJoin(prefix);
     ctx.pushTableAlias(prefix);
 
