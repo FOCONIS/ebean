@@ -37,8 +37,9 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * Generates DB Migration xml and sql scripts.
@@ -88,7 +89,7 @@ public class DbMigration {
 
   protected DbConstraintNaming constraintNaming;
 
-  protected Predicate<BeanDescriptor<?>> filter;
+
   
   /**
    * Create for offline migration generation.
@@ -167,11 +168,12 @@ public class DbMigration {
    * Use this when you want to generate sql scripts for multiple database platforms
    * from the migration (e.g. generate migration sql for MySql, Postgres and Oracle).
    * </p>
+   * @param filter 
    */
   public void addPlatform(Platform platform, String prefix) {
     platforms.add(new Pair(getPlatform(platform), prefix));
   }
-
+ 
   /**
    * Generate the next migration xml file and associated apply and rollback sql scripts.
    * <p>
@@ -215,19 +217,18 @@ public class DbMigration {
     }
     setDefaults();
     try {
-      Request request = createRequest();
-
-      if (platforms.isEmpty()) {
-        generateExtraDdl(request.migrationDir, databasePlatform);
+      for (Request request : createRequests()) {
+        if (platforms.isEmpty()) {
+          generateExtraDdl(request.migrationDir, databasePlatform);
+        }
+  
+        String pendingVersion = generatePendingDrop();
+        if (pendingVersion != null) {
+          generatePendingDrop(request, pendingVersion);
+        } else {
+          generateDiff(request);
+        }
       }
-
-      String pendingVersion = generatePendingDrop();
-      if (pendingVersion != null) {
-        generatePendingDrop(request, pendingVersion);
-      } else {
-        generateDiff(request);
-      }
-
     } finally {
       if (!online) {
         DbOffline.reset();
@@ -312,8 +313,12 @@ public class DbMigration {
     }
   }
 
-  private Request createRequest() {
-    return new Request();
+  private List<Request> createRequests() {
+    if (serverConfig.getTenantSharedSchema() != null && !serverConfig.getTenantSharedSchema().isEmpty()) {
+      return Arrays.asList(new Request(TenantBeanType.SHARED), new Request(TenantBeanType.TENANT));
+    } else {
+      return Arrays.asList(new Request(TenantBeanType.ALL));
+    }
   }
 
   private class Request {
@@ -325,13 +330,31 @@ public class DbMigration {
     final ModelContainer migrated;
     final ModelContainer current;
 
-    private Request() {
-      this.migrationDir = getMigrationDirectory();
+    /**
+     * Create a request. SharedOnly is a tri-state boolean:
+     * <br>
+     * null: means no shared/non shared support<br>
+     * true/false: generate shared/tenant scripts
+     * @param sharedOnly
+     */
+    private Request(TenantBeanType tenantBeanType) {
+      
+      if (tenantBeanType == TenantBeanType.ALL) {
+        this.migrationDir = getMigrationDirectory();
+      } else {
+        this.migrationDir = new File(getMigrationDirectory(), tenantBeanType.name().toLowerCase());
+      }
+
+      
       this.modelDir = getModelDirectory(migrationDir);
       this.migrationModel = new MigrationModel(modelDir, migrationConfig.getModelSuffix());
       this.migrated = migrationModel.read();
-      this.currentModel = new CurrentModel(server, constraintNaming);
-      this.currentModel.setFilter(getFilter());
+      List<BeanDescriptor<?>> beanDescriptors = server.getBeanDescriptors()
+          .stream()
+          .filter(tenantBeanType.getFilter())
+          .collect(Collectors.toList());
+    
+      this.currentModel = new CurrentModel(server, constraintNaming, beanDescriptors);
       this.current = currentModel.read();
     }
 
@@ -543,14 +566,6 @@ public class DbMigration {
     }
   }
 
-  public void setFilter(Predicate<BeanDescriptor<?>> filter) {
-    this.filter = filter;
-  }
-  
-  public Predicate<BeanDescriptor<?>> getFilter() {
-    return filter;
-  }
-  
   /**
    * Holds a platform and prefix. Used to generate multiple platform specific DDL
    * for a single migration.
@@ -567,6 +582,7 @@ public class DbMigration {
      */
     public final String prefix;
 
+    
     public Pair(DatabasePlatform platform, String prefix) {
       this.platform = platform;
       this.prefix = prefix;

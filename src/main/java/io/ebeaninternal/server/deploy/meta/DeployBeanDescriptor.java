@@ -137,6 +137,8 @@ public class DeployBeanDescriptor<T> {
   private String[] dependentTables;
 
   private boolean historySupport;
+  
+  private boolean sharedEntity;
 
   private boolean readAuditing;
 
@@ -241,6 +243,14 @@ public class DeployBeanDescriptor<T> {
     return historySupport;
   }
 
+  public boolean isSharedEntity() {
+    return sharedEntity;
+  }
+  
+  public void setSharedEntity() {
+    this.sharedEntity = true;
+  }
+  
   /**
    * Set read auditing on for this entity bean.
    */
@@ -1114,4 +1124,6 @@ public class DeployBeanDescriptor<T> {
     }
     namedRawSql.put(name, rawSql);
   }
+
+  
 }

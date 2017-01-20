@@ -41,6 +41,7 @@ import io.ebean.config.ServerConfig;
 import io.ebean.config.TenantMode;
 import io.ebean.config.dbplatform.DatabasePlatform;
 import io.ebean.dbmigration.DdlGenerator;
+import io.ebean.dbmigration.TenantBeanType;
 import io.ebean.event.BeanPersistController;
 import io.ebean.event.readaudit.ReadAuditLogger;
 import io.ebean.event.readaudit.ReadAuditPrepare;
@@ -263,7 +264,11 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
     this.documentStore = docStoreComponents.documentStore();
 
     this.serverPlugins = config.getPlugins();
-    this.ddlGenerator = new DdlGenerator(this, serverConfig);
+    if (serverConfig.getTenantSharedSchema() == null || serverConfig.getTenantSharedSchema().isEmpty()) {
+      this.ddlGenerator = new DdlGenerator(this, serverConfig, null);
+    } else {
+      this.ddlGenerator = new DdlGenerator(this, serverConfig, serverConfig.getTenantSharedSchema()); 
+    }
 
     configureServerPlugins();
 
@@ -286,7 +291,7 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
   public void executePlugins(boolean online) {
 
     if (!serverConfig.isDocStoreOnly()) {
-      ddlGenerator.execute(online);
+        ddlGenerator.execute(online);
     }
     for (Plugin plugin : serverPlugins) {
       plugin.online(online);

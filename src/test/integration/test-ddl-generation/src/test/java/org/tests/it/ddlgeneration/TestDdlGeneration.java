@@ -2,6 +2,7 @@ package org.tests.it.ddlgeneration;
 
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -34,8 +35,9 @@ AtomicInteger tenantProvider = new AtomicInteger();
 
     config.setTenantMode(TenantMode.SCHEMA);
     config.setCurrentTenantProvider(tenantProvider::get);
-    config.setTenantSchemaProvider(tenantId -> "tenant_" + tenantId);
-    
+    config.setTenantSchemaProvider(tenantId -> tenantId.equals(0) ? config.getTenantSharedSchema() : ("tenant_" + tenantId));
+    config.setTenantSharedSchema("PUBLIC");
+    config.setAvailableTenantsProvider(conn->  Arrays.asList("1","2"));
     EbeanServerFactory.create(config);
 
     DbMigration dbMigration = new DbMigration();

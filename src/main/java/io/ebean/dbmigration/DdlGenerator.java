@@ -1,10 +1,13 @@
 package io.ebean.dbmigration;
 
 import io.ebean.Transaction;
+import io.ebean.config.AvailableTenantsProvider;
 import io.ebean.config.ServerConfig;
+import io.ebean.config.TenantSchemaProvider;
 import io.ebean.dbmigration.model.CurrentModel;
 import io.ebeaninternal.api.SpiEbeanServer;
 import io.ebeaninternal.extraddl.model.ExtraDdlXmlReader;
+import io.ebeaninternal.server.deploy.BeanDescriptor;
 import io.ebean.dbmigration.ddl.DdlRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +23,8 @@ import java.io.LineNumberReader;
 import java.io.Reader;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Controls the generation and execution of "Create All" and "Drop All" DDL scripts.
@@ -36,21 +41,32 @@ public class DdlGenerator {
   private final boolean generateDdl;
   private final boolean runDdl;
   private final boolean createOnly;
-
+  private final String sharedschema;
+  private final AvailableTenantsProvider tenants;
+  private final TenantSchemaProvider tenantSchemaProvider;
+  
   private CurrentModel currentModel;
+  private TenantBeanType currentModelTenantBeanType;
   private String dropAllContent;
   private String createAllContent;
 
-  public DdlGenerator(SpiEbeanServer server, ServerConfig serverConfig) {
+
+
+
+
+  public DdlGenerator(SpiEbeanServer server, ServerConfig serverConfig, String sharedschema) {
     this.server = server;
     this.generateDdl = serverConfig.isDdlGenerate();
     this.createOnly = serverConfig.isDdlCreateOnly();
-    if (serverConfig.getTenantMode().isDynamicDataSource() && serverConfig.isDdlRun()) {
+    this.tenants = serverConfig.getAvailableTenantsProvider();
+    this.tenantSchemaProvider = serverConfig.getTenantSchemaProvider();
+    if (serverConfig.getTenantMode().isDynamicDataSource() && serverConfig.isDdlRun() && tenants == null) {
       log.warn("DDL can't be run on startup with TenantMode " + serverConfig.getTenantMode());
       this.runDdl = false;
     } else {
       this.runDdl = serverConfig.isDdlRun();
     }
+    this.sharedschema = sharedschema;
   }
 
   /**
@@ -58,7 +74,12 @@ public class DdlGenerator {
    * (ebean.ddl.generate and ebean.ddl.run etc).
    */
   public void execute(boolean online) {
-    generateDdl();
+    if (sharedschema != null) {
+      generateDdl(TenantBeanType.SHARED);
+      generateDdl(TenantBeanType.TENANT);
+    } else {
+      generateDdl(TenantBeanType.ALL);
+    }
     if (online && runDdl) {
       runDdl();
     }
@@ -66,13 +87,14 @@ public class DdlGenerator {
 
   /**
    * Generate the DDL drop and create scripts if the properties have been set.
+   * @param tenantBeanType 
    */
-  protected void generateDdl() {
+  protected void generateDdl(TenantBeanType tenantBeanType) {
     if (generateDdl) {
       if (!createOnly) {
-        writeDrop(getDropFileName());
+        writeDrop(getDropFileName(tenantBeanType), tenantBeanType);
       }
-      writeCreate(getCreateFileName());
+      writeCreate(getCreateFileName(tenantBeanType), tenantBeanType);
     }
   }
 
@@ -81,10 +103,35 @@ public class DdlGenerator {
    */
   public void runDdl() {
     try {
-      runInitSql();
-      runDropSql();
-      runCreateSql();
-      runSeedSql();
+      runInitSql(sharedschema);
+      if (sharedschema != null) {
+        
+        
+        Transaction transaction = server.createTransaction();
+        Connection connection = transaction.getConnection();
+        List<Object> tenantIds = null;
+        try {
+          tenantIds = tenants.getTenantIds(connection);
+        } catch (SQLException e) {
+          throw new PersistenceException("Failed to run script", e);
+        } finally {
+          transaction.end();
+        }
+        for (Object tenantId : tenantIds) {
+          String schema = tenantSchemaProvider.schema(tenantId);
+          runDropSql(TenantBeanType.SHARED, schema);
+        }
+        runDropSql(TenantBeanType.SHARED, sharedschema);
+        runCreateSql(TenantBeanType.SHARED, sharedschema);
+        for (Object tenantId : tenantIds) {
+          String schema = tenantSchemaProvider.schema(tenantId);
+          runCreateSql(TenantBeanType.SHARED, schema);
+        }
+      } else {
+        runDropSql(TenantBeanType.ALL, null);
+        runCreateSql(TenantBeanType.ALL, null);
+      }
+      runSeedSql(sharedschema);
 
     } catch (IOException e) {
       String msg = "Error reading drop/create script from file system";
@@ -95,13 +142,16 @@ public class DdlGenerator {
   /**
    * Execute all the DDL statements in the script.
    */
-  public int runScript(boolean expectErrors, String content, String scriptName) {
+  public int runScript(boolean expectErrors, String content, String scriptName, String schema) {
 
     DdlRunner runner = new DdlRunner(expectErrors, scriptName);
 
     Transaction transaction = server.createTransaction();
     Connection connection = transaction.getConnection();
     try {
+      if (schema != null) {
+        connection.setSchema(schema);
+      }
       if (expectErrors) {
         connection.setAutoCommit(true);
       }
@@ -120,45 +170,45 @@ public class DdlGenerator {
     }
   }
 
-  protected void runDropSql() throws IOException {
+  protected void runDropSql(TenantBeanType tenantBeanType, String schema) throws IOException {
     if (!createOnly) {
       if (dropAllContent == null) {
-        dropAllContent = readFile(getDropFileName());
+        dropAllContent = readFile(getDropFileName(tenantBeanType));
       }
-      runScript(true, dropAllContent, getDropFileName());
+      runScript(true, dropAllContent, getDropFileName(tenantBeanType), schema);
     }
   }
 
-  protected void runCreateSql() throws IOException {
+  protected void runCreateSql(TenantBeanType tenantBeanType, String schema) throws IOException {
     if (createAllContent == null) {
-      createAllContent = readFile(getCreateFileName());
+      createAllContent = readFile(getCreateFileName(tenantBeanType));
     }
-    runScript(false, createAllContent, getCreateFileName());
+    runScript(false, createAllContent, getCreateFileName(tenantBeanType), schema);
 
     String ignoreExtraDdl = System.getProperty("ebean.ignoreExtraDdl");
     if (!"true".equalsIgnoreCase(ignoreExtraDdl)) {
       String extraApply = ExtraDdlXmlReader.buildExtra(server.getDatabasePlatform().getName());
       if (extraApply != null) {
-        runScript(false, extraApply, "extra-dll");
+        runScript(false, extraApply, "extra-dll", schema);
       }
     }
   }
 
-  protected void runInitSql() throws IOException {
-    runResourceScript(server.getServerConfig().getDdlInitSql());
+  protected void runInitSql(String schema) throws IOException {
+    runResourceScript(server.getServerConfig().getDdlInitSql(), schema);
   }
 
-  protected void runSeedSql() throws IOException {
-    runResourceScript(server.getServerConfig().getDdlSeedSql());
+  protected void runSeedSql(String schema) throws IOException {
+    runResourceScript(server.getServerConfig().getDdlSeedSql(), schema);
   }
 
-  protected void runResourceScript(String sqlScript) throws IOException {
+  protected void runResourceScript(String sqlScript, String schema) throws IOException {
 
     if (sqlScript != null) {
       InputStream is = getClassLoader().getResourceAsStream(sqlScript);
       if (is != null) {
         String content = readContent(new InputStreamReader(is));
-        runScript(false, content, sqlScript);
+        runScript(false, content, sqlScript, schema);
       }
     }
   }
@@ -174,55 +224,60 @@ public class DdlGenerator {
     return cl;
   }
 
-  protected void writeDrop(String dropFile) {
+  protected void writeDrop(String dropFile, TenantBeanType tenantBeanType) {
 
     try {
-      writeFile(dropFile, generateDropAllDdl());
+      writeFile(dropFile, generateDropAllDdl(tenantBeanType));
     } catch (IOException e) {
       throw new PersistenceException("Error generating Drop DDL", e);
     }
   }
 
-  protected void writeCreate(String createFile) {
+  protected void writeCreate(String createFile, TenantBeanType tenantBeanType) {
 
     try {
-      writeFile(createFile, generateCreateAllDdl());
+      writeFile(createFile, generateCreateAllDdl(tenantBeanType));
     } catch (IOException e) {
       throw new PersistenceException("Error generating Create DDL", e);
     }
   }
 
-  protected String generateDropAllDdl() {
+  protected String generateDropAllDdl(TenantBeanType tenantBeanType) {
 
     try {
-      dropAllContent = currentModel().getDropAllDdl();
+      dropAllContent = currentModel(tenantBeanType).getDropAllDdl();
       return dropAllContent;
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
   }
 
-  protected String generateCreateAllDdl() {
+  protected String generateCreateAllDdl(TenantBeanType tenantBeanType) {
 
     try {
-      createAllContent = currentModel().getCreateDdl();
+      createAllContent = currentModel(tenantBeanType).getCreateDdl();
       return createAllContent;
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
   }
 
-  protected String getDropFileName() {
-    return server.getName() + "-drop-all.sql";
+  protected String getDropFileName(TenantBeanType tenantBeanType) {
+    return server.getName() + "-drop-" + tenantBeanType.name().toLowerCase() + ".sql";
   }
 
-  protected String getCreateFileName() {
-    return server.getName() + "-create-all.sql";
+  protected String getCreateFileName(TenantBeanType tenantBeanType) {
+    return server.getName() + "-create-" + tenantBeanType.name().toLowerCase() + ".sql";
   }
 
-  protected CurrentModel currentModel() {
-    if (currentModel == null) {
-      currentModel = new CurrentModel(server);
+  protected CurrentModel currentModel(TenantBeanType tenantBeanType) {
+    if (currentModel == null || currentModelTenantBeanType != tenantBeanType) {
+      List<BeanDescriptor<?>> beanDescriptors = server.getBeanDescriptors()
+       .stream()
+       .filter(tenantBeanType.getFilter())
+       .collect(Collectors.toList());
+      currentModel = new CurrentModel(server, beanDescriptors);
+      currentModelTenantBeanType = tenantBeanType;
     }
     return currentModel;
   }

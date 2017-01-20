@@ -27,6 +27,7 @@ import io.ebean.event.changelog.ChangeLogRegister;
 import io.ebean.event.readaudit.ReadAuditLogger;
 import io.ebean.event.readaudit.ReadAuditPrepare;
 import io.ebean.meta.MetaInfoManager;
+
 import org.avaje.datasource.DataSourceConfig;
 
 import javax.sql.DataSource;
@@ -129,8 +130,13 @@ public class ServerConfig {
 
   private TenantDataSourceProvider tenantDataSourceProvider;
 
+  private AvailableTenantsProvider availableTenantsProvider;
+  
   private TenantSchemaProvider tenantSchemaProvider;
 
+  private String tenantSharedSchema;
+  
+  
   /**
    * List of interesting classes such as entities, embedded, ScalarTypes,
    * Listeners, Finders, Controllers etc.
@@ -671,6 +677,14 @@ public class ServerConfig {
     this.currentTenantProvider = currentTenantProvider;
   }
 
+  public AvailableTenantsProvider getAvailableTenantsProvider() {
+    return availableTenantsProvider;
+  }
+  
+  public void setAvailableTenantsProvider(AvailableTenantsProvider availableTenantsProvider) {
+    this.availableTenantsProvider = availableTenantsProvider;
+  }
+  
   /**
    * Return the tenancy datasource provider.
    */
@@ -699,6 +713,17 @@ public class ServerConfig {
     this.tenantSchemaProvider = tenantSchemaProvider;
   }
 
+  /**
+   * Returns the shared schema name in conjunction with &x64;SharedSchema.
+   */
+  public String getTenantSharedSchema() {
+    return tenantSharedSchema;
+  }
+  
+  public void setTenantSharedSchema(String tenantSharedSchema) {
+    this.tenantSharedSchema = tenantSharedSchema;
+  }
+  
   /**
    * Return the PersistBatch mode to use by default at the transaction level.
    * <p>

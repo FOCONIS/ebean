@@ -1,5 +1,6 @@
 package io.ebean.dbmigration.model.visitor;
 
+import io.ebean.plugin.BeanType;
 import io.ebeaninternal.api.SpiEbeanServer;
 import io.ebeaninternal.server.deploy.BeanDescriptor;
 import io.ebeaninternal.server.deploy.BeanProperty;
@@ -49,13 +50,6 @@ public class VisitAllUsing {
     }
   }
 
-  public void setFilter(Predicate<BeanDescriptor<?>> filter) {
-    this.filter = filter;
-  }
-  
-  public Predicate<BeanDescriptor<?>> getFilter() {
-    return filter;
-  }
   /**
    * Visit the bean using a visitor.
    */

@@ -97,6 +97,11 @@ public interface BeanType<T> {
    * Return true if the type is document store only.
    */
   boolean isDocStoreOnly();
+  
+  /**
+   * Return true if this entity is shared across multiple tenants.
+   */
+  boolean isSharedEntity();
 
   /**
    * Return the base table this bean type maps to.
