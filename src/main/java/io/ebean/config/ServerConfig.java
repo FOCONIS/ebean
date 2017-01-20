@@ -27,6 +27,7 @@ import io.ebean.event.changelog.ChangeLogRegister;
 import io.ebean.event.readaudit.ReadAuditLogger;
 import io.ebean.event.readaudit.ReadAuditPrepare;
 import io.ebean.meta.MetaInfoManager;
+import io.ebeaninternal.server.core.AvailableTenantsByQuery;
 
 import org.avaje.datasource.DataSourceConfig;
 
@@ -677,10 +678,16 @@ public class ServerConfig {
     this.currentTenantProvider = currentTenantProvider;
   }
 
+  /**
+   * Get the availableTenantProvider.
+   */
   public AvailableTenantsProvider getAvailableTenantsProvider() {
     return availableTenantsProvider;
   }
   
+  /**
+   * Sets an availableTenantsProvider that can provide the availabe tenants.
+   */
   public void setAvailableTenantsProvider(AvailableTenantsProvider availableTenantsProvider) {
     this.availableTenantsProvider = availableTenantsProvider;
   }
@@ -2610,6 +2617,16 @@ public class ServerConfig {
     ddlInitSql = p.get("ddl.initSql", ddlInitSql);
     ddlSeedSql = p.get("ddl.seedSql", ddlSeedSql);
 
+    // Multi Tenant setup
+    tenantSharedSchema = p.get("tenant.sharedSchema");
+    String tenantQueryString = p.get("tenant.queryString");
+    if (tenantQueryString != null) {
+      availableTenantsProvider = new AvailableTenantsByQuery(tenantQueryString);
+    }
+    String tenantSchemaPrefix = p.get("tenant.schemaPrefix");
+    if (tenantSchemaPrefix != null) {
+      tenantSchemaProvider = tenantId -> tenantId == null ? tenantSharedSchema : (tenantSchemaPrefix + tenantId);
+    }
     classes = getClasses(p);
   }
 

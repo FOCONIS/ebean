@@ -1,6 +1,10 @@
 *.autofetch
 *create-all.sql
 *drop-all.sql
+*create-shared.sql
+*drop-shared.sql
+*create-tenant.sql
+*drop-tenant.sql
 *.orig
 .classpath
 .project
@@ -8,6 +12,7 @@
 target/
 logs/
 log/
+src/test/integration/*/src/main/resources/dbmigration/*
 it-repo/
 ebean-autotune.xml
 ebean-profiling*.xml

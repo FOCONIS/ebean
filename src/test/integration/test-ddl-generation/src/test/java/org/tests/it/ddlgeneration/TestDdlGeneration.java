@@ -22,11 +22,10 @@ public class TestDdlGeneration {
   protected EbeanServer server() {
     return Ebean.getDefaultServer();
   }
+  String currentTenant;
 
   @Test
   public void test() throws IOException {
-AtomicInteger tenantProvider = new AtomicInteger();
-
     ServerConfig config = new ServerConfig();
     config.loadFromProperties();
     config.setCurrentUserProvider(() -> "default"); 
@@ -34,10 +33,11 @@ AtomicInteger tenantProvider = new AtomicInteger();
     config.setRegister(true);
 
     config.setTenantMode(TenantMode.SCHEMA);
-    config.setCurrentTenantProvider(tenantProvider::get);
-    config.setTenantSchemaProvider(tenantId -> tenantId.equals(0) ? config.getTenantSharedSchema() : ("tenant_" + tenantId));
-    config.setTenantSharedSchema("PUBLIC");
-    config.setAvailableTenantsProvider(conn->  Arrays.asList("1","2"));
+    config.setCurrentTenantProvider(() -> currentTenant);
+    
+    //config.setTenantSchemaProvider(tenantId -> tenantId.equals(0) ? config.getTenantSharedSchema() : ("tenant_" + tenantId));
+//    config.setTenantSharedSchema("PUBLIC");
+//    config.setAvailableTenantsProvider(conn->  Arrays.asList("1","2"));
     EbeanServerFactory.create(config);
 
     DbMigration dbMigration = new DbMigration();

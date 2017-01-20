@@ -22,8 +22,17 @@ import java.io.InputStreamReader;
 import java.io.LineNumberReader;
 import java.io.Reader;
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -45,15 +54,26 @@ public class DdlGenerator {
   private final AvailableTenantsProvider tenants;
   private final TenantSchemaProvider tenantSchemaProvider;
   
-  private CurrentModel currentModel;
-  private TenantBeanType currentModelTenantBeanType;
-  private String dropAllContent;
-  private String createAllContent;
+  // cache for reuse...
+  private static class Cache {
+    private CurrentModel currentModel;
+    private String dropAllContent;
+    private String createAllContent;
+  }
+  
+  private final Map<TenantBeanType, Cache> cache = new HashMap<TenantBeanType, Cache>();
+  
+  
+  private Cache getCache(TenantBeanType key) {
+    Cache ret = cache.get(key);
+    if (ret == null) {
+      ret = new Cache();
+      cache.put((TenantBeanType) key, ret);
+    }
+    return ret;
+  };
 
-
-
-
-
+  
   public DdlGenerator(SpiEbeanServer server, ServerConfig serverConfig, String sharedschema) {
     this.server = server;
     this.generateDdl = serverConfig.isDdlGenerate();
@@ -109,23 +129,40 @@ public class DdlGenerator {
         
         Transaction transaction = server.createTransaction();
         Connection connection = transaction.getConnection();
-        List<Object> tenantIds = null;
+        Collection<String> tenantSchemas = new ArrayList<>();
+        Set<String> existingSchemas = new HashSet<>();
         try {
-          tenantIds = tenants.getTenantIds(connection);
+          Collection<Object> tenantIds = tenants.getTenantIds(connection);
+          DatabaseMetaData md = connection.getMetaData();
+          ResultSet res = md.getSchemas();
+          while (res.next()) {
+              existingSchemas.add(res.getString(1));
+          }
+          for (Object tenantId : tenantIds) {
+            String schema = tenantSchemaProvider.schema(tenantId);
+            tenantSchemas.add(schema);
+            if (!existingSchemas.contains(schema)) {
+              Statement stmt = connection.createStatement();
+              log.info("Creating schema {} for tenant {}", schema, tenantId);
+              stmt.execute("CREATE SCHEMA " + schema);
+            }
+          } 
         } catch (SQLException e) {
           throw new PersistenceException("Failed to run script", e);
         } finally {
           transaction.end();
         }
-        for (Object tenantId : tenantIds) {
-          String schema = tenantSchemaProvider.schema(tenantId);
-          runDropSql(TenantBeanType.SHARED, schema);
+  
+
+        for (String schema : tenantSchemas) {
+          if (existingSchemas.contains(schema)) {
+            runDropSql(TenantBeanType.TENANT, schema);
+          }
         }
         runDropSql(TenantBeanType.SHARED, sharedschema);
         runCreateSql(TenantBeanType.SHARED, sharedschema);
-        for (Object tenantId : tenantIds) {
-          String schema = tenantSchemaProvider.schema(tenantId);
-          runCreateSql(TenantBeanType.SHARED, schema);
+        for (String schema : tenantSchemas) {
+          runCreateSql(TenantBeanType.TENANT, schema);
         }
       } else {
         runDropSql(TenantBeanType.ALL, null);
@@ -144,6 +181,12 @@ public class DdlGenerator {
    */
   public int runScript(boolean expectErrors, String content, String scriptName, String schema) {
 
+    String sharedSchema = server.getServerConfig().getTenantSharedSchema();
+    if (sharedSchema == null || sharedSchema.isEmpty()) {
+      content = content.replace("${sharedschema}.", "");        
+    } else {
+      content = content.replace("${sharedschema}", sharedSchema);
+    } 
     DdlRunner runner = new DdlRunner(expectErrors, scriptName);
 
     Transaction transaction = server.createTransaction();
@@ -172,18 +215,18 @@ public class DdlGenerator {
 
   protected void runDropSql(TenantBeanType tenantBeanType, String schema) throws IOException {
     if (!createOnly) {
-      if (dropAllContent == null) {
-        dropAllContent = readFile(getDropFileName(tenantBeanType));
+      if (getCache(tenantBeanType).dropAllContent == null) {
+        getCache(tenantBeanType).dropAllContent = readFile(getDropFileName(tenantBeanType));
       }
-      runScript(true, dropAllContent, getDropFileName(tenantBeanType), schema);
+      runScript(true, getCache(tenantBeanType).dropAllContent, getDropFileName(tenantBeanType), schema);
     }
   }
 
   protected void runCreateSql(TenantBeanType tenantBeanType, String schema) throws IOException {
-    if (createAllContent == null) {
-      createAllContent = readFile(getCreateFileName(tenantBeanType));
+    if (getCache(tenantBeanType).createAllContent == null) {
+      getCache(tenantBeanType).createAllContent = readFile(getCreateFileName(tenantBeanType));
     }
-    runScript(false, createAllContent, getCreateFileName(tenantBeanType), schema);
+    runScript(false, getCache(tenantBeanType).createAllContent, getCreateFileName(tenantBeanType), schema);
 
     String ignoreExtraDdl = System.getProperty("ebean.ignoreExtraDdl");
     if (!"true".equalsIgnoreCase(ignoreExtraDdl)) {
@@ -245,8 +288,7 @@ public class DdlGenerator {
   protected String generateDropAllDdl(TenantBeanType tenantBeanType) {
 
     try {
-      dropAllContent = currentModel(tenantBeanType).getDropAllDdl();
-      return dropAllContent;
+      return getCache(tenantBeanType).dropAllContent = currentModel(tenantBeanType).getDropAllDdl();
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
@@ -255,8 +297,7 @@ public class DdlGenerator {
   protected String generateCreateAllDdl(TenantBeanType tenantBeanType) {
 
     try {
-      createAllContent = currentModel(tenantBeanType).getCreateDdl();
-      return createAllContent;
+      return getCache(tenantBeanType).createAllContent = currentModel(tenantBeanType).getCreateDdl();
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
@@ -271,15 +312,14 @@ public class DdlGenerator {
   }
 
   protected CurrentModel currentModel(TenantBeanType tenantBeanType) {
-    if (currentModel == null || currentModelTenantBeanType != tenantBeanType) {
+    if (getCache(tenantBeanType).currentModel == null) {
       List<BeanDescriptor<?>> beanDescriptors = server.getBeanDescriptors()
        .stream()
        .filter(tenantBeanType.getFilter())
        .collect(Collectors.toList());
-      currentModel = new CurrentModel(server, beanDescriptors);
-      currentModelTenantBeanType = tenantBeanType;
+      getCache(tenantBeanType).currentModel = new CurrentModel(server, beanDescriptors);
     }
-    return currentModel;
+    return getCache(tenantBeanType).currentModel;
   }
 
   protected void writeFile(String fileName, String fileContent) throws IOException {
@@ -315,8 +355,8 @@ public class DdlGenerator {
       while ((s = lineReader.readLine()) != null) {
         buf.append(s).append("\n");
       }
-      return buf.toString();
-
+      return buf.toString();        
+      
     } finally {
       lineReader.close();
     }

@@ -103,6 +103,11 @@ public class AnnotationClass extends AnnotationParser {
       }
       // default the TableName using NamingConvention.
       TableName tableName = namingConvention.getTableName(beanType);
+      if (descriptor.isSharedEntity()) {
+        if (tableName.getSchema() == null || tableName.getSchema().isEmpty()) {
+          tableName = new TableName(tableName.getCatalog(), "${sharedSchema}", tableName.getName());
+        }
+      }
       descriptor.setBaseTable(tableName, asOfViewSuffix, versionsBetweenSuffix);
     }
   }

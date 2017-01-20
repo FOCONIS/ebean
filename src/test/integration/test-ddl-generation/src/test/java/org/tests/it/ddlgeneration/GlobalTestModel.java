@@ -9,7 +9,7 @@ import io.ebean.annotation.SharedEntity;
 
 
 @Entity
-@Table(schema = "public", name = "global_model")
+//@Table(schema = "public", name = "global_model")
 @SharedEntity
 public class GlobalTestModel {
   @Id
