@@ -634,6 +634,11 @@ public class DeployBeanDescriptor<T> {
    * Set the base table. Only properties mapped to the base table are by default persisted.
    */
   public void setBaseTable(TableName baseTableFull, String asOfSuffix, String versionsBetweenSuffix) {
+    if (isSharedEntity()) {
+      if (baseTableFull.getSchema() == null || baseTableFull.getSchema().isEmpty()) {
+        baseTableFull = new TableName(baseTableFull.getCatalog(), serverConfig.getTenantSharedSchema(), baseTableFull.getName());
+      }
+    }
     this.baseTableFull = baseTableFull;
     this.baseTable = baseTableFull == null ? null : baseTableFull.getQualifiedName();
     this.baseTableAsOf = baseTable + asOfSuffix;

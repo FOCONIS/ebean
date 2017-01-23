@@ -181,12 +181,6 @@ public class DdlGenerator {
    */
   public int runScript(boolean expectErrors, String content, String scriptName, String schema) {
 
-    String sharedSchema = server.getServerConfig().getTenantSharedSchema();
-    if (sharedSchema == null || sharedSchema.isEmpty()) {
-      content = content.replace("${sharedschema}.", "");        
-    } else {
-      content = content.replace("${sharedschema}", sharedSchema);
-    } 
     DdlRunner runner = new DdlRunner(expectErrors, scriptName);
 
     Transaction transaction = server.createTransaction();
