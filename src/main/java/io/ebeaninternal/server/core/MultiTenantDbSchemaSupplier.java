@@ -3,6 +3,8 @@ package io.ebeaninternal.server.core;
 import io.ebean.config.CurrentTenantProvider;
 import io.ebean.config.TenantSchemaProvider;
 import io.ebeaninternal.server.transaction.DataSourceSupplier;
+import io.ebeaninternal.server.transaction.TransactionManager;
+
 import org.avaje.datasource.DataSourcePool;
 
 import javax.sql.DataSource;
@@ -66,7 +68,9 @@ class MultiTenantDbSchemaSupplier implements DataSourceSupplier {
      */
     Connection getConnectionForTenant(Object tenantId) throws SQLException {
       Connection connection = dataSource.getConnection();
-      connection.setSchema(schemaProvider.schema(tenantId));
+      String schema = schemaProvider.schema(tenantId);
+      TransactionManager.SQL_LOGGER.trace("SET SCHEMA {}", schema);
+      connection.setSchema(schema);
       return connection;
     }
 
@@ -75,16 +79,19 @@ class MultiTenantDbSchemaSupplier implements DataSourceSupplier {
      */
     @Override
     public Connection getConnection() throws SQLException {
-
       Connection connection = dataSource.getConnection();
-      connection.setSchema(tenantSchema());
+      String schema = tenantSchema();
+      TransactionManager.SQL_LOGGER.trace("SET SCHEMA {}", schema);
+      connection.setSchema(schema);
       return connection;
     }
 
     @Override
     public Connection getConnection(String username, String password) throws SQLException {
       Connection connection = dataSource.getConnection(username, password);
-      connection.setSchema(tenantSchema());
+      String schema = tenantSchema();
+      TransactionManager.SQL_LOGGER.trace("SET SCHEMA {}", schema);
+      connection.setSchema(schema);
       return connection;
     }
 

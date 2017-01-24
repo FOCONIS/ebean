@@ -341,6 +341,10 @@
           <localRepositoryPath>${project.basedir}/it-repo</localRepositoryPath>
           <preBuildHookScript>setup.groovy</preBuildHookScript>
           <postBuildHookScript>validate.groovy</postBuildHookScript>
+          <goals>
+            <goal>clean</goal>
+            <goal>package</goal>
+          </goals>
         </configuration>
         <executions>
           <execution>

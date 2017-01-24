@@ -147,6 +147,7 @@ public class DdlGenerator {
               stmt.execute("CREATE SCHEMA " + schema);
             }
           } 
+          transaction.commit();
         } catch (SQLException e) {
           throw new PersistenceException("Failed to run script", e);
         } finally {
