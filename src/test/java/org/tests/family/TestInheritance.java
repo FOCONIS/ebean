@@ -1,6 +1,7 @@
 package org.tests.family;
 
 import io.ebean.BaseTestCase;
+import io.ebean.Ebean;
 import io.ebeaninternal.server.deploy.BeanDescriptor;
 import io.ebeaninternal.server.deploy.BeanProperty;
 import io.ebeaninternal.server.deploy.BeanPropertyAssocOne;
@@ -9,7 +10,6 @@ import org.tests.model.family.ChildPerson;
 import org.tests.model.family.GrandParentPerson;
 import org.tests.model.family.ParentPerson;
 import org.junit.Test;
-
 import static org.junit.Assert.*;
 
 
@@ -212,5 +212,58 @@ public class TestInheritance extends BaseTestCase {
     assertEquals("Foo", grandparent1.getFamilyName());
     assertEquals("Munich", grandparent1.getAddress());
     assertEquals(1, grandparent1.getEffectiveBean().getId().intValue());
+  }
+  
+  @Test
+  public void testFindCount() {
+    EBasic basicA = new EBasic();
+    basicA.setName("FamilyName A");
+    basicA.setDescription("Description A");
+    server().save(basicA);
+    
+    EBasic basicB = new EBasic();
+    basicB.setName("FamilyName B");
+    basicB.setDescription("Description B");
+    server().save(basicB);
+    
+    
+    GrandParentPerson gp1 = new GrandParentPerson();
+    gp1.setFamilyName("FamilyName A");
+    gp1.setName("Franz");
+    server().save(gp1);
+        
+//    GrandParentPerson gp2 = new GrandParentPerson();
+//    gp2.setFamilyName("FamilyName A");
+//    gp2.setName("Sissi");
+//    server().save(gp2);
+//    
+//    GrandParentPerson gp3 = new GrandParentPerson();
+//    gp3.setFamilyName("FamilyName B");
+//    gp3.setName("Sepp");
+//    server().save(gp3);
+    
+    
+    gp1 = Ebean.find(GrandParentPerson.class).where().eq("name", "Franz").findUnique();
+    assertEquals("FamilyName A", gp1.getFamilyName());
+    assertEquals("Description A", gp1.getBasicSameName().getDescription());
+    
+    
+    gp1 = Ebean.find(GrandParentPerson.class).where().eq("basicSameName.name", "FamilyName A").findUnique();
+    assertEquals("FamilyName A", gp1.getFamilyName());
+    assertEquals("Description A", gp1.getBasicSameName().getDescription());
+    
+    
+    gp1 = Ebean.find(GrandParentPerson.class).where().eq("basicSameName.description", "Description A").findUnique();
+    assertEquals("FamilyName A", gp1.getFamilyName());
+    assertEquals("Description A", gp1.getBasicSameName().getDescription());
+    
+    int count;
+    count = Ebean.find(GrandParentPerson.class).where().eq("name", "Franz").findCount();
+    assertEquals(1, count);
+    count = Ebean.find(GrandParentPerson.class).where().eq("basicSameName.name", "FamilyName A").findCount();
+    assertEquals(1, count);
+    count = Ebean.find(GrandParentPerson.class).where().eq("basicSameName.description", "Description A").findCount();
+    assertEquals(1, count);
+    
   }
 }
