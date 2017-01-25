@@ -12,7 +12,6 @@
 target/
 logs/
 log/
-src/test/integration/*/src/main/resources/dbmigration/*
 it-repo/
 ebean-autotune.xml
 ebean-profiling*.xml

@@ -5,12 +5,17 @@ import io.ebean.Ebean;
 import io.ebeaninternal.server.deploy.BeanDescriptor;
 import io.ebeaninternal.server.deploy.BeanProperty;
 import io.ebeaninternal.server.deploy.BeanPropertyAssocOne;
+
+import org.tests.compositekeys.db.Region;
 import org.tests.model.basic.EBasic;
 import org.tests.model.family.ChildPerson;
 import org.tests.model.family.GrandParentPerson;
 import org.tests.model.family.ParentPerson;
+import org.avaje.ebeantest.LoggedSqlCollector;
 import org.junit.Test;
 import static org.junit.Assert.*;
+
+import java.util.List;
 
 
 public class TestInheritance extends BaseTestCase {
@@ -231,18 +236,7 @@ public class TestInheritance extends BaseTestCase {
     gp1.setFamilyName("FamilyName A");
     gp1.setName("Franz");
     server().save(gp1);
-        
-//    GrandParentPerson gp2 = new GrandParentPerson();
-//    gp2.setFamilyName("FamilyName A");
-//    gp2.setName("Sissi");
-//    server().save(gp2);
-//    
-//    GrandParentPerson gp3 = new GrandParentPerson();
-//    gp3.setFamilyName("FamilyName B");
-//    gp3.setName("Sepp");
-//    server().save(gp3);
-    
-    
+
     gp1 = Ebean.find(GrandParentPerson.class).where().eq("name", "Franz").findUnique();
     assertEquals("FamilyName A", gp1.getFamilyName());
     assertEquals("Description A", gp1.getBasicSameName().getDescription());
@@ -266,4 +260,19 @@ public class TestInheritance extends BaseTestCase {
     assertEquals(1, count);
     
   }
+  
+//  @Test
+//  public void testSelect() {
+//    LoggedSqlCollector.start();
+//
+//    //Query<GrandParentPerson> q1 = server().find(GrandParentPerson.class);
+//    //List<GrandParentPerson> lst = q1.fetchProperties("totalAge", "familyName", "basicSameName.description").findList();
+//    
+//    server().find(Region.class).fetchProperties("items.auditInfo.lastUpdated", "items.auditInfo.created").findList();
+//    
+//    List<String> loggedSql = LoggedSqlCollector.stop();
+//    System.out.println(loggedSql);
+//    
+//    
+//  }
 }
