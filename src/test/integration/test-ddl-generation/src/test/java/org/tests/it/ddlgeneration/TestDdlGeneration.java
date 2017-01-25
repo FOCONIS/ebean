@@ -4,8 +4,12 @@ package org.tests.it.ddlgeneration;
 import static org.junit.Assert.*;
 
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Arrays;
+
+import javax.sql.DataSource;
 
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
@@ -16,6 +20,7 @@ import io.ebean.Ebean;
 import io.ebean.EbeanServer;
 import io.ebean.EbeanServerFactory;
 import io.ebean.Platform;
+import io.ebean.Transaction;
 import io.ebean.config.ServerConfig;
 import io.ebean.config.TenantMode;
 import io.ebean.dbmigration.DbMigration;
@@ -177,6 +182,27 @@ public class TestDdlGeneration {
     
     cache2 = Ebean.find(LocalCachable.class).where().idEq(1).findUnique();
     assertEquals("LocalCachable Tenant 2", cache2.getName());
+
+  }
+  
+  @Test
+  public void test07checkDataSource() throws IOException, SQLException {
+    currentTenant[0] = "1";
+    DataSource ds = Ebean.getPluginApi().getDataSource();
+    Connection conn = ds.getConnection();
+    conn.setSchema("TENANT_1");
+    PreparedStatement ps1 = conn.prepareStatement("SELECT * from local_model");
+    ps1.close();
+    PreparedStatement ps2 = conn.prepareStatement("SELECT * from local_model");
+    ps2.close();
+    
+    conn.setSchema("TENANT_2");
+    PreparedStatement ps3 = conn.prepareStatement("SELECT * from local_model");
+    ps3.close();
+    
+    
+    assertTrue(ps1 == ps2);  // test if pstmtCache is working
+    assertFalse(ps1 == ps3); // test if datasource recognize schema change
 
   }
 
