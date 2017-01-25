@@ -2791,32 +2791,36 @@ public class ServerConfig {
    * Run the DB migration against the DataSource and default schema.
    */
   public DataSource runDbMigration(DataSource dataSource) {
-    if (getTenantSharedSchema() != null && !getTenantSharedSchema().isEmpty()) {
-      List<String> schemas = null;
-      try {
-        Connection conn = dataSource.getConnection();
+    if (migrationConfig.isRunMigration()) {
+      if (getTenantSharedSchema() != null && !getTenantSharedSchema().isEmpty()) {
+        List<String> schemas = null;
         try {
-          schemas = availableTenantsProvider.getTenantIds(conn).stream().map(tenantSchemaProvider::schema).collect(Collectors.toList());
-        } finally {
-          conn.close();
-        }
-      } catch (Exception e) {
-        throw new RuntimeException(e);
-      } 
-      String path = migrationConfig.migrationPath;
-      
-      migrationConfig.migrationPath = path + "/" + TenantBeanType.SHARED.name().toLowerCase();
+          Connection conn = dataSource.getConnection();
+          try {
+            schemas = availableTenantsProvider.getTenantIds(conn).stream().map(tenantSchemaProvider::schema).collect(Collectors.toList());
+          } finally {
+            conn.close();
+          }
+        } catch (Exception e) {
+          throw new RuntimeException(e);
+        } 
+        String path = migrationConfig.migrationPath;
+        try {
+          migrationConfig.migrationPath = path + "/" + TenantBeanType.SHARED.name().toLowerCase();
 
-      runDbMigration(dataSource, getTenantSharedSchema());
-      
-      migrationConfig.migrationPath = path + "/" + TenantBeanType.TENANT.name().toLowerCase();
-      
-      schemas.forEach(schema->runDbMigration(dataSource, schema));
-      
-      return dataSource;
-    } else {
-      return runDbMigration(dataSource, null);
+          runDbMigration(dataSource, getTenantSharedSchema());
+
+          migrationConfig.migrationPath = path + "/" + TenantBeanType.TENANT.name().toLowerCase();
+
+          schemas.forEach(schema->runDbMigration(dataSource, schema));
+        } finally {
+          migrationConfig.migrationPath = path; // restore path
+        }
+      } else {
+        return runDbMigration(dataSource, null);
+      }
     }
+    return dataSource;
   }
   
   /**

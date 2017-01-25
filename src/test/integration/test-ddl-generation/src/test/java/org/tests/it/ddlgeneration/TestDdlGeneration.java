@@ -55,6 +55,7 @@ public class TestDdlGeneration {
     DbMigration dbMigration = new DbMigration();
     dbMigration.addPlatform(Platform.POSTGRES, "postgres");
     dbMigration.addPlatform(Platform.SQLSERVER, "sqlserver");
+    dbMigration.addPlatform(Platform.H2, "h2");
     dbMigration.generateMigration();
   }
 

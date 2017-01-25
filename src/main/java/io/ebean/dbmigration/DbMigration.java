@@ -6,7 +6,6 @@ import io.ebean.config.DbConstraintNaming;
 import io.ebean.config.DbMigrationConfig;
 import io.ebean.Platform;
 import io.ebean.config.ServerConfig;
-import io.ebean.config.TenantMode;
 import io.ebean.config.dbplatform.db2.DB2Platform;
 import io.ebean.config.dbplatform.DatabasePlatform;
 import io.ebean.config.dbplatform.h2.H2Platform;

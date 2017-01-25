@@ -1,5 +1,5 @@
-File pgshared = new File(basedir, 'src/main/resources/dbmigration/myapp/shared/postgres/V1.0__initial.sql')
-File pgtenant = new File(basedir, 'src/main/resources/dbmigration/myapp/tenant/postgres/V1.0__initial.sql')
+File pgshared = new File(basedir, 'src/main/resources/dbmigration/myapp/postgres/shared/V1.0__initial.sql')
+File pgtenant = new File(basedir, 'src/main/resources/dbmigration/myapp/postgres/tenant/V1.0__initial.sql')
 assert pgshared.exists()
 assert pgtenant.exists()
 assert pgshared.text.contains("create table public.global_test_model")
