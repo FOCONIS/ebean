@@ -13,6 +13,7 @@ import io.ebean.config.dbplatform.DatabasePlatform;
 import io.ebean.config.dbplatform.DbEncrypt;
 import io.ebean.config.dbplatform.DbType;
 import io.ebean.dbmigration.MigrationRunner;
+import io.ebean.dbmigration.TenantBeanType;
 import io.ebean.event.BeanFindController;
 import io.ebean.event.BeanPersistController;
 import io.ebean.event.BeanPersistListener;
@@ -34,6 +35,7 @@ import org.avaje.datasource.DataSourceConfig;
 import javax.sql.DataSource;
 
 import java.lang.annotation.Annotation;
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -41,6 +43,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.ServiceLoader;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 /**
  * The configuration used for creating a EbeanServer.
@@ -2787,7 +2791,32 @@ public class ServerConfig {
    * Run the DB migration against the DataSource and default schema.
    */
   public DataSource runDbMigration(DataSource dataSource) {
-    return runDbMigration(dataSource, null);
+    if (getTenantSharedSchema() != null && !getTenantSharedSchema().isEmpty()) {
+      List<String> schemas = null;
+      try {
+        Connection conn = dataSource.getConnection();
+        try {
+          schemas = availableTenantsProvider.getTenantIds(conn).stream().map(tenantSchemaProvider::schema).collect(Collectors.toList());
+        } finally {
+          conn.close();
+        }
+      } catch (Exception e) {
+        throw new RuntimeException(e);
+      } 
+      String path = migrationConfig.migrationPath;
+      
+      migrationConfig.migrationPath = path + "/" + TenantBeanType.SHARED.name().toLowerCase();
+
+      runDbMigration(dataSource, getTenantSharedSchema());
+      
+      migrationConfig.migrationPath = path + "/" + TenantBeanType.TENANT.name().toLowerCase();
+      
+      schemas.forEach(schema->runDbMigration(dataSource, schema));
+      
+      return dataSource;
+    } else {
+      return runDbMigration(dataSource, null);
+    }
   }
   
   /**

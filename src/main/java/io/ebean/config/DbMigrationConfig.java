@@ -104,6 +104,8 @@ public class DbMigrationConfig {
    */
   protected String dbPassword;
 
+  protected boolean createSchemaIfNotExists;
+
   /**
    * Return the DB platform to generate migration DDL for.
    * <p>
@@ -351,6 +353,13 @@ public class DbMigrationConfig {
     this.dbPassword = dbPassword;
   }
 
+  public boolean isCreateSchemaIfNotExists() {
+    return createSchemaIfNotExists;
+  }
+  
+  public void setCreateSchemaIfNotExists(boolean createSchemaIfNotExists) {
+    this.createSchemaIfNotExists = createSchemaIfNotExists;
+  }
   /**
    * Load the settings from the PropertiesWrapper.
    */
@@ -381,6 +390,7 @@ public class DbMigrationConfig {
     String adminPwd = properties.get("datasource." + serverName + ".password", dbPassword);
     adminPwd = properties.get("datasource." + serverName + ".adminpassword", adminPwd);
     dbPassword = properties.get("migration.dbpassword", adminPwd);
+    createSchemaIfNotExists = properties.getBoolean("migration.createSchemaIfNotExists", false);
   }
 
   /**
@@ -462,6 +472,7 @@ public class DbMigrationConfig {
     runnerConfig.setDbPassword(getDbPassword());
     runnerConfig.setClassLoader(classLoader);
     runnerConfig.setDbSchema(dbSchema);
+    runnerConfig.setCreateSchemaIfNotExists(createSchemaIfNotExists);
     return new MigrationRunner(runnerConfig);
   }
 }
