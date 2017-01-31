@@ -38,6 +38,7 @@ import io.ebeaninternal.server.deploy.meta.DeployBeanPropertyAssocMany;
 import io.ebeaninternal.server.deploy.meta.DeployBeanPropertyAssocOne;
 import io.ebeaninternal.server.deploy.meta.DeployBeanTable;
 import io.ebeaninternal.server.deploy.meta.DeployTableJoin;
+import io.ebeaninternal.server.deploy.parse.AnnotationCustomDeploy;
 import io.ebeaninternal.server.deploy.parse.DeployBeanInfo;
 import io.ebeaninternal.server.deploy.parse.DeployCreateProperties;
 import io.ebeaninternal.server.deploy.parse.DeployInherit;
@@ -185,6 +186,8 @@ public class BeanDescriptorManager implements BeanDescriptorMap {
    */
   private final Map<String, String> draftTableMap = new HashMap<>();
 
+
+
   /**
    * Create for a given database dbConfig.
    */
@@ -324,6 +327,7 @@ public class BeanDescriptorManager implements BeanDescriptorMap {
       readEntityBeanTable();
       readEntityDeploymentAssociations();
       readInheritedIdGenerators();
+      runCustomDeploy(); 
       // creates the BeanDescriptors
       readEntityRelationships();
 
@@ -768,6 +772,12 @@ public class BeanDescriptorManager implements BeanDescriptorMap {
     }
   }
 
+  private void runCustomDeploy() {
+    for (Map.Entry<Class<?>, DeployBeanInfo<?>> entry : deployInfoMap.entrySet()) {
+      new AnnotationCustomDeploy(entry.getValue(), 
+          serverConfig.getClassLoadConfig().isJavaxValidationAnnotationsPresent()).parse();
+    }
+  }
   /**
    * Sets the inheritance info. ~EMG fix for join problem
    *
