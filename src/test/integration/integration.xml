@@ -20,43 +20,72 @@
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
   </properties>
 
+  <profiles>
+    <profile>
+      <id>default</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <dependencies>
+        <dependency>
+          <groupId>io.ebean</groupId>
+          <artifactId>ebean</artifactId>
+          <version>@project.version@</version>
+          <optional>true</optional>
+        </dependency>
+      </dependencies>
+      <build>
+          <plugins>
+            <plugin>
+              <groupId>io.ebean</groupId>
+              <artifactId>ebean-maven-plugin</artifactId>
+              <version>10.1.2</version>
+              <executions>
+                <execution>
+                  <id>test</id>
+                  <phase>process-test-classes</phase>
+                  <configuration>
+                    <classSource>target/test-classes</classSource>
+                    <transformArgs>debug=1</transformArgs>
+                  </configuration>
+                  <goals>
+                    <goal>enhance</goal>
+                  </goals>
+                </execution>
+              </executions>
+            </plugin>
+          </plugins>
+        </build>
+    </profile>
+    <profile>
+    <!-- link JAR directly into eclipse end enable enhancer plugin!! -->
+      <id>IDE</id>
+      <activation>
+        <property>
+          <name>m2e.version</name>
+        </property>
+      </activation>
+      <dependencies>
+        <dependency>
+          <groupId>io.ebean</groupId>
+          <artifactId>ebean</artifactId>
+          <version>10.1.6-FOC-SNAPSHOT</version>
+        </dependency>
+      </dependencies>      
+    </profile>
+  </profiles>
+  
   <dependencies>
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.11</version>
+      <groupId>org.avaje.composite</groupId>
+      <artifactId>avaje-composite-testing</artifactId>
+      <version>1.1</version>
+      <scope>test</scope>
+      <type>pom</type>
     </dependency>
-    <dependency>
-      <groupId>io.ebean</groupId>
-      <artifactId>ebean</artifactId>
-      <version>@project.version@</version>
-    </dependency>
-    <!-- <dependency> <groupId>org.codehaus.groovy</groupId> <artifactId>groovy-all-minimal</artifactId> 
-      <version>2.2.1</version> </dependency> -->
   </dependencies>
 
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>io.ebean</groupId>
-        <artifactId>ebean-maven-plugin</artifactId>
-        <version>10.1.2</version>
-        <executions>
-          <execution>
-            <id>test</id>
-            <phase>process-test-classes</phase>
-            <configuration>
-              <classSource>target/test-classes</classSource>
-              <transformArgs>debug=1</transformArgs>
-            </configuration>
-            <goals>
-              <goal>enhance</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
-  </build>
+  
 
 </project>
 
