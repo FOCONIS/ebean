@@ -1387,4 +1387,9 @@ public interface Query<T> {
    */
   Set<String> validate();
 
+  /**
+   * Fetches all the elPaths. (See {@link #select(String)} or {@link #fetch(String)}) 
+   */
+  Query<T> fetchProperties(String ... elPaths);
+
 }

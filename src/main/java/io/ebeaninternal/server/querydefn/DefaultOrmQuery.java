@@ -1662,4 +1662,10 @@ public class DefaultOrmQuery<T> implements SpiQuery<T> {
   public OrmUpdateProperties getUpdateProperties() {
     return updateProperties;
   }
+
+  @Override
+  public Query<T> fetchProperties(String... elPaths) {
+    detail.fetchProperties(beanDescriptor, elPaths);
+    return this;
+  }
 }
