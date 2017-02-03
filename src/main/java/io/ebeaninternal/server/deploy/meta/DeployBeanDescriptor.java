@@ -217,7 +217,7 @@ public class DeployBeanDescriptor<T> {
   /**
    * Return the DeployBeanInfo for the given bean class.
    */
-  DeployBeanInfo<?> getDeploy(Class<?> cls) {
+  public DeployBeanInfo<?> getDeploy(Class<?> cls) {
     return manager.getDeploy(cls);
   }
 
