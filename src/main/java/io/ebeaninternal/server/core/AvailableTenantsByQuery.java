@@ -4,10 +4,8 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 
@@ -15,7 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.ebean.config.AvailableTenantsProvider;
-import io.ebean.config.dbplatform.h2.H2HistoryTrigger;
 
 /**
  * A tenantProvider that executes the SQL query and returns a list of available tenants.
@@ -24,7 +21,7 @@ import io.ebean.config.dbplatform.h2.H2HistoryTrigger;
  */
 public class AvailableTenantsByQuery implements AvailableTenantsProvider {
 
-  private static final Logger logger = LoggerFactory.getLogger(H2HistoryTrigger.class);
+  private static final Logger logger = LoggerFactory.getLogger(AvailableTenantsByQuery.class);
 
   private final String query;
   Set<Object> tenants = new HashSet<>();
