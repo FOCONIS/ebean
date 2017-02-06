@@ -5,6 +5,8 @@ import io.ebean.Ebean;
 import io.ebean.Query;
 import org.tests.model.basic.Customer;
 import org.tests.model.basic.ResetBasicData;
+import org.tests.model.inheritmany.MMedia;
+import org.avaje.test.model.rawsql.inherit.ChildA;
 import org.junit.Test;
 
 import java.sql.Date;
@@ -125,4 +127,38 @@ public class TestQuerySingleAttribute extends BaseTestCase {
     query2.findList();
     assertThat(sqlOf(query2, 1)).contains("select t0.id, t0.name from o_customer t0");
   }
+  
+  
+  @Test
+  public void distinctWithElPath() {
+
+    ResetBasicData.reset();
+
+    Query<Customer> query = Ebean.find(Customer.class)
+      .setDistinct(true)
+      .fetchProperties("billingAddress.city")
+      .setMaxRows(100);
+
+    List<String> cities = query.findSingleAttributeList();
+
+    assertThat(sqlOf(query)).contains("select distinct t1.city from o_customer t0 left join o_address t1 on t1.id = t0.billing_address_id");
+    assertThat(cities).isNotNull();
+  }
+  
+  @Test
+  public void distinctWithKind() {
+
+    ResetBasicData.reset();
+
+    Query<ChildA> query = Ebean.find(ChildA.class)
+      .setDistinct(true)
+      .fetchProperties("more")
+      .setMaxRows(100);
+
+    List<String> cities = query.findSingleAttributeList();
+
+    assertThat(sqlOf(query)).contains("select distinct t0.more from rawinherit_parent t0 where t0.type = 'A'  limit 100");
+    assertThat(cities).isNotNull();
+  }
+
 }

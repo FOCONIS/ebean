@@ -59,6 +59,8 @@ class SqlTreeNodeBean implements SqlTreeNode {
    */
   protected final boolean readId;
 
+  protected final boolean readDiscriminator;
+  
   private final boolean disableLazyLoad;
 
   protected final InheritInfo inheritInfo;
@@ -89,17 +91,17 @@ class SqlTreeNodeBean implements SqlTreeNode {
    * Construct for leaf node.
    */
   SqlTreeNodeBean(String prefix, BeanPropertyAssoc<?> beanProp, SqlTreeProperties props,
-                  List<SqlTreeNode> myChildren, SpiQuery.TemporalMode temporalMode, boolean disableLazyLoad) {
+                  List<SqlTreeNode> myChildren, SpiQuery.TemporalMode temporalMode, boolean disableLazyLoad, boolean distinct) {
 
-    this(prefix, beanProp, beanProp.getTargetDescriptor(), props, myChildren, true, null, temporalMode, disableLazyLoad);
+    this(prefix, beanProp, beanProp.getTargetDescriptor(), props, myChildren, true, null, temporalMode, disableLazyLoad, distinct);
   }
 
   /**
    * Construct for root node.
    */
   SqlTreeNodeBean(BeanDescriptor<?> desc, SqlTreeProperties props, List<SqlTreeNode> myList, boolean withId,
-                  BeanPropertyAssocMany<?> many, SpiQuery.TemporalMode temporalMode, boolean disableLazyLoad) {
-    this(null, null, desc, props, myList, withId, many, temporalMode, disableLazyLoad);
+                  BeanPropertyAssocMany<?> many, SpiQuery.TemporalMode temporalMode, boolean disableLazyLoad, boolean distinct) {
+    this(null, null, desc, props, myList, withId, many, temporalMode, disableLazyLoad, distinct);
   }
 
   /**
@@ -107,7 +109,7 @@ class SqlTreeNodeBean implements SqlTreeNode {
    */
   private SqlTreeNodeBean(String prefix, BeanPropertyAssoc<?> beanProp, BeanDescriptor<?> desc, SqlTreeProperties props,
                           List<SqlTreeNode> myChildren, boolean withId, BeanPropertyAssocMany<?> lazyLoadParent,
-                          SpiQuery.TemporalMode temporalMode, boolean disableLazyLoad) {
+                          SpiQuery.TemporalMode temporalMode, boolean disableLazyLoad, boolean distinct) {
 
     this.lazyLoadParent = lazyLoadParent;
     this.lazyLoadParentIdBinder = (lazyLoadParent == null) ? null : lazyLoadParent.getBeanDescriptor().getIdBinder();
@@ -122,7 +124,8 @@ class SqlTreeNodeBean implements SqlTreeNode {
     this.extraWhere = (beanProp == null) ? null : beanProp.getExtraWhere();
 
     // the bean has an Id property and we want to use it
-    this.readId = withId && (desc.getIdProperty() != null);
+    this.readId = withId && (desc.getIdProperty() != null) && !distinct;
+    this.readDiscriminator = !distinct;
     this.disableLazyLoad = disableLazyLoad || !readId || desc.isRawSqlBased() || temporalVersions;
 
     this.partialObject = props.isPartialObject();
@@ -135,6 +138,9 @@ class SqlTreeNodeBean implements SqlTreeNode {
 
   @Override
   public BeanProperty getSingleProperty() {
+	if (properties == null || properties.length == 0) {
+	  return children[0].getSingleProperty();
+	}
     return properties[0];
   }
 
@@ -430,10 +436,12 @@ class SqlTreeNodeBean implements SqlTreeNode {
       lazyLoadParent.addSelectExported(ctx, prefix);
     }
 
-    if (!subQuery && inheritInfo != null) {
-      ctx.appendColumn(inheritInfo.getDiscriminatorColumn());
+    if (readDiscriminator) {
+      if (!subQuery && inheritInfo != null) {
+        ctx.appendColumn(inheritInfo.getDiscriminatorColumn());
+      }
     }
-
+    
     if (readId) {
       appendSelectId(ctx, idBinder.getBeanProperty());
     }
