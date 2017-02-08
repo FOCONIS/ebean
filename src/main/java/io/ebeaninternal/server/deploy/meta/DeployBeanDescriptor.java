@@ -6,6 +6,7 @@ import io.ebean.annotation.DocStore;
 import io.ebean.annotation.DocStoreMode;
 import io.ebean.config.ServerConfig;
 import io.ebean.config.TableName;
+import io.ebean.config.TenantMode;
 import io.ebean.config.dbplatform.IdType;
 import io.ebean.config.dbplatform.PlatformIdGenerator;
 import io.ebean.event.BeanFindController;
@@ -17,6 +18,7 @@ import io.ebean.event.BeanQueryAdapter;
 import io.ebean.event.changelog.ChangeLogFilter;
 import io.ebean.text.PathProperties;
 import io.ebean.util.CamelCaseHelper;
+import io.ebean.util.TenantUtil;
 import io.ebeaninternal.api.ConcurrencyMode;
 import io.ebeaninternal.server.core.CacheOptions;
 import io.ebeaninternal.server.deploy.BeanDescriptor.EntityType;
@@ -138,6 +140,8 @@ public class DeployBeanDescriptor<T> {
   private String[] dependentTables;
 
   private boolean historySupport;
+  
+  private boolean sharedEntity;
 
   private boolean readAuditing;
 
@@ -242,6 +246,14 @@ public class DeployBeanDescriptor<T> {
     return historySupport;
   }
 
+  public boolean isSharedEntity() {
+    return sharedEntity;
+  }
+  
+  public void setSharedEntity() {
+    this.sharedEntity = true;
+  }
+  
   /**
    * Set read auditing on for this entity bean.
    */
@@ -625,6 +637,13 @@ public class DeployBeanDescriptor<T> {
    * Set the base table. Only properties mapped to the base table are by default persisted.
    */
   public void setBaseTable(TableName baseTableFull, String asOfSuffix, String versionsBetweenSuffix) {
+
+    if (baseTableFull != null 
+        && (baseTableFull.getSchema() == null || baseTableFull.getSchema().isEmpty())
+        && serverConfig.getTenantMode() == TenantMode.SCHEMA) {
+      String schema = isSharedEntity() ? TenantUtil.SHARED_SCHEMA : TenantUtil.TENANT_SCHEMA;
+      baseTableFull = new TableName(baseTableFull.getCatalog(), schema, baseTableFull.getName());
+    }
     this.baseTableFull = baseTableFull;
     this.baseTable = baseTableFull == null ? null : baseTableFull.getQualifiedName();
     this.baseTableAsOf = baseTable + asOfSuffix;

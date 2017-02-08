@@ -3,6 +3,7 @@ package io.ebean.dbmigration.model;
 import io.ebean.config.DbMigrationConfig;
 import io.ebean.config.ServerConfig;
 import io.ebean.config.dbplatform.DatabasePlatform;
+import io.ebean.dbmigration.DbSchemaType;
 import io.ebean.dbmigration.ddlgeneration.DdlBuffer;
 import io.ebean.dbmigration.ddlgeneration.DdlHandler;
 import io.ebean.dbmigration.ddlgeneration.DdlWrite;
@@ -115,8 +116,11 @@ public class PlatformDdlWriter {
   /**
    * Return a sub directory (for multi-platform ddl generation).
    */
-  public File subPath(File path, String suffix) {
+  public File subPath(File path, String suffix, DbSchemaType dbSchemaType) {
     File subPath = new File(path, suffix);
+    if (dbSchemaType != DbSchemaType.ALL) {
+      subPath = new File(subPath, dbSchemaType.name().toLowerCase());
+    }
     if (!subPath.exists()) {
       if (!subPath.mkdirs()) {
         logger.error("failed to create directories for " + subPath.getAbsolutePath());

@@ -9,15 +9,15 @@ import io.ebean.dbmigration.model.build.ModelBuildBeanVisitor;
 import io.ebean.dbmigration.model.build.ModelBuildContext;
 import io.ebean.dbmigration.model.visitor.VisitAllUsing;
 import io.ebeaninternal.api.SpiEbeanServer;
+import io.ebeaninternal.server.deploy.BeanDescriptor;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * Reads EbeanServer bean descriptors to build the current model.
  */
 public class CurrentModel {
-
-  private final SpiEbeanServer server;
 
   private final DbConstraintNaming constraintNaming;
 
@@ -25,17 +25,29 @@ public class CurrentModel {
 
   private final boolean platformTypes;
 
+  private final List<BeanDescriptor<?>> beanDescriptors;
+
+  private final DdlHandler handler;
+
   private ModelContainer model;
 
   private ChangeSet changeSet;
 
   private DdlWrite write;
 
+
   /**
    * Construct with a given EbeanServer instance for DDL create all generation, not migration.
    */
   public CurrentModel(SpiEbeanServer server) {
-    this(server, server.getServerConfig().getConstraintNaming(), true);
+    this(server, server.getServerConfig().getConstraintNaming(), true, server.getBeanDescriptors());
+  }
+  
+  /**
+   * Construct with a given EbeanServer instance and list of BeanDescriptors for Tenant-DDL creation.
+   */
+  public CurrentModel(SpiEbeanServer server, List<BeanDescriptor<?>> beanDescriptors) {
+    this(server, server.getServerConfig().getConstraintNaming(), true, beanDescriptors);
   }
 
   /**
@@ -45,15 +57,18 @@ public class CurrentModel {
    * the platform specific handling on
    * </p>
    */
-  public CurrentModel(SpiEbeanServer server, DbConstraintNaming constraintNaming) {
-    this(server, constraintNaming, false);
+  public CurrentModel(SpiEbeanServer server, DbConstraintNaming constraintNaming, List<BeanDescriptor<?>> beanDescriptors) {
+    this(server, constraintNaming, false, beanDescriptors);
   }
 
-  private CurrentModel(SpiEbeanServer server, DbConstraintNaming constraintNaming, boolean platformTypes) {
-    this.server = server;
+  private CurrentModel(SpiEbeanServer server, DbConstraintNaming constraintNaming, boolean platformTypes, 
+      List<BeanDescriptor<?>> beanDescriptors) {
     this.constraintNaming = constraintNaming;
     this.maxLength = maxLength(server, constraintNaming);
     this.platformTypes = platformTypes;
+    this.beanDescriptors = beanDescriptors;
+    this.handler = server.getDatabasePlatform().createDdlHandler(server.getServerConfig());
+    
   }
 
   private static DbConstraintNaming.MaxLength maxLength(SpiEbeanServer server, DbConstraintNaming naming) {
@@ -75,7 +90,7 @@ public class CurrentModel {
 
       ModelBuildContext context = new ModelBuildContext(model, constraintNaming, maxLength, platformTypes);
       ModelBuildBeanVisitor visitor = new ModelBuildBeanVisitor(context);
-      VisitAllUsing visit = new VisitAllUsing(visitor, server);
+      VisitAllUsing visit = new VisitAllUsing(visitor, beanDescriptors);
       visit.visitAllBeans();
 
       // adjust the foreign keys on the 'draft' tables
@@ -147,7 +162,7 @@ public class CurrentModel {
    * Return the platform specific DdlHandler (to generate DDL).
    */
   private DdlHandler handler() {
-    return server.getDatabasePlatform().createDdlHandler(server.getServerConfig());
+    return handler;
   }
 
   /**

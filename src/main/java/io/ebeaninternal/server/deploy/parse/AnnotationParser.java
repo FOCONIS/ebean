@@ -87,9 +87,15 @@ public abstract class AnnotationParser extends AnnotationBase {
 
     String baseTable = descriptor.getBaseTable();
     String tableName = columnAnn.table();
-    if (!"".equals(tableName) && !tableName.equalsIgnoreCase(baseTable)) {
-      // its on a secondary table...
-      prop.setSecondaryTable(tableName);
+    if (!"".equals(tableName)) { // if tableName is set without schema (e.g. "o_customer"), prepend schema of baseTable
+      int pos = baseTable.indexOf('.');
+      if (pos != -1 && tableName.indexOf('.') == -1) {
+        tableName = baseTable.substring(0, pos+1) + tableName;
+      }
+      if (!tableName.equalsIgnoreCase(baseTable)) {
+        // its on a secondary table...
+        prop.setSecondaryTable(tableName);
+      }
     }
   }
 

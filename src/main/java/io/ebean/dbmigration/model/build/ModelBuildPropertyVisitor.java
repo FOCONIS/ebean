@@ -178,7 +178,7 @@ public class ModelBuildPropertyVisitor extends BaseTablePropertyVisitor {
 
       MColumn col = table.addColumn(dbCol, columnDefn, !p.isNullable());
 
-      if (columns.length == 1) {
+      if (compoundKey == null) { // i.e. colums.length == 1
         // single references column (put it on the column)
         String refTable = importedProperty.getBeanDescriptor().getBaseTable();
         if (refTable == null) {

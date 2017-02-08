@@ -8,6 +8,7 @@ import io.ebean.annotation.DraftableElement;
 import io.ebean.annotation.History;
 import io.ebean.annotation.Index;
 import io.ebean.annotation.ReadAudit;
+import io.ebean.annotation.SharedEntity;
 import io.ebean.annotation.UpdateMode;
 import io.ebean.annotation.View;
 import io.ebean.config.TableName;
@@ -175,6 +176,11 @@ public class AnnotationClass extends AnnotationParser {
       descriptor.setHistorySupport();
     }
 
+    SharedEntity sharedEntity = AnnotationBase.findAnnotation(cls,SharedEntity.class);
+    if (sharedEntity != null) {
+      descriptor.setSharedEntity();
+    }
+    
     DbComment comment = AnnotationBase.findAnnotation(cls,DbComment.class);
     if (comment != null) {
       descriptor.setDbComment(comment.value());

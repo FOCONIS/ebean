@@ -12,6 +12,7 @@ import io.ebean.cache.ServerCachePlugin;
 import io.ebean.config.dbplatform.DatabasePlatform;
 import io.ebean.config.dbplatform.DbEncrypt;
 import io.ebean.config.dbplatform.DbType;
+import io.ebean.dbmigration.DbSchemaType;
 import io.ebean.dbmigration.MigrationRunner;
 import io.ebean.event.BeanFindController;
 import io.ebean.event.BeanPersistController;
@@ -27,11 +28,14 @@ import io.ebean.event.changelog.ChangeLogRegister;
 import io.ebean.event.readaudit.ReadAuditLogger;
 import io.ebean.event.readaudit.ReadAuditPrepare;
 import io.ebean.meta.MetaInfoManager;
+import io.ebeaninternal.server.core.AvailableTenantsByQuery;
+
 import org.avaje.datasource.DataSourceConfig;
 
 import javax.sql.DataSource;
 
 import java.lang.annotation.Annotation;
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -39,6 +43,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.ServiceLoader;
+import java.util.stream.Collectors;
 
 /**
  * The configuration used for creating a EbeanServer.
@@ -127,10 +132,25 @@ public class ServerConfig {
 
   private CurrentTenantProvider currentTenantProvider;
 
-  private TenantDataSourceProvider tenantDataSourceProvider;
 
+  private TenantDataSourceProvider tenantDataSourceProvider = new TenantDataSourceProvider() {
+    
+    @Override
+    public void shutdown(boolean deregisterDriver) {
+      // TODO Auto-generated method stub
+    }
+    
+    @Override
+    public DataSource dataSource(Object tenantId) {
+      return getDataSource();
+    }
+  };
+
+  private AvailableTenantsProvider availableTenantsProvider;
+  
   private TenantSchemaProvider tenantSchemaProvider;
 
+  private String tenantSharedSchema;
   /**
    * List of interesting classes such as entities, embedded, ScalarTypes,
    * Listeners, Finders, Controllers etc.
@@ -672,6 +692,20 @@ public class ServerConfig {
   }
 
   /**
+   * Get the availableTenantProvider.
+   */
+  public AvailableTenantsProvider getAvailableTenantsProvider() {
+    return availableTenantsProvider;
+  }
+  
+  /**
+   * Sets an availableTenantsProvider that can provide the availabe tenants.
+   */
+  public void setAvailableTenantsProvider(AvailableTenantsProvider availableTenantsProvider) {
+    this.availableTenantsProvider = availableTenantsProvider;
+  }
+  
+  /**
    * Return the tenancy datasource provider.
    */
   public TenantDataSourceProvider getTenantDataSourceProvider() {
@@ -699,6 +733,17 @@ public class ServerConfig {
     this.tenantSchemaProvider = tenantSchemaProvider;
   }
 
+  /**
+   * Returns the shared schema name in conjunction with &x64;SharedEntity.
+   */
+  public String getTenantSharedSchema() {
+    return tenantSharedSchema;
+  }
+  
+  public void setTenantSharedSchema(String tenantSharedSchema) {
+    this.tenantSharedSchema = tenantSharedSchema;
+  }
+  
   /**
    * Return the PersistBatch mode to use by default at the transaction level.
    * <p>
@@ -2585,6 +2630,16 @@ public class ServerConfig {
     ddlInitSql = p.get("ddl.initSql", ddlInitSql);
     ddlSeedSql = p.get("ddl.seedSql", ddlSeedSql);
 
+    // Multi Tenant setup (default use a queryString and a prefix)
+    tenantSharedSchema = p.get("tenant.sharedSchema");
+    String tenantQueryString = p.get("tenant.queryString");
+    if (tenantQueryString != null) {
+      availableTenantsProvider = new AvailableTenantsByQuery(tenantQueryString);
+    }
+    String tenantSchemaPrefix = p.get("tenant.schemaPrefix");
+    if (tenantSchemaPrefix != null) {
+      tenantSchemaProvider = tenantId -> tenantId == null ? tenantSharedSchema : (tenantSchemaPrefix + tenantId);
+    }
     classes = getClasses(p);
   }
 
@@ -2740,13 +2795,56 @@ public class ServerConfig {
   public void setNotNullAnnotations(Class<?> ... notNullAnnotations) {
     this.notNullAnnotations = (Class<? extends Annotation>[]) notNullAnnotations;
   }
+
+  /**
+   * Return the schema names for availableTenantsProvider.getTenantIds().
+   */
+  private List<String> getSchemas(DataSource dataSource) {
+    try {
+      Connection conn = dataSource.getConnection();
+      try {
+        return availableTenantsProvider.getTenantIds(conn).stream().map(tenantSchemaProvider::schema).collect(Collectors.toList());
+      } finally {
+        conn.close();
+      }
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    } 
+  }
   
   /**
    * Run the DB migration against the DataSource.
    */
   public DataSource runDbMigration(DataSource dataSource) {
     if (migrationConfig.isRunMigration()) {
-      MigrationRunner runner = migrationConfig.createRunner(getClassLoadConfig().getClassLoader());
+      if (tenantMode == TenantMode.SCHEMA) {
+        
+
+        String path = migrationConfig.migrationPath;
+        try {
+          migrationConfig.migrationPath = path + "/" + DbSchemaType.SHARED.name().toLowerCase();
+
+          runDbMigration(dataSource, getTenantSharedSchema());
+
+          migrationConfig.migrationPath = path + "/" + DbSchemaType.TENANT.name().toLowerCase();
+
+          getSchemas(dataSource).forEach(schema->runDbMigration(dataSource, schema));
+        } finally {
+          migrationConfig.migrationPath = path; // restore path
+        }
+      } else {
+        return runDbMigration(dataSource, null);
+      }
+    }
+    return dataSource;
+  }
+  
+  /**
+   * Run the DB migration against the DataSource and certain schema.
+   */  
+  public DataSource runDbMigration(DataSource dataSource, String schema) {
+    if (migrationConfig.isRunMigration()) {
+      MigrationRunner runner = migrationConfig.createRunner(getClassLoadConfig().getClassLoader(), schema);
       runner.run(dataSource);
     }
     return dataSource;

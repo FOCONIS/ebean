@@ -177,9 +177,13 @@ class AnnotationAssocManys extends AnnotationParser {
     StringBuilder sb = new StringBuilder();
     if (!StringHelper.isNull(joinTable.catalog())) {
       sb.append(joinTable.catalog()).append(".");
+    } else if (!StringHelper.isNull(descriptor.getBaseTableFull().getCatalog())) {
+      sb.append(descriptor.getBaseTableFull().getCatalog()).append(".");
     }
     if (!StringHelper.isNull(joinTable.schema())) {
       sb.append(joinTable.schema()).append(".");
+    } else if (!StringHelper.isNull(descriptor.getBaseTableFull().getSchema())) {
+      sb.append(descriptor.getBaseTableFull().getSchema()).append(".");
     }
     sb.append(joinTable.name());
     return sb.toString();

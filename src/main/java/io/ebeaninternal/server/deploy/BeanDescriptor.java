@@ -164,6 +164,8 @@ public class BeanDescriptor<T> implements MetaBeanInfo, BeanType<T> {
   private final IndexDefinition[] indexDefinitions;
 
   private final String[] dependentTables;
+  
+  private final boolean sharedEntity;
 
   /**
    * The base database table.
@@ -439,6 +441,7 @@ public class BeanDescriptor<T> implements MetaBeanInfo, BeanType<T> {
     this.draftable = deploy.isDraftable();
     this.draftableElement = deploy.isDraftableElement();
     this.historySupport = deploy.isHistorySupport();
+    this.sharedEntity = deploy.isSharedEntity();
     this.draftTable = deploy.getDraftTable();
     this.baseTable = InternString.intern(deploy.getBaseTable());
     this.baseTableAsOf = deploy.getBaseTableAsOf();
@@ -2541,6 +2544,14 @@ public class BeanDescriptor<T> implements MetaBeanInfo, BeanType<T> {
     return draftableElement;
   }
 
+  /**
+   * Returns true, if this Entity is shared across tenants
+   */
+  @Override
+  public boolean isSharedEntity() {
+    return sharedEntity;
+  }
+  
   public void setUnmappedJson(EntityBean bean, Map<String, Object> unmappedProperties) {
     if( unmappedJson != null) {
       unmappedJson.setValueIntercept(bean, unmappedProperties);

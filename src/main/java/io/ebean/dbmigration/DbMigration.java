@@ -6,6 +6,7 @@ import io.ebean.config.DbConstraintNaming;
 import io.ebean.config.DbMigrationConfig;
 import io.ebean.Platform;
 import io.ebean.config.ServerConfig;
+import io.ebean.config.TenantMode;
 import io.ebean.config.dbplatform.db2.DB2Platform;
 import io.ebean.config.dbplatform.DatabasePlatform;
 import io.ebean.config.dbplatform.h2.H2Platform;
@@ -28,6 +29,8 @@ import io.ebeaninternal.api.SpiEbeanServer;
 import io.ebeaninternal.extraddl.model.DdlScript;
 import io.ebeaninternal.extraddl.model.ExtraDdl;
 import io.ebeaninternal.extraddl.model.ExtraDdlXmlReader;
+import io.ebeaninternal.server.deploy.BeanDescriptor;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +38,9 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Generates DB Migration xml and sql scripts.
@@ -210,19 +215,18 @@ public class DbMigration {
     }
     setDefaults();
     try {
-      Request request = createRequest();
-
-      if (platforms.isEmpty()) {
-        generateExtraDdl(request.migrationDir, databasePlatform);
+      for (Request request : createRequests()) {
+        if (platforms.isEmpty()) {
+          generateExtraDdl(request.migrationDir, databasePlatform);
+        }
+  
+        String pendingVersion = generatePendingDrop();
+        if (pendingVersion != null) {
+          generatePendingDrop(request, pendingVersion);
+        } else {
+          generateDiff(request);
+        }
       }
-
-      String pendingVersion = generatePendingDrop();
-      if (pendingVersion != null) {
-        generatePendingDrop(request, pendingVersion);
-      } else {
-        generateDiff(request);
-      }
-
     } finally {
       if (!online) {
         DbOffline.reset();
@@ -280,12 +284,12 @@ public class DbMigration {
 
     List<String> pendingDrops = request.getPendingDrops();
     if (!pendingDrops.isEmpty()) {
-      logger.info("Pending un-applied drops in versions {}", pendingDrops);
+      logger.info("Pending un-applied drops in versions {}, tenant: {}", pendingDrops, request.dbSchemaType);
     }
 
     Migration migration = request.createDiffMigration();
     if (migration == null) {
-      logger.info("no changes detected - no migration written");
+      logger.info("no changes detected - no migration written. Tenant: {}", request.dbSchemaType);
     } else {
       // there were actually changes to write
       generateMigration(request, migration, null);
@@ -307,8 +311,12 @@ public class DbMigration {
     }
   }
 
-  private Request createRequest() {
-    return new Request();
+  private List<Request> createRequests() {
+    if (serverConfig.getTenantMode() == TenantMode.SCHEMA) {
+      return Arrays.asList(new Request(DbSchemaType.SHARED), new Request(DbSchemaType.TENANT));
+    } else {
+      return Arrays.asList(new Request(DbSchemaType.ALL));
+    }
   }
 
   private class Request {
@@ -319,13 +327,27 @@ public class DbMigration {
     final CurrentModel currentModel;
     final ModelContainer migrated;
     final ModelContainer current;
+    final DbSchemaType dbSchemaType;
 
-    private Request() {
+    /**
+     * Create a request. SharedOnly is a tri-state boolean:
+     * <br>
+     * null: means no shared/non shared support<br>
+     * true/false: generate shared/tenant scripts
+     */
+    private Request(DbSchemaType dbSchemaType) {
+      
       this.migrationDir = getMigrationDirectory();
-      this.modelDir = getModelDirectory(migrationDir);
+      this.dbSchemaType = dbSchemaType;
+      this.modelDir = getModelDirectory(migrationDir, dbSchemaType);
       this.migrationModel = new MigrationModel(modelDir, migrationConfig.getModelSuffix());
       this.migrated = migrationModel.read();
-      this.currentModel = new CurrentModel(server, constraintNaming);
+      List<BeanDescriptor<?>> beanDescriptors = server.getBeanDescriptors()
+          .stream()
+          .filter(dbSchemaType.getFilter())
+          .collect(Collectors.toList());
+    
+      this.currentModel = new CurrentModel(server, constraintNaming, beanDescriptors);
       this.current = currentModel.read();
     }
 
@@ -362,13 +384,13 @@ public class DbMigration {
 
     String fullVersion = getFullVersion(request.migrationModel, dropsFor);
 
-    logger.info("generating migration:{}", fullVersion);
+    logger.info("generating migration: {}, TenantMode: {}", fullVersion, request.dbSchemaType);
     if (!writeMigrationXml(dbMigration, request.modelDir, fullVersion)) {
       logger.warn("migration already exists, not generating DDL");
 
     } else {
       if (!platforms.isEmpty()) {
-        writeExtraPlatformDdl(fullVersion, request.currentModel, dbMigration, request.migrationDir);
+        writeExtraPlatformDdl(fullVersion, request.currentModel, dbMigration, request.migrationDir, request.dbSchemaType);
 
       } else if (databasePlatform != null) {
         // writer needs the current model to provide table/column details for
@@ -427,12 +449,13 @@ public class DbMigration {
   /**
    * Write any extra platform ddl.
    */
-  protected void writeExtraPlatformDdl(String fullVersion, CurrentModel currentModel, Migration dbMigration, File writePath) throws IOException {
+  protected void writeExtraPlatformDdl(String fullVersion, CurrentModel currentModel, Migration dbMigration, 
+      File writePath, DbSchemaType dbSchemaType) throws IOException {
 
     for (Pair pair : platforms) {
       DdlWrite platformBuffer = new DdlWrite(new MConfiguration(), currentModel.read());
       PlatformDdlWriter platformWriter = createDdlWriter(pair.platform);
-      File subPath = platformWriter.subPath(writePath, pair.prefix);
+      File subPath = platformWriter.subPath(writePath, pair.prefix, dbSchemaType);
       platformWriter.processMigration(dbMigration, platformBuffer, subPath, fullVersion);
 
       generateExtraDdl(subPath, pair.platform);
@@ -498,12 +521,15 @@ public class DbMigration {
   /**
    * Return the model directory (relative to the migration directory).
    */
-  protected File getModelDirectory(File migrationDirectory) {
+  protected File getModelDirectory(File migrationDirectory, DbSchemaType dbSchemaType) {
     String modelPath = migrationConfig.getModelPath();
     if (modelPath == null || modelPath.isEmpty()) {
       return migrationDirectory;
     }
     File modelDir = new File(migrationDirectory, migrationConfig.getModelPath());
+    if (dbSchemaType != DbSchemaType.ALL) {
+      modelDir = new File(modelDir, dbSchemaType.name().toLowerCase());
+    }
     if (!modelDir.exists() && !modelDir.mkdirs()) {
       logger.debug("Unable to ensure migration model directory exists at {}", modelDir.getAbsolutePath());
     }
