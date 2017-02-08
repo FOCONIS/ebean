@@ -3,6 +3,8 @@ package io.ebeaninternal.extraddl.model;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.ebean.dbmigration.DbSchemaType;
+
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
@@ -18,7 +20,7 @@ public class ExtraDdlXmlReader {
   /**
    * Return the combined extra DDL that should be run given the platform name.
    */
-  public static String buildExtra(String platformName, boolean perTenant) {
+  public static String buildExtra(String platformName, DbSchemaType perTenant) {
 
     ExtraDdl read = ExtraDdlXmlReader.read("/extra-ddl.xml");
     if (read == null) {
@@ -26,9 +28,14 @@ public class ExtraDdlXmlReader {
     }
     StringBuilder sb = new StringBuilder(300);
     for (DdlScript script : read.getDdlScript()) {
-      if (matchPlatform(platformName, script.getPlatforms()) && script.isPerTenant() == perTenant) {
-        logger.debug("include script {}", script.getName());
-        sb.append(script.getValue()).append("\n");
+      if (matchPlatform(platformName, script.getPlatforms())) {
+        if (perTenant == DbSchemaType.ALL 
+            || (perTenant == DbSchemaType.TENANT && script.isPerTenant())
+            || (perTenant == DbSchemaType.SHARED && !script.isPerTenant())) {
+          
+          logger.debug("include script {}", script.getName());
+          sb.append(script.getValue()).append("\n");
+        }
       }
     }
     return sb.toString();

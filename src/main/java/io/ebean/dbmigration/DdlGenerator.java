@@ -171,14 +171,14 @@ public class DdlGenerator {
         for (String tenantSchema : tenantSchemas) {
           runCreateSql(DbSchemaType.TENANT, tenantSchema);
         }
-        runExtraDdl(null);
+        runExtraDdl(DbSchemaType.SHARED, null);
         for (String tenantSchema : tenantSchemas) {
-          runExtraDdl(tenantSchema);
+          runExtraDdl(DbSchemaType.TENANT, tenantSchema);
         }
       } else {
         runDropSql(DbSchemaType.ALL, null);
         runCreateSql(DbSchemaType.ALL, null);
-        runExtraDdl(null);
+        runExtraDdl(DbSchemaType.ALL, null);
       }
       runSeedSql();
 
@@ -234,10 +234,10 @@ public class DdlGenerator {
     runScript(false, getCache(dbSchemaType).createAllContent, getCreateFileName(dbSchemaType), tenantSchema);
   }
   
-  protected void runExtraDdl(String tenantSchema) {
+  protected void runExtraDdl(DbSchemaType schemaType, String tenantSchema) {
     String ignoreExtraDdl = System.getProperty("ebean.ignoreExtraDdl");
     if (!"true".equalsIgnoreCase(ignoreExtraDdl)) {
-      String extraApply = ExtraDdlXmlReader.buildExtra(server.getDatabasePlatform().getName(), tenantSchema != null);
+      String extraApply = ExtraDdlXmlReader.buildExtra(server.getDatabasePlatform().getName(), schemaType);
       if (extraApply != null) {
         extraApply = TenantUtil.applySchemas(extraApply, sharedSchema, tenantSchema);
         runScript(false, extraApply, "extra-dll", null);
