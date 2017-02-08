@@ -36,15 +36,11 @@ public class UpdateHandler extends DmlHandler {
     }
 
     sql = updatePlan.getSql();
+    sql = persistRequest.getServer().getTenantContext().translateSql(sql);
 
     SpiTransaction t = persistRequest.getTransaction();
 
-    PreparedStatement pstmt;
-    if (persistRequest.isBatched()) {
-      pstmt = getPstmt(t, sql, persistRequest, false);
-    } else {
-      pstmt = getPstmt(t, sql, false);
-    }
+    PreparedStatement pstmt = getPstmt(t, sql, persistRequest, false);
     dataBind = bind(pstmt);
     meta.bind(persistRequest, this, updatePlan);
 

@@ -250,40 +250,48 @@ public abstract class DmlHandler implements PersistHandler, BindableRequest {
     }
   }
 
+  protected PreparedStatement getPstmt(SpiTransaction t, String sql, PersistRequestBean<?> request,
+      boolean genKeys) throws SQLException {
+
+    if (request.isBatched()) {
+      return getPstmtBatched(t, sql, request, genKeys);
+    } else {
+      return getPstmtUnbatched(t, sql, genKeys);
+    }
+  
+  }
   /**
    * Check with useGeneratedKeys to get appropriate PreparedStatement.
    */
-  protected PreparedStatement getPstmt(SpiTransaction t, String sql, boolean genKeys) throws SQLException {
-
+  protected PreparedStatement getPstmtUnbatched(SpiTransaction t, String translatedSql, boolean genKeys) throws SQLException {
     Connection conn = t.getInternalConnection();
     if (genKeys) {
       // the Id generated is always the first column
       // Required to stop Oracle10 giving us Oracle rowId??
       // Other jdbc drivers seem fine without this hint.
       int[] columns = {1};
-      return conn.prepareStatement(sql, columns);
+      return conn.prepareStatement(translatedSql, columns);
 
     } else {
-      return conn.prepareStatement(sql);
+      return conn.prepareStatement(translatedSql);
     }
   }
 
   /**
    * Return a prepared statement taking into account batch requirements.
    */
-  protected PreparedStatement getPstmt(SpiTransaction t, String sql, PersistRequestBean<?> request,
+  protected PreparedStatement getPstmtBatched(SpiTransaction t, String translatedSql, PersistRequestBean<?> request,
                                        boolean genKeys) throws SQLException {
-
     BatchedPstmtHolder batch = t.getBatchControl().getPstmtHolder();
-    PreparedStatement stmt = batch.getStmt(sql, request);
+    PreparedStatement stmt = batch.getStmt(translatedSql, request);
 
     if (stmt != null) {
       return stmt;
     }
 
-    stmt = getPstmt(t, sql, genKeys);
+    stmt = getPstmtUnbatched(t, translatedSql, genKeys);
 
-    BatchedPstmt bs = new BatchedPstmt(stmt, genKeys, sql);
+    BatchedPstmt bs = new BatchedPstmt(stmt, genKeys, translatedSql);
     batch.addStmt(bs, request);
     return stmt;
   }

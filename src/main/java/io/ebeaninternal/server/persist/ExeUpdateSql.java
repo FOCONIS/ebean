@@ -1,5 +1,6 @@
 package io.ebeaninternal.server.persist;
 
+import io.ebean.TenantContext;
 import io.ebeaninternal.api.BindParams;
 import io.ebeaninternal.api.SpiSqlUpdate;
 import io.ebeaninternal.api.SpiTransaction;
@@ -79,6 +80,10 @@ public class ExeUpdateSql {
 
     // process named parameters if required
     sql = BindParamsParser.parse(bindParams, sql);
+    
+    TenantContext tenantContext = request.getServer().getTenantContext();
+    sql = tenantContext.translateSql(sql);
+
     updateSql.setGeneratedSql(sql);
 
     boolean logSql = request.isLogSql();

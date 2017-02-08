@@ -96,8 +96,10 @@ public class ExeOrmUpdate {
     // process named parameters if required
     sql = BindParamsParser.parse(bindParams, sql);
 
-    ormUpdate.setGeneratedSql(sql);
+    sql = request.getServer().getTenantContext().translateSql(sql);
 
+    ormUpdate.setGeneratedSql(sql);
+    
     boolean logSql = request.isLogSql();
 
     PreparedStatement pstmt;

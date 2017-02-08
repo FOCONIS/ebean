@@ -217,7 +217,7 @@ public class CQuery<T> implements DbReadContext, CancelableQuery {
     SqlTree sqlTree = queryPlan.getSqlTree();
     this.rootNode = sqlTree.getRootNode();
     this.manyProperty = sqlTree.getManyProperty();
-    this.sql = queryPlan.getSql();
+    this.sql = request.getServer().getTenantContext().translateSql(queryPlan.getSql());
     this.rawSql = queryPlan.isRawSql();
     this.rowNumberIncluded = queryPlan.isRowNumberIncluded();
     this.logWhereSql = queryPlan.getLogWhereSql();

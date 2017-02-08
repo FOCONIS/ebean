@@ -18,6 +18,7 @@ import io.ebean.RawSql;
 import io.ebean.SqlQuery;
 import io.ebean.SqlRow;
 import io.ebean.SqlUpdate;
+import io.ebean.TenantContext;
 import io.ebean.Transaction;
 import io.ebean.TransactionCallback;
 import io.ebean.TxCallable;
@@ -135,6 +136,8 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
   private final CallStackFactory callStackFactory = new DefaultCallStackFactory();
 
   private final int maxCallStack;
+  
+  private final TenantContext tenantContext;
 
   /**
    * Ebean defaults this to true but for EJB compatible behaviour set this to
@@ -264,7 +267,15 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
 
     this.serverPlugins = config.getPlugins();
     this.ddlGenerator = new DdlGenerator(this, serverConfig);
-
+    if (serverConfig.getTenantMode() == TenantMode.NONE) {
+      this.tenantContext = new NoopTenantContext();
+    } else if (serverConfig.getTenantMode() == TenantMode.SCHEMA) {
+      this.tenantContext = new SchemaTranslateTenantContext(serverConfig.getCurrentTenantProvider(),
+          serverConfig.getTenantSchemaProvider(),
+          serverConfig.getTenantSharedSchema());
+    } else {
+      this.tenantContext = new DefaultTenantContext(serverConfig.getCurrentTenantProvider());
+    }
     configureServerPlugins();
 
     // Register with the JVM Shutdown hook
@@ -347,6 +358,11 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
     return backgroundExecutor;
   }
 
+  @Override
+  public TenantContext getTenantContext() {
+    return tenantContext;
+  }
+  
   @Override
   public ExpressionFactory getExpressionFactory() {
     return expressionFactory;

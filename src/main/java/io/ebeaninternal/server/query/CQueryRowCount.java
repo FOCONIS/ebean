@@ -57,8 +57,8 @@ class CQueryRowCount {
   CQueryRowCount(OrmQueryRequest<?> request, CQueryPredicates predicates, String sql) {
     this.request = request;
     this.query = request.getQuery();
-    this.sql = sql;
     query.setGeneratedSql(sql);
+    this.sql = request.getServer().getTenantContext().translateSql(sql);
     this.desc = request.getBeanDescriptor();
     this.predicates = predicates;
   }

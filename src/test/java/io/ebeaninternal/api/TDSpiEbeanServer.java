@@ -17,6 +17,7 @@ import io.ebean.QueryIterator;
 import io.ebean.SqlQuery;
 import io.ebean.SqlRow;
 import io.ebean.SqlUpdate;
+import io.ebean.TenantContext;
 import io.ebean.Transaction;
 import io.ebean.TransactionCallback;
 import io.ebean.TxCallable;
@@ -806,5 +807,10 @@ public class TDSpiEbeanServer implements SpiEbeanServer {
   @Override
   public void insertAll(Collection<?> beans, Transaction transaction) {
 
+  }
+
+  @Override
+  public TenantContext getTenantContext() {
+    return null;
   }
 }

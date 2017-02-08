@@ -1,5 +1,6 @@
 package io.ebeaninternal.server.persist.dml;
 
+import io.ebean.TenantContext;
 import io.ebean.bean.EntityBean;
 import io.ebeaninternal.api.SpiTransaction;
 import io.ebeaninternal.server.core.Message;
@@ -66,6 +67,7 @@ public class InsertHandler extends DmlHandler {
 
     boolean withId = !DmlUtil.isNullOrZero(idValue);
 
+    TenantContext ctx = persistRequest.getServer().getTenantContext();
     // check to see if we are going to use generated keys
     if (!withId) {
       if (concatinatedKey) {
@@ -78,7 +80,7 @@ public class InsertHandler extends DmlHandler {
         useGeneratedKeys = true;
       } else {
         // use a query to get the last inserted id
-        selectLastInsertedId = meta.getSelectLastInsertedId();
+        selectLastInsertedId = ctx.translateSql(meta.getSelectLastInsertedId());
       }
     }
 
@@ -86,13 +88,9 @@ public class InsertHandler extends DmlHandler {
 
     // get the appropriate sql
     sql = meta.getSql(withId, persistRequest.isPublish());
-
-    PreparedStatement pstmt;
-    if (persistRequest.isBatched()) {
-      pstmt = getPstmt(t, sql, persistRequest, useGeneratedKeys);
-    } else {
-      pstmt = getPstmt(t, sql, useGeneratedKeys);
-    }
+    sql = ctx.translateSql(sql) ;
+    
+    PreparedStatement pstmt = getPstmt(t, sql, persistRequest, useGeneratedKeys);
     dataBind = bind(pstmt);
     meta.bind(this, bean, withId, persistRequest.isPublish());
 
@@ -103,13 +101,13 @@ public class InsertHandler extends DmlHandler {
    * Check with useGeneratedKeys to get appropriate PreparedStatement.
    */
   @Override
-  protected PreparedStatement getPstmt(SpiTransaction t, String sql, boolean useGeneratedKeys) throws SQLException {
+  protected PreparedStatement getPstmtUnbatched(SpiTransaction t, String translatedSql, boolean useGeneratedKeys) throws SQLException {
     Connection conn = t.getInternalConnection();
     if (useGeneratedKeys) {
-      return conn.prepareStatement(sql, meta.getIdentityDbColumns());
+      return conn.prepareStatement(translatedSql, meta.getIdentityDbColumns());
 
     } else {
-      return conn.prepareStatement(sql);
+      return conn.prepareStatement(translatedSql);
     }
   }
 

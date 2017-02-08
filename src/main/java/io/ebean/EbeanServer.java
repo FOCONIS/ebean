@@ -1660,6 +1660,12 @@ public interface EbeanServer {
    * queries.
    */
   BackgroundExecutor getBackgroundExecutor();
+  
+  
+  /**
+   * Return the tenantContext that controls multi tenant behaviour
+   */
+  TenantContext getTenantContext();
 
   /**
    * Return the JsonContext for reading/writing JSON.
