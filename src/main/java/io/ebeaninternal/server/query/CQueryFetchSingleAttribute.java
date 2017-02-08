@@ -62,12 +62,12 @@ class CQueryFetchSingleAttribute {
   CQueryFetchSingleAttribute(OrmQueryRequest<?> request, CQueryPredicates predicates, CQueryPlan plan) {
     this.request = request;
     this.query = request.getQuery();
-    this.sql = plan.getSql();
+    query.setGeneratedSql(plan.getSql());
+    this.sql = request.getServer().getTenantContext().translateSql(plan.getSql());
     this.desc = request.getBeanDescriptor();
     this.predicates = predicates;
     this.scalarType = plan.getSingleProperty().getScalarType();
 
-    query.setGeneratedSql(sql);
   }
 
   /**

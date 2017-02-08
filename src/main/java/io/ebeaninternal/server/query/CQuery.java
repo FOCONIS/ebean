@@ -658,7 +658,7 @@ public class CQuery<T> implements DbReadContext, CancelableQuery {
    * Return the generated sql.
    */
   public String getGeneratedSql() {
-    return sql;
+    return query.getGeneratedSql();
   }
 
   /**
