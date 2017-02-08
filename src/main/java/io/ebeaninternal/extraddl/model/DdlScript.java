@@ -37,7 +37,9 @@ public class DdlScript {
   protected String name;
   @XmlAttribute(name = "platforms")
   protected String platforms;
-
+  @XmlAttribute(name = "perTenant")
+  protected boolean perTenant;
+  
   /**
    * Gets the value of the value property.
    *
@@ -98,4 +100,20 @@ public class DdlScript {
     this.platforms = value;
   }
 
+  /**
+   * Controls if this script should be applied per tenant
+   * 
+   * @param perTenant
+   */
+  public void setPerTenant(boolean perTenant) {
+    this.perTenant = perTenant;
+  }
+  
+  /**
+   * If true, the script is applied for each tenant
+   * @return
+   */
+  public boolean isPerTenant() {
+    return perTenant;
+  }
 }

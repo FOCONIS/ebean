@@ -369,8 +369,6 @@ public class InternalConfiguration {
     switch (serverConfig.getTenantMode()) {
       case DB:
         return new MultiTenantDbSupplier(serverConfig.getCurrentTenantProvider(), serverConfig.getTenantDataSourceProvider());
-      case SCHEMA:
-        return new MultiTenantDbSchemaSupplier(serverConfig.getCurrentTenantProvider(), serverConfig.getDataSource(), serverConfig.getTenantSchemaProvider());
       default:
         return new SimpleDataSourceProvider(serverConfig.getDataSource());
     }

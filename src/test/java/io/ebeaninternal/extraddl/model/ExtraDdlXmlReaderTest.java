@@ -17,9 +17,9 @@ public class ExtraDdlXmlReaderTest {
   @Test
   public void buildExtra_when_h2() {
 
-    String ddl = ExtraDdlXmlReader.buildExtra("h2");
+    String ddl = ExtraDdlXmlReader.buildExtra("h2", true);
 
-    assertThat(ddl).contains("create or replace view order_agg_vw");
+    assertThat(ddl).contains("create or replace view ${tenant_schema}.order_agg_vw");
     assertThat(ddl).contains("-- h2 and postgres script");
     assertThat(ddl).doesNotContain(" -- oracle only script");
   }
@@ -27,9 +27,9 @@ public class ExtraDdlXmlReaderTest {
   @Test
   public void buildExtra_when_oracle() {
 
-    String ddl = ExtraDdlXmlReader.buildExtra("oracle");
+    String ddl = ExtraDdlXmlReader.buildExtra("oracle", true);
 
-    assertThat(ddl).contains("create or replace view order_agg_vw");
+    assertThat(ddl).contains("create or replace view ${tenant_schema}.order_agg_vw");
     assertThat(ddl).doesNotContain("-- h2 and postgres script");
     assertThat(ddl).contains(" -- oracle only script");
   }
@@ -37,9 +37,9 @@ public class ExtraDdlXmlReaderTest {
   @Test
   public void buildExtra_when_mysql() {
 
-    String ddl = ExtraDdlXmlReader.buildExtra("mysql");
+    String ddl = ExtraDdlXmlReader.buildExtra("mysql", true);
 
-    assertThat(ddl).contains("create or replace view order_agg_vw");
+    assertThat(ddl).contains("create or replace view ${tenant_schema}.order_agg_vw");
     assertThat(ddl).doesNotContain("-- h2 and postgres script");
     assertThat(ddl).doesNotContain(" -- oracle only script");
   }

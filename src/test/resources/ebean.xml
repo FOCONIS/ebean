@@ -6,7 +6,7 @@
       <column-mapping column="order_id" property="order.id"/>
       <query>
         select order_id, count(*) as total_items, sum(order_qty*unit_price) as total_amount
-        from o_order_detail
+        from ${tenant_schema}.o_order_detail
         group by order_id
       </query>
     </raw-sql>
@@ -15,7 +15,7 @@
       <column-mapping column="order_id" property="order.id"/>
       <query>
         select order_id, count(*) as total_items, sum(order_qty*unit_price) as total_amount, max(order_qty*unit_price) as maxAmount
-        from o_order_detail
+        from ${tenant_schema}.o_order_detail
         group by order_id
       </query>
     </raw-sql>
@@ -24,7 +24,7 @@
       <column-mapping column="order_id" property="order.id"/>
       <query>
         select order_id, count(*) as totalItems, sum(order_qty*unit_price) as totalAmount, max(order_qty*unit_price) as maxAmount
-        from o_order_detail where id > :minId
+        from ${tenant_schema}.o_order_detail where id > :minId
         group by order_id
       </query>
     </raw-sql>
@@ -37,9 +37,9 @@
       <alias-mapping alias="a" property="customer.billingAddress"/>
       <query>
         select o.id, o.status, o.ship_date, c.id, c.name, a.id, a.line_1, a.line_2, a.city
-        from o_order o
-        join o_customer c on o.kcustomer_id = c.id
-        join o_address a on c.billing_address_id = a.id
+        from ${tenant_schema}.o_order o
+        join ${tenant_schema}.o_customer c on o.kcustomer_id = c.id
+        join ${tenant_schema}.o_address a on c.billing_address_id = a.id
         where o.status = :orderStatus
         order by c.name, c.id
       </query>

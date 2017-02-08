@@ -23,7 +23,10 @@ public class SchemaTranslateTenantContext extends DefaultTenantContext {
     if (tenantId != null) {
       tenantSchema = schemaProvider.schema(tenantId);
     }
-    return TenantUtil.applySchemas(sql, sharedSchema, tenantSchema);
+    if (sql.contains("-- TRANSLATED")) {
+      throw new IllegalArgumentException("SQL already translated");
+    }
+    return TenantUtil.applySchemas(sql, sharedSchema, tenantSchema) + " -- TRANSLATED";
   }
 
 }
