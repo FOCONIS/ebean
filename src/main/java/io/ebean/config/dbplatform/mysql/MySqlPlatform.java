@@ -2,6 +2,8 @@ package io.ebean.config.dbplatform.mysql;
 
 import io.ebean.BackgroundExecutor;
 import io.ebean.Platform;
+import io.ebean.TenantContext;
+import io.ebean.config.TenantDataSourceProvider;
 import io.ebean.config.dbplatform.DatabasePlatform;
 import io.ebean.config.dbplatform.DbPlatformType;
 import io.ebean.config.dbplatform.DbType;
@@ -9,7 +11,6 @@ import io.ebean.config.dbplatform.IdType;
 import io.ebean.config.dbplatform.PlatformIdGenerator;
 import io.ebean.dbmigration.ddlgeneration.platform.MySqlDdl;
 
-import javax.sql.DataSource;
 import java.sql.Types;
 
 /**
@@ -60,7 +61,7 @@ public class MySqlPlatform extends DatabasePlatform {
    */
   @Override
   public PlatformIdGenerator createSequenceIdGenerator(BackgroundExecutor be,
-                                                       DataSource ds, String seqName, int batchSize) {
+      TenantDataSourceProvider ds, String seqName, int batchSize, boolean perTenant, TenantContext tenantContext) {
 
     return null;
   }

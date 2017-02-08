@@ -3,12 +3,14 @@ package io.ebeaninternal.server.deploy;
 import io.ebean.BackgroundExecutor;
 import io.ebean.Model;
 import io.ebean.RawSqlBuilder;
+import io.ebean.TenantContext;
 import io.ebean.bean.BeanCollection;
 import io.ebean.bean.EntityBean;
 import io.ebean.config.EncryptKey;
 import io.ebean.config.EncryptKeyManager;
 import io.ebean.config.NamingConvention;
 import io.ebean.config.ServerConfig;
+import io.ebean.config.TenantDataSourceProvider;
 import io.ebean.config.dbplatform.DatabasePlatform;
 import io.ebean.config.dbplatform.DbHistorySupport;
 import io.ebean.config.dbplatform.DbIdentity;
@@ -63,7 +65,6 @@ import org.slf4j.LoggerFactory;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.PersistenceException;
 import javax.persistence.Transient;
-import javax.sql.DataSource;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
@@ -156,7 +157,7 @@ public class BeanDescriptorManager implements BeanDescriptorMap {
 
   private final DbIdentity dbIdentity;
 
-  private final DataSource dataSource;
+  private final TenantDataSourceProvider dataSource;
 
   private final DatabasePlatform databasePlatform;
 
@@ -186,6 +187,8 @@ public class BeanDescriptorManager implements BeanDescriptorMap {
    */
   private final Map<String, String> draftTableMap = new HashMap<>();
 
+  private final TenantContext tenantContext;
+
 
 
   /**
@@ -199,7 +202,7 @@ public class BeanDescriptorManager implements BeanDescriptorMap {
     this.docStoreFactory = config.getDocStoreFactory();
     this.dbSequenceBatchSize = serverConfig.getDatabaseSequenceBatchSize();
     this.backgroundExecutor = config.getBackgroundExecutor();
-    this.dataSource = serverConfig.getDataSource();
+    this.dataSource = serverConfig.getTenantDataSourceProvider();
     this.encryptKeyManager = serverConfig.getEncryptKeyManager();
     this.databasePlatform = serverConfig.getDatabasePlatform();
     this.idBinderFactory = new IdBinderFactory(databasePlatform.isIdInExpandedForm());
@@ -231,6 +234,7 @@ public class BeanDescriptorManager implements BeanDescriptorMap {
     this.changeLogPrepare = config.changeLogPrepare(bootupClasses.getChangeLogPrepare());
     this.changeLogListener = config.changeLogListener(bootupClasses.getChangeLogListener());
     this.changeLogRegister = config.changeLogRegister(bootupClasses.getChangeLogRegister());
+    this.tenantContext = config.getTenantContext();
   }
 
   /**
@@ -1288,12 +1292,22 @@ public class BeanDescriptorManager implements BeanDescriptorMap {
       seqName = namingConvention.getSequenceName(desc.getBaseTable(), primaryKeyColumn);
     }
 
+    boolean perTenant;
+    switch (serverConfig.getTenantMode()) {
+    case SCHEMA:
+    case DB:
+      perTenant = !desc.isSharedEntity();
+      break;
+    default:
+      perTenant = false;
+      break;
+    }
     // create the sequence based IdGenerator
-    desc.setIdGenerator(createSequenceIdGenerator(seqName));
+    desc.setIdGenerator(createSequenceIdGenerator(seqName, perTenant));
   }
 
-  private PlatformIdGenerator createSequenceIdGenerator(String seqName) {
-    return databasePlatform.createSequenceIdGenerator(backgroundExecutor, dataSource, seqName, dbSequenceBatchSize);
+  private PlatformIdGenerator createSequenceIdGenerator(String seqName, boolean perTenant) {
+    return databasePlatform.createSequenceIdGenerator(backgroundExecutor, dataSource, seqName, dbSequenceBatchSize, perTenant, tenantContext);
   }
 
   private void createByteCode(DeployBeanDescriptor<?> deploy) {

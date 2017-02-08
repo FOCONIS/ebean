@@ -26,6 +26,11 @@ public class DefaultTenantContext implements TenantContext {
   }
 
   @Override
+  public String translateSql(String sql, Object tenantId) {
+    return sql;
+  }
+  
+  @Override
   public Object getTenantId() {
     Deque<Object> stack = tenantStack.get();
     if (stack.isEmpty()) {

@@ -4,7 +4,9 @@ import io.ebean.ExpressionFactory;
 import io.ebean.cache.ServerCacheManager;
 import io.ebean.config.ExternalTransactionManager;
 import io.ebean.Platform;
+import io.ebean.TenantContext;
 import io.ebean.config.ServerConfig;
+import io.ebean.config.TenantMode;
 import io.ebean.config.dbplatform.DatabasePlatform;
 import io.ebean.config.dbplatform.DbHistorySupport;
 import io.ebean.event.changelog.ChangeLogListener;
@@ -116,6 +118,8 @@ public class InternalConfiguration {
    */
   private final List<Plugin> plugins = new ArrayList<>();
 
+  private final TenantContext tenantContext;
+
   public InternalConfiguration(ClusterManager clusterManager,
                                SpiCacheManager cacheManager, SpiBackgroundExecutor backgroundExecutor,
                                ServerConfig serverConfig, BootupClasses bootupClasses) {
@@ -137,6 +141,7 @@ public class InternalConfiguration {
     this.deployCreateProperties = new DeployCreateProperties(typeManager);
     this.deployUtil = new DeployUtil(typeManager, serverConfig);
 
+    this.tenantContext = initTenantContext();
     this.beanDescriptorManager = new BeanDescriptorManager(this);
     Map<String, String> asOfTableMapping = beanDescriptorManager.deploy();
     Map<String, String> draftTableMap = beanDescriptorManager.getDraftTableMap();
@@ -146,6 +151,17 @@ public class InternalConfiguration {
     this.cQueryEngine = new CQueryEngine(serverConfig, databasePlatform, binder, asOfTableMapping, draftTableMap);
   }
 
+  private TenantContext initTenantContext() {
+    if (serverConfig.getTenantMode() == TenantMode.NONE) {
+      return new NoopTenantContext();
+    } else if (serverConfig.getTenantMode() == TenantMode.SCHEMA) {
+      return new SchemaTranslateTenantContext(serverConfig.getCurrentTenantProvider(),
+          serverConfig.getTenantSchemaProvider(),
+          serverConfig.getTenantSharedSchema());
+    } else {
+      return new DefaultTenantContext(serverConfig.getCurrentTenantProvider());
+    }
+  }
   /**
    * Create and return the ExpressionFactory based on configuration and database platform.
    */
@@ -326,6 +342,10 @@ public class InternalConfiguration {
 
   public SpiBackgroundExecutor getBackgroundExecutor() {
     return backgroundExecutor;
+  }
+  
+  public TenantContext getTenantContext() {
+    return tenantContext;
   }
 
   public GeneratedPropertyFactory getGeneratedPropertyFactory() {

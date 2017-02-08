@@ -1,9 +1,9 @@
 package io.ebean.config.dbplatform.h2;
 
 import io.ebean.BackgroundExecutor;
+import io.ebean.TenantContext;
+import io.ebean.config.TenantDataSourceProvider;
 import io.ebean.config.dbplatform.SequenceIdGenerator;
-
-import javax.sql.DataSource;
 
 /**
  * H2 specific sequence Id Generator.
@@ -16,8 +16,8 @@ public class H2SequenceIdGenerator extends SequenceIdGenerator {
   /**
    * Construct given a dataSource and sql to return the next sequence value.
    */
-  public H2SequenceIdGenerator(BackgroundExecutor be, DataSource ds, String seqName, int batchSize) {
-    super(be, ds, seqName, batchSize);
+  public H2SequenceIdGenerator(BackgroundExecutor be, TenantDataSourceProvider ds, String seqName, int batchSize, boolean perTenant, TenantContext tenantContext) {
+    super(be, ds, seqName, batchSize, perTenant, tenantContext);
     this.baseSql = "select " + seqName + ".nextval";
     this.unionBaseSql = " union " + baseSql;
   }

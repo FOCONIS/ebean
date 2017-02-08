@@ -2,7 +2,9 @@ package io.ebean.config.dbplatform.postgres;
 
 import io.ebean.BackgroundExecutor;
 import io.ebean.Platform;
+import io.ebean.TenantContext;
 import io.ebean.config.ServerConfig;
+import io.ebean.config.TenantDataSourceProvider;
 import io.ebean.config.dbplatform.DatabasePlatform;
 import io.ebean.config.dbplatform.DbPlatformType;
 import io.ebean.config.dbplatform.DbType;
@@ -11,7 +13,6 @@ import io.ebean.config.dbplatform.PlatformIdGenerator;
 import io.ebean.dbmigration.ddlgeneration.DdlHandler;
 import io.ebean.dbmigration.ddlgeneration.platform.PostgresDdl;
 
-import javax.sql.DataSource;
 import java.sql.Types;
 
 /**
@@ -96,9 +97,10 @@ public class PostgresPlatform extends DatabasePlatform {
    * Create a Postgres specific sequence IdGenerator.
    */
   @Override
-  public PlatformIdGenerator createSequenceIdGenerator(BackgroundExecutor be, DataSource ds, String seqName, int batchSize) {
+  public PlatformIdGenerator createSequenceIdGenerator(BackgroundExecutor be,
+      TenantDataSourceProvider ds, String seqName, int batchSize, boolean perTenant, TenantContext tenantContext) {
 
-    return new PostgresSequenceIdGenerator(be, ds, seqName, batchSize);
+    return new PostgresSequenceIdGenerator(be, ds, seqName, batchSize, perTenant, tenantContext);
   }
 
   @Override

@@ -2,13 +2,14 @@ package io.ebean.config.dbplatform.db2;
 
 import io.ebean.BackgroundExecutor;
 import io.ebean.Platform;
+import io.ebean.TenantContext;
+import io.ebean.config.TenantDataSourceProvider;
 import io.ebean.config.dbplatform.DatabasePlatform;
 import io.ebean.config.dbplatform.DbPlatformType;
 import io.ebean.config.dbplatform.DbType;
 import io.ebean.config.dbplatform.PlatformIdGenerator;
 import io.ebean.dbmigration.ddlgeneration.platform.DB2Ddl;
 
-import javax.sql.DataSource;
 import java.sql.Types;
 
 /**
@@ -39,9 +40,9 @@ public class DB2Platform extends DatabasePlatform {
    */
   @Override
   public PlatformIdGenerator createSequenceIdGenerator(BackgroundExecutor be,
-                                                       DataSource ds, String seqName, int batchSize) {
+      TenantDataSourceProvider ds, String seqName, int batchSize, boolean perTenant, TenantContext tenantContext) {
 
-    return new DB2SequenceIdGenerator(be, ds, seqName, batchSize);
+    return new DB2SequenceIdGenerator(be, ds, seqName, batchSize, perTenant, tenantContext);
   }
 
 }

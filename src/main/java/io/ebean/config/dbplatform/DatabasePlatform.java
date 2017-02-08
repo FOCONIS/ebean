@@ -2,17 +2,18 @@ package io.ebean.config.dbplatform;
 
 import io.ebean.BackgroundExecutor;
 import io.ebean.Query;
+import io.ebean.TenantContext;
 import io.ebean.config.CustomDbTypeMapping;
 import io.ebean.config.DbTypeConfig;
 import io.ebean.PersistBatch;
 import io.ebean.Platform;
 import io.ebean.config.ServerConfig;
+import io.ebean.config.TenantDataSourceProvider;
 import io.ebean.dbmigration.ddlgeneration.DdlHandler;
 import io.ebean.dbmigration.ddlgeneration.platform.PlatformDdl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
@@ -288,11 +289,14 @@ public class DatabasePlatform {
    *
    * @param be        the BackgroundExecutor that can be used to load the sequence if
    *                  desired
-   * @param ds        the DataSource
+   * @param ds        the TenantDataSourceProvider
    * @param seqName   the name of the sequence
    * @param batchSize the number of sequences that should be loaded
+   * @param perTenant when <code>TRUE<code> the IdGenerator will provide same IDs for different tenants
+   * @param tenantContext the tenant context
    */
-  public PlatformIdGenerator createSequenceIdGenerator(BackgroundExecutor be, DataSource ds, String seqName, int batchSize) {
+  public PlatformIdGenerator createSequenceIdGenerator(BackgroundExecutor be, TenantDataSourceProvider ds, String seqName, 
+      int batchSize, boolean perTenant, TenantContext tenantContext) {
     return null;
   }
 

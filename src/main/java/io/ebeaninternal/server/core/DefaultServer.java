@@ -267,15 +267,8 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
 
     this.serverPlugins = config.getPlugins();
     this.ddlGenerator = new DdlGenerator(this, serverConfig);
-    if (serverConfig.getTenantMode() == TenantMode.NONE) {
-      this.tenantContext = new NoopTenantContext();
-    } else if (serverConfig.getTenantMode() == TenantMode.SCHEMA) {
-      this.tenantContext = new SchemaTranslateTenantContext(serverConfig.getCurrentTenantProvider(),
-          serverConfig.getTenantSchemaProvider(),
-          serverConfig.getTenantSharedSchema());
-    } else {
-      this.tenantContext = new DefaultTenantContext(serverConfig.getCurrentTenantProvider());
-    }
+    this.tenantContext = config.getTenantContext();
+    
     configureServerPlugins();
 
     // Register with the JVM Shutdown hook

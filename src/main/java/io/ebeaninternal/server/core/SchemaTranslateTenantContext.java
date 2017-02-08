@@ -18,15 +18,17 @@ public class SchemaTranslateTenantContext extends DefaultTenantContext {
 
   @Override
   public String translateSql(String sql) {
-    Object tenantId = getTenantId();
+    return translateSql(sql, getTenantId());
+  }
+  
+  @Override
+  public String translateSql(String sql, Object tenantId) {
     String tenantSchema = null;
     if (tenantId != null) {
       tenantSchema = schemaProvider.schema(tenantId);
     }
-    if (sql.contains("-- TRANSLATED")) {
-      throw new IllegalArgumentException("SQL already translated");
-    }
-    return TenantUtil.applySchemas(sql, sharedSchema, tenantSchema) + " -- TRANSLATED";
+    
+    return TenantUtil.applySchemas(sql, sharedSchema, tenantSchema);
   }
 
 }
