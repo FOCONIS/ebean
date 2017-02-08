@@ -88,7 +88,7 @@ class CQueryRowCount {
   /**
    * Return the generated sql.
    */
-  public String getGeneratedSql() {
+  public String getSql() {
     return sql;
   }
 

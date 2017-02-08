@@ -655,12 +655,18 @@ public class CQuery<T> implements DbReadContext, CancelableQuery {
   }
 
   /**
-   * Return the generated sql.
+   * Return the generated sql. (with schema placeholders)
    */
   public String getGeneratedSql() {
     return query.getGeneratedSql();
   }
 
+  /**
+   * Returns the SQL that will be executed.
+   */
+  public String getSql() {
+    return sql;
+  }
   /**
    * Create a PersistenceException including interesting information like the bindLog and sql used.
    */

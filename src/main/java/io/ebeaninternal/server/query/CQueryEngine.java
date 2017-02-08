@@ -73,7 +73,7 @@ public class CQueryEngine {
       int rows = query.execute();
 
       if (request.isLogSql()) {
-        String logSql = query.getGeneratedSql();
+        String logSql = query.getSql();
         if (TransactionManager.SQL_LOGGER.isTraceEnabled()) {
           logSql = Str.add(logSql, "; --bind(", query.getBindLog(), ") rows:", String.valueOf(rows));
         }
@@ -83,7 +83,7 @@ public class CQueryEngine {
       return rows;
 
     } catch (SQLException e) {
-      throw CQuery.createPersistenceException(e, request.getTransaction(), query.getBindLog(), query.getGeneratedSql());
+      throw CQuery.createPersistenceException(e, request.getTransaction(), query.getBindLog(), query.getSql());
     }
   }
 
@@ -101,7 +101,7 @@ public class CQueryEngine {
     try {
       List<A> list = (List<A>) rcQuery.findList();
       if (request.isLogSql()) {
-        logGeneratedSql(request, rcQuery.getGeneratedSql(), rcQuery.getBindLog());
+        logGeneratedSql(request, rcQuery.getSql(), rcQuery.getBindLog());
       }
       if (request.isLogSummary()) {
         request.getTransaction().logSummary(rcQuery.getSummary());
@@ -109,7 +109,7 @@ public class CQueryEngine {
       return list;
 
     } catch (SQLException e) {
-      throw CQuery.createPersistenceException(e, request.getTransaction(), rcQuery.getBindLog(), rcQuery.getGeneratedSql());
+      throw CQuery.createPersistenceException(e, request.getTransaction(), rcQuery.getBindLog(), rcQuery.getSql());
     }
   }
 
@@ -141,7 +141,7 @@ public class CQueryEngine {
       int count = rcQuery.findCount();
 
       if (request.isLogSql()) {
-        logGeneratedSql(request, rcQuery.getGeneratedSql(), rcQuery.getBindLog());
+        logGeneratedSql(request, rcQuery.getSql(), rcQuery.getBindLog());
       }
 
       if (request.isLogSummary()) {
@@ -155,7 +155,7 @@ public class CQueryEngine {
       return count;
 
     } catch (SQLException e) {
-      throw CQuery.createPersistenceException(e, request.getTransaction(), rcQuery.getBindLog(), rcQuery.getGeneratedSql());
+      throw CQuery.createPersistenceException(e, request.getTransaction(), rcQuery.getBindLog(), rcQuery.getSql());
     }
   }
 
@@ -401,7 +401,7 @@ public class CQueryEngine {
    */
   private void logSql(CQuery<?> query) {
 
-    String sql = query.getGeneratedSql();
+    String sql = query.getSql();
     if (TransactionManager.SQL_LOGGER.isTraceEnabled()) {
       sql = Str.add(sql, "; --bind(", query.getBindLog(), ")");
     }

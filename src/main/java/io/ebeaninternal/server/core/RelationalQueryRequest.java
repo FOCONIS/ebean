@@ -211,6 +211,7 @@ public final class RelationalQueryRequest {
       sql = BindParamsParser.parse(bindParams, sql);
     }
     this.sql = limitOffset(sql);
+    this.sql = ebeanServer.getTenantContext().translateSql(this.sql);
   }
 
   private String limitOffset(String sql) {

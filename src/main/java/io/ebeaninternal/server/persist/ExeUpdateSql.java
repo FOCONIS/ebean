@@ -82,9 +82,9 @@ public class ExeUpdateSql {
     sql = BindParamsParser.parse(bindParams, sql);
     
     TenantContext tenantContext = request.getServer().getTenantContext();
-    sql = tenantContext.translateSql(sql);
-
     updateSql.setGeneratedSql(sql);
+
+    sql = tenantContext.translateSql(sql);
 
     boolean logSql = request.isLogSql();
 

@@ -5,6 +5,7 @@ import io.ebean.RawSql;
 import io.ebean.RawSql.ColumnMapping;
 import io.ebean.RawSql.ColumnMapping.Column;
 import io.ebean.RawSqlBuilder;
+import io.ebean.TenantContext;
 import io.ebean.config.dbplatform.DatabasePlatform;
 import io.ebean.config.dbplatform.SqlLimitRequest;
 import io.ebean.config.dbplatform.SqlLimitResponse;
@@ -12,6 +13,7 @@ import io.ebean.config.dbplatform.SqlLimiter;
 import io.ebean.event.readaudit.ReadAuditQueryPlan;
 import io.ebean.text.PathProperties;
 import io.ebean.util.StringHelper;
+import io.ebean.util.TenantUtil;
 import io.ebeaninternal.api.ManyWhereJoins;
 import io.ebeaninternal.api.SpiQuery;
 import io.ebeaninternal.server.core.OrmQueryRequest;
@@ -369,7 +371,8 @@ class CQueryBuilder {
     // parse named parameters returning the final sql to execute
     String sql = predicates.parseBindParams(query.getNativeSql());
     query.setGeneratedSql(sql);
-
+    TenantContext tenantCtx = request.getServer().getTenantContext();
+    sql = tenantCtx.translateSql(sql);
     Connection connection = request.getTransaction().getConnection();
 
     BeanDescriptor<?> desc = request.getBeanDescriptor();
@@ -383,7 +386,16 @@ class CQueryBuilder {
       ResultSetMetaData metaData = resultSet.getMetaData();
       int cols = 1 + metaData.getColumnCount();
       for (int i = 1; i < cols; i++) {
+        String schema = metaData.getSchemaName(i);
         String tableName = metaData.getTableName(i).toLowerCase();
+        if (schema != null) {
+          // do the back translation from translated name to ${shared_schema} / ${tenant_schema}
+          if (schema.equals( tenantCtx.translateSql(TenantUtil.SHARED_SCHEMA) )) {
+            tableName = TenantUtil.SHARED_SCHEMA + "." + tableName;
+          } else if (schema.equals( tenantCtx.translateSql(TenantUtil.TENANT_SCHEMA) )) {
+            tableName = TenantUtil.TENANT_SCHEMA + "." + tableName;
+          }
+        }
         String columnName = metaData.getColumnName(i).toLowerCase();
         String path = desc.findBeanPath(tableName, columnName);
         if (path != null) {

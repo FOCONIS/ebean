@@ -122,7 +122,7 @@ class CQueryFetchSingleAttribute {
   /**
    * Return the generated sql.
    */
-  protected String getGeneratedSql() {
+  protected String getSql() {
     return sql;
   }
 

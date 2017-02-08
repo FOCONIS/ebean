@@ -50,7 +50,7 @@ class CQueryUpdate {
     this.type = type;
     this.request = request;
     this.query = request.getQuery();
-    this.sql = sql;
+    this.sql = request.getServer().getTenantContext().translateSql(sql);
     query.setGeneratedSql(sql);
     this.desc = request.getBeanDescriptor();
     this.predicates = predicates;
@@ -79,7 +79,7 @@ class CQueryUpdate {
   /**
    * Return the generated sql.
    */
-  public String getGeneratedSql() {
+  public String getSql() {
     return sql;
   }
 
