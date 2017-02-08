@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!DOCTYPE xml>
+<migration xmlns="http://ebean-orm.github.io/xml/ns/dbmigration">
+    <changeSet type="apply">
+        <createTable name="local_cachable" pkName="pk_local_cachable">
+            <column name="id" type="integer" primaryKey="true"/>
+            <column name="name" type="varchar"/>
+        </createTable>
+        <createTable name="local_model" pkName="pk_local_model">
+            <column name="id" type="integer" primaryKey="true"/>
+            <column name="global_test_model_id" type="integer" references="PUBLIC.global_test_model.id" foreignKeyName="fk_local_model_global_test_model_id" foreignKeyIndex="ix_local_model_global_test_model_id"/>
+            <column name="name" type="varchar"/>
+        </createTable>
+        <createTable name="model_under_test_a" pkName="pk_model_under_test_a">
+            <column name="id" type="integer" primaryKey="true"/>
+            <column name="status" type="varchar(1)" checkConstraint="check ( status in ('N','A','I'))" checkConstraintName="ck_model_under_test_a_status"/>
+            <column name="name" type="varchar"/>
+            <column name="description" type="varchar"/>
+            <column name="some_date" type="timestamp"/>
+            <column name="test_model_id" type="integer" references="PUBLIC.global_test_model.id" foreignKeyName="fk_model_under_test_a_test_model_id" foreignKeyIndex="ix_model_under_test_a_test_model_id"/>
+        </createTable>
+        <createIndex indexName="ix_model_under_test_a_name" tableName="model_under_test_a" columns="name"/>
+    </changeSet>
+</migration>
