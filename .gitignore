@@ -1,6 +1,10 @@
 *.autofetch
 *create-all.sql
 *drop-all.sql
+*create-shared.sql
+*drop-shared.sql
+*create-tenant.sql
+*drop-tenant.sql
 *.orig
 .classpath
 .project

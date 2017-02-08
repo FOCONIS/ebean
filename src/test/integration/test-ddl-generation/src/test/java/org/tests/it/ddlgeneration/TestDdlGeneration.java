@@ -20,7 +20,6 @@ import io.ebean.Ebean;
 import io.ebean.EbeanServer;
 import io.ebean.EbeanServerFactory;
 import io.ebean.Platform;
-import io.ebean.Transaction;
 import io.ebean.config.ServerConfig;
 import io.ebean.config.TenantMode;
 import io.ebean.dbmigration.DbMigration;

@@ -30,6 +30,7 @@ public class AnnotationCustomDeploy extends AnnotationParser {
   /**
    * Read the class level deployment annotations.
    */
+  @Override
   public void parse() {
     Set<CustomAnnotationParser> customParserAnnotations = AnnotationBase.findAnnotations(descriptor.getBeanType(), CustomAnnotationParser.class);
     Set<Class<? extends AnnotationParser>> parserClasses = new HashSet<>();
