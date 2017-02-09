@@ -841,7 +841,8 @@ public class BeanDescriptor<T> implements MetaBeanInfo, BeanType<T> {
   }
 
   private BeanChange newBeanChange(Object id, ChangeType changeType, Map<String, ValuePair> values) {
-    return new BeanChange(getBaseTable(), id, changeType, values);
+    Object tenantId = ebeanServer.getTenantContext().getTenantId();
+    return new BeanChange(getBaseTable(), tenantId, id, changeType, values);
   }
 
   public SqlUpdate deleteById(Object id, List<Object> idList, boolean softDelete) {
