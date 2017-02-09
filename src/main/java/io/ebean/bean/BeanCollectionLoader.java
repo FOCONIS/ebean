@@ -12,6 +12,11 @@ public interface BeanCollectionLoader {
    * Return the name of the associated EbeanServer.
    */
   String getName();
+  
+  /**
+   * Return the tenant id.
+   */
+  Object currentTenantId();
 
   /**
    * Invoke the lazy loading for this bean collection.

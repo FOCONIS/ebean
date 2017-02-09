@@ -5,7 +5,7 @@ import io.ebean.PersistenceContextScope;
 import io.ebean.Query;
 import io.ebean.Transaction;
 import io.ebean.TxScope;
-import io.ebean.bean.BeanCollectionLoader;
+import io.ebean.bean.BeanCollectionLoaderFactory;
 import io.ebean.bean.BeanLoader;
 import io.ebean.bean.CallStack;
 import io.ebean.bean.ObjectGraphNode;
@@ -23,7 +23,7 @@ import java.util.List;
 /**
  * Service Provider extension to EbeanServer.
  */
-public interface SpiEbeanServer extends EbeanServer, BeanLoader, BeanCollectionLoader {
+public interface SpiEbeanServer extends EbeanServer, BeanLoader, BeanCollectionLoaderFactory {
 
   /**
    * For internal use, shutdown of the server invoked by JVM Shutdown.
@@ -43,6 +43,7 @@ public interface SpiEbeanServer extends EbeanServer, BeanLoader, BeanCollectionL
   /**
    * Return the current Tenant Id.
    */
+  @Override
   Object currentTenantId();
 
   /**

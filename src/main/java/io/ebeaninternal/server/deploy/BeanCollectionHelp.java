@@ -5,7 +5,7 @@ import io.ebean.Query;
 import io.ebean.Transaction;
 import io.ebean.bean.BeanCollection;
 import io.ebean.bean.BeanCollectionAdd;
-import io.ebean.bean.BeanCollectionLoader;
+import io.ebean.bean.BeanCollectionLoaderFactory;
 import io.ebean.bean.EntityBean;
 import io.ebeaninternal.server.text.json.WriteJson;
 
@@ -19,7 +19,7 @@ public interface BeanCollectionHelp<T> {
   /**
    * Set the EbeanServer that owns the configuration.
    */
-  void setLoader(BeanCollectionLoader loader);
+  void setLoaderFactory(BeanCollectionLoaderFactory loaderFactory);
 
   /**
    * Return the mechanism to add beans to the underlying collection.

@@ -8,10 +8,8 @@ public interface TenantContext {
 
   Object getTenantId();
   
-  void push(Object tenantId);
+  Object setTenantId(Object tenantId);
   
-  Object pop();
-
   boolean isMultiTenant();
 
 }

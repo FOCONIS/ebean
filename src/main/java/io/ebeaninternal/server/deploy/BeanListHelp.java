@@ -9,7 +9,7 @@ import io.ebean.Query;
 import io.ebean.Transaction;
 import io.ebean.bean.BeanCollection;
 import io.ebean.bean.BeanCollectionAdd;
-import io.ebean.bean.BeanCollectionLoader;
+import io.ebean.bean.BeanCollectionLoaderFactory;
 import io.ebean.bean.EntityBean;
 import io.ebean.common.BeanList;
 import io.ebeaninternal.server.text.json.WriteJson;
@@ -23,7 +23,7 @@ public final class BeanListHelp<T> implements BeanCollectionHelp<T> {
   private final BeanDescriptor<T> targetDescriptor;
   private final String propertyName;
 
-  private BeanCollectionLoader loader;
+  private BeanCollectionLoaderFactory loader;
 
   public BeanListHelp(BeanPropertyAssocMany<T> many) {
     this.many = many;
@@ -38,7 +38,7 @@ public final class BeanListHelp<T> implements BeanCollectionHelp<T> {
   }
 
   @Override
-  public void setLoader(BeanCollectionLoader loader) {
+  public void setLoaderFactory(BeanCollectionLoaderFactory loader) {
     this.loader = loader;
   }
 
@@ -77,7 +77,7 @@ public final class BeanListHelp<T> implements BeanCollectionHelp<T> {
 
   @Override
   public BeanCollection<T> createEmpty(EntityBean parentBean) {
-    BeanList<T> beanList = new BeanList<>(loader, parentBean, propertyName);
+    BeanList<T> beanList = new BeanList<>(loader.getBeanCollectionLoader(), parentBean, propertyName);
     if (many != null) {
       beanList.setModifyListening(many.getModifyListenMode());
     }
@@ -87,7 +87,7 @@ public final class BeanListHelp<T> implements BeanCollectionHelp<T> {
   @Override
   public BeanCollection<T> createReference(EntityBean parentBean) {
 
-    BeanList<T> beanList = new BeanList<>(loader, parentBean, propertyName);
+    BeanList<T> beanList = new BeanList<>(loader.getBeanCollectionLoader(), parentBean, propertyName);
     beanList.setModifyListening(many.getModifyListenMode());
     return beanList;
   }

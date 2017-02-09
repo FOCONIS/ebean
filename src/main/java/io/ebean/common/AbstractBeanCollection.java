@@ -4,10 +4,12 @@ import io.ebean.Ebean;
 import io.ebean.ExpressionList;
 import io.ebean.bean.BeanCollection;
 import io.ebean.bean.BeanCollectionLoader;
+import io.ebean.bean.BeanCollectionLoaderFactory;
 import io.ebean.bean.EntityBean;
 
 import javax.persistence.PersistenceException;
 import java.util.Set;
+import java.util.function.Supplier;
 
 /**
  * Base class for List Set and Map implementations of BeanCollection.
@@ -51,6 +53,8 @@ abstract class AbstractBeanCollection<E> implements BeanCollection<E> {
   protected boolean modifyRemoveListening;
   protected boolean modifyListening;
 
+  private Object tenantId;
+
   /**
    * Constructor not non-lazy loading collection.
    */
@@ -63,6 +67,7 @@ abstract class AbstractBeanCollection<E> implements BeanCollection<E> {
   AbstractBeanCollection(BeanCollectionLoader loader, EntityBean ownerBean, String propertyName) {
     this.loader = loader;
     this.ebeanServerName = loader.getName();
+    this.tenantId = loader.currentTenantId();
     this.ownerBean = ownerBean;
     this.propertyName = propertyName;
     this.readOnly = ownerBean._ebean_getIntercept().isReadOnly();
@@ -95,15 +100,16 @@ abstract class AbstractBeanCollection<E> implements BeanCollection<E> {
 
   void lazyLoadCollection(boolean onlyIds) {
     if (loader == null) {
-      loader = (BeanCollectionLoader) Ebean.getServer(ebeanServerName);
+      BeanCollectionLoaderFactory factory = (BeanCollectionLoaderFactory) Ebean.getServer(ebeanServerName);
+      
+      if (factory == null) {
+        String msg = "Lazy loading but LazyLoadEbeanServer is null?"
+            + " The LazyLoadEbeanServer needs to be set after deserialization"
+            + " to support lazy loading.";
+        throw new PersistenceException(msg);
+      }
+      loader = factory.getBeanCollectionLoader(tenantId);
     }
-    if (loader == null) {
-      String msg = "Lazy loading but LazyLoadEbeanServer is null?"
-        + " The LazyLoadEbeanServer needs to be set after deserialization"
-        + " to support lazy loading.";
-      throw new PersistenceException(msg);
-    }
-
     loader.loadMany(this, onlyIds);
     checkEmptyLazyLoad();
   }
@@ -120,6 +126,13 @@ abstract class AbstractBeanCollection<E> implements BeanCollection<E> {
     this.ebeanServerName = loader.getName();
   }
 
+  @Override
+  public void setLoaderIfNull(Supplier<BeanCollectionLoader> supplier) {
+    if (loader == null) {
+      setLoader(supplier.get());
+    }
+  }
+  
   @Override
   public boolean isReadOnly() {
     return readOnly;

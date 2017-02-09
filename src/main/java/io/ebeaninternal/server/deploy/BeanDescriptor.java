@@ -585,7 +585,7 @@ public class BeanDescriptor<T> implements MetaBeanInfo, BeanType<T> {
     this.ebeanServer = ebeanServer;
     for (BeanPropertyAssocMany<?> aPropertiesMany : propertiesMany) {
       // used for creating lazy loading lists etc
-      aPropertiesMany.setLoader(ebeanServer);
+      aPropertiesMany.setLoaderFactory(ebeanServer);
     }
   }
 

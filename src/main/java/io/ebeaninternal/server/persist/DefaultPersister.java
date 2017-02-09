@@ -984,6 +984,9 @@ public final class DefaultPersister implements Persister {
       return;
     }
 
+    if (details instanceof BeanCollection<?>) {
+      ((BeanCollection<?>) details).setLoaderIfNull(() -> server.getBeanCollectionLoader());
+    }
     BeanDescriptor<?> targetDescriptor = prop.getTargetDescriptor();
     if (saveMany.isInsertedParent()) {
       // performance optimisation for large collections

@@ -5,7 +5,7 @@ import io.ebean.Query;
 import io.ebean.Transaction;
 import io.ebean.bean.BeanCollection;
 import io.ebean.bean.BeanCollectionAdd;
-import io.ebean.bean.BeanCollectionLoader;
+import io.ebean.bean.BeanCollectionLoaderFactory;
 import io.ebean.bean.EntityBean;
 import io.ebean.common.BeanMap;
 import io.ebeaninternal.server.text.json.WriteJson;
@@ -24,7 +24,7 @@ public final class BeanMapHelp<T> implements BeanCollectionHelp<T> {
   private final BeanDescriptor<T> targetDescriptor;
   private final String propertyName;
   private final BeanProperty beanProperty;
-  private BeanCollectionLoader loader;
+  private BeanCollectionLoaderFactory loader;
 
   /**
    * When created for a given query that will return a map.
@@ -46,9 +46,11 @@ public final class BeanMapHelp<T> implements BeanCollectionHelp<T> {
     this.beanProperty = targetDescriptor.getBeanProperty(many.getMapKey());
   }
 
+  
   @Override
-  public void setLoader(BeanCollectionLoader loader) {
+  public void setLoaderFactory(BeanCollectionLoaderFactory loader) {
     this.loader = loader;
+    
   }
 
   @Override
@@ -100,7 +102,7 @@ public final class BeanMapHelp<T> implements BeanCollectionHelp<T> {
   @Override
   public BeanCollection<T> createEmpty(EntityBean ownerBean) {
 
-    BeanMap<?,T> beanMap = new BeanMap<>(loader, ownerBean, propertyName);
+    BeanMap<?,T> beanMap = new BeanMap<>(loader.getBeanCollectionLoader(), ownerBean, propertyName);
     if (many != null) {
       beanMap.setModifyListening(many.getModifyListenMode());
     }
@@ -123,7 +125,7 @@ public final class BeanMapHelp<T> implements BeanCollectionHelp<T> {
   @SuppressWarnings({"unchecked", "rawtypes"})
   public BeanCollection<T> createReference(EntityBean parentBean) {
 
-    BeanMap beanMap = new BeanMap(loader, parentBean, propertyName);
+    BeanMap beanMap = new BeanMap(loader.getBeanCollectionLoader(), parentBean, propertyName);
     if (many != null) {
       beanMap.setModifyListening(many.getModifyListenMode());
     }

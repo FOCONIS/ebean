@@ -29,6 +29,7 @@ import io.ebean.UpdateQuery;
 import io.ebean.ValuePair;
 import io.ebean.Version;
 import io.ebean.bean.BeanCollection;
+import io.ebean.bean.BeanCollectionLoader;
 import io.ebean.bean.CallStack;
 import io.ebean.bean.EntityBean;
 import io.ebean.bean.EntityBeanIntercept;
@@ -36,7 +37,6 @@ import io.ebean.bean.ObjectGraphNode;
 import io.ebean.bean.PersistenceContext;
 import io.ebean.bean.PersistenceContext.WithOption;
 import io.ebean.cache.ServerCacheManager;
-import io.ebean.config.CurrentTenantProvider;
 import io.ebean.config.EncryptKeyManager;
 import io.ebean.config.ServerConfig;
 import io.ebean.config.TenantMode;
@@ -107,6 +107,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -138,6 +139,10 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
   private final int maxCallStack;
   
   private final TenantContext tenantContext;
+  
+  private final BeanCollectionLoader beanCollectionLoader;
+  
+  private final ConcurrentMap<Object, BeanCollectionLoader> beanCollectionLoaders = new ConcurrentHashMap<>();
 
   /**
    * Ebean defaults this to true but for EJB compatible behaviour set this to
@@ -183,8 +188,6 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
   private final DocumentStore documentStore;
 
   private final MetaInfoManager metaInfoManager;
-
-  private final CurrentTenantProvider currentTenantProvider;
 
   /**
    * The default PersistenceContextScope used if it is not explicitly set on a query.
@@ -236,7 +239,6 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
     this.expressionFactory = config.getExpressionFactory();
     this.encryptKeyManager = serverConfig.getEncryptKeyManager();
     this.defaultPersistenceContextScope = serverConfig.getPersistenceContextScope();
-    this.currentTenantProvider = serverConfig.getCurrentTenantProvider();
 
     this.beanDescriptorManager = config.getBeanDescriptorManager();
     beanDescriptorManager.setEbeanServer(this);
@@ -268,7 +270,7 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
     this.serverPlugins = config.getPlugins();
     this.ddlGenerator = new DdlGenerator(this, serverConfig);
     this.tenantContext = config.getTenantContext();
-    
+    this.beanCollectionLoader = new DefaultBeanCollectionLoader(beanLoader, serverName, null, tenantContext);
     configureServerPlugins();
 
     // Register with the JVM Shutdown hook
@@ -501,10 +503,20 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
   }
 
   @Override
-  public void loadMany(BeanCollection<?> bc, boolean onlyIds) {
-
-    beanLoader.loadMany(bc, onlyIds);
+  public BeanCollectionLoader getBeanCollectionLoader() {
+    return getBeanCollectionLoader(currentTenantId());
   }
+  
+  @Override
+  public BeanCollectionLoader getBeanCollectionLoader(Object tenantId) {
+
+    if (tenantId == null) {
+      return beanCollectionLoader;
+    } else {
+      return beanCollectionLoaders.computeIfAbsent(tenantId, id -> new DefaultBeanCollectionLoader(beanLoader, serverName, id, tenantContext));
+    }
+  }
+
 
   @Override
   public void refresh(Object bean) {
@@ -519,9 +531,13 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
   }
 
   @Override
-  public void loadBean(EntityBeanIntercept ebi) {
-
-    beanLoader.loadBean(ebi);
+  public void loadBean(EntityBeanIntercept ebi, Object tenantId) {
+    Object old = tenantContext.setTenantId(tenantId);
+    try {
+      beanLoader.loadBean(ebi);
+    } finally {
+      tenantContext.setTenantId(old);
+    }
   }
 
   @Override

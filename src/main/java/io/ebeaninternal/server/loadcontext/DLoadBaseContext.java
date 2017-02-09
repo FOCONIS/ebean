@@ -23,6 +23,8 @@ public abstract class DLoadBaseContext {
 
   protected final String serverName;
 
+  protected final Object tenantId;
+  
   protected final int firstBatchSize;
 
   protected final int secondaryBatchSize;
@@ -36,6 +38,7 @@ public abstract class DLoadBaseContext {
 
     this.parent = parent;
     this.serverName = parent.getEbeanServer().getName();
+    this.tenantId = parent.getEbeanServer().currentTenantId();
     this.desc = desc;
     this.queryProps = queryProps;
     this.fullPath = parent.getFullPath(path);

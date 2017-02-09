@@ -24,14 +24,7 @@ public class NoopTenantContext implements TenantContext {
   }
 
   @Override
-  public void push(Object tenantId) {
-    if (tenantId != null) {
-      throw new IllegalArgumentException("Tenant support is not enabled");
-    }
-  }
-
-  @Override
-  public Object pop() {
+  public Object setTenantId(Object tenantId) {
     return null;
   }
 

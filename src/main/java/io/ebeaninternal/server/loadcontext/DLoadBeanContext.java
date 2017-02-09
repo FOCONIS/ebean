@@ -6,6 +6,7 @@ import io.ebean.bean.PersistenceContext;
 import io.ebeaninternal.api.LoadBeanBuffer;
 import io.ebeaninternal.api.LoadBeanContext;
 import io.ebeaninternal.api.LoadBeanRequest;
+import io.ebeaninternal.api.SpiEbeanServer;
 import io.ebeaninternal.api.SpiQuery;
 import io.ebeaninternal.server.core.OrmQueryRequest;
 import io.ebeaninternal.server.deploy.BeanDescriptor;
@@ -159,6 +160,11 @@ public class DLoadBeanContext extends DLoadBaseContext implements LoadBeanContex
     public BeanDescriptor<?> getBeanDescriptor() {
       return context.desc;
     }
+    
+    @Override
+    public Object currentTenantId() {
+      return context.tenantId;
+    }
 
     @Override
     public PersistenceContext getPersistenceContext() {
@@ -171,34 +177,40 @@ public class DLoadBeanContext extends DLoadBaseContext implements LoadBeanContex
     }
 
     @Override
-    public void loadBean(EntityBeanIntercept ebi) {
+    public void loadBean(EntityBeanIntercept ebi, Object tenantId) {
       // A synchronized (this) is effectively held by EntityBeanIntercept.loadBean()
+      SpiEbeanServer server = context.desc.getEbeanServer();
+      Object old = server.getTenantContext().setTenantId(tenantId);
+      try {
 
-      if (context.desc.lazyLoadMany(ebi)) {
-        // lazy load property was a Many
-        return;
-      }
+        if (context.desc.lazyLoadMany(ebi)) {
+          // lazy load property was a Many
+          return;
+        }
 
-      if (context.hitCache && context.desc.cacheBeanLoad(ebi, persistenceContext)) {
-        // successfully hit the L2 cache so don't invoke DB lazy loading
-        list.remove(ebi);
-        return;
-      }
+        if (context.hitCache && context.desc.cacheBeanLoad(ebi, persistenceContext)) {
+          // successfully hit the L2 cache so don't invoke DB lazy loading
+          list.remove(ebi);
+          return;
+        }
 
-      if (context.hitCache) {
-        // check each of the beans in the batch to see if they are in the L2 cache.
-        Iterator<EntityBeanIntercept> iterator = list.iterator();
-        while (iterator.hasNext()) {
-          EntityBeanIntercept batchEbi = iterator.next();
-          if (batchEbi != ebi && context.desc.cacheBeanLoad(batchEbi, persistenceContext)) {
-            // bean successfully loaded from L2 cache so remove from batch load
-            iterator.remove();
+        if (context.hitCache) {
+          // check each of the beans in the batch to see if they are in the L2 cache.
+          Iterator<EntityBeanIntercept> iterator = list.iterator();
+          while (iterator.hasNext()) {
+            EntityBeanIntercept batchEbi = iterator.next();
+            if (batchEbi != ebi && context.desc.cacheBeanLoad(batchEbi, persistenceContext)) {
+              // bean successfully loaded from L2 cache so remove from batch load
+              iterator.remove();
+            }
           }
         }
-      }
 
-      LoadBeanRequest req = new LoadBeanRequest(this, ebi.getLazyLoadProperty(), context.hitCache, context.failOnLazyLoad);
-      context.desc.getEbeanServer().loadBean(req);
+        LoadBeanRequest req = new LoadBeanRequest(this, ebi.getLazyLoadProperty(), context.hitCache, context.failOnLazyLoad);
+        server.loadBean(req);
+      } finally {
+        server.getTenantContext().setTenantId(old);
+      }
     }
 
   }

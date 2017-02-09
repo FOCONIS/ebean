@@ -202,6 +202,11 @@ public class DLoadManyContext extends DLoadBaseContext implements LoadManyContex
     }
 
     @Override
+    public Object currentTenantId() {
+      return context.tenantId;
+    }
+    
+    @Override
     public void loadMany(BeanCollection<?> bc, boolean onlyIds) {
 
       synchronized (this) {

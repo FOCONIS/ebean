@@ -162,7 +162,7 @@ public final class PersistRequestBean<T> extends PersistRequest implements BeanP
     if (saveRecurse) {
       this.persistCascade = t.isPersistCascade();
     }
-
+    intercept.setBeanLoader(server); // set the beanloader for further lazy updates
     if (this.type == Type.UPDATE) {
       if (intercept.isNew()) {
         // 'stateless update' - set loaded properties as dirty

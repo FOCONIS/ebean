@@ -2,6 +2,7 @@ package io.ebean.bean;
 
 import io.ebean.Ebean;
 import io.ebean.ValuePair;
+import io.ebeaninternal.api.SpiEbeanServer;
 
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.PersistenceException;
@@ -94,6 +95,8 @@ public final class EntityBeanIntercept implements Serializable {
   private int lazyLoadProperty = -1;
 
   private Object ownerId;
+
+  private Object tenantId;
 
   /**
    * Create a intercept with a given entity.
@@ -218,6 +221,7 @@ public final class EntityBeanIntercept implements Serializable {
     this.beanLoader = beanLoader;
     this.persistenceContext = ctx;
     this.ebeanServerName = beanLoader.getName();
+    this.tenantId = beanLoader.currentTenantId(); // remember tenant id for lazy load
   }
 
   /**
@@ -226,6 +230,7 @@ public final class EntityBeanIntercept implements Serializable {
   public void setBeanLoader(BeanLoader beanLoader) {
     this.beanLoader = beanLoader;
     this.ebeanServerName = beanLoader.getName();
+    this.tenantId = beanLoader.currentTenantId(); // remember tenant id for lazy load
   }
 
   public boolean isFullyLoadedBean() {
@@ -766,11 +771,10 @@ public final class EntityBeanIntercept implements Serializable {
 
     synchronized (this) {
       if (beanLoader == null) {
-        BeanLoader serverLoader = (BeanLoader) Ebean.getServer(ebeanServerName);
+        BeanLoader serverLoader = ((SpiEbeanServer)Ebean.getServer(ebeanServerName));
         if (serverLoader == null) {
           throw new PersistenceException("Server [" + ebeanServerName + "] was not found?");
         }
-
         // For stand alone reference bean or after deserialisation lazy load
         // using the ebeanServer. Synchronise only on the bean.
         loadBeanInternal(loadProperty, serverLoader);
@@ -808,7 +812,7 @@ public final class EntityBeanIntercept implements Serializable {
         nodeUsageCollector.setLoadProperty(getProperty(lazyLoadProperty));
       }
 
-      loader.loadBean(this);
+      loader.loadBean(this, tenantId);
 
       if (lazyLoadFailure) {
         // failed when lazy loading this bean

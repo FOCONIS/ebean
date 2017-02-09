@@ -119,6 +119,7 @@ public class DefaultBeanLoader {
     Object currentValue = many.getValue(parentBean);
     if (currentValue instanceof BeanCollection<?>) {
       beanCollection = (BeanCollection<?>) currentValue;
+      beanCollection.setLoaderIfNull(() -> server.getBeanCollectionLoader());
       filterMany = beanCollection.getFilterMany();
     }
 
@@ -260,6 +261,7 @@ public class DefaultBeanLoader {
 
     Object id = desc.getId(bean);
 
+    ebi.setBeanLoader(server);
     if (pc == null) {
       // a reference with no existing persistenceContext
       pc = new DefaultPersistenceContext();

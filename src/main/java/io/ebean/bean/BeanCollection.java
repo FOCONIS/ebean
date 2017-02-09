@@ -5,6 +5,7 @@ import io.ebean.ExpressionList;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Set;
+import java.util.function.Supplier;
 
 /**
  * Lazy loading capable Maps, Lists and Sets.
@@ -118,6 +119,11 @@ public interface BeanCollection<E> extends Serializable {
    */
   void setLoader(BeanCollectionLoader beanLoader);
 
+  /**
+   * Sets the loader lazy.
+   */
+  void setLoaderIfNull(Supplier<BeanCollectionLoader> beanLoader);
+  
   /**
    * Set to true if you want the BeanCollection to be treated as read only. This
    * means no elements can be added or removed etc.

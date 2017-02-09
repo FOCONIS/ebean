@@ -16,6 +16,8 @@ public interface BeanLoader {
   /**
    * Invoke the lazy loading for this bean.
    */
-  void loadBean(EntityBeanIntercept ebi);
+  void loadBean(EntityBeanIntercept ebi, Object tenantId);
+
+  Object currentTenantId();
 
 }

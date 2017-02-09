@@ -8,7 +8,7 @@ import io.ebean.Transaction;
 import io.ebean.bean.BeanCollection;
 import io.ebean.bean.BeanCollection.ModifyListenMode;
 import io.ebean.bean.BeanCollectionAdd;
-import io.ebean.bean.BeanCollectionLoader;
+import io.ebean.bean.BeanCollectionLoaderFactory;
 import io.ebean.bean.EntityBean;
 import io.ebean.text.PathProperties;
 import io.ebeaninternal.api.SpiExpressionRequest;
@@ -448,9 +448,9 @@ public class BeanPropertyAssocMany<T> extends BeanPropertyAssoc<T> {
    * Set the lazy load server to help create reference collections (that lazy
    * load on demand).
    */
-  public void setLoader(BeanCollectionLoader loader) {
+  public void setLoaderFactory(BeanCollectionLoaderFactory loaderFactory) {
     if (help != null) {
-      help.setLoader(loader);
+      help.setLoaderFactory(loaderFactory);
     }
   }
 
