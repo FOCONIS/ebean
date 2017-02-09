@@ -34,7 +34,7 @@ public class TestJoinOptOneCascade extends BaseTestCase {
       .query();
 
     query.findList();
-    String sql = query.getGeneratedSql();
+    String sql = sqlOf(query);
 
     assertThat(sql).contains("left join eopt_one_b ");
     assertThat(sql).contains("left join eopt_one_c ");

@@ -58,7 +58,7 @@ public class TestManyWhereJoinM2M extends BaseTestCase {
 
     query.findList();
 
-    String sql = query.getGeneratedSql();
+    String sql = sqlOf(query);
     Assert.assertTrue(sql.contains("select distinct"));
     Assert.assertTrue(sql.contains("left join mrole "));
     Assert.assertTrue(sql.contains("join mrole "));

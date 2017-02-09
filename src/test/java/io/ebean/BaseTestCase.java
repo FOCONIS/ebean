@@ -1,6 +1,9 @@
 package io.ebean;
 
 import io.ebean.util.StringHelper;
+import io.ebean.config.ServerConfig;
+import io.ebean.config.TenantMode;
+import io.ebean.config.dbplatform.h2.H2Platform;
 import io.ebeaninternal.api.SpiEbeanServer;
 import io.ebeaninternal.server.deploy.BeanDescriptor;
 import org.tests.model.basic.Country;
@@ -9,16 +12,47 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.Types;
+import java.util.Arrays;
+
 
 public class BaseTestCase {
 
   protected static Logger logger = LoggerFactory.getLogger(BaseTestCase.class);
 
+  public static String SCHEMA_PREFIX = "";
   static {
     logger.debug("... preStart");
     if (!AgentLoader.loadAgentFromClasspath("ebean-agent", "debug=1;packages=org.tests,org.avaje.test,io.ebean")) {
       logger.info("avaje-ebeanorm-agent not found in classpath - not dynamically loaded");
     }
+  }
+  
+  
+  private static void initForTenancy() {
+    String tenant = "CUSTOMER";
+    SCHEMA_PREFIX = tenant + ".";
+    
+    ServerConfig config = new ServerConfig();
+    config.setName("h2");
+    config.loadFromProperties();
+    config.loadTestProperties();
+    config.setRegister(true);
+    config.setDefaultServer(true);
+
+    config.setTenantMode(TenantMode.SCHEMA);
+    config.setCurrentTenantProvider(()-> {
+      return tenant;
+    });
+    config.setTenantSchemaProvider(id -> id.toString());
+    config.setAvailableTenantsProvider(conn -> Arrays.asList(tenant));
+    //
+    //    // When TenantMode.DB we don't really want to run DDL
+    //    // and we want to explicitly specify the Database platform
+    config.setDdlGenerate(true);
+    config.setDdlRun(true);
+    config.setDatabasePlatform(new H2Platform());
+    //
+    EbeanServerFactory.create(config);
   }
 
   /**

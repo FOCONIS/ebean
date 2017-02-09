@@ -13,7 +13,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
-public class EbeanServer_deleteAllByIdTest {
+public class EbeanServer_deleteAllByIdTest extends BaseTestCase {
 
   @Test
   public void deleteAllById() {
@@ -32,7 +32,7 @@ public class EbeanServer_deleteAllByIdTest {
 
     List<String> loggedSql = LoggedSqlCollector.stop();
     assertThat(loggedSql).hasSize(1);
-    assertThat(loggedSql.get(0)).contains("delete from e_basicver where id  in (?,?,?)");
+    assertThat(loggedSql.get(0)).contains("delete from " + SCHEMA_PREFIX + "e_basicver where id  in (?,?,?)");
   }
 
   @Test
@@ -58,7 +58,7 @@ public class EbeanServer_deleteAllByIdTest {
     }
     List<String> loggedSql = LoggedSqlCollector.stop();
     assertThat(loggedSql).hasSize(1);
-    assertThat(loggedSql.get(0)).contains("delete from e_basicver where id  in (?,?,?)");
+    assertThat(loggedSql.get(0)).contains("delete from " + SCHEMA_PREFIX + "e_basicver where id  in (?,?,?)");
   }
 
   @Test
@@ -78,7 +78,7 @@ public class EbeanServer_deleteAllByIdTest {
 
     List<String> loggedSql = LoggedSqlCollector.stop();
     assertThat(loggedSql).hasSize(1);
-    assertThat(loggedSql.get(0)).contains("delete from e_basicver where id  in (?,?,?)");
+    assertThat(loggedSql.get(0)).contains("delete from " + SCHEMA_PREFIX + "e_basicver where id  in (?,?,?)");
   }
 
 
@@ -105,7 +105,7 @@ public class EbeanServer_deleteAllByIdTest {
     }
     List<String> loggedSql = LoggedSqlCollector.stop();
     assertThat(loggedSql).hasSize(1);
-    assertThat(loggedSql.get(0)).contains("delete from e_basicver where id  in (?,?,?)");
+    assertThat(loggedSql.get(0)).contains("delete from " + SCHEMA_PREFIX + "e_basicver where id  in (?,?,?)");
   }
 
   private List<EBasicVer> beans(int count) {

@@ -141,9 +141,9 @@ public class TestQueryFindIterate extends BaseTestCase {
     List<String> loggedSql = LoggedSqlCollector.stop();
 
     assertEquals(3, loggedSql.size());
-    assertTrue(trimSql(loggedSql.get(0), 7).contains("select t0.id, t0.status, t0.order_date, t1.id, t1.name from o_order t0 join o_customer t1"));
+    assertTrue(trimSql(loggedSql.get(0), 7).contains("select t0.id, t0.status, t0.order_date, t1.id, t1.name from " + SCHEMA_PREFIX + "o_order t0 join " + SCHEMA_PREFIX + "o_customer t1"));
     assertTrue(trimSql(loggedSql.get(1), 7).contains("select t0.order_id, t0.id, t0.order_qty, t0.ship_qty, t0.unit_price"));
-    assertTrue(trimSql(loggedSql.get(2), 7).contains("select t0.order_id, t0.id, t0.ship_time, t0.cretime, t0.updtime, t0.version, t0.order_id from or_order_ship"));
+    assertTrue(trimSql(loggedSql.get(2), 7).contains("select t0.order_id, t0.id, t0.ship_time, t0.cretime, t0.updtime, t0.version, t0.order_id from " + SCHEMA_PREFIX + "or_order_ship"));
   }
 
   @Test
@@ -177,7 +177,7 @@ public class TestQueryFindIterate extends BaseTestCase {
 
     assertEquals("Got SQL: " + loggedSql, 2, loggedSql.size());
     assertThat(trimSql(loggedSql.get(0), 7).contains("select t0.id, t0.status, t0.order_date, t1.id, t1.name, t2.id, t2.order_qty, t2.ship_qty"));
-    assertThat(trimSql(loggedSql.get(1), 7).contains("select t0.order_id, t0.id, t0.ship_time, t0.cretime, t0.updtime, t0.version, t0.order_id from or_order_ship"));
+    assertThat(trimSql(loggedSql.get(1), 7).contains("select t0.order_id, t0.id, t0.ship_time, t0.cretime, t0.updtime, t0.version, t0.order_id from " + SCHEMA_PREFIX + "or_order_ship"));
   }
 
   @Test(expected = PersistenceException.class)

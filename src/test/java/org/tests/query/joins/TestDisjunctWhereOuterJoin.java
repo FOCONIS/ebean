@@ -54,7 +54,7 @@ public class TestDisjunctWhereOuterJoin extends BaseTestCase {
       Assert.assertSame(1, list.size()); // list should contain user0
       System.out.println(list);
 
-      String sql = query.getGeneratedSql();
+      String sql = sqlOf(query);
       Assert.assertTrue(sql.contains("select distinct"));
       Assert.assertTrue(sql.contains("left join mrole "));
       Assert.assertTrue(sql.contains(".role_name = ?"));

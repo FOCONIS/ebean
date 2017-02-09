@@ -402,7 +402,7 @@ public class EqlParserTest extends BaseTestCase {
     Query<Customer> query = parse("order by id");
     query.findList();
     if (isH2()) {
-      assertThat(query.getGeneratedSql()).contains("from o_customer t0 order by t0.id");
+      assertThat(sqlOf(query)).contains("from o_customer t0 order by t0.id");
     }
   }
 
@@ -414,7 +414,7 @@ public class EqlParserTest extends BaseTestCase {
     Query<Customer> query = parse("order by id desc");
     query.findList();
     if (isH2()) {
-      assertThat(query.getGeneratedSql()).contains("from o_customer t0 order by t0.id desc");
+      assertThat(sqlOf(query)).contains("from o_customer t0 order by t0.id desc");
     }
   }
 
@@ -430,7 +430,7 @@ public class EqlParserTest extends BaseTestCase {
     Query<Customer> query = parse("order by id desc nulls last");
     query.findList();
     if (isH2()) {
-      assertThat(query.getGeneratedSql()).contains(" from o_customer t0 order by t0.id desc nulls last");
+      assertThat(sqlOf(query)).contains(" from o_customer t0 order by t0.id desc nulls last");
     }
   }
 
@@ -445,7 +445,7 @@ public class EqlParserTest extends BaseTestCase {
     Query<Customer> query = parse("order by id nulls first");
     query.findList();
     if (isH2()) {
-      assertThat(query.getGeneratedSql()).contains(" from o_customer t0 order by t0.id nulls first");
+      assertThat(sqlOf(query)).contains(" from o_customer t0 order by t0.id nulls first");
     }
   }
 

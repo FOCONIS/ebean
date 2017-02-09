@@ -41,7 +41,7 @@ public class TestSoftDeletePagingList extends BaseTestCase {
     assertThat(totalRowCount).isEqualTo(2);
 
     assertThat(sql).hasSize(2);
-    assertThat(sql.get(0)).contains("select count(*) from cover t0 where t0.s3url like");
+    assertThat(sql.get(0)).contains("select count(*) from " + SCHEMA_PREFIX + "cover t0 where t0.s3url like");
     if (isPlatformBooleanNative()) {
       assertThat(sql.get(0)).contains("and t0.deleted = false; --bind(SoftDelPaged-%)");
     } else {

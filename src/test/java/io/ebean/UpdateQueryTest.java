@@ -26,7 +26,7 @@ public class UpdateQueryTest extends BaseTestCase {
 
     query.update();
 
-    assertThat(query.getGeneratedSql()).contains("update o_customer set status=?, updtime=? where status = ?  and id > ?");
+    assertThat(sqlOf(query)).contains("update o_customer set status=?, updtime=? where status = ?  and id > ?");
   }
 
 
@@ -71,7 +71,7 @@ public class UpdateQueryTest extends BaseTestCase {
 
     updateQuery.update();
 
-    assertThat(updateQuery.getGeneratedSql()).contains("update o_customer set status=? where not exists (select 1 from contact where customer_id = id) and id > ?");
+    assertThat(sqlOf(updateQuery)).contains("update o_customer set status=? where not exists (select 1 from contact where customer_id = id) and id > ?");
   }
 
   @Test
@@ -88,7 +88,7 @@ public class UpdateQueryTest extends BaseTestCase {
 
     updateQuery.update();
 
-    assertThat(updateQuery.getGeneratedSql()).contains("update o_customer set status=null where id > ?");
+    assertThat(sqlOf(updateQuery)).contains("update o_customer set status=null where id > ?");
   }
 
   @Test
@@ -105,7 +105,7 @@ public class UpdateQueryTest extends BaseTestCase {
 
     updateQuery.update();
 
-    assertThat(updateQuery.getGeneratedSql()).contains("update o_customer set status=null where id > ?");
+    assertThat(sqlOf(updateQuery)).contains("update o_customer set status=null where id > ?");
   }
 
   @Test
@@ -122,7 +122,7 @@ public class UpdateQueryTest extends BaseTestCase {
 
     updateQuery.update();
 
-    assertThat(updateQuery.getGeneratedSql()).contains("update o_customer set status = coalesce(status, 'A') where id > ?");
+    assertThat(sqlOf(updateQuery)).contains("update o_customer set status = coalesce(status, 'A') where id > ?");
   }
 
   @Test
@@ -139,7 +139,7 @@ public class UpdateQueryTest extends BaseTestCase {
 
     updateQuery.update();
 
-    assertThat(updateQuery.getGeneratedSql()).contains("update o_customer set status = coalesce(status, ?) where id > ?");
+    assertThat(sqlOf(updateQuery)).contains("update o_customer set status = coalesce(status, ?) where id > ?");
   }
 
   @Test

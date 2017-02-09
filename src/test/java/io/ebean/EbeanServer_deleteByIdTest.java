@@ -12,7 +12,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
-public class EbeanServer_deleteByIdTest {
+public class EbeanServer_deleteByIdTest  extends BaseTestCase {
 
   @Test
   public void deleteById() {
@@ -26,7 +26,7 @@ public class EbeanServer_deleteByIdTest {
 
     List<String> loggedSql = LoggedSqlCollector.stop();
     assertThat(loggedSql).hasSize(1);
-    assertThat(loggedSql.get(0)).contains("delete from e_basicver where id = ?");
+    assertThat(loggedSql.get(0)).contains("delete from " + SCHEMA_PREFIX + "e_basicver where id = ?");
   }
 
   @Test
@@ -41,7 +41,7 @@ public class EbeanServer_deleteByIdTest {
 
     List<String> loggedSql = LoggedSqlCollector.stop();
     assertThat(loggedSql).hasSize(1);
-    assertThat(loggedSql.get(0)).contains("delete from e_basicver where id = ?");
+    assertThat(loggedSql.get(0)).contains("delete from " + SCHEMA_PREFIX + "e_basicver where id = ?");
   }
 
 
@@ -63,7 +63,7 @@ public class EbeanServer_deleteByIdTest {
     }
     List<String> loggedSql = LoggedSqlCollector.stop();
     assertThat(loggedSql).hasSize(1);
-    assertThat(loggedSql.get(0)).contains("delete from e_basicver where id = ?");
+    assertThat(loggedSql.get(0)).contains("delete from " + SCHEMA_PREFIX + "e_basicver where id = ?");
   }
 
   @Test
@@ -84,7 +84,7 @@ public class EbeanServer_deleteByIdTest {
     }
     List<String> loggedSql = LoggedSqlCollector.stop();
     assertThat(loggedSql).hasSize(1);
-    assertThat(loggedSql.get(0)).contains("delete from e_basicver where id = ?");
+    assertThat(loggedSql.get(0)).contains("delete from " + SCHEMA_PREFIX + "e_basicver where id = ?");
   }
 
   private EBasicVer bean(String name) {

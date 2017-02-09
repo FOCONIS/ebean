@@ -36,7 +36,7 @@ public class TestMediaInheritanceJoinToMany extends BaseTestCase {
 
     // specifically t1.type = 'Picture' ... on on the join and not in the where
 
-    String generatedSql = query.getGeneratedSql();
+    String generatedSql = sqlOf(query);
     assertThat(generatedSql).contains("from mprofile t0 left join mmedia t1 on t1.id = t0.picture_id and t1.type = 'Picture' ");
     assertThat(generatedSql).contains("where t0.name = ? ");
 

@@ -27,7 +27,7 @@ public class TestQueryManyToOneWhereClauseJoin extends BaseTestCase {
 
     //select t0.id c0, t0.status c1, t0.order_date c2, t0.ship_date c3, t1.name c4, t0.cretime c5, t0.updtime c6, t0.kcustomer_id c7
     String expectedSql = "from o_order t0 join o_customer t1 on t1.id = t0.kcustomer_id  where lower(t1.name) like ? ";
-    Assert.assertTrue(query.getGeneratedSql().contains(expectedSql));
+    Assert.assertTrue(sqlOf(query).contains(expectedSql));
 
     // select t0.id c0, t0.status c1, t0.order_date c2, t0.ship_date c3, t1.name c4, t0.cretime c5, t0.updtime c6, t0.kcustomer_id c7
     // from o_order t0
@@ -51,7 +51,7 @@ public class TestQueryManyToOneWhereClauseJoin extends BaseTestCase {
 
     //select t0.id c0, t0.status c1, t0.order_date c2, t0.ship_date c3, t1.name c4, t0.cretime c5, t0.updtime c6, t0.kcustomer_id c7
     String expectedSql = "from o_order t0 join o_customer t1 on t1.id = t0.kcustomer_id  where (lower(t1.name) like ? ";
-    Assert.assertTrue(query.getGeneratedSql().contains(expectedSql));
+    Assert.assertTrue(sqlOf(query).contains(expectedSql));
 
     // select t0.id c0, t0.status c1, t0.order_date c2, t0.ship_date c3, t1.name c4, t0.cretime c5, t0.updtime c6, t0.kcustomer_id c7
     // from o_order t0
@@ -77,7 +77,7 @@ public class TestQueryManyToOneWhereClauseJoin extends BaseTestCase {
 
     query.findList();
 
-    String generatedSql = query.getGeneratedSql();
+    String generatedSql = sqlOf(query);
     Assert.assertTrue(generatedSql.contains("from o_order t0 join o_customer t1 on t1.id = t0.kcustomer_id"));
     Assert.assertTrue(generatedSql.contains("left join contact t2 on t2.customer_id = t1.id"));
     Assert.assertTrue(generatedSql.contains("where lower(t1.name) like ?"));

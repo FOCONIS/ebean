@@ -23,7 +23,7 @@ public class TestQueryAlias extends BaseTestCase {
 
     pq.findList();
 
-    String sql = pq.getGeneratedSql();
+    String sql = sqlOf(pq);
 
     // Without alias command is should be:
     // select t0.one_key c0, t0.two_key c1, t0.name c2, t0.version c3, t0.assoc_id c4 from ckey_parent t0 where  (t0
@@ -49,7 +49,7 @@ public class TestQueryAlias extends BaseTestCase {
 
     pq.findList();
 
-    String sql = pq.getGeneratedSql();
+    String sql = sqlOf(pq);
 
     // Without alias command is should be:
     // select t0.one_key c0, t0.two_key c1, t0.name c2, t0.version c3, t0.assoc_id c4 from ckey_parent t0 where  (t0

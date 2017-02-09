@@ -22,7 +22,7 @@ public class SqlQueryTests extends BaseTestCase {
 
     ResetBasicData.reset();
 
-    SqlQuery sqlQuery = Ebean.createSqlQuery("Select * from o_order");
+    SqlQuery sqlQuery = Ebean.createSqlQuery("Select * from ${tenant_schema}.o_order");
     sqlQuery.setFirstRow(3);
     sqlQuery.setMaxRows(10);
 
@@ -31,7 +31,7 @@ public class SqlQueryTests extends BaseTestCase {
 
     List<String> sql = LoggedSqlCollector.stop();
 
-    assertThat(sql.get(0)).contains("Select * from o_order limit 10 offset 3; --bind()");
+    assertThat(sql.get(0)).contains("Select * from " + SCHEMA_PREFIX + "o_order limit 10 offset 3; --bind()");
     assertThat(list).isNotEmpty();
   }
 
@@ -42,14 +42,14 @@ public class SqlQueryTests extends BaseTestCase {
 
       ResetBasicData.reset();
 
-      SqlQuery sqlQuery = Ebean.createSqlQuery("Select * from o_order order by id");
+      SqlQuery sqlQuery = Ebean.createSqlQuery("Select * from ${tenant_schema}.o_order order by id");
       sqlQuery.setFirstRow(3);
 
       LoggedSqlCollector.start();
       sqlQuery.findList();
       List<String> sql = LoggedSqlCollector.stop();
 
-      assertThat(sql.get(0)).contains("Select * from o_order order by id offset 3");
+      assertThat(sql.get(0)).contains("Select * from " + SCHEMA_PREFIX + "o_order order by id offset 3");
     }
   }
 
@@ -58,14 +58,14 @@ public class SqlQueryTests extends BaseTestCase {
 
     ResetBasicData.reset();
 
-    SqlQuery sqlQuery = Ebean.createSqlQuery("Select * from o_order order by id");
+    SqlQuery sqlQuery = Ebean.createSqlQuery("Select * from ${tenant_schema}.o_order order by id");
     sqlQuery.setMaxRows(10);
 
     LoggedSqlCollector.start();
     sqlQuery.findList();
     List<String> sql = LoggedSqlCollector.stop();
 
-    assertThat(sql.get(0)).contains("Select * from o_order order by id limit 10");
+    assertThat(sql.get(0)).contains("Select * from " + SCHEMA_PREFIX + "o_order order by id limit 10");
   }
 
   @Test
@@ -73,7 +73,7 @@ public class SqlQueryTests extends BaseTestCase {
 
     ResetBasicData.reset();
 
-    SqlQuery sqlQuery = Ebean.createSqlQuery("select * from o_order where o_order.id > :id order by id ");
+    SqlQuery sqlQuery = Ebean.createSqlQuery("select * from ${tenant_schema}.o_order where o_order.id > :id order by id ");
     sqlQuery.setParameter("id", 3);
     sqlQuery.setMaxRows(10);
 
@@ -81,7 +81,7 @@ public class SqlQueryTests extends BaseTestCase {
     sqlQuery.findList();
     List<String> sql = LoggedSqlCollector.stop();
 
-    assertThat(sql.get(0)).contains("select * from o_order where o_order.id > ? order by id  limit 10;");
+    assertThat(sql.get(0)).contains("select * from " + SCHEMA_PREFIX + "o_order where o_order.id > ? order by id  limit 10;");
   }
 
   @Test
@@ -89,7 +89,7 @@ public class SqlQueryTests extends BaseTestCase {
 
     ResetBasicData.reset();
 
-    SqlQuery sqlQuery = Ebean.createSqlQuery("Select * from o_order");
+    SqlQuery sqlQuery = Ebean.createSqlQuery("Select * from ${tenant_schema}.o_order");
     sqlQuery.setMaxRows(10);
 
     LoggedSqlCollector.start();
@@ -108,7 +108,7 @@ public class SqlQueryTests extends BaseTestCase {
 
     final AtomicInteger count = new AtomicInteger();
 
-    SqlQuery sqlQuery = Ebean.createSqlQuery("select * from o_order");
+    SqlQuery sqlQuery = Ebean.createSqlQuery("select * from ${tenant_schema}.o_order");
     sqlQuery.findEach(bean -> count.incrementAndGet());
 
     assertEquals(expectedRows, count.get());
@@ -121,7 +121,7 @@ public class SqlQueryTests extends BaseTestCase {
 
     final AtomicInteger count = new AtomicInteger();
 
-    SqlQuery sqlQuery = Ebean.createSqlQuery("select * from o_order order by id");
+    SqlQuery sqlQuery = Ebean.createSqlQuery("select * from ${tenant_schema}.o_order order by id");
     sqlQuery.findEachWhile(bean -> {
       count.incrementAndGet();
       Integer id = bean.getInteger("id");

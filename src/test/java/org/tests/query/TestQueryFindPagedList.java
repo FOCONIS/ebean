@@ -246,7 +246,7 @@ public class TestQueryFindPagedList extends BaseTestCase {
     List<String> loggedSql = LoggedSqlCollector.stop();
 
     assertEquals(2, loggedSql.size());
-    assertThat(loggedSql.get(0)).contains("select count(*) from o_order b where b.id > 0");
+    assertThat(loggedSql.get(0)).contains("select count(*) from " + SCHEMA_PREFIX + "o_order b where b.id > 0");
     assertThat(trimSql(loggedSql.get(1), 3)).contains(" b.id, b.status, b.order_date");
   }
 }

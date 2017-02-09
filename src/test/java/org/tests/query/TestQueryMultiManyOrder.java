@@ -21,7 +21,7 @@ public class TestQueryMultiManyOrder extends BaseTestCase {
       .fetch("details.product").fetch("customer").where().gt("id", 0).query();
 
     List<Order> list = q.findList();
-    String sql = q.getGeneratedSql();
+    String sql = sqlOf(q);
 
     Assert.assertTrue(!list.isEmpty());
     Assert.assertTrue(sql.contains("join o_customer "));

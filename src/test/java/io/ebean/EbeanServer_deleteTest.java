@@ -12,7 +12,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
-public class EbeanServer_deleteTest {
+public class EbeanServer_deleteTest extends BaseTestCase  {
 
   @Test
   public void delete() {
@@ -26,7 +26,7 @@ public class EbeanServer_deleteTest {
 
     List<String> loggedSql = LoggedSqlCollector.stop();
     assertThat(loggedSql).hasSize(1);
-    assertThat(loggedSql.get(0)).contains("delete from e_basicver where id=? and ");
+    assertThat(loggedSql.get(0)).contains("delete from " + SCHEMA_PREFIX + "e_basicver where id=? and ");
   }
 
   @Test
@@ -47,7 +47,7 @@ public class EbeanServer_deleteTest {
     }
     List<String> loggedSql = LoggedSqlCollector.stop();
     assertThat(loggedSql).hasSize(1);
-    assertThat(loggedSql.get(0)).contains("delete from e_basicver where id=? and ");
+    assertThat(loggedSql.get(0)).contains("delete from " + SCHEMA_PREFIX + "e_basicver where id=? and ");
   }
 
   private EBasicVer bean(String name) {

@@ -34,7 +34,7 @@ public class TestQueryJoinManyNonRoot extends BaseTestCase {
     List<String> loggedSql = LoggedSqlCollector.stop();
     assertEquals(1, loggedSql.size());
     assertTrue(loggedSql.get(0).contains("select distinct "));
-    assertTrue(loggedSql.get(0).contains(" from o_order t0 join o_order_detail u1 on u1.order_id = t0.id "));
+    assertTrue(loggedSql.get(0).contains(" from " + SCHEMA_PREFIX + "o_order t0 join " + SCHEMA_PREFIX + "o_order_detail u1 on u1.order_id = t0.id "));
   }
 
   @Test
@@ -48,7 +48,7 @@ public class TestQueryJoinManyNonRoot extends BaseTestCase {
       .where().gt("id", 0).query();
 
     List<Order> list = q.findList();
-    String sql = q.getGeneratedSql();
+    String sql = sqlOf(q);
 
     assertTrue(!list.isEmpty());
     assertTrue(sql.contains("join o_customer t1 on t1.id "));
@@ -77,7 +77,7 @@ public class TestQueryJoinManyNonRoot extends BaseTestCase {
       .where().gt("id", 0).query();
 
     List<Order> list = q.findList();
-    String sql = q.getGeneratedSql();
+    String sql = sqlOf(q);
 
     assertTrue(!list.isEmpty());
     assertTrue(sql.contains("join o_customer t1 on t1.id "));
@@ -101,7 +101,7 @@ public class TestQueryJoinManyNonRoot extends BaseTestCase {
       .where().gt("id", 0).query();
 
     List<Order> list = q.findList();
-    String sql = q.getGeneratedSql();
+    String sql = sqlOf(q);
 
     for (Order order : list) {
       order.getCustomer().getContacts().size();

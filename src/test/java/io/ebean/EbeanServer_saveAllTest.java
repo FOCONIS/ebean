@@ -24,7 +24,7 @@ public class EbeanServer_saveAllTest extends BaseTestCase {
     // assert
     List<String> loggedSql = LoggedSqlCollector.stop();
     for (String insertSql : loggedSql) {
-      assertThat(insertSql).contains("insert into e_basicver (");
+      assertThat(insertSql).contains("insert into " + SCHEMA_PREFIX + "e_basicver (");
       assertThat(insertSql).contains("name, description, other, last_update) values (");
     }
 
@@ -38,7 +38,7 @@ public class EbeanServer_saveAllTest extends BaseTestCase {
 
     loggedSql = LoggedSqlCollector.stop();
     for (String updateSql : loggedSql) {
-      assertThat(updateSql).contains("update e_basicver set name=?, last_update=? where id=? ");
+      assertThat(updateSql).contains("update " + SCHEMA_PREFIX + "e_basicver set name=?, last_update=? where id=? ");
     }
 
 
@@ -48,7 +48,7 @@ public class EbeanServer_saveAllTest extends BaseTestCase {
 
     loggedSql = LoggedSqlCollector.stop();
     for (String updateSql : loggedSql) {
-      assertThat(updateSql).contains("delete from e_basicver where id=? ");
+      assertThat(updateSql).contains("delete from " + SCHEMA_PREFIX + "e_basicver where id=? ");
     }
 
   }
@@ -73,7 +73,7 @@ public class EbeanServer_saveAllTest extends BaseTestCase {
     // assert
     List<String> loggedSql = LoggedSqlCollector.stop();
     for (String insertSql : loggedSql) {
-      assertThat(insertSql).contains("insert into e_basicver (");
+      assertThat(insertSql).contains("insert into " + SCHEMA_PREFIX + "e_basicver (");
       assertThat(insertSql).contains("name, description, other, last_update) values (");
     }
 
@@ -92,7 +92,7 @@ public class EbeanServer_saveAllTest extends BaseTestCase {
     }
     loggedSql = LoggedSqlCollector.stop();
     for (String updateSql : loggedSql) {
-      assertThat(updateSql).contains("update e_basicver set name=?, last_update=? where id=? ");
+      assertThat(updateSql).contains("update " + SCHEMA_PREFIX + "e_basicver set name=?, last_update=? where id=? ");
     }
 
 
@@ -107,7 +107,7 @@ public class EbeanServer_saveAllTest extends BaseTestCase {
     }
     loggedSql = LoggedSqlCollector.stop();
     for (String updateSql : loggedSql) {
-      assertThat(updateSql).contains("delete from e_basicver where id=? ");
+      assertThat(updateSql).contains("delete from " + SCHEMA_PREFIX + "e_basicver where id=? ");
     }
 
   }

@@ -23,7 +23,7 @@ public class TestQueryInAssocOne extends BaseTestCase {
     Query<Order> query = Ebean.find(Order.class).where().in("customer", list).query();
 
     query.findList();
-    String sql = query.getGeneratedSql();
+    String sql = sqlOf(query);
 
     Assert.assertTrue(sql, sql.contains("join o_customer t1 on t1.id = t0.kcustomer_id"));
     Assert.assertTrue(sql, sql.contains("t0.kcustomer_id in (?"));
