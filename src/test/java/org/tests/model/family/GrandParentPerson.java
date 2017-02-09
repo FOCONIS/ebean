@@ -21,7 +21,7 @@ public class GrandParentPerson extends InheritablePerson {
 
   // This rather complex formulas should be built later by CustomAnnotationParser
   private static final String PARENT_PERSON_AGGREGATE_JOIN = "left join "
-    + "(select i1.parent_identifier, count(*) as child_count, sum(i1.age) as child_age from parent_person i1 group by i1.parent_identifier) "
+    + "(select i1.parent_identifier, count(*) as child_count, sum(i1.age) as child_age from ${tenant_schema}.parent_person i1 group by i1.parent_identifier) "
     + "as f1 on f1.parent_identifier = ${ta}.identifier";
 
   //@Count("children")
@@ -38,7 +38,7 @@ public class GrandParentPerson extends InheritablePerson {
 
 
   @ManyToOne(optional = true, fetch = FetchType.EAGER)
-  @Formula(select = "f2.id", join = "left join e_basic f2 on f2.name = ${ta}.family_name")
+  @Formula(select = "f2.id", join = "left join ${tenant_schema}.e_basic f2 on f2.name = ${ta}.family_name")
   private EBasic basicSameName;
   
   
