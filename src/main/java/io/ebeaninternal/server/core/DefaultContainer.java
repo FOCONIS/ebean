@@ -1,6 +1,7 @@
 package io.ebeaninternal.server.core;
 
 import io.ebean.BackgroundExecutor;
+import io.ebean.TenantContext;
 import io.ebean.cache.ServerCacheFactory;
 import io.ebean.cache.ServerCacheOptions;
 import io.ebean.cache.ServerCachePlugin;
@@ -125,9 +126,10 @@ public class DefaultContainer implements SpiContainer {
 
       // executor and l2 caching service setup early (used during server construction)
       SpiBackgroundExecutor executor = createBackgroundExecutor(serverConfig);
-      SpiCacheManager cacheManager = getCacheManager(online, serverConfig, executor);
+      TenantContext tenantContext = getTenantContext(serverConfig);
+      SpiCacheManager cacheManager = getCacheManager(online, serverConfig, executor, tenantContext);
 
-      InternalConfiguration c = new InternalConfiguration(clusterManager, cacheManager, executor, serverConfig, bootupClasses);
+      InternalConfiguration c = new InternalConfiguration(clusterManager, cacheManager, executor, serverConfig, bootupClasses, tenantContext);
 
       DefaultServer server = new DefaultServer(c, c.cache());
 
@@ -152,10 +154,21 @@ public class DefaultContainer implements SpiContainer {
     }
   }
 
+  private TenantContext getTenantContext(ServerConfig serverConfig) {
+    if (serverConfig.getTenantMode() == TenantMode.NONE) {
+      return new NoopTenantContext();
+    } else if (serverConfig.getTenantMode() == TenantMode.SCHEMA) {
+      return new SchemaTranslateTenantContext(serverConfig.getCurrentTenantProvider(),
+          serverConfig.getTenantSchemaProvider(),
+          serverConfig.getTenantSharedSchema());
+    } else {
+      return new DefaultTenantContext(serverConfig.getCurrentTenantProvider());
+    }
+  }
   /**
    * Create and return the CacheManager.
    */
-  private SpiCacheManager getCacheManager(boolean online, ServerConfig serverConfig, BackgroundExecutor executor) {
+  private SpiCacheManager getCacheManager(boolean online, ServerConfig serverConfig, BackgroundExecutor executor, TenantContext tenantContext) {
 
     if (!online || serverConfig.isDisableL2Cache()) {
       // use local only L2 cache implementation as placeholder
@@ -191,7 +204,7 @@ public class DefaultContainer implements SpiContainer {
     }
 
     ServerCacheFactory factory = plugin.create(serverConfig, executor);
-    return new DefaultServerCacheManager(localL2Caching, serverConfig.getCurrentTenantProvider(), factory, beanOptions, queryOptions);
+    return new DefaultServerCacheManager(localL2Caching, tenantContext, factory, beanOptions, queryOptions);
   }
 
   /**

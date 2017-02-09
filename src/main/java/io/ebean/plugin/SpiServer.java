@@ -3,8 +3,8 @@ package io.ebean.plugin;
 import io.ebean.EbeanServer;
 import io.ebean.config.ServerConfig;
 import io.ebean.config.dbplatform.DatabasePlatform;
+import io.ebeaninternal.server.transaction.DataSourceSupplier;
 
-import javax.sql.DataSource;
 import java.util.List;
 
 /**
@@ -45,6 +45,6 @@ public interface SpiServer extends EbeanServer {
   /**
    * Return the associated DataSource for this EbeanServer instance.
    */
-  DataSource getDataSource();
+  DataSourceSupplier getDataSourceSupplier();
 
 }

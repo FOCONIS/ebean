@@ -12,4 +12,6 @@ public interface TenantContext {
   
   Object pop();
 
+  boolean isMultiTenant();
+
 }

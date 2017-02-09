@@ -1,6 +1,6 @@
 package io.ebeaninternal.server.transaction;
 
-import io.ebean.config.CurrentTenantProvider;
+import io.ebean.TenantContext;
 import io.ebeaninternal.api.SpiTransaction;
 import io.ebeaninternal.util.JdbcClose;
 
@@ -15,12 +15,12 @@ class TransactionFactoryTenant extends TransactionFactory {
 
   private final DataSourceSupplier dataSourceSupplier;
 
-  private final CurrentTenantProvider tenantProvider;
+  private final TenantContext tenantContext;
 
-  TransactionFactoryTenant(TransactionManager manager, DataSourceSupplier dataSourceSupplier, CurrentTenantProvider tenantProvider) {
+  TransactionFactoryTenant(TransactionManager manager, DataSourceSupplier dataSourceSupplier, TenantContext tenantContext) {
     super(manager);
     this.dataSourceSupplier = dataSourceSupplier;
-    this.tenantProvider = tenantProvider;
+    this.tenantContext = tenantContext;
   }
 
   @Override
@@ -40,7 +40,7 @@ class TransactionFactoryTenant extends TransactionFactory {
     try {
       if (tenantId == null) {
         // tenantId not set (by lazy loading) so get current tenantId
-        tenantId = tenantProvider.currentId();
+        tenantId = tenantContext.getTenantId();
       }
       c = dataSourceSupplier.getConnection(tenantId);
       SpiTransaction transaction = manager.createTransaction(explicit, c, counter.incrementAndGet());

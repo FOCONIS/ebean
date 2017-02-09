@@ -122,7 +122,7 @@ public class InternalConfiguration {
 
   public InternalConfiguration(ClusterManager clusterManager,
                                SpiCacheManager cacheManager, SpiBackgroundExecutor backgroundExecutor,
-                               ServerConfig serverConfig, BootupClasses bootupClasses) {
+                               ServerConfig serverConfig, BootupClasses bootupClasses, TenantContext tenantContext) {
 
     this.docStoreFactory = initDocStoreFactory(serverConfig.service(DocStoreFactory.class));
     this.jsonFactory = serverConfig.getJsonFactory();
@@ -141,7 +141,7 @@ public class InternalConfiguration {
     this.deployCreateProperties = new DeployCreateProperties(typeManager);
     this.deployUtil = new DeployUtil(typeManager, serverConfig);
 
-    this.tenantContext = initTenantContext();
+    this.tenantContext = tenantContext;
     this.beanDescriptorManager = new BeanDescriptorManager(this);
     Map<String, String> asOfTableMapping = beanDescriptorManager.deploy();
     Map<String, String> draftTableMap = beanDescriptorManager.getDraftTableMap();
@@ -151,17 +151,7 @@ public class InternalConfiguration {
     this.cQueryEngine = new CQueryEngine(serverConfig, databasePlatform, binder, asOfTableMapping, draftTableMap);
   }
 
-  private TenantContext initTenantContext() {
-    if (serverConfig.getTenantMode() == TenantMode.NONE) {
-      return new NoopTenantContext();
-    } else if (serverConfig.getTenantMode() == TenantMode.SCHEMA) {
-      return new SchemaTranslateTenantContext(serverConfig.getCurrentTenantProvider(),
-          serverConfig.getTenantSchemaProvider(),
-          serverConfig.getTenantSharedSchema());
-    } else {
-      return new DefaultTenantContext(serverConfig.getCurrentTenantProvider());
-    }
-  }
+
   /**
    * Create and return the ExpressionFactory based on configuration and database platform.
    */

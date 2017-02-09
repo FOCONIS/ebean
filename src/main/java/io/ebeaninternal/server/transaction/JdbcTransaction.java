@@ -121,8 +121,6 @@ public class JdbcTransaction implements SpiTransaction {
 
   protected String logPrefix;
 
-  private Object tenantId;
-
   /**
    * The depth used by batch processing to help the ordering of statements.
    */
@@ -811,16 +809,6 @@ public class JdbcTransaction implements SpiTransaction {
   @Override
   public String getId() {
     return id;
-  }
-
-  @Override
-  public void setTenantId(Object tenantId) {
-    this.tenantId = tenantId;
-  }
-
-  @Override
-  public Object getTenantId() {
-    return tenantId;
   }
 
   /**

@@ -22,7 +22,7 @@ public class DocStoreTransactionManager extends TransactionManager {
   }
 
   @Override
-  public SpiTransaction createTransaction(boolean explicit, int isolationLevel) {
+  public SpiTransaction createTransaction(Object tenantId, boolean explicit, int isolationLevel) {
     long id = counter.incrementAndGet();
     return createTransaction(explicit, null, id);
   }

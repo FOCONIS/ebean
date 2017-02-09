@@ -1,7 +1,6 @@
 package io.ebeaninternal.server.transaction;
 
 import io.ebean.BackgroundExecutor;
-import io.ebean.config.CurrentTenantProvider;
 import io.ebean.PersistBatch;
 import io.ebean.config.dbplatform.DatabasePlatform.OnQueryOnly;
 import io.ebean.event.changelog.ChangeLogListener;
@@ -19,7 +18,6 @@ import io.ebeanservice.docstore.api.DocStoreUpdates;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.sql.DataSource;
 import java.sql.Connection;
 import java.util.List;
 import java.util.Set;
@@ -124,12 +122,7 @@ public class TransactionManager {
     this.externalTransPrefix = "e";
     this.onQueryOnly = initOnQueryOnly(options.config.getDatabasePlatform().getOnQueryOnly());
 
-    CurrentTenantProvider tenantProvider = options.config.getCurrentTenantProvider();
-    if (tenantProvider == null) {
-      transactionFactory = new TransactionFactoryBasic(this, dataSourceSupplier);
-    } else {
-      transactionFactory = new TransactionFactoryTenant(this, dataSourceSupplier, tenantProvider);
-    }
+    transactionFactory = new TransactionFactoryBasic(this, dataSourceSupplier);
   }
 
   public void shutdown(boolean shutdownDataSource, boolean deregisterDriver) {
@@ -194,8 +187,8 @@ public class TransactionManager {
     return serverName;
   }
 
-  public DataSource getDataSource() {
-    return dataSourceSupplier.getDataSource();
+  public DataSourceSupplier getDataSourceSupplier() {
+    return dataSourceSupplier;
   }
 
   /**
@@ -229,8 +222,8 @@ public class TransactionManager {
   /**
    * Create a new Transaction.
    */
-  public SpiTransaction createTransaction(boolean explicit, int isolationLevel) {
-    return transactionFactory.createTransaction(explicit, isolationLevel);
+  public SpiTransaction createTransaction(Object tenantId, boolean explicit, int isolationLevel) {
+    return transactionFactory.createTransaction(tenantId, explicit, isolationLevel);
   }
 
   public SpiTransaction createQueryTransaction(Object tenantId) {

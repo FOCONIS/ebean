@@ -84,6 +84,7 @@ import io.ebeaninternal.server.querydefn.DefaultOrmUpdate;
 import io.ebeaninternal.server.querydefn.DefaultRelationalQuery;
 import io.ebeaninternal.server.querydefn.DefaultUpdateQuery;
 import io.ebeaninternal.server.text.csv.TCsvReader;
+import io.ebeaninternal.server.transaction.DataSourceSupplier;
 import io.ebeaninternal.server.transaction.DefaultPersistenceContext;
 import io.ebeaninternal.server.transaction.RemoteTransactionEvent;
 import io.ebeaninternal.server.transaction.TransactionManager;
@@ -99,7 +100,6 @@ import org.slf4j.LoggerFactory;
 import javax.persistence.NonUniqueResultException;
 import javax.persistence.OptimisticLockException;
 import javax.persistence.PersistenceException;
-import javax.sql.DataSource;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
@@ -318,7 +318,7 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
 
   @Override
   public Object currentTenantId() {
-    return currentTenantProvider.currentId();
+    return tenantContext.getTenantId();
   }
 
   @Override
@@ -367,8 +367,8 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
   }
 
   @Override
-  public DataSource getDataSource() {
-    return transactionManager.getDataSource();
+  public DataSourceSupplier getDataSourceSupplier() {
+    return transactionManager.getDataSourceSupplier();
   }
 
   @Override
@@ -651,7 +651,7 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
   @Override
   public Transaction createTransaction() {
 
-    return transactionManager.createTransaction(true, -1);
+    return transactionManager.createTransaction(currentTenantId(), true, -1);
   }
 
   /**
@@ -663,7 +663,7 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
   @Override
   public Transaction createTransaction(TxIsolation isolation) {
 
-    return transactionManager.createTransaction(true, isolation.getLevel());
+    return transactionManager.createTransaction(currentTenantId(), true, isolation.getLevel());
   }
 
   @Override
@@ -787,7 +787,7 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
         if (isolation != null) {
           isoLevel = isolation.getLevel();
         }
-        t = transactionManager.createTransaction(true, isoLevel);
+        t = transactionManager.createTransaction(currentTenantId(), true, isoLevel);
       }
     }
 
@@ -835,7 +835,7 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
   @Override
   public Transaction beginTransaction(TxIsolation isolation) {
     // start an explicit transaction
-    SpiTransaction t = transactionManager.createTransaction(true, isolation.getLevel());
+    SpiTransaction t = transactionManager.createTransaction(currentTenantId(), true, isolation.getLevel());
     transactionScopeManager.set(t);
     return t;
   }
@@ -2119,7 +2119,7 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
     SpiTransaction trans = transactionScopeManager.get();
     if (trans == null) {
       // create a transaction
-      trans = transactionManager.createTransaction(false, -1);
+      trans = transactionManager.createTransaction(currentTenantId(), false, -1);
       wasCreated = true;
     }
     return new TransWrapper(trans, wasCreated);
@@ -2127,12 +2127,12 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
 
   @Override
   public SpiTransaction createServerTransaction(boolean isExplicit, int isolationLevel) {
-    return transactionManager.createTransaction(isExplicit, isolationLevel);
+    return transactionManager.createTransaction(currentTenantId(), isExplicit, isolationLevel);
   }
 
   @Override
-  public SpiTransaction createQueryTransaction(Object tenantId) {
-    return transactionManager.createQueryTransaction(tenantId);
+  public SpiTransaction createQueryTransaction() {
+    return transactionManager.createQueryTransaction(currentTenantId());
   }
 
   /**

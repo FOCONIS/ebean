@@ -1,6 +1,6 @@
 package io.ebeaninternal.server.core;
 
-import io.ebean.config.CurrentTenantProvider;
+import io.ebean.TenantContext;
 import io.ebean.config.TenantDataSourceProvider;
 import io.ebeaninternal.server.transaction.DataSourceSupplier;
 
@@ -13,18 +13,18 @@ import java.sql.SQLException;
  */
 class MultiTenantDbSupplier implements DataSourceSupplier {
 
-  private final CurrentTenantProvider tenantProvider;
+  private final TenantContext tenantContext;
 
   private final TenantDataSourceProvider dataSourceProvider;
 
-  MultiTenantDbSupplier(CurrentTenantProvider tenantProvider, TenantDataSourceProvider dataSourceProvider) {
-    this.tenantProvider = tenantProvider;
+  MultiTenantDbSupplier(TenantContext tenantContext, TenantDataSourceProvider dataSourceProvider) {
+    this.tenantContext = tenantContext;
     this.dataSourceProvider = dataSourceProvider;
   }
 
   @Override
   public DataSource getDataSource() {
-    return dataSourceProvider.dataSource(tenantProvider.currentId());
+    return dataSourceProvider.dataSource(tenantContext.getTenantId());
   }
 
   @Override

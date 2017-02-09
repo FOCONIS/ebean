@@ -4,7 +4,6 @@ import io.ebeaninternal.api.SpiTransaction;
 import io.ebeaninternal.util.JdbcClose;
 
 import javax.persistence.PersistenceException;
-import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 
@@ -13,28 +12,28 @@ import java.sql.SQLException;
  */
 class TransactionFactoryBasic extends TransactionFactory {
 
-  private final DataSource dataSource;
+  private final DataSourceSupplier dataSourceSupplier;
 
   TransactionFactoryBasic(TransactionManager manager, DataSourceSupplier dataSourceSupplier) {
     super(manager);
-    this.dataSource = dataSourceSupplier.getDataSource();
+    this.dataSourceSupplier = dataSourceSupplier;
   }
 
   @Override
   public SpiTransaction createQueryTransaction(Object tenantId) {
-    return create(false);
+    return create(tenantId, false);
   }
 
   @Override
-  public SpiTransaction createTransaction(boolean explicit, int isolationLevel) {
-    SpiTransaction t = create(explicit);
+  public SpiTransaction createTransaction(Object tenantId, boolean explicit, int isolationLevel) {
+    SpiTransaction t = create(tenantId, explicit);
     return setIsolationLevel(t, explicit, isolationLevel);
   }
 
-  private SpiTransaction create(boolean explicit) {
+  private SpiTransaction create(Object tenantId, boolean explicit) {
     Connection c = null;
     try {
-      c = dataSource.getConnection();
+      c = dataSourceSupplier.getConnection(tenantId);
       return manager.createTransaction(explicit, c, counter.incrementAndGet());
 
     } catch (PersistenceException ex) {
