@@ -1,12 +1,12 @@
 package io.ebeaninternal.server.cache;
 
+import io.ebean.TenantContext;
 import io.ebean.annotation.CacheBeanTuning;
 import io.ebean.annotation.CacheQueryTuning;
 import io.ebean.cache.ServerCache;
 import io.ebean.cache.ServerCacheFactory;
 import io.ebean.cache.ServerCacheOptions;
 import io.ebean.cache.ServerCacheType;
-import io.ebean.config.CurrentTenantProvider;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
@@ -23,7 +23,7 @@ class DefaultCacheHolder {
   private final ServerCacheOptions beanDefault;
   private final ServerCacheOptions queryDefault;
 
-  private final CurrentTenantProvider tenantProvider;
+  private final TenantContext tenantContext;
 
   /**
    * Create with a cache factory and default cache options.
@@ -32,16 +32,16 @@ class DefaultCacheHolder {
    * @param beanDefault  the default options for tuning bean caches
    * @param queryDefault the default options for tuning query caches
    */
-  DefaultCacheHolder(ServerCacheFactory cacheFactory, ServerCacheOptions beanDefault, ServerCacheOptions queryDefault, CurrentTenantProvider tenantProvider) {
+  DefaultCacheHolder(ServerCacheFactory cacheFactory, ServerCacheOptions beanDefault, ServerCacheOptions queryDefault, TenantContext tenantContext) {
     this.cacheFactory = cacheFactory;
     this.beanDefault = beanDefault;
     this.queryDefault = queryDefault;
-    this.tenantProvider = tenantProvider;
+    this.tenantContext = tenantContext;
   }
 
   Supplier<ServerCache> getCache(Class<?> beanType, String cacheKey, ServerCacheType type) {
 
-    if (tenantProvider == null) {
+    if (!tenantContext.isMultiTenant()) {
       return new SimpleSupplier(getCacheInternal(beanType, cacheKey, type));
     }
     return new TenantSupplier(beanType, cacheKey, type);
@@ -116,7 +116,7 @@ class DefaultCacheHolder {
 
     @Override
     public ServerCache get() {
-      String fullKey = key + "_" + tenantProvider.currentId();
+      String fullKey = key + "_" + tenantContext.getTenantId();
       return getCacheInternal(beanType, fullKey, type);
     }
   }

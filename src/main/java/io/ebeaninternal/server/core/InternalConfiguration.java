@@ -6,7 +6,6 @@ import io.ebean.config.ExternalTransactionManager;
 import io.ebean.Platform;
 import io.ebean.TenantContext;
 import io.ebean.config.ServerConfig;
-import io.ebean.config.TenantMode;
 import io.ebean.config.dbplatform.DatabasePlatform;
 import io.ebean.config.dbplatform.DbHistorySupport;
 import io.ebean.event.changelog.ChangeLogListener;
@@ -378,7 +377,7 @@ public class InternalConfiguration {
   private DataSourceSupplier dataSource() {
     switch (serverConfig.getTenantMode()) {
       case DB:
-        return new MultiTenantDbSupplier(serverConfig.getCurrentTenantProvider(), serverConfig.getTenantDataSourceProvider());
+        return new MultiTenantDbSupplier(tenantContext, serverConfig.getTenantDataSourceProvider());
       default:
         return new SimpleDataSourceProvider(serverConfig.getDataSource());
     }

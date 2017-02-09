@@ -53,4 +53,9 @@ public class DefaultTenantContext implements TenantContext {
     return tenantStack.get().pop();
   }
 
+  @Override
+  public boolean isMultiTenant() {
+    return true;
+  }
+
 }

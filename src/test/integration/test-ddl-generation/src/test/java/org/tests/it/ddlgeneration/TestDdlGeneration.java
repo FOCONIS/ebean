@@ -188,7 +188,7 @@ public class TestDdlGeneration {
   @Test
   public void test07checkDataSource() throws IOException, SQLException {
     currentTenant[0] = "1";
-    DataSource ds = Ebean.getPluginApi().getDataSource();
+    DataSource ds = Ebean.getPluginApi().getDataSourceSupplier().getDataSource();
     Connection conn = ds.getConnection();
     conn.setSchema("TENANT_1");
     PreparedStatement ps1 = conn.prepareStatement("SELECT * from local_model");

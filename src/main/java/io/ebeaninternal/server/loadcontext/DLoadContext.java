@@ -61,8 +61,6 @@ public class DLoadContext implements LoadContext {
 
   private List<OrmQueryProperties> secQuery;
 
-  private Object tenantId;
-
   /**
    * Construct for use with JSON marshalling (doc store).
    */
@@ -93,7 +91,6 @@ public class DLoadContext implements LoadContext {
 
   public DLoadContext(OrmQueryRequest<?> request, SpiQuerySecondary secondaryQueries) {
 
-    this.tenantId = request.getTenantId();
     this.persistenceContext = request.getPersistenceContext();
     this.ebeanServer = request.getServer();
     this.defaultBatchSize = request.getLazyLoadBatchSize();
@@ -364,9 +361,6 @@ public class DLoadContext implements LoadContext {
     }
     if (useProfiling) {
       query.setAutoTune(true);
-    }
-    if (tenantId != null) {
-      query.setTenantId(tenantId);
     }
   }
 }

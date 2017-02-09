@@ -207,7 +207,7 @@ public final class OrmQueryRequest<T> extends BeanRequest implements BeanQueryRe
       transaction = ebeanServer.getCurrentServerTransaction();
       if (transaction == null) {
         // create an implicit transaction to execute this query
-        transaction = ebeanServer.createQueryTransaction(query.getTenantId());
+        transaction = ebeanServer.createQueryTransaction();
         createdTransaction = true;
       }
     }
@@ -550,10 +550,4 @@ public final class OrmQueryRequest<T> extends BeanRequest implements BeanQueryRe
     query.setDefaultFetchBuffer(fetchSize);
   }
 
-  /**
-   * Return the tenantId associated with this request.
-   */
-  public Object getTenantId() {
-    return (transaction == null) ? null : transaction.getTenantId();
-  }
 }

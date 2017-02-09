@@ -35,4 +35,9 @@ public class NoopTenantContext implements TenantContext {
     return null;
   }
 
+  @Override
+  public boolean isMultiTenant() {
+    return false;
+  }
+
 }

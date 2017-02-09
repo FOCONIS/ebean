@@ -1,10 +1,10 @@
 package io.ebeaninternal.server.cache;
 
+import io.ebean.TenantContext;
 import io.ebean.cache.ServerCache;
 import io.ebean.cache.ServerCacheFactory;
 import io.ebean.cache.ServerCacheOptions;
 import io.ebean.cache.ServerCacheType;
-import io.ebean.config.CurrentTenantProvider;
 
 import java.util.function.Supplier;
 
@@ -21,10 +21,10 @@ public class DefaultServerCacheManager implements SpiCacheManager {
   /**
    * Create with a cache factory and default cache options.
    */
-  public DefaultServerCacheManager(boolean localL2Caching, CurrentTenantProvider tenantProvider, ServerCacheFactory cacheFactory,
+  public DefaultServerCacheManager(boolean localL2Caching, TenantContext tenantContext, ServerCacheFactory cacheFactory,
                                    ServerCacheOptions beanDefault, ServerCacheOptions queryDefault) {
     this.localL2Caching = localL2Caching;
-    this.cacheHolder = new DefaultCacheHolder(cacheFactory, beanDefault, queryDefault, tenantProvider);
+    this.cacheHolder = new DefaultCacheHolder(cacheFactory, beanDefault, queryDefault, tenantContext);
   }
 
   /**
