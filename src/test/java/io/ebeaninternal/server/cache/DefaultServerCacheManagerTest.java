@@ -36,18 +36,18 @@ public class DefaultServerCacheManagerTest {
     assertThat(cache2.getName()).isEqualTo("org.tests.model.basic.Contact_B");
 
 
-    DefaultServerCache natKeyCache = (DefaultServerCache) manager.getNaturalKeyCache(Customer.class).get();
+    DefaultServerCache natKeyCache = (DefaultServerCache) manager.getNaturalKeyCache(Customer.class);
     assertThat(natKeyCache.getName()).isEqualTo("org.tests.model.basic.Customer_N");
 
-    DefaultServerCache queryCache = (DefaultServerCache) manager.getQueryCache(Customer.class).get();
+    DefaultServerCache queryCache = (DefaultServerCache) manager.getQueryCache(Customer.class);
     assertThat(queryCache.getName()).isEqualTo("org.tests.model.basic.Customer_Q");
 
-    DefaultServerCache collCache = (DefaultServerCache) manager.getCollectionIdsCache(Customer.class, "contacts").get();
+    DefaultServerCache collCache = (DefaultServerCache) manager.getCollectionIdsCache(Customer.class, "contacts");
     assertThat(collCache.getName()).isEqualTo("org.tests.model.basic.Customer.contacts_C");
   }
 
   private DefaultServerCache cache(DefaultServerCacheManager manager, Class<?> beanType) {
-    return (DefaultServerCache) manager.getBeanCache(beanType).get();
+    return (DefaultServerCache) manager.getBeanCache(beanType);
   }
 
   @Test

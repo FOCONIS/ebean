@@ -9,7 +9,6 @@ import io.ebean.cache.ServerCacheOptions;
 import io.ebean.cache.ServerCacheType;
 
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Supplier;
 
 /**
  * Manages the construction of caches.
@@ -39,10 +38,10 @@ class DefaultCacheHolder {
     this.tenantContext = tenantContext;
   }
 
-  Supplier<ServerCache> getCache(Class<?> beanType, String cacheKey, ServerCacheType type) {
+  ServerCache getCache(Class<?> beanType, String cacheKey, ServerCacheType type) {
 
     //if (!tenantContext.isMultiTenant()) {
-      return new SimpleSupplier(getCacheInternal(beanType, cacheKey, type));
+    return getCacheInternal(beanType, cacheKey, type);
     //}
     //return new TenantSupplier(beanType, cacheKey, type);
   }
@@ -98,20 +97,6 @@ class DefaultCacheHolder {
       return new ServerCacheOptions(tuning).applyDefaults(beanDefault);
     }
     return beanDefault.copy();
-  }
-
-  private static class SimpleSupplier implements Supplier<ServerCache> {
-
-    final ServerCache underlying;
-
-    private SimpleSupplier(ServerCache underlying) {
-      this.underlying = underlying;
-    }
-
-    @Override
-    public ServerCache get() {
-      return underlying;
-    }
   }
 
 }

@@ -1,6 +1,5 @@
 package io.ebeaninternal.server.cache;
 
-import io.ebean.cache.ServerCache;
 import io.ebean.cache.ServerCacheFactory;
 import io.ebean.cache.ServerCacheOptions;
 import io.ebean.cache.ServerCacheType;
@@ -9,8 +8,6 @@ import io.ebeaninternal.server.core.NoopTenantContext;
 import org.tests.model.basic.Contact;
 import org.tests.model.basic.Customer;
 import org.junit.Test;
-
-import java.util.function.Supplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -39,8 +36,7 @@ public class DefaultCacheHolderTest {
   }
 
   private DefaultServerCache cache(DefaultCacheHolder holder, Class<?> type, String name) {
-    Supplier<ServerCache> cache = holder.getCache(type, name, ServerCacheType.BEAN);
-    return (DefaultServerCache) cache.get();
+    return (DefaultServerCache) holder.getCache(type, name, ServerCacheType.BEAN);
   }
 
   @Test
