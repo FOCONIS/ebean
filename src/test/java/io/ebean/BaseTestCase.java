@@ -20,6 +20,8 @@ public class BaseTestCase {
   protected static Logger logger = LoggerFactory.getLogger(BaseTestCase.class);
 
   public static String SCHEMA_PREFIX = "";
+  public static String SCHEMA_ALIAS = "";
+  
   static {
     logger.debug("... preStart");
     if (!AgentLoader.loadAgentFromClasspath("ebean-agent", "debug=1;packages=org.tests,org.avaje.test,io.ebean")) {
