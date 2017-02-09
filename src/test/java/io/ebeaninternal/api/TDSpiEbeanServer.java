@@ -27,7 +27,7 @@ import io.ebean.Update;
 import io.ebean.UpdateQuery;
 import io.ebean.ValuePair;
 import io.ebean.Version;
-import io.ebean.bean.BeanCollection;
+import io.ebean.bean.BeanCollectionLoader;
 import io.ebean.bean.CallStack;
 import io.ebean.bean.EntityBeanIntercept;
 import io.ebean.bean.ObjectGraphNode;
@@ -187,7 +187,7 @@ public class TDSpiEbeanServer implements SpiEbeanServer {
   }
 
   @Override
-  public SpiTransaction createQueryTransaction(Object tenantId) {
+  public SpiTransaction createQueryTransaction() {
     return null;
   }
 
@@ -257,12 +257,7 @@ public class TDSpiEbeanServer implements SpiEbeanServer {
   }
 
   @Override
-  public void loadMany(BeanCollection<?> collection, boolean onlyIds) {
-
-  }
-
-  @Override
-  public void loadBean(EntityBeanIntercept ebi) {
+  public void loadBean(EntityBeanIntercept ebi, Object tenantId) {
 
   }
 
@@ -811,6 +806,16 @@ public class TDSpiEbeanServer implements SpiEbeanServer {
 
   @Override
   public TenantContext getTenantContext() {
+    return null;
+  }
+
+  @Override
+  public BeanCollectionLoader getBeanCollectionLoader(Object tenantId) {
+    return null;
+  }
+
+  @Override
+  public BeanCollectionLoader getBeanCollectionLoader() {
     return null;
   }
 }
