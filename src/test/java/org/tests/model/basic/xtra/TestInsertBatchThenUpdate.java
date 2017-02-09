@@ -47,9 +47,9 @@ public class TestInsertBatchThenUpdate extends BaseTestCase {
       // insert statements for EdExtendedParent
       List<String> loggedSql = LoggedSqlCollector.stop();
       assertEquals(3, loggedSql.size());
-      assertThat(loggedSql.get(0)).contains("insert into td_parent");
-      assertThat(loggedSql.get(1)).contains("insert into td_child ");
-      assertThat(loggedSql.get(2)).contains("update td_parent set parent_name=? where parent_id=?");
+      assertThat(loggedSql.get(0)).contains("insert into " + SCHEMA_PREFIX + "td_parent");
+      assertThat(loggedSql.get(1)).contains("insert into " + SCHEMA_PREFIX + "td_child ");
+      assertThat(loggedSql.get(2)).contains("update " + SCHEMA_PREFIX + "td_parent set parent_name=? where parent_id=?");
 
     } finally {
       Ebean.endTransaction();

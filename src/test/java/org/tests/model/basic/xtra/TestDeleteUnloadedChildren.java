@@ -16,11 +16,11 @@ public class TestDeleteUnloadedChildren extends BaseTestCase {
       String sql;
       SqlUpdate delete;
 
-      sql = "delete from td_child";
+      sql = "delete from ${tenant_schema}.td_child";
       delete = Ebean.createSqlUpdate(sql);
       delete.execute();
 
-      sql = "delete from td_parent";
+      sql = "delete from ${tenant_schema}.td_parent";
       delete = Ebean.createSqlUpdate(sql);
       delete.execute();
 

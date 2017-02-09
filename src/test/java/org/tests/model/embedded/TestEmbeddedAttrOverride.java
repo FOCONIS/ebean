@@ -22,6 +22,6 @@ public class TestEmbeddedAttrOverride extends BaseTestCase {
 
     List<String> sql = LoggedSqlCollector.stop();
     assertThat(sql).hasSize(1);
-    assertThat(sql.get(0)).contains("insert into primary_revision (id, revision, name, version) values (?,?,?,?)");
+    assertThat(sql.get(0)).contains("insert into " + SCHEMA_PREFIX + "primary_revision (id, revision, name, version) values (?,?,?,?)");
   }
 }

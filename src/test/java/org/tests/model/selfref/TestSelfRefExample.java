@@ -17,7 +17,7 @@ public class TestSelfRefExample extends BaseTestCase {
   public void test() {
 
     try {
-      Ebean.createSqlUpdate("delete from self_ref_example").execute();
+      Ebean.createSqlUpdate("delete from ${tenant_schema}.self_ref_example").execute();
     } catch (PersistenceException e) {
       logger.debug("TestSelfRefExample skipped - MySql not deleting based on constraints");
       return;

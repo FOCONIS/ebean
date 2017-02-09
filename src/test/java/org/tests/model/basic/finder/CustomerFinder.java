@@ -30,7 +30,7 @@ public class CustomerFinder extends Finder<Integer, Customer> {
 
   public List<String> namesStartingWith(String name) {
 
-    return nativeSql("select name from o_customer where name like ? order by name")
+    return nativeSql("select name from ${tenant_schema}.o_customer where name like ? order by name")
       .setParameter(1, name+"%")
       .findSingleAttributeList();
   }

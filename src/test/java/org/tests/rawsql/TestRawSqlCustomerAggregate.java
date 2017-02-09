@@ -21,7 +21,7 @@ public class TestRawSqlCustomerAggregate extends BaseTestCase {
 
     RawSql rawSql = RawSqlBuilder
       .parse(
-        "select c.customer_id, count(*) as totalContacts from contact c  group by c.customer_id")
+        "select c.customer_id, count(*) as totalContacts from ${tenant_schema}.contact c  group by c.customer_id")
       .columnMapping("c.customer_id", "customer.id").create();
 
     Query<CustomerAggregate> query = Ebean.find(CustomerAggregate.class);

@@ -61,7 +61,7 @@ public class Order implements Serializable {
   @Transient
   @Formula(
     select = "z_b${ta}.total_amount",
-    join = "join (select order_id, count(*) as total_items, sum(order_qty*unit_price) as total_amount from o_order_detail group by order_id) z_b${ta} on z_b${ta}.order_id = ${ta}.id")
+    join = "join (select order_id, count(*) as total_items, sum(order_qty*unit_price) as total_amount from ${tenant_schema}.o_order_detail group by order_id) z_b${ta} on z_b${ta}.order_id = ${ta}.id")
   Double totalAmount;
 
   /**
@@ -70,7 +70,7 @@ public class Order implements Serializable {
   @Transient
   @Formula(
     select = "z_b${ta}.total_items",
-    join = "join (select order_id, count(*) as total_items, sum(order_qty*unit_price) as total_amount from o_order_detail group by order_id) z_b${ta} on z_b${ta}.order_id = ${ta}.id")
+    join = "join (select order_id, count(*) as total_items, sum(order_qty*unit_price) as total_amount from ${tenant_schema}.o_order_detail group by order_id) z_b${ta} on z_b${ta}.order_id = ${ta}.id")
   Integer totalItems;
 
   @Enumerated(value = EnumType.ORDINAL)

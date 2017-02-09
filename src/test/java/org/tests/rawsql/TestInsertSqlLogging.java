@@ -15,7 +15,7 @@ public class TestInsertSqlLogging extends BaseTestCase {
 
     Ebean.delete(AuditLog.class, 10000);
 
-    String sql = "insert into audit_log (id, description, modified_description) values (?,?,?)";
+    String sql = "insert into ${tenant_schema}.audit_log (id, description, modified_description) values (?,?,?)";
     SqlUpdate sqlUpdate = Ebean.createSqlUpdate(sql);
     sqlUpdate.setParameter(1, 10000);
     sqlUpdate.setParameter(2, "hello");

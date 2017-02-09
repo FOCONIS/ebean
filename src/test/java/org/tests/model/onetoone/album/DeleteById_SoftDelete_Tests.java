@@ -29,9 +29,9 @@ public class DeleteById_SoftDelete_Tests extends BaseTestCase {
     List<String> sql = LoggedSqlCollector.stop();
     assertThat(sql).hasSize(1);
     if (isPlatformBooleanNative()) {
-      assertThat(sql.get(0)).contains("update cover set deleted=true where id = ?");
+      assertThat(sql.get(0)).contains("update " + SCHEMA_PREFIX + "cover set deleted=true where id = ?");
     } else {
-      assertThat(sql.get(0)).contains("update cover set deleted=1 where id = ?");
+      assertThat(sql.get(0)).contains("update " + SCHEMA_PREFIX + "cover set deleted=1 where id = ?");
     }
 
     cover.deletePermanent();
@@ -61,7 +61,7 @@ public class DeleteById_SoftDelete_Tests extends BaseTestCase {
 
     List<String> sql = LoggedSqlCollector.stop();
     assertThat(sql).hasSize(1);
-    assertThat(sql.get(0)).contains("update cover set deleted=? where id=?; --bind(false");
+    assertThat(sql.get(0)).contains("update " + SCHEMA_PREFIX + "cover set deleted=? where id=?; --bind(false");
 
     Cover findAgain = Ebean.find(Cover.class, cover.getId());
     assertNotNull(findAgain);
@@ -82,9 +82,9 @@ public class DeleteById_SoftDelete_Tests extends BaseTestCase {
     List<String> sql = LoggedSqlCollector.stop();
     assertThat(sql).hasSize(1);
     if (isPlatformBooleanNative()) {
-      assertThat(sql.get(0)).contains("update cover set deleted=true where id = ?");
+      assertThat(sql.get(0)).contains("update " + SCHEMA_PREFIX + "cover set deleted=true where id = ?");
     } else {
-      assertThat(sql.get(0)).contains("update cover set deleted=1 where id = ?");
+      assertThat(sql.get(0)).contains("update " + SCHEMA_PREFIX + "cover set deleted=1 where id = ?");
     }
     cover.deletePermanent();
   }
@@ -101,7 +101,7 @@ public class DeleteById_SoftDelete_Tests extends BaseTestCase {
 
     List<String> sql = LoggedSqlCollector.stop();
     assertThat(sql).hasSize(1);
-    assertThat(sql.get(0)).contains("delete from cover where id = ?");
+    assertThat(sql.get(0)).contains("delete from " + SCHEMA_PREFIX + "cover where id = ?");
   }
 
   @Test
@@ -118,9 +118,9 @@ public class DeleteById_SoftDelete_Tests extends BaseTestCase {
     List<String> sql = LoggedSqlCollector.stop();
     assertThat(sql).hasSize(1);
     if (isPlatformBooleanNative()) {
-      assertThat(sql.get(0)).contains("update cover set deleted=true where id  in (?,?)");
+      assertThat(sql.get(0)).contains("update " + SCHEMA_PREFIX + "cover set deleted=true where id  in (?,?)");
     } else {
-      assertThat(sql.get(0)).contains("update cover set deleted=1 where id  in (?,?)");
+      assertThat(sql.get(0)).contains("update " + SCHEMA_PREFIX + "cover set deleted=1 where id  in (?,?)");
     }
   }
 
@@ -144,9 +144,9 @@ public class DeleteById_SoftDelete_Tests extends BaseTestCase {
     List<String> sql = LoggedSqlCollector.stop();
     assertThat(sql).hasSize(1);
     if (isPlatformBooleanNative()) {
-      assertThat(sql.get(0)).contains("update cover set deleted=true where id  in (?,?)");
+      assertThat(sql.get(0)).contains("update " + SCHEMA_PREFIX + "cover set deleted=true where id  in (?,?)");
     } else {
-      assertThat(sql.get(0)).contains("update cover set deleted=1 where id  in (?,?)");
+      assertThat(sql.get(0)).contains("update " + SCHEMA_PREFIX + "cover set deleted=1 where id  in (?,?)");
     }
   }
 
@@ -162,7 +162,7 @@ public class DeleteById_SoftDelete_Tests extends BaseTestCase {
 
     List<String> sql = LoggedSqlCollector.stop();
     assertThat(sql).hasSize(1);
-    assertThat(sql.get(0)).contains("delete from cover where id  in (?,?)");
+    assertThat(sql.get(0)).contains("delete from " + SCHEMA_PREFIX + "cover where id  in (?,?)");
   }
 
   @Test
@@ -178,7 +178,7 @@ public class DeleteById_SoftDelete_Tests extends BaseTestCase {
 
     List<String> sql = LoggedSqlCollector.stop();
     assertThat(sql).hasSize(1);
-    assertThat(sql.get(0)).contains("delete from cover where id  in (?,?)");
+    assertThat(sql.get(0)).contains("delete from " + SCHEMA_PREFIX + "cover where id  in (?,?)");
   }
 
 
@@ -201,7 +201,7 @@ public class DeleteById_SoftDelete_Tests extends BaseTestCase {
 
     List<String> sql = LoggedSqlCollector.stop();
     assertThat(sql).hasSize(1);
-    assertThat(sql.get(0)).contains("delete from cover where id  in (?,?)");
+    assertThat(sql.get(0)).contains("delete from " + SCHEMA_PREFIX + "cover where id  in (?,?)");
   }
 
   @Test
@@ -216,7 +216,7 @@ public class DeleteById_SoftDelete_Tests extends BaseTestCase {
 
     List<String> sql = LoggedSqlCollector.stop();
     assertThat(sql).hasSize(2);
-    assertThat(sql.get(0)).contains("update cover set s3url=?, deleted=? where id=?");
+    assertThat(sql.get(0)).contains("update " + SCHEMA_PREFIX + "cover set s3url=?, deleted=? where id=?");
   }
 
   @Test
@@ -232,7 +232,7 @@ public class DeleteById_SoftDelete_Tests extends BaseTestCase {
 
     List<String> sql = LoggedSqlCollector.stop();
     assertThat(sql).hasSize(2);
-    assertThat(sql.get(0)).contains("update cover set s3url=?, deleted=? where id=?");
+    assertThat(sql.get(0)).contains("update " + SCHEMA_PREFIX + "cover set s3url=?, deleted=? where id=?");
   }
 
   @Test
@@ -254,7 +254,7 @@ public class DeleteById_SoftDelete_Tests extends BaseTestCase {
 
     List<String> sql = LoggedSqlCollector.stop();
     assertThat(sql).hasSize(2);
-    assertThat(sql.get(0)).contains("update cover set s3url=?, deleted=? where id=?");
+    assertThat(sql.get(0)).contains("update " + SCHEMA_PREFIX + "cover set s3url=?, deleted=? where id=?");
   }
 
   @Test
@@ -270,7 +270,7 @@ public class DeleteById_SoftDelete_Tests extends BaseTestCase {
 
     List<String> sql = LoggedSqlCollector.stop();
     assertThat(sql).hasSize(2);
-    assertThat(sql.get(0)).contains("delete from cover where id=?");
+    assertThat(sql.get(0)).contains("delete from " + SCHEMA_PREFIX + "cover where id=?");
   }
 
   @Test
@@ -292,7 +292,7 @@ public class DeleteById_SoftDelete_Tests extends BaseTestCase {
 
     List<String> sql = LoggedSqlCollector.stop();
     assertThat(sql).hasSize(2);
-    assertThat(sql.get(0)).contains("delete from cover where id=?");
+    assertThat(sql.get(0)).contains("delete from " + SCHEMA_PREFIX + "cover where id=?");
   }
 
   private List<Long> ids(List<Cover> beans) {
