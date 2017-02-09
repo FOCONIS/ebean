@@ -4,7 +4,8 @@ import io.ebean.cache.ServerCache;
 import io.ebean.cache.ServerCacheFactory;
 import io.ebean.cache.ServerCacheOptions;
 import io.ebean.cache.ServerCacheType;
-import io.ebean.config.CurrentTenantProvider;
+import io.ebeaninternal.server.core.NoopTenantContext;
+
 import org.tests.model.basic.Contact;
 import org.tests.model.basic.Customer;
 import org.junit.Test;
@@ -24,7 +25,7 @@ public class DefaultCacheHolderTest {
   @Test
   public void getCache_normal() throws Exception {
 
-    DefaultCacheHolder holder = new DefaultCacheHolder(cacheFactory, defaultOptions, defaultOptions, null);
+    DefaultCacheHolder holder = new DefaultCacheHolder(cacheFactory, defaultOptions, defaultOptions, new NoopTenantContext());
 
     DefaultServerCache cache = cache(holder, Customer.class, "customer");
     assertThat(cache.getName()).isEqualTo("customer_B");
@@ -45,7 +46,7 @@ public class DefaultCacheHolderTest {
   @Test
   public void getCache_multiTenant() throws Exception {
 
-    DefaultCacheHolder holder = new DefaultCacheHolder(cacheFactory, defaultOptions, defaultOptions, new MyTenantProv());
+    DefaultCacheHolder holder = new DefaultCacheHolder(cacheFactory, defaultOptions, defaultOptions, new MultiTenantContext());
 
     tenantId = "ten_1";
     DefaultServerCache cache = cache(holder, Customer.class, "customer");
@@ -63,7 +64,7 @@ public class DefaultCacheHolderTest {
 
   @Test
   public void clearAll() throws Exception {
-    DefaultCacheHolder holder = new DefaultCacheHolder(cacheFactory, defaultOptions, defaultOptions, null);
+    DefaultCacheHolder holder = new DefaultCacheHolder(cacheFactory, defaultOptions, defaultOptions, new NoopTenantContext());
     DefaultServerCache cache = cache(holder, Customer.class, "customer");
     cache.put("foo", "foo");
     assertThat(cache.size()).isEqualTo(1);
@@ -74,7 +75,7 @@ public class DefaultCacheHolderTest {
 
   @Test
   public void clearAll_multiTenant() throws Exception {
-    DefaultCacheHolder holder = new DefaultCacheHolder(cacheFactory, defaultOptions, defaultOptions, new MyTenantProv());
+    DefaultCacheHolder holder = new DefaultCacheHolder(cacheFactory, defaultOptions, defaultOptions, new MultiTenantContext());
     DefaultServerCache cache = cache(holder, Customer.class, "customer");
     cache.put("foo", "foo");
     assertThat(cache.size()).isEqualTo(1);
@@ -83,10 +84,14 @@ public class DefaultCacheHolderTest {
     assertThat(cache.size()).isEqualTo(0);
   }
 
-  private class MyTenantProv implements CurrentTenantProvider {
+  private class MultiTenantContext extends NoopTenantContext {
 
     @Override
-    public String currentId() {
+    public boolean isMultiTenant() {
+      return true;
+    }
+    @Override
+    public Object getTenantId() {
       return tenantId;
     }
   }

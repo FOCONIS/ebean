@@ -2,7 +2,8 @@ package io.ebeaninternal.server.cache;
 
 import io.ebean.cache.ServerCacheFactory;
 import io.ebean.cache.ServerCacheOptions;
-import io.ebean.config.CurrentTenantProvider;
+import io.ebeaninternal.server.core.NoopTenantContext;
+
 import org.tests.model.basic.Contact;
 import org.tests.model.basic.Customer;
 import org.junit.Test;
@@ -16,9 +17,9 @@ public class DefaultServerCacheManagerTest {
 
   private final ServerCacheFactory cacheFactory = new DefaultServerCacheFactory();
 
-  private DefaultServerCacheManager manager = new DefaultServerCacheManager(true, null, cacheFactory, new ServerCacheOptions(), new ServerCacheOptions());
+  private DefaultServerCacheManager manager = new DefaultServerCacheManager(true, new SingleTenantProv(), cacheFactory, new ServerCacheOptions(), new ServerCacheOptions());
 
-  private DefaultServerCacheManager multiTenantManager = new DefaultServerCacheManager(true, new MyTenantProv(), cacheFactory, new ServerCacheOptions(), new ServerCacheOptions());
+  private DefaultServerCacheManager multiTenantManager = new DefaultServerCacheManager(true, new MultiTenantProv(), cacheFactory, new ServerCacheOptions(), new ServerCacheOptions());
 
   @Test
   public void getCache_normal() throws Exception {
@@ -70,12 +71,29 @@ public class DefaultServerCacheManagerTest {
   }
 
 
-  private class MyTenantProv implements CurrentTenantProvider {
+  private class MultiTenantProv extends NoopTenantContext {
 
     @Override
-    public String currentId() {
+    public boolean isMultiTenant() {
+      return true;
+    }
+
+    @Override
+    public Object getTenantId() {
       return tenantId;
     }
   }
 
+  private class SingleTenantProv extends NoopTenantContext {
+
+    @Override
+    public boolean isMultiTenant() {
+      return false;
+    }
+
+    @Override
+    public Object getTenantId() {
+      return tenantId;
+    }
+  }
 }
