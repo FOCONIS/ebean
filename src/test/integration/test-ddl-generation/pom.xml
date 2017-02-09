@@ -12,7 +12,14 @@
     </parent>
 
     <artifactId>test-ddl-generation</artifactId>
-
+    <dependencies>
+      <dependency>
+        <groupId>org.postgresql</groupId>
+        <artifactId>postgresql</artifactId>
+        <version>9.4.1212.jre7</version>
+        <scope>provided</scope>
+      </dependency>
+    </dependencies>
     <description>
         Test the DDL-generation
     </description>

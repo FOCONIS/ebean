@@ -139,6 +139,7 @@ public class ServerConfig {
   private TenantSchemaProvider tenantSchemaProvider;
 
   private String tenantSharedSchema;
+
   /**
    * List of interesting classes such as entities, embedded, ScalarTypes,
    * Listeners, Finders, Controllers etc.
@@ -2818,12 +2819,11 @@ public class ServerConfig {
   }
   
   /**
-   * Run the DB migration against the DataSource.
+   * Run the DB migration against the DataSource and default schema.
    */
   public DataSource runDbMigration(DataSource dataSource) {
     if (migrationConfig.isRunMigration()) {
       if (tenantMode == TenantMode.SCHEMA) {
-        
 
         String path = migrationConfig.migrationPath;
         try {

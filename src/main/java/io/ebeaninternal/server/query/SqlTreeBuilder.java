@@ -310,19 +310,21 @@ public class SqlTreeBuilder {
 
   private SqlTreeNode buildNode(String prefix, BeanPropertyAssoc<?> prop, BeanDescriptor<?> desc, List<SqlTreeNode> myList, SqlTreeProperties props) {
 
+	boolean distinct = query == null ? false : query.isDistinct();
+	  
     if (prefix == null) {
       buildExtraJoins(desc, myList);
 
       // Optional many property for lazy loading query
       BeanPropertyAssocMany<?> lazyLoadMany = (query == null) ? null : query.getLazyLoadMany();
       boolean withId = !rawNoId && !subQuery && (query == null || query.isWithId());
-      return new SqlTreeNodeRoot(desc, props, myList, withId, includeJoin, lazyLoadMany, temporalMode, disableLazyLoad);
+      return new SqlTreeNodeRoot(desc, props, myList, withId, includeJoin, lazyLoadMany, temporalMode, disableLazyLoad, distinct);
 
     } else if (prop instanceof BeanPropertyAssocMany<?>) {
-      return new SqlTreeNodeManyRoot(prefix, (BeanPropertyAssocMany<?>) prop, props, myList, temporalMode, disableLazyLoad);
+      return new SqlTreeNodeManyRoot(prefix, (BeanPropertyAssocMany<?>) prop, props, myList, temporalMode, disableLazyLoad, distinct);
 
     } else {
-      return new SqlTreeNodeBean(prefix, prop, props, myList, temporalMode, disableLazyLoad);
+      return new SqlTreeNodeBean(prefix, prop, props, myList, temporalMode, disableLazyLoad, distinct);
     }
   }
 

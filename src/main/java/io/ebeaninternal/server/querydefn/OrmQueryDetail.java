@@ -538,15 +538,16 @@ public class OrmQueryDetail implements Serializable {
   }
   
   /*
-   * Special case for emedded beans, we must shift down one EL-path.
+   * Special case for embedded beans, we must shift down one EL-path.
    */
+  @SuppressWarnings("null")
   private void addFetchEmbedded(Map<String, StringBuilder> fetchs,  ElPropertyValue property ) {
     String tmp = property.getElPrefix();
-    if (tmp == null) {
-      addFetch(fetchs, null, property.getElName());
-    } else {
-      int pos = tmp.lastIndexOf('.');
+    int pos = tmp == null ? -1 : tmp.lastIndexOf('.');
+    if (pos != -1) {
       addFetch(fetchs, tmp.substring(0, pos), property.getElName().substring(pos+1));
+    } else {
+      addFetch(fetchs, null, property.getElName());
     }
   }
 
@@ -576,29 +577,15 @@ public class OrmQueryDetail implements Serializable {
     }
     
     for (Map.Entry<String, StringBuilder> fetch : fetchs.entrySet()) {
-      OrmQueryProperties chunk;
-      String path; 
       if (fetch.getKey().isEmpty()) {
-        chunk = baseProps;
-        path = null;
+        baseProps = new OrmQueryProperties(null, fetch.getValue().toString(), null);
       } else {
-        path = fetch.getKey();
-        chunk = fetchPaths.get(path);
+    	fetchPaths.put(fetch.getKey(), new OrmQueryProperties(fetch.getKey(), fetch.getValue().toString(), null));
       }
-
-      StringBuilder sb = fetch.getValue();
-      if (chunk != null && chunk.getProperties() != null) {
-        if (chunk.getProperties().equals("*")) {
-          continue;
-        }
-        sb.append(',').append(chunk.getProperties());
-      }
-      chunk = new OrmQueryProperties(path, sb.toString(), chunk == null ? null : chunk.getFetchConfig());
-      if (path == null) {
-        baseProps = chunk;
-      } else {
-        fetchPaths.put(path, chunk);
-      }
+    }
+    
+    if (!fetchs.containsKey("")) {
+    	baseProps = new OrmQueryProperties(null, new LinkedHashSet<>());
     }
   }
 }
