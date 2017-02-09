@@ -25,12 +25,12 @@ public class TestRefreshWithMany extends BaseTestCase {
 
     assertEquals(3, customer.getContacts().size());
 
-    int rc = Ebean.createSqlUpdate("update o_customer set name = :name where id = :id")
+    int rc = Ebean.createSqlUpdate("update ${tenant_schema}.o_customer set name = :name where id = :id")
       .setParameter("name", "ref-modified")
       .setParameter("id", customer.getId())
       .execute();
 
-    int rc2 = Ebean.createSqlUpdate("update contact set first_name = concat(first_name,'-mod') where customer_id = :id")
+    int rc2 = Ebean.createSqlUpdate("update ${tenant_schema}.contact set first_name = concat(first_name,'-mod') where customer_id = :id")
       .setParameter("id", customer.getId())
       .execute();
 
@@ -51,17 +51,17 @@ public class TestRefreshWithMany extends BaseTestCase {
       .findUnique();
 
 
-    int rcb1 = Ebean.createSqlUpdate("update o_customer set name = :name where id = :id")
+    int rcb1 = Ebean.createSqlUpdate("update ${tenant_schema}.o_customer set name = :name where id = :id")
       .setParameter("name", "ref-modified-again")
       .setParameter("id", customer.getId())
       .execute();
 
-    int rcb2 = Ebean.createSqlUpdate("update contact set first_name = :first, last_name='foo' where customer_id = :id")
+    int rcb2 = Ebean.createSqlUpdate("update ${tenant_schema}.contact set first_name = :first, last_name='foo' where customer_id = :id")
       .setParameter("id", customer.getId())
       .setParameter("first", "-alt")
       .execute();
 
-    List<SqlRow> sqlRows = Ebean.createSqlQuery("select id, first_name, last_name from contact").findList();
+    List<SqlRow> sqlRows = Ebean.createSqlQuery("select id, first_name, last_name from ${tenant_schema}.contact").findList();
     for (SqlRow sqlRow : sqlRows) {
       sqlRow.get("id");
       sqlRow.get("first_name");

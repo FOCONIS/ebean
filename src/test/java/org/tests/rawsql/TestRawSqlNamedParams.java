@@ -25,7 +25,7 @@ public class TestRawSqlNamedParams extends BaseTestCase {
     ResetBasicData.reset();
 
     RawSql rawSql = RawSqlBuilder
-      .parse("select r.id, r.name from o_customer r where r.id > :id and r.name like :name")
+      .parse("select r.id, r.name from ${tenant_schema}.o_customer r where r.id > :id and r.name like :name")
       .columnMapping("r.id", "id").columnMapping("r.name", "name").create();
 
     Query<Customer> query = Ebean.find(Customer.class);

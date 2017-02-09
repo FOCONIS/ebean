@@ -15,9 +15,9 @@ public class TestManyToManySaveTwice extends BaseTestCase {
   @Test
   public void testInsertCarTwice() {
 
-    Ebean.createSqlUpdate("delete from sp_car_car_wheels").execute();
-    Ebean.createSqlUpdate("delete from sp_car_wheel").execute();
-    Ebean.createSqlUpdate("delete from sp_car_car").execute();
+    Ebean.createSqlUpdate("delete from ${tenant_schema}.sp_car_car_wheels").execute();
+    Ebean.createSqlUpdate("delete from ${tenant_schema}.sp_car_wheel").execute();
+    Ebean.createSqlUpdate("delete from ${tenant_schema}.sp_car_car").execute();
 
     List<Wheel> wheels = new LinkedList<>();
     wheels.add(new Wheel());

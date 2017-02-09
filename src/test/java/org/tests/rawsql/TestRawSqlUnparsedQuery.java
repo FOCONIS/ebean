@@ -26,7 +26,7 @@ public class TestRawSqlUnparsedQuery extends BaseTestCase {
 
   private static void test() {
     RawSql rawSql = RawSqlBuilder
-      .unparsed("select r.id, r.name from o_customer r where r.id >= :a and r.name like :b")
+      .unparsed("select r.id, r.name from ${tenant_schema}.o_customer r where r.id >= :a and r.name like :b")
       .columnMapping("r.id", "id").columnMapping("r.name", "name").create();
 
     Query<Customer> query = Ebean.find(Customer.class);

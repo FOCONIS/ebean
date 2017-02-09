@@ -25,8 +25,8 @@ public class TestSqlUpdateInTxn extends BaseTestCase {
     Assert.assertEquals("foo", log2.getDescription());
 
     final Long id = log2.getId();
-    final String updateDml = "update audit_log set description = :desc where id = :id";
-    final String updateModDml = "update audit_log set modified_description = :desc";
+    final String updateDml = "update ${tenant_schema}.audit_log set description = :desc where id = :id";
+    final String updateModDml = "update ${tenant_schema}.audit_log set modified_description = :desc";
 
     SqlUpdate sqlUpdate = Ebean.createSqlUpdate(updateDml);
     sqlUpdate.setParameter("desc", "foo2");

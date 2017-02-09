@@ -21,9 +21,9 @@ public class TestRawSqlOrmWrapper3 extends BaseTestCase {
     ResetBasicData.reset();
 
     String sql = " select order_id, o.status, c.id, c.name, sum(d.order_qty*d.unit_price) as totalAmount"
-      + " from o_order o"
-      + " join o_customer c on c.id = o.kcustomer_id "
-      + " join o_order_detail d on d.order_id = o.id "
+      + " from ${tenant_schema}.o_order o"
+      + " join ${tenant_schema}.o_customer c on c.id = o.kcustomer_id "
+      + " join ${tenant_schema}.o_order_detail d on d.order_id = o.id "
       + " group by order_id, o.status, c.id, c.name ";
 
     RawSql rawSql = RawSqlBuilder.parse(sql).columnMapping("order_id", "order.id")

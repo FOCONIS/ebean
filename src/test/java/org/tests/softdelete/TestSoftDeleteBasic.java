@@ -25,7 +25,7 @@ public class TestSoftDeleteBasic extends BaseTestCase {
 
     Ebean.delete(bean);
 
-    SqlQuery sqlQuery = Ebean.createSqlQuery("select * from ebasic_soft_delete where id=?");
+    SqlQuery sqlQuery = Ebean.createSqlQuery("select * from ${tenant_schema}.ebasic_soft_delete where id=?");
     sqlQuery.setParameter(1, bean.getId());
     SqlRow sqlRow = sqlQuery.findUnique();
     assertThat(sqlRow).isNotNull();
@@ -118,8 +118,8 @@ public class TestSoftDeleteBasic extends BaseTestCase {
     // check lazy loading isn't invoked (deleted set to true without invoking lazy loading)
     List<String> loggedSql = LoggedSqlCollector.stop();
     assertThat(loggedSql).hasSize(2);
-    assertThat(loggedSql.get(0)).contains("update ebasic_sdchild set deleted=");
-    assertThat(loggedSql.get(1)).contains("update ebasic_soft_delete set deleted=? where id=?");
+    assertThat(loggedSql.get(0)).contains("update " + SCHEMA_PREFIX + "ebasic_sdchild set deleted=");
+    assertThat(loggedSql.get(1)).contains("update " + SCHEMA_PREFIX + "ebasic_soft_delete set deleted=? where id=?");
   }
 
   @Test
@@ -145,11 +145,11 @@ public class TestSoftDeleteBasic extends BaseTestCase {
     assertThat(loggedSql).hasSize(2);
 
     // first statement is a single bulk update of the children with SoftDelete
-    assertThat(loggedSql.get(0)).contains("update ebasic_sdchild set deleted=");
+    assertThat(loggedSql.get(0)).contains("update " + SCHEMA_PREFIX + "ebasic_sdchild set deleted=");
     assertThat(loggedSql.get(0)).contains("where owner_id = ?");
 
     // second statement is the top level bean
-    assertThat(loggedSql.get(1)).contains("update ebasic_soft_delete set version=?, deleted=? where id=? and version=?");
+    assertThat(loggedSql.get(1)).contains("update " + SCHEMA_PREFIX + "ebasic_soft_delete set version=?, deleted=? where id=? and version=?");
 
   }
 

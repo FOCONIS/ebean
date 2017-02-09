@@ -1,5 +1,6 @@
 package io.ebean.dbmigration.ddlgeneration.platform;
 
+import io.ebean.BaseTestCase;
 import io.ebean.Ebean;
 import io.ebean.config.dbplatform.h2.H2Platform;
 import io.ebean.dbmigration.ddlgeneration.DdlWrite;
@@ -12,14 +13,14 @@ import org.junit.Test;
 import static org.assertj.core.api.StrictAssertions.assertThat;
 
 
-public class H2HistoryDdlTest {
+public class H2HistoryDdlTest extends BaseTestCase {
 
   @Test
   public void testRegenerateHistoryTriggers() throws Exception {
 
     SpiEbeanServer ebeanServer = (SpiEbeanServer) Ebean.getDefaultServer();
 
-    HistoryTableUpdate update = new HistoryTableUpdate("c_user");
+    HistoryTableUpdate update = new HistoryTableUpdate(SCHEMA_ALIAS + "c_user");
     update.add(HistoryTableUpdate.Change.ADD, "one");
     update.add(HistoryTableUpdate.Change.DROP, "two");
 

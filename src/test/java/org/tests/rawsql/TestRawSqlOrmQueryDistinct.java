@@ -20,14 +20,14 @@ public class TestRawSqlOrmQueryDistinct extends BaseTestCase {
 
     ResetBasicData.reset();
 
-    RawSql rawSql0 = RawSqlBuilder.parse(" select  distinct  r.id, r.name from o_customer r ")
+    RawSql rawSql0 = RawSqlBuilder.parse(" select  distinct  r.id, r.name from ${tenant_schema}.o_customer r ")
       .create();
 
     Query<Customer> query0 = Ebean.find(Customer.class);
     query0.setRawSql(rawSql0);
     query0.where().ilike("name", "r%");
 
-    RawSql rawSql = RawSqlBuilder.parse(" select  distinct  r.id, r.name from o_customer r ")
+    RawSql rawSql = RawSqlBuilder.parse(" select  distinct  r.id, r.name from ${tenant_schema}.o_customer r ")
       .columnMapping("r.id", "id").columnMapping("r.name", "name").create();
 
     Query<Customer> query = Ebean.find(Customer.class);

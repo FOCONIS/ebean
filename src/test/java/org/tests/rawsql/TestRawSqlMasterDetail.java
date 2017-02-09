@@ -26,9 +26,9 @@ public class TestRawSqlMasterDetail extends BaseTestCase {
 
     String rs = "select t0.id, t0.status, t1.id, t1.name, " +
       " t2.id, t2.order_qty, t3.id, t3.name " +
-      "from o_order t0 join o_customer t1 on t1.id = t0.kcustomer_id " +
-      "join o_order_detail t2 on t2.order_id = t0.id  " +
-      "join o_product t3 on t3.id = t2.product_id  " +
+      "from ${tenant_schema}.o_order t0 join ${tenant_schema}.o_customer t1 on t1.id = t0.kcustomer_id " +
+      "join ${tenant_schema}.o_order_detail t2 on t2.order_id = t0.id  " +
+      "join ${tenant_schema}.o_product t3 on t3.id = t2.product_id  " +
       "where t0.id <= :maxOrderId  and t3.id = :productId " +
       "order by t0.id, t2.id asc";
 
@@ -62,7 +62,7 @@ public class TestRawSqlMasterDetail extends BaseTestCase {
     // mapped to the logical path: billingAddress.id
 
     String rs = "select c.id, c.name, c.billing_address_id, c.updtime " +
-      "from o_customer c " +
+      "from ${tenant_schema}.o_customer c " +
       "order by c.id";
 
     RawSql rawSql = RawSqlBuilder.parse(rs).create();
@@ -81,8 +81,8 @@ public class TestRawSqlMasterDetail extends BaseTestCase {
 
 
     String rs = "select c.id, c.name, c.billing_address_id, ba.line_1, ba.city, c.updtime " +
-      "from o_customer c " +
-      " left join o_address ba on ba.id = c.billing_address_id " +
+      "from ${tenant_schema}.o_customer c " +
+      " left join ${tenant_schema}.o_address ba on ba.id = c.billing_address_id " +
       "order by c.id";
 
     RawSql rawSql = RawSqlBuilder.parse(rs)
@@ -102,9 +102,9 @@ public class TestRawSqlMasterDetail extends BaseTestCase {
     ResetBasicData.reset();
 
     String rs = "select c.id, c.name, c.billing_address_id, ba.line_1, ba.city, c.updtime, sa.id, sa.line_1, sa.city " +
-      "from o_customer c " +
-      " left join o_address ba on ba.id = c.billing_address_id " +
-      " left join o_address sa on sa.id = c.shipping_address_id " +
+      "from ${tenant_schema}.o_customer c " +
+      " left join ${tenant_schema}.o_address ba on ba.id = c.billing_address_id " +
+      " left join ${tenant_schema}.o_address sa on sa.id = c.shipping_address_id " +
       "order by c.id";
 
     RawSql rawSql = RawSqlBuilder.parse(rs)
@@ -126,9 +126,9 @@ public class TestRawSqlMasterDetail extends BaseTestCase {
 
     String rs = "select o.id, o.status, c.id, c.name, " +
       " d.id, d.order_qty, p.id, p.name " +
-      "from o_order o join o_customer c on c.id = o.kcustomer_id " +
-      "join o_order_detail d on d.order_id = o.id  " +
-      "join o_product p on p.id = d.product_id  " +
+      "from ${tenant_schema}.o_order o join ${tenant_schema}.o_customer c on c.id = o.kcustomer_id " +
+      "join ${tenant_schema}.o_order_detail d on d.order_id = o.id  " +
+      "join ${tenant_schema}.o_product p on p.id = d.product_id  " +
       "where o.id <= :maxOrderId  and p.id = :productId " +
       "order by o.id, d.id asc";
 
@@ -159,7 +159,7 @@ public class TestRawSqlMasterDetail extends BaseTestCase {
 
     Ebean.save(basic);
 
-    String rs = "select b.status, b.name from e_basic b ";
+    String rs = "select b.status, b.name from ${tenant_schema}.e_basic b ";
 
     RawSql rawSql = RawSqlBuilder.parse(rs).create();
 
@@ -180,7 +180,7 @@ public class TestRawSqlMasterDetail extends BaseTestCase {
 
     ResetBasicData.reset();
 
-    String rs = "select o.status, o.order_date from o_order o ";
+    String rs = "select o.status, o.order_date from ${tenant_schema}.o_order o ";
 
     RawSql rawSql = RawSqlBuilder.parse(rs)
       .create();
@@ -199,7 +199,7 @@ public class TestRawSqlMasterDetail extends BaseTestCase {
     ResetBasicData.reset();
 
     String rs = "select o.id, o.status " +
-      "from o_order o order by o.id asc";
+      "from ${tenant_schema}.o_order o order by o.id asc";
 
     RawSql rawSql = RawSqlBuilder.parse(rs)
       .create();
@@ -221,7 +221,7 @@ public class TestRawSqlMasterDetail extends BaseTestCase {
     ResetBasicData.reset();
 
     String rs = "select o.id, o.status " +
-      "from o_order o order by o.id asc";
+      "from ${tenant_schema}.o_order o order by o.id asc";
 
     RawSql rawSql = RawSqlBuilder.parse(rs)
       .tableAliasMapping("o", null)
@@ -244,9 +244,9 @@ public class TestRawSqlMasterDetail extends BaseTestCase {
 
     String rs = "select o.id, o.status, c.id, c.name, " +
       " d.id, d.order_qty, p.id, p.name " +
-      "from o_order o join o_customer c on c.id = o.kcustomer_id " +
-      "join o_order_detail d on d.order_id = o.id  " +
-      "join o_product p on p.id = d.product_id  " +
+      "from ${tenant_schema}.o_order o join ${tenant_schema}.o_customer c on c.id = o.kcustomer_id " +
+      "join ${tenant_schema}.o_order_detail d on d.order_id = o.id  " +
+      "join ${tenant_schema}.o_product p on p.id = d.product_id  " +
       "order by o.id, d.id asc";
 
 

@@ -41,7 +41,7 @@ public class ParentRawSqlTest extends BaseTestCase {
     Ebean.save(c);
 
     RawSql rawSql = RawSqlBuilder
-      .parse("select type, id, val from rawinherit_parent where val > 1")
+      .parse("select type, id, val from ${tenant_schema}.rawinherit_parent where val > 1")
       .create();
 
     List<Parent> partial = Ebean.find(Parent.class)
@@ -93,7 +93,7 @@ public class ParentRawSqlTest extends BaseTestCase {
     // For bug 416 we need the parent.more to trigger it
 
     RawSql rawSql = RawSqlBuilder
-      .unparsed("select u.id, u.name, p.type as p_type, p.id as p_id, p.more as p_more from rawinherit_uncle u join rawinherit_parent p on p.id = u.parent_id")
+      .unparsed("select u.id, u.name, p.type as p_type, p.id as p_id, p.more as p_more from ${tenant_schema}.rawinherit_uncle u join ${tenant_schema}.rawinherit_parent p on p.id = u.parent_id")
       .columnMapping("id", "id")
       .columnMapping("name", "name")
       .columnMapping("p_type", "parent.type")
@@ -111,7 +111,7 @@ public class ParentRawSqlTest extends BaseTestCase {
   private void joinToInheritanceHierarchy_with_queryJoin() {
 
     RawSql rawSql = RawSqlBuilder
-      .unparsed("select u.id, u.name, p.type as p_type, p.id as p_id from rawinherit_uncle u join rawinherit_parent p on p.id = u.parent_id")
+      .unparsed("select u.id, u.name, p.type as p_type, p.id as p_id from ${tenant_schema}.rawinherit_uncle u join ${tenant_schema}.rawinherit_parent p on p.id = u.parent_id")
       .columnMapping("id", "id")
       .columnMapping("name", "name")
       .columnMapping("p_type", "parent.type")
@@ -130,7 +130,7 @@ public class ParentRawSqlTest extends BaseTestCase {
   private void joinToInheritanceHierarchy_withIgnore() {
 
     RawSql rawSql = RawSqlBuilder
-      .unparsed("select u.id, u.name, p.type as ptype, p.id as pid from rawinherit_uncle u join rawinherit_parent p on p.id = u.parent_id")
+      .unparsed("select u.id, u.name, p.type as ptype, p.id as pid from ${tenant_schema}.rawinherit_uncle u join ${tenant_schema}.rawinherit_parent p on p.id = u.parent_id")
       .columnMapping("id", "id")
       .columnMapping("name", "name")
       .columnMappingIgnore("ptype")
@@ -149,7 +149,7 @@ public class ParentRawSqlTest extends BaseTestCase {
   private void joinToInheritanceHierarchy_withAliasMapping() {
 
     RawSql rawSql = RawSqlBuilder
-      .parse("select u.id, u.name, p.type, p.id from rawinherit_uncle u join rawinherit_parent p on p.id = u.parent_id")
+      .parse("select u.id, u.name, p.type, p.id from ${tenant_schema}.rawinherit_uncle u join ${tenant_schema}.rawinherit_parent p on p.id = u.parent_id")
       .tableAliasMapping("p", "parent")
       .create();
 
@@ -167,7 +167,7 @@ public class ParentRawSqlTest extends BaseTestCase {
   private void useColumnMappingWithDiscriminator() {
 
     RawSql rawSql = RawSqlBuilder
-      .unparsed("select type, id from rawinherit_parent where val > 1")
+      .unparsed("select type, id from ${tenant_schema}.rawinherit_parent where val > 1")
       .columnMapping("type", "parent.type") // can map the discriminator column 'type'
       .columnMapping("id", "parent.id")
       .create();
@@ -191,7 +191,7 @@ public class ParentRawSqlTest extends BaseTestCase {
   private void useColumnMappingIgnore() {
 
     RawSql rawSql = RawSqlBuilder
-      .unparsed("select type, id from rawinherit_parent where val > 1")
+      .unparsed("select type, id from ${tenant_schema}.rawinherit_parent where val > 1")
       .columnMappingIgnore("type") // can ignore the discriminator 'type'
       .columnMapping("id", "parent.id")
       .create();
@@ -215,7 +215,7 @@ public class ParentRawSqlTest extends BaseTestCase {
   private void useExtraColumnMappingIgnore() {
 
     RawSql rawSql = RawSqlBuilder
-      .unparsed("select 'a', type, id, 'b' from rawinherit_parent where val > 1")
+      .unparsed("select 'a', type, id, 'b' from ${tenant_schema}.rawinherit_parent where val > 1")
       .columnMappingIgnore("a") // extra ignore before
       .columnMappingIgnore("type")
       .columnMapping("id", "parent.id")

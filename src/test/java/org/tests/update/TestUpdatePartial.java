@@ -48,7 +48,7 @@ public class TestUpdatePartial extends BaseTestCase {
   }
 
   private void checkDbStatusValue(Integer custId, String dbStatus) {
-    SqlQuery sqlQuery = Ebean.createSqlQuery("select id, status from o_customer where id = ?");
+    SqlQuery sqlQuery = Ebean.createSqlQuery("select id, status from ${tenant_schema}.o_customer where id = ?");
     sqlQuery.setParameter(1, custId);
     SqlRow sqlRow = sqlQuery.findUnique();
     String status = sqlRow.getString("status");

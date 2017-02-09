@@ -23,7 +23,7 @@ public class TestNativeSqlBasic extends BaseTestCase {
 
     EbeanServer server = Ebean.getDefaultServer();
 
-    String nativeSql = "select id, name from o_customer";
+    String nativeSql = "select id, name from ${tenant_schema}.o_customer";
 
     Query<Customer> query = server.findNative(Customer.class, nativeSql);
 
@@ -41,7 +41,7 @@ public class TestNativeSqlBasic extends BaseTestCase {
 
     EbeanServer server = Ebean.getDefaultServer();
 
-    String nativeSql = "select * from o_customer";
+    String nativeSql = "select * from ${tenant_schema}.o_customer";
     Query<Customer> query = server.findNative(Customer.class, nativeSql);
 
     List<Customer> customers = query.findList();
@@ -58,7 +58,7 @@ public class TestNativeSqlBasic extends BaseTestCase {
 
     EbeanServer server = Ebean.getDefaultServer();
 
-    String nativeSql = "select c.*, b.city from o_customer c join o_address b on b.id = c.billing_address_id";
+    String nativeSql = "select c.*, b.city from ${tenant_schema}.o_customer c join ${tenant_schema}.o_address b on b.id = c.billing_address_id";
     Query<Customer> query = server.findNative(Customer.class, nativeSql);
 
     List<Customer> customers = query.findList();
@@ -72,7 +72,7 @@ public class TestNativeSqlBasic extends BaseTestCase {
 
     EbeanServer server = Ebean.getDefaultServer();
 
-    String nativeSql = "select id, name from o_customer where id > :some";
+    String nativeSql = "select id, name from ${tenant_schema}.o_customer where id > :some";
 
     Query<Customer> query = server.findNative(Customer.class, nativeSql);
     query.setParameter("some", 1);
@@ -94,7 +94,7 @@ public class TestNativeSqlBasic extends BaseTestCase {
 
     EbeanServer server = Ebean.getDefaultServer();
 
-    String nativeSql = "select id, name from o_customer where id > ?";
+    String nativeSql = "select id, name from ${tenant_schema}.o_customer where id > ?";
 
     List<Customer> customers = server.findNative(Customer.class, nativeSql)
       .setParameter(1, 1)
@@ -112,7 +112,7 @@ public class TestNativeSqlBasic extends BaseTestCase {
 
     EbeanServer server = Ebean.getDefaultServer();
 
-    String nativeSql = "select o.id, o.status, c.id, c.name, c.version from o_order o join o_customer c on c.id = o.kcustomer_id ";
+    String nativeSql = "select o.id, o.status, c.id, c.name, c.version from ${tenant_schema}.o_order o join ${tenant_schema}.o_customer c on c.id = o.kcustomer_id ";
 
     List<Order> orders = server.findNative(Order.class, nativeSql)
       .findList();
@@ -128,7 +128,7 @@ public class TestNativeSqlBasic extends BaseTestCase {
 
     ResetBasicData.reset();
 
-    String nativeSql = "select * from o_customer where id > ?";
+    String nativeSql = "select * from ${tenant_schema}.o_customer where id > ?";
     List<Customer> customers =
         Ebean.findNative(Customer.class, nativeSql)
         .setParameter(1, 1)
@@ -146,7 +146,7 @@ public class TestNativeSqlBasic extends BaseTestCase {
 
     ResetBasicData.reset();
 
-    String nativeSql = "select c.id, 'foo' as name from o_customer c";
+    String nativeSql = "select c.id, 'foo' as name from ${tenant_schema}.o_customer c";
     List<Customer> customers =
       Ebean.findNative(Customer.class, nativeSql)
         .findList();

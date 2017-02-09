@@ -36,7 +36,7 @@ public class TestSoftDeleteManyToMany extends BaseTestCase {
 
     // No Delete from the relationship table
     assertThat(loggedSql).hasSize(1);
-    assertThat(loggedSql.get(0)).contains("update esoft_del_user set version=?, deleted=? where id=? and version=?;");
+    assertThat(loggedSql.get(0)).contains("update " + SCHEMA_PREFIX + "esoft_del_user set version=?, deleted=? where id=? and version=?;");
 
   }
 

@@ -45,7 +45,7 @@ public class TestRawSqlOrmQuery extends BaseTestCase {
 
     ResetBasicData.reset();
 
-    RawSql rawSql = RawSqlBuilder.parse("select r.id, r.name from o_customer r ")
+    RawSql rawSql = RawSqlBuilder.parse("select r.id, r.name from ${tenant_schema}.o_customer r ")
       .columnMapping("r.id", "id")
       .columnMapping("r.name", "name").create();
 
@@ -69,7 +69,7 @@ public class TestRawSqlOrmQuery extends BaseTestCase {
 
     RawSql rawSql =
       RawSqlBuilder
-        .parse("select r.id, r.name from o_customer r ")
+        .parse("select r.id, r.name from ${tenant_schema}.o_customer r ")
         .columnMapping("r.id", "id")
         .columnMapping("r.name", "name")
         .create();
@@ -101,7 +101,7 @@ public class TestRawSqlOrmQuery extends BaseTestCase {
 
     ResetBasicData.reset();
 
-    RawSql rawSql = RawSqlBuilder.parse("select r.id, r.name from o_customer r ")
+    RawSql rawSql = RawSqlBuilder.parse("select r.id, r.name from ${tenant_schema}.o_customer r ")
       .columnMapping("r.id", "id")
       .columnMapping("r.name", "name")
       .create();
@@ -131,7 +131,7 @@ public class TestRawSqlOrmQuery extends BaseTestCase {
 
     ResetBasicData.reset();
 
-    RawSql rawSql = RawSqlBuilder.parse("select o.id, o.order_date, o.ship_date from o_order o order by o.ship_date desc")
+    RawSql rawSql = RawSqlBuilder.parse("select o.id, o.order_date, o.ship_date from ${tenant_schema}.o_order o order by o.ship_date desc")
       .columnMapping("o.id", "id")
       .columnMapping("o.order_date", "orderDate")
       .columnMapping("o.ship_date", "shipDate")
@@ -151,7 +151,7 @@ public class TestRawSqlOrmQuery extends BaseTestCase {
 
     ResetBasicData.reset();
 
-    RawSql rawSql = RawSqlBuilder.parse("select o.id, o.order_date, o.ship_date from o_order o order by o.ship_date desc nulls last")
+    RawSql rawSql = RawSqlBuilder.parse("select o.id, o.order_date, o.ship_date from ${tenant_schema}.o_order o order by o.ship_date desc nulls last")
       .columnMapping("o.id", "id")
       .columnMapping("o.order_date", "orderDate")
       .columnMapping("o.ship_date", "shipDate")
@@ -172,7 +172,7 @@ public class TestRawSqlOrmQuery extends BaseTestCase {
 
     ResetBasicData.reset();
 
-    RawSql rawSql = RawSqlBuilder.parse("select o.id, o.order_date, o.ship_date from o_order o order by o.ship_date desc")
+    RawSql rawSql = RawSqlBuilder.parse("select o.id, o.order_date, o.ship_date from ${tenant_schema}.o_order o order by o.ship_date desc")
       .columnMapping("o.id", "id")
       .columnMapping("o.order_date", "orderDate")
       .columnMapping("o.ship_date", "shipDate")

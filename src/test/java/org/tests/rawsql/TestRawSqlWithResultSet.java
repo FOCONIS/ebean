@@ -28,7 +28,7 @@ public class TestRawSqlWithResultSet extends BaseTestCase {
     PreparedStatement pstmt = null;
 
     try {
-      pstmt = txn.getConnection().prepareStatement("select id, name, billing_address_id from o_customer");
+      pstmt = txn.getConnection().prepareStatement("select id, name, billing_address_id from " + SCHEMA_PREFIX + "o_customer");
 
       // ResultSet will be closed by Ebean
       ResultSet resultSet = pstmt.executeQuery();
