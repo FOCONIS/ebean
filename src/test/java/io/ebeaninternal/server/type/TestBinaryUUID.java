@@ -37,7 +37,7 @@ public class TestBinaryUUID extends BaseTestCase {
     assertEquals(one1.getId(), fetch1.getId());
     assertEquals(one1.getName(), fetch1.getName());
 
-    String sql = "select id, name from uuone";
+    String sql = "select id, name from ${tenant_schema}.uuone";
     List<SqlRow> list = Ebean.createSqlQuery(sql).findList();
     for (SqlRow sqlRow : list) {
       Object sqlId = sqlRow.get("id");

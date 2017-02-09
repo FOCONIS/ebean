@@ -79,7 +79,7 @@ public class TestPropertyChangeSupport extends BaseTestCase implements PropertyC
 
     // simulate external change and test if we get change notification when we refresh the entity
     Transaction tx = server().beginTransaction();
-    PreparedStatement pstm = tx.getConnection().prepareStatement("update audit_log set description = ? where id = ?");
+    PreparedStatement pstm = tx.getConnection().prepareStatement("update " + SCHEMA_PREFIX + "audit_log set description = ? where id = ?");
     pstm.setString(1, "GHI");
     pstm.setLong(2, al.getId());
     int updated = pstm.executeUpdate();

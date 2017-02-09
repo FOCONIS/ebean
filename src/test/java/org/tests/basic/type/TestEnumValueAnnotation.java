@@ -25,7 +25,7 @@ public class TestEnumValueAnnotation extends BaseTestCase {
 
     Ebean.save(b);
 
-    SqlQuery q = Ebean.createSqlQuery("select * from e_basic where id = :id");
+    SqlQuery q = Ebean.createSqlQuery("select * from ${tenant_schema}.e_basic where id = :id");
     q.setParameter("id", b.getId());
 
     SqlRow sqlRow = q.findUnique();
@@ -53,7 +53,7 @@ public class TestEnumValueAnnotation extends BaseTestCase {
 
     Ebean.save(b);
 
-    SqlQuery q = Ebean.createSqlQuery("select * from e_basic_enum_id where status = :status");
+    SqlQuery q = Ebean.createSqlQuery("select * from ${tenant_schema}.e_basic_enum_id where status = :status");
     q.setParameter("status", b.getStatus());
 
     SqlRow sqlRow = q.findUnique();
@@ -79,7 +79,7 @@ public class TestEnumValueAnnotation extends BaseTestCase {
 
     Ebean.save(b);
 
-    SqlQuery q = Ebean.createSqlQuery("select * from e_basic_eni where id = :id");
+    SqlQuery q = Ebean.createSqlQuery("select * from ${tenant_schema}.e_basic_eni where id = :id");
     q.setParameter("id", b.getId());
 
     SqlRow sqlRow = q.findUnique();

@@ -31,12 +31,12 @@ public class ModelBuildBeanVisitorTest extends BaseTestCase {
 
     new VisitAllUsing(addTable, defaultServer).visitAllBeans();
 
-    MTable item = model.getTable("item");
+    MTable item = model.getTable(SCHEMA_ALIAS + "item");
 
     assertThat(item).isNotNull();
     assertThat(item.primaryKeyColumns()).hasSize(2);
 
-    MTable customer = model.getTable("o_customer");
+    MTable customer = model.getTable(SCHEMA_ALIAS + "o_customer");
     assertThat(customer).isNotNull();
   }
 }

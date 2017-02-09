@@ -23,7 +23,7 @@ public class TestInheritanceRawSql extends BaseTestCase {
     Ebean.save(truck);
 
 
-    String sql = "select dtype, id, license_number from vehicle where id = :id";
+    String sql = "select dtype, id, license_number from ${tenant_schema}.vehicle where id = :id";
     RawSqlBuilder rawSqlBuilder = RawSqlBuilder.parse(sql);
 
     RawSql rawSql = rawSqlBuilder.create();

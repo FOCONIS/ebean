@@ -72,7 +72,7 @@ public class TestPrivateOwned extends BaseTestCase {
 
     List<String> loggedSql = LoggedSqlCollector.stop();
     assertThat(loggedSql).hasSize(1);
-    assertThat(loggedSql.get(0)).contains("delete from t_detail_with_other_namexxxyy where id=?");
+    assertThat(loggedSql.get(0)).contains("delete from " + SCHEMA_PREFIX + "t_detail_with_other_namexxxyy where id=?");
 
     TSMaster masterReload = Ebean.find(TSMaster.class, m0.getId());
     assertThat(masterReload.getDetails()).hasSize(1);

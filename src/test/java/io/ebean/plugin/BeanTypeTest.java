@@ -1,5 +1,6 @@
 package io.ebean.plugin;
 
+import io.ebean.BaseTestCase;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
 import io.ebean.FetchPath;
@@ -21,7 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.*;
 
 
-public class BeanTypeTest {
+public class BeanTypeTest extends BaseTestCase {
 
   static EbeanServer server = Ebean.getDefaultServer();
 
@@ -80,7 +81,7 @@ public class BeanTypeTest {
   @Test
   public void getBaseTable() throws Exception {
 
-    assertThat(beanType(Order.class).getBaseTable()).isEqualTo("o_order");
+    assertThat(beanType(Order.class).getBaseTable()).isEqualTo(SCHEMA_ALIAS + "o_order");
   }
 
   @Test

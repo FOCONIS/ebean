@@ -36,11 +36,11 @@ public class TestRawSqlBuilder extends BaseTestCase {
   @Test
   public void testWithNewLineCharacters() {
 
-    RawSqlBuilder r = RawSqlBuilder.parse("select\n id from\n o_customer");
+    RawSqlBuilder r = RawSqlBuilder.parse("select\n id from\n ${tenant_schema}.o_customer");
     Sql sql = r.getSql();
 
     assertEquals("id", sql.getPreFrom());
-    assertEquals("from  o_customer", sql.getPreWhere());
+    assertEquals("from  ${tenant_schema}.o_customer", sql.getPreWhere());
     assertEquals("", sql.getPreHaving());
     assertNull(sql.getOrderBy());
 
@@ -56,10 +56,10 @@ public class TestRawSqlBuilder extends BaseTestCase {
   @Test
   public void testWithWhere() {
 
-    RawSqlBuilder r = RawSqlBuilder.parse("select id from t_cust where id > ?");
+    RawSqlBuilder r = RawSqlBuilder.parse("select id from ${tenant_schema}.t_cust where id > ?");
     Sql sql = r.getSql();
     assertEquals("id", sql.getPreFrom());
-    assertEquals("from t_cust where id > ?", sql.getPreWhere());
+    assertEquals("from ${tenant_schema}.t_cust where id > ?", sql.getPreWhere());
     assertEquals("", sql.getPreHaving());
     assertNull(sql.getOrderBy());
   }
@@ -67,26 +67,26 @@ public class TestRawSqlBuilder extends BaseTestCase {
   @Test
   public void testWithOrder() {
 
-    RawSqlBuilder r = RawSqlBuilder.parse("select id from t_cust where id > ? order by id desc");
+    RawSqlBuilder r = RawSqlBuilder.parse("select id from ${tenant_schema}.t_cust where id > ? order by id desc");
     Sql sql = r.getSql();
     assertEquals("id", sql.getPreFrom());
-    assertEquals("from t_cust where id > ?", sql.getPreWhere());
+    assertEquals("from ${tenant_schema}.t_cust where id > ?", sql.getPreWhere());
     assertEquals("", sql.getPreHaving());
     assertEquals("order by", sql.getOrderByPrefix());
     assertEquals("id desc", sql.getOrderBy());
 
-    r = RawSqlBuilder.parse("select id from t_cust order by id desc");
+    r = RawSqlBuilder.parse("select id from ${tenant_schema}.t_cust order by id desc");
     sql = r.getSql();
     assertEquals("id", sql.getPreFrom());
-    assertEquals("from t_cust", sql.getPreWhere());
+    assertEquals("from ${tenant_schema}.t_cust", sql.getPreWhere());
     assertEquals("", sql.getPreHaving());
     assertEquals("id desc", sql.getOrderBy());
 
     r = RawSqlBuilder
-      .parse("select id, sum(x) from t_cust where id > ? group by id order by id desc");
+      .parse("select id, sum(x) from ${tenant_schema}.t_cust where id > ? group by id order by id desc");
     sql = r.getSql();
     assertEquals("id, sum(x)", sql.getPreFrom());
-    assertEquals("from t_cust where id > ?", sql.getPreWhere());
+    assertEquals("from ${tenant_schema}.t_cust where id > ?", sql.getPreWhere());
     assertEquals("group by id", sql.getPreHaving());
     assertEquals("id desc", sql.getOrderBy());
   }
@@ -95,39 +95,39 @@ public class TestRawSqlBuilder extends BaseTestCase {
   public void testWithHaving() {
 
     RawSqlBuilder r = RawSqlBuilder
-      .parse("select id, sum(x) from t_cust where id > ? group by id having sum(x) > ? order by id desc");
+      .parse("select id, sum(x) from ${tenant_schema}.t_cust where id > ? group by id having sum(x) > ? order by id desc");
     Sql sql = r.getSql();
     assertEquals("id, sum(x)", sql.getPreFrom());
-    assertEquals("from t_cust where id > ?", sql.getPreWhere());
+    assertEquals("from ${tenant_schema}.t_cust where id > ?", sql.getPreWhere());
     assertEquals("group by id having sum(x) > ?", sql.getPreHaving());
     assertEquals("order by", sql.getOrderByPrefix());
     assertEquals("id desc", sql.getOrderBy());
 
     // no where
     r = RawSqlBuilder
-      .parse("select id, sum(x) from t_cust group by id having sum(x) > ? order by id desc");
+      .parse("select id, sum(x) from ${tenant_schema}.t_cust group by id having sum(x) > ? order by id desc");
     sql = r.getSql();
     assertEquals("id, sum(x)", sql.getPreFrom());
-    assertEquals("from t_cust", sql.getPreWhere());
+    assertEquals("from ${tenant_schema}.t_cust", sql.getPreWhere());
     assertEquals("group by id having sum(x) > ?", sql.getPreHaving());
     assertEquals("order by", sql.getOrderByPrefix());
     assertEquals("id desc", sql.getOrderBy());
 
     // no where, no order by
-    r = RawSqlBuilder.parse("select id, sum(x) from t_cust group by id having sum(x) > ?");
+    r = RawSqlBuilder.parse("select id, sum(x) from ${tenant_schema}.t_cust group by id having sum(x) > ?");
     sql = r.getSql();
     assertEquals("id, sum(x)", sql.getPreFrom());
-    assertEquals("from t_cust", sql.getPreWhere());
+    assertEquals("from ${tenant_schema}.t_cust", sql.getPreWhere());
     assertEquals("group by id having sum(x) > ?", sql.getPreHaving());
     assertNull(sql.getOrderBy());
     assertEquals("order by", sql.getOrderByPrefix());
 
     // no order by
     r = RawSqlBuilder
-      .parse("select id, sum(x) from t_cust where id > ? group by id having sum(x) > ?");
+      .parse("select id, sum(x) from ${tenant_schema}.t_cust where id > ? group by id having sum(x) > ?");
     sql = r.getSql();
     assertEquals("id, sum(x)", sql.getPreFrom());
-    assertEquals("from t_cust where id > ?", sql.getPreWhere());
+    assertEquals("from ${tenant_schema}.t_cust where id > ?", sql.getPreWhere());
     assertEquals("group by id having sum(x) > ?", sql.getPreHaving());
     assertNull(sql.getOrderBy());
     assertEquals("order by", sql.getOrderByPrefix());
@@ -157,9 +157,9 @@ public class TestRawSqlBuilder extends BaseTestCase {
 
     String rs = "select o.id, o.status, c.id, c.name, " +
       " d.id, d.order_qty, p.id, p.name " +
-      "from o_order o join o_customer c on c.id = o.kcustomer_id " +
-      "join o_order_detail d on d.order_id = o.id  " +
-      "join o_product p on p.id = d.product_id  " +
+      "from ${tenant_schema}.o_order o join ${tenant_schema}.o_customer c on c.id = o.kcustomer_id " +
+      "join ${tenant_schema}.o_order_detail d on d.order_id = o.id  " +
+      "join ${tenant_schema}.o_product p on p.id = d.product_id  " +
       "where o.id <= :maxOrderId  and p.id = :productId " +
       "order by o.id, d.id asc";
 
@@ -218,7 +218,7 @@ public class TestRawSqlBuilder extends BaseTestCase {
       " count(*) as total," +
       " sum(case when d.status = 0 then 2 else 3 end) as scheduled," +
       " sum(case when d.status = 1 then 1 else 0 end) as completed" +
-      " from o_order d" +
+      " from ${tenant_schema}.o_order d" +
       " group by DATE_TRUNC('DAY', d.order_date)";
 
     RawSql rawSql = RawSqlBuilder.parse(sql).create();

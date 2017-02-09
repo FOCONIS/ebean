@@ -21,6 +21,8 @@ import org.junit.Test;
 import java.util.List;
 import java.util.Set;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 public class TunedQueryInfoTest extends BaseTestCase {
 
   EbeanServer server = Ebean.getServer(null);
@@ -92,8 +94,9 @@ public class TunedQueryInfoTest extends BaseTestCase {
     List<String> loggedSql = LoggedSqlCollector.stop();
     Assert.assertEquals(2, loggedSql.size());
 
-    Assert.assertTrue(trimSql(loggedSql.get(0), 1).contains("select t0.id, t0.id from o_order t0 where t0.id = ?"));
-    Assert.assertTrue(trimSql(loggedSql.get(1), 1).contains("select t0.id, t0.status,"));
+    
+    assertThat(trimSql(loggedSql.get(0), 1)).contains("select t0.id, t0.id from " + SCHEMA_PREFIX + "o_order t0 where t0.id = ?");
+    assertThat(trimSql(loggedSql.get(1), 1)).contains("select t0.id, t0.status,");
   }
 
   @NotNull
@@ -128,8 +131,8 @@ public class TunedQueryInfoTest extends BaseTestCase {
     Set<String> loadedPropertyNames = ebi.getLoadedPropertyNames();
     Assert.assertNotNull(loadedPropertyNames);
 
-    Assert.assertTrue(loadedPropertyNames.contains("status"));
-    Assert.assertTrue(loadedPropertyNames.contains("customer"));
+    assertThat(loadedPropertyNames).contains("status");
+    assertThat(loadedPropertyNames).contains("customer");
 
     // no lazy loading expected here
     order.getCustomer();

@@ -16,7 +16,7 @@ public class TestOrderTotalAmountSql extends BaseTestCase {
 
     ResetBasicData.reset();
 
-    String sql = "select order_id, sum(order_qty*unit_price) as total_amount from o_order_detail  where order_qty > :minQty  group by order_id";
+    String sql = "select order_id, sum(order_qty*unit_price) as total_amount from ${tenant_schema}.o_order_detail  where order_qty > :minQty  group by order_id";
     List<SqlRow> sqlRows = Ebean.createSqlQuery(sql).setParameter("minQty", 1).findList();
 
     for (SqlRow sqlRow : sqlRows) {

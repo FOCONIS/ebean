@@ -17,9 +17,9 @@ public class TestM2MVanilla extends BaseTestCase {
   @Test
   public void testVanilla() {
 
-    SqlUpdate delInt = Ebean.createSqlUpdate("delete from mrole_muser");
-    SqlUpdate delRoles = Ebean.createSqlUpdate("delete from mrole");
-    SqlUpdate delUsers = Ebean.createSqlUpdate("delete from muser");
+    SqlUpdate delInt = Ebean.createSqlUpdate("delete from ${tenant_schema}.mrole_muser");
+    SqlUpdate delRoles = Ebean.createSqlUpdate("delete from ${tenant_schema}.mrole");
+    SqlUpdate delUsers = Ebean.createSqlUpdate("delete from ${tenant_schema}.muser");
 
     Ebean.execute(delInt);
     Ebean.execute(delRoles);

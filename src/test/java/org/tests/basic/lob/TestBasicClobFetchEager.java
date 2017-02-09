@@ -26,11 +26,12 @@ public class TestBasicClobFetchEager extends BaseTestCase {
 
 
     String expectedSql = "select t0.id, t0.name, t0.title, t0.description, t0.last_update from ebasic_clob_fetch_eager t0 where t0.id = ?";
-
+    String loggedExpectedSql = "select t0.id, t0.name, t0.title, t0.description, t0.last_update from " + SCHEMA_PREFIX + "ebasic_clob_fetch_eager t0 where t0.id = ?";
+    
     // Clob included in fetch as FetchType.EAGER set by annotation
     Query<EBasicClobFetchEager> defaultQuery = Ebean.find(EBasicClobFetchEager.class).setId(entity.getId());
     defaultQuery.findUnique();
-    String sql = trimSql(defaultQuery.getGeneratedSql(), 6);
+    String sql = trimSql(sqlOf(defaultQuery), 6);
 
     assertThat(sql).contains(expectedSql);
 
@@ -43,7 +44,7 @@ public class TestBasicClobFetchEager extends BaseTestCase {
     // Assert query same as previous ...
     List<String> loggedSql = LoggedSqlCollector.stop();
     Assert.assertEquals(1, loggedSql.size());
-    assertThat(trimSql(loggedSql.get(0), 6)).contains(expectedSql);
+    assertThat(trimSql(loggedSql.get(0), 6)).contains(loggedExpectedSql);
 
 
     // Explicitly select * including Clob
@@ -74,7 +75,7 @@ public class TestBasicClobFetchEager extends BaseTestCase {
     // Assert all properties fetched in refresh
     loggedSql = LoggedSqlCollector.stop();
     Assert.assertEquals(1, loggedSql.size());
-    assertThat(trimSql(loggedSql.get(0), 6)).contains(expectedSql);
+    assertThat(trimSql(loggedSql.get(0), 6)).contains(loggedExpectedSql);
     Assert.assertEquals("modified", entity.getDescription());
 
   }

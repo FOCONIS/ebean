@@ -1,5 +1,6 @@
 package io.ebean.plugin;
 
+import io.ebean.BaseTestCase;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
 import org.tests.model.basic.Customer;
@@ -10,7 +11,7 @@ import java.util.List;
 import static org.junit.Assert.*;
 
 
-public class SpiServerTest {
+public class SpiServerTest extends BaseTestCase {
 
   @Test
   public void test() {
@@ -19,7 +20,7 @@ public class SpiServerTest {
     SpiServer pluginApi = defaultServer.getPluginApi();
 
     BeanType<Customer> beanType = pluginApi.getBeanType(Customer.class);
-    assertEquals("o_customer", beanType.getBaseTable());
+    assertEquals(SCHEMA_ALIAS + "o_customer", beanType.getBaseTable());
     assertNotNull(pluginApi.getDatabasePlatform());
     assertNull(beanType.getFindController());
     assertNotNull(beanType.getPersistController());
@@ -38,7 +39,7 @@ public class SpiServerTest {
 
     assertEquals(42, beanType.getBeanId(customer));
 
-    List<? extends BeanType<?>> beanTypes = pluginApi.getBeanTypes("o_customer");
+    List<? extends BeanType<?>> beanTypes = pluginApi.getBeanTypes(SCHEMA_ALIAS + "o_customer");
     assertEquals(1, beanTypes.size());
     assertSame(beanType, beanTypes.get(0));
 

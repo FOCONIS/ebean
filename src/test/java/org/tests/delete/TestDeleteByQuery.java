@@ -32,7 +32,7 @@ public class TestDeleteByQuery extends BaseTestCase {
 
     List<String> loggedSql = LoggedSqlCollector.stop();
     assertThat(loggedSql).hasSize(1);
-    assertThat(trimSql(loggedSql.get(0), 1)).contains("delete from contact where id in (select t0.id from contact t0 left join");
+    assertThat(trimSql(loggedSql.get(0), 1)).contains("delete from " + SCHEMA_PREFIX + "contact where id in (select t0.id from " + SCHEMA_PREFIX + "contact t0 left join");
 
     Query<Contact> query2 = server.find(Contact.class).where().eq("firstName", "NotARealFirstName").query();
 
@@ -41,7 +41,7 @@ public class TestDeleteByQuery extends BaseTestCase {
 
     loggedSql = LoggedSqlCollector.stop();
     assertThat(loggedSql).hasSize(1);
-    assertThat(loggedSql.get(0)).contains("delete from contact where first_name =");
+    assertThat(loggedSql.get(0)).contains("delete from " + SCHEMA_PREFIX + "contact where first_name =");
 
 
     server.find(Contact.class).select("id").where().eq("firstName", "NotARealFirstName").delete();
@@ -63,7 +63,7 @@ public class TestDeleteByQuery extends BaseTestCase {
 
     List<String> sql = LoggedSqlCollector.stop();
     assertThat(sql).hasSize(1);
-    assertThat(sql.get(0)).contains("delete from o_customer where name = ?");
+    assertThat(sql.get(0)).contains("delete from " + SCHEMA_PREFIX + "o_customer where name = ?");
   }
 
   @Test

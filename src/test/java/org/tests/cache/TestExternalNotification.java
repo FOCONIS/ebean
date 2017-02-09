@@ -26,18 +26,18 @@ public class TestExternalNotification extends BaseTestCase {
     assertTrue(countryCache.size() > 0);
 
     // inserts don't remove from bean cache
-    Ebean.externalModification("o_country", true, false, false);
+    Ebean.externalModification(SCHEMA_ALIAS + "o_country", true, false, false);
     assertTrue(countryCache.size() > 0);
 
     // updates flush cache
-    Ebean.externalModification("o_country", false, true, false);
+    Ebean.externalModification(SCHEMA_ALIAS + "o_country", false, true, false);
     assertEquals(0, countryCache.size());
 
     loadCountryCache();
     assertTrue(countryCache.size() > 0);
 
     // deletes flush cache
-    Ebean.externalModification("o_country", false, false, true);
+    Ebean.externalModification(SCHEMA_ALIAS + "o_country", false, false, true);
     assertEquals(0, countryCache.size());
 
     loadCountryCache();
@@ -58,7 +58,7 @@ public class TestExternalNotification extends BaseTestCase {
     assertTrue("cacheSize: " + cacheSize, cacheSize > 0);
 
     SqlUpdate sqlUpdate = Ebean
-      .createSqlUpdate("update o_country set name = :name where code = :code");
+      .createSqlUpdate("update ${tenant_schema}.o_country set name = :name where code = :code");
     sqlUpdate.setParameter("name", "Aotearoa");
     sqlUpdate.setParameter("code", "NZ");
 

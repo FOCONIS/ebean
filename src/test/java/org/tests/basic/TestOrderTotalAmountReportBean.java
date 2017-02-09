@@ -24,7 +24,7 @@ public class TestOrderTotalAmountReportBean extends BaseTestCase {
 
     String sql =
       "select order_id, count(*) as totalItems, sum(order_qty*unit_price) as totalAmount \n" +
-        "from o_order_detail \n" +
+        "from ${tenant_schema}.o_order_detail \n" +
         "group by order_id";
 
     RawSql rawSql = RawSqlBuilder.parse(sql).columnMapping("order_id", "order.id").create();
@@ -56,7 +56,7 @@ public class TestOrderTotalAmountReportBean extends BaseTestCase {
 
     String sql =
       "select order_id, count(*) as total_items, sum(order_qty*unit_price) as total_amount \n" +
-        "from o_order_detail \n" +
+        "from ${tenant_schema}.o_order_detail \n" +
         "group by order_id";
 
     RawSql rawSql = RawSqlBuilder.parse(sql)
@@ -78,7 +78,7 @@ public class TestOrderTotalAmountReportBean extends BaseTestCase {
 
     String sql =
       "select order_id, count(*) as totalItems, sum(order_qty*unit_price) as totalAmount \n" +
-        "from o_order_detail \n" +
+        "from ${tenant_schema}.o_order_detail \n" +
         "group by order_id";
 
     RawSql rawSql = RawSqlBuilder.parse(sql)
@@ -90,7 +90,7 @@ public class TestOrderTotalAmountReportBean extends BaseTestCase {
 
     query.findList();
 
-    assertThat(query.getGeneratedSql()).contains("count(*) as totalItems, sum(order_qty*unit_price) as totalAmount");
+    assertThat(sqlOf(query)).contains("count(*) as totalItems, sum(order_qty*unit_price) as totalAmount");
   }
 
   @Test

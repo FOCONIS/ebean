@@ -39,7 +39,7 @@ public class TestQueryDisableLazyLoad extends BaseTestCase {
     assertThat(loggedSql).hasSize(1);
 
     assertThat(trimSql(loggedSql.get(0), 2)).contains("select t0.id, t0.status, t0.order_date,");
-    assertThat(loggedSql.get(0)).contains(" from o_order t0 ");
+    assertThat(loggedSql.get(0)).contains(" from " + SCHEMA_PREFIX + "o_order t0 ");
   }
 
   @Test

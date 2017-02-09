@@ -97,7 +97,7 @@ public class TestHistoryInsert extends BaseTestCase {
    * Use SqlQuery to query the history table directly.
    */
   private List<SqlRow> fetchHistory(User user) {
-    SqlQuery sqlQuery = Ebean.createSqlQuery("select * from c_user_history where id = :id order by when_modified");
+    SqlQuery sqlQuery = Ebean.createSqlQuery("select * from ${tenant_schema}.c_user_history where id = :id order by when_modified");
     sqlQuery.setParameter("id", user.getId());
     return sqlQuery.findList();
   }

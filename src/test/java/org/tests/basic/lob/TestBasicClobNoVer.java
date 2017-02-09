@@ -27,6 +27,7 @@ public class TestBasicClobNoVer extends BaseTestCase {
 
     String sqlNoClob = "select t0.id, t0.name from ebasic_clob_no_ver t0 where t0.id = ?";
     String sqlWithClob = "select t0.id, t0.name, t0.description from ebasic_clob_no_ver t0 where t0.id = ?";
+    String loggedSqlWithClob = "select t0.id, t0.name, t0.description from " + SCHEMA_PREFIX + "ebasic_clob_no_ver t0 where t0.id = ?";
 
 
     // Clob by default is Fetch Lazy
@@ -65,7 +66,7 @@ public class TestBasicClobNoVer extends BaseTestCase {
     // Assert all properties fetched in refresh
     List<String> loggedSql = LoggedSqlCollector.stop();
     Assert.assertEquals(1, loggedSql.size());
-    assertThat(trimSql(loggedSql.get(0), 2)).contains(sqlWithClob);
+    assertThat(trimSql(loggedSql.get(0), 2)).contains(loggedSqlWithClob);
     Assert.assertEquals("modified", entity.getDescription());
 
   }
