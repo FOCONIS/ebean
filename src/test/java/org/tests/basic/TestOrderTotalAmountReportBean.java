@@ -110,8 +110,8 @@ public class TestOrderTotalAmountReportBean extends BaseTestCase {
 
     Query<OrderAggregate> query = Ebean.getDefaultServer().createNamedQuery(OrderAggregate.class, "withMax");
     List<OrderAggregate> list = query.findList();
-
-    assertThat(query.getGeneratedSql()).contains("count(*) as total_items, sum(order_qty*unit_price) as total_amount, max(order_qty*unit_price) as maxAmount from o_order_detail");
+    
+    assertThat(sqlOf(query)).contains("count(*) as total_items, sum(order_qty*unit_price) as total_amount, max(order_qty*unit_price) as maxAmount from o_order_detail");
     assertNotNull(list);
   }
 
@@ -127,8 +127,8 @@ public class TestOrderTotalAmountReportBean extends BaseTestCase {
       .order().desc("totalAmount")
       .findList();
 
-    assertThat(query.getGeneratedSql()).contains("count(*) as total_items, sum(order_qty*unit_price) as total_amount, max(order_qty*unit_price) as maxAmount from o_order_detail");
-    assertThat(query.getGeneratedSql()).contains("from o_order_detail  where order_id > ?  group by order_id  having count(*) > ?   order by sum(order_qty*unit_price) desc");
+    assertThat(sqlOf(query)).contains("count(*) as total_items, sum(order_qty*unit_price) as total_amount, max(order_qty*unit_price) as maxAmount from o_order_detail");
+    assertThat(sqlOf(query)).contains("from o_order_detail  where order_id > ?  group by order_id  having count(*) > ?   order by sum(order_qty*unit_price) desc");
     assertNotNull(list);
   }
 
@@ -146,8 +146,8 @@ public class TestOrderTotalAmountReportBean extends BaseTestCase {
       .setMaxRows(10)
       .findList();
 
-    assertThat(query.getGeneratedSql()).contains("count(*) as totalItems, sum(order_qty*unit_price) as totalAmount, max(order_qty*unit_price) as maxAmount from o_order_detail");
-    assertThat(query.getGeneratedSql()).contains("from o_order_detail where id > ?  and order_id is not null  group by order_id  having sum(order_qty*unit_price) < ?   order by sum(order_qty*unit_price) desc");
+    assertThat(sqlOf(query)).contains("count(*) as totalItems, sum(order_qty*unit_price) as totalAmount, max(order_qty*unit_price) as maxAmount from o_order_detail");
+    assertThat(sqlOf(query)).contains("from o_order_detail where id > ?  and order_id is not null  group by order_id  having sum(order_qty*unit_price) < ?   order by sum(order_qty*unit_price) desc");
     assertNotNull(list);
   }
 }

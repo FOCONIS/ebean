@@ -1,5 +1,6 @@
 package io.ebean;
 
+import io.ebean.util.StringHelper;
 import io.ebeaninternal.api.SpiEbeanServer;
 import io.ebeaninternal.server.deploy.BeanDescriptor;
 import org.tests.model.basic.Country;
@@ -39,12 +40,13 @@ public class BaseTestCase {
    */
   protected String trimSql(String sql, int columns) {
     for (int i = 0; i <= columns; i++) {
-      sql = sql.replace(" c" + i + ",", ",");
+      sql = StringHelper.replaceString(sql, " c" + i + ",", ",");
     }
     for (int i = 0; i <= columns; i++) {
-      sql = sql.replace(" c" + i + " ", " ");
+      sql = StringHelper.replaceString(sql, " c" + i + " ", " ");
     }
-    return sql;
+    
+    return StringHelper.replaceString(sql, "${tenant_schema}.","");
   }
 
   /**
