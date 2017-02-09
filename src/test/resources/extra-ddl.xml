@@ -1,7 +1,17 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <extra-ddl xmlns="http://ebean-orm.github.io/xml/ns/extraddl">
 
-  <ddl-script name="order views" platforms="generic,db2,h2,hsqldb,postgres,oracle,sqlite,mysql" perTenant="true">
+  <ddl-script name="order views" platforms="sqlite" perTenant="true">
+
+    create view if not exists ${tenant_schema}.order_agg_vw as
+    select d.order_id, sum(d.order_qty * d.unit_price) as order_total,
+           sum(d.ship_qty * d.unit_price) as ship_total
+    from ${tenant_schema}.o_order_detail d
+    group by d.order_id;
+
+  </ddl-script>
+  
+  <ddl-script name="order views" platforms="generic,db2,h2,hsqldb,postgres,oracle,mysql" perTenant="true">
 
     create or replace view ${tenant_schema}.order_agg_vw as
     select d.order_id, sum(d.order_qty * d.unit_price) as order_total,
@@ -11,7 +21,7 @@
 
   </ddl-script>
 
-  <ddl-script name="order views mssql" platforms="sqlserver">
+  <ddl-script name="order views mssql" platforms="sqlserver" perTenant="true">
     IF EXISTS (SELECT TABLE_NAME FROM INFORMATION_SCHEMA.VIEWS WHERE TABLE_NAME = 'order_agg_vw')
       DROP VIEW order_agg_vw;
 
@@ -30,9 +40,9 @@
     -- oracle only script
   </ddl-script>
 
-  <ddl-script name="pg indexes" platforms="postgres">
+  <ddl-script name="pg indexes" platforms="postgres" perTenant="true">
     -- postgres specific indexes
-    create index ix_ebasic_jmjb_gin2 on ebasic_json_map_json_b using gin(content jsonb_path_ops);
+    create index ix_ebasic_jmjb_gin2 on ${tenant_schema}.ebasic_json_map_json_b using gin(content jsonb_path_ops);
   </ddl-script>
 
 </extra-ddl>

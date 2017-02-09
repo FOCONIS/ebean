@@ -21,6 +21,7 @@ import io.ebean.event.changelog.ChangeLogListener;
 import io.ebean.event.changelog.ChangeLogPrepare;
 import io.ebean.event.changelog.ChangeLogRegister;
 import io.ebean.plugin.BeanType;
+import io.ebean.util.TenantUtil;
 import io.ebeaninternal.api.ConcurrencyMode;
 import io.ebeaninternal.api.SpiEbeanServer;
 import io.ebeaninternal.api.TransactionEventTable;
@@ -1302,6 +1303,11 @@ public class BeanDescriptorManager implements BeanDescriptorMap {
     boolean perTenant;
     switch (serverConfig.getTenantMode()) {
     case SCHEMA:
+      perTenant = !desc.isSharedEntity();
+      if (seqName.indexOf('.') == -1) {
+        seqName = (perTenant ? TenantUtil.TENANT_SCHEMA : TenantUtil.SHARED_SCHEMA ) + "." + seqName;
+      }
+      break;
     case DB:
       perTenant = !desc.isSharedEntity();
       break;
