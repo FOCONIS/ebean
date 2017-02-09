@@ -1,18 +1,19 @@
 package io.ebean;
 
 import io.ebean.util.StringHelper;
-import io.ebean.config.ServerConfig;
-import io.ebean.config.TenantMode;
-import io.ebean.config.dbplatform.h2.H2Platform;
+import io.ebean.config.PropertiesWrapper;
+import io.ebean.config.PropertyMap;
 import io.ebeaninternal.api.SpiEbeanServer;
 import io.ebeaninternal.server.deploy.BeanDescriptor;
+
+import org.tests.basic.MyCurrentTenantProvider;
 import org.tests.model.basic.Country;
 import org.avaje.agentloader.AgentLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.Types;
-import java.util.Arrays;
+import java.util.Properties;
 
 
 public class BaseTestCase {
@@ -27,36 +28,18 @@ public class BaseTestCase {
     if (!AgentLoader.loadAgentFromClasspath("ebean-agent", "debug=1;packages=org.tests,org.avaje.test,io.ebean")) {
       logger.info("avaje-ebeanorm-agent not found in classpath - not dynamically loaded");
     }
-  }
-  
-  
-  private static void initForTenancy() {
-    String tenant = "CUSTOMER";
-    SCHEMA_PREFIX = tenant + ".";
     
-    ServerConfig config = new ServerConfig();
-    config.setName("h2");
-    config.loadFromProperties();
-    config.loadTestProperties();
-    config.setRegister(true);
-    config.setDefaultServer(true);
-
-    config.setTenantMode(TenantMode.SCHEMA);
-    config.setCurrentTenantProvider(()-> {
-      return tenant;
-    });
-    config.setTenantSchemaProvider(id -> id.toString());
-    config.setAvailableTenantsProvider(conn -> Arrays.asList(tenant));
-    //
-    //    // When TenantMode.DB we don't really want to run DDL
-    //    // and we want to explicitly specify the Database platform
-    config.setDdlGenerate(true);
-    config.setDdlRun(true);
-    config.setDatabasePlatform(new H2Platform());
-    //
-    EbeanServerFactory.create(config);
+    Properties prop = PropertyMap.defaultProperties();
+    // read multi-tenancy tweaks...
+    PropertiesWrapper p = new PropertiesWrapper("test", Ebean.getDefaultServer().getName(), prop);
+    
+    MyCurrentTenantProvider.setTenantId(p.get("currentTenant"));
+    SCHEMA_PREFIX = p.get("schemaPrefix","");
+    if (p.getBoolean("useSchemaAlias", false)) {
+      SCHEMA_ALIAS = "${tenant_schema}.";
+    }
   }
-
+  
   /**
    * Return the generated sql trimming column alias if required.
    */
