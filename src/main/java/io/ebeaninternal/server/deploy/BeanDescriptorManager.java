@@ -432,6 +432,10 @@ public class BeanDescriptorManager implements BeanDescriptorMap {
   public void cacheNotify(TransactionEventTable.TableIUD tableIUD) {
 
     String tableName = tableIUD.getTableName().toLowerCase();
+    int pos = tableName.lastIndexOf('.');
+    if (pos != -1) {
+      tableName = "*." + tableName.substring(pos + 1);
+    }
     List<BeanDescriptor<?>> normalBeanTypes = tableToDescMap.get(tableName);
     if (normalBeanTypes != null) {
       // 'normal' entity beans based on a "base table"
@@ -489,12 +493,14 @@ public class BeanDescriptorManager implements BeanDescriptorMap {
       String baseTable = desc.getBaseTable();
       if (baseTable != null) {
         baseTable = baseTable.toLowerCase();
-        List<BeanDescriptor<?>> list = tableToDescMap.get(baseTable);
-        if (list == null) {
-          list = new ArrayList<>(1);
-          tableToDescMap.put(baseTable, list);
+        tableToDescMap.computeIfAbsent(baseTable, k -> new ArrayList<>()).add(desc);
+        
+        int pos = baseTable.lastIndexOf('.');
+        if (pos != -1) {
+          // if there is a schema, we add also an entry as *.tablename for easier cache invalidation
+          baseTable = "*." + baseTable.substring(pos + 1);
+          tableToDescMap.computeIfAbsent(baseTable, k -> new ArrayList<>()).add(desc);
         }
-        list.add(desc);
       }
       if (desc.getEntityType() == EntityType.VIEW && desc.isQueryCaching()) {
         // build map of tables to view entities dependent on those tables
@@ -503,12 +509,13 @@ public class BeanDescriptorManager implements BeanDescriptorMap {
         if (dependentTables != null && dependentTables.length > 0) {
           for (String depTable : dependentTables) {
             depTable = depTable.toLowerCase();
-            List<BeanDescriptor<?>> list = tableToViewDescMap.get(depTable);
-            if (list == null) {
-              list = new ArrayList<>(1);
-              tableToViewDescMap.put(depTable, list);
+            tableToViewDescMap.computeIfAbsent(depTable, k -> new ArrayList<>()).add(desc);
+            int pos = depTable.lastIndexOf('.');
+            if (pos != -1) {
+              // if there is a schema, we add also an entry as *.tablename for easier cache invalidation
+              depTable = "*." + depTable.substring(pos + 1);
+              tableToViewDescMap.computeIfAbsent(depTable, k -> new ArrayList<>()).add(desc);
             }
-            list.add(desc);
           }
         }
       }
