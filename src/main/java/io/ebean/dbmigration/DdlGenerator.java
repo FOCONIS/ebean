@@ -94,6 +94,10 @@ public class DdlGenerator {
     this.tenantMode = serverConfig.getTenantMode();
   }
 
+  protected Transaction createTransaction() {
+    return server.createTransaction();
+  }
+  
   /**
    * Generate the DDL and then run the DDL based on property settings
    * (ebean.ddl.generate and ebean.ddl.run etc).
@@ -131,8 +135,7 @@ public class DdlGenerator {
       runInitSql();
       if (tenantMode == TenantMode.SCHEMA) {
         
-        
-        Transaction transaction = server.createTransaction();
+        Transaction transaction = createTransaction();
         Connection connection = transaction.getConnection();
         Collection<String> tenantSchemas = new ArrayList<>();
         Set<String> existingSchemas = new HashSet<>();
@@ -195,7 +198,7 @@ public class DdlGenerator {
 
     DdlRunner runner = new DdlRunner(expectErrors, scriptName);
 
-    Transaction transaction = server.createTransaction();
+    Transaction transaction = createTransaction();
     Connection connection = transaction.getConnection();
     try {
       content = TenantUtil.applySchemas(content, sharedSchema, tenantSchema);

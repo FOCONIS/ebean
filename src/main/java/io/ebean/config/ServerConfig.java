@@ -132,19 +132,7 @@ public class ServerConfig {
 
   private CurrentTenantProvider currentTenantProvider;
 
-
-  private TenantDataSourceProvider tenantDataSourceProvider = new TenantDataSourceProvider() {
-    
-    @Override
-    public void shutdown(boolean deregisterDriver) {
-      // TODO Auto-generated method stub
-    }
-    
-    @Override
-    public DataSource dataSource(Object tenantId) {
-      return getDataSource();
-    }
-  };
+  private TenantDataSourceProvider tenantDataSourceProvider;
 
   private AvailableTenantsProvider availableTenantsProvider;
   
@@ -2631,14 +2619,31 @@ public class ServerConfig {
     ddlSeedSql = p.get("ddl.seedSql", ddlSeedSql);
 
     // Multi Tenant setup (default use a queryString and a prefix)
+    String mode = p.get("tenant.mode");
+    if (mode != null) {
+      for (TenantMode value : TenantMode.values()) {
+        if (value.name().equalsIgnoreCase(mode)) {
+          tenantMode = value;
+          break;
+        }
+      }
+    }
+
     tenantSharedSchema = p.get("tenant.sharedSchema");
     String tenantQueryString = p.get("tenant.queryString");
     if (tenantQueryString != null) {
       availableTenantsProvider = new AvailableTenantsByQuery(tenantQueryString);
+      String tenantSchemaPrefix = p.get("tenant.schemaPrefix");
+      if (tenantSchemaPrefix != null) {
+        tenantSchemaProvider = tenantId -> tenantId == null ? tenantSharedSchema : (tenantSchemaPrefix + tenantId);
+      } else {
+        tenantSchemaProvider = tenantId -> tenantId == null ? tenantSharedSchema : String.valueOf(tenantId);
+      }
     }
-    String tenantSchemaPrefix = p.get("tenant.schemaPrefix");
-    if (tenantSchemaPrefix != null) {
-      tenantSchemaProvider = tenantId -> tenantId == null ? tenantSharedSchema : (tenantSchemaPrefix + tenantId);
+    currentTenantProvider = createInstance(p, CurrentTenantProvider.class, "tenant.currentTenantProvider", currentTenantProvider);
+    tenantDataSourceProvider = createInstance(p, TenantDataSourceProvider.class, "tenant.dataSourceProvider", tenantDataSourceProvider);
+    if (tenantDataSourceProvider == null) {
+      tenantDataSourceProvider = new DefaultDataSourceProvider();
     }
     classes = getClasses(p);
   }
@@ -2850,6 +2855,22 @@ public class ServerConfig {
     return dataSource;
   }
 
+  /**
+   * DefaultDatasourceProvider delegates just to {@link ServerConfig#getDataSource()} 
+   */
+  private class DefaultDataSourceProvider implements TenantDataSourceProvider {
+    
+    @Override
+    public void shutdown(boolean deregisterDriver) {
+    }
+    
+    @Override
+    public DataSource dataSource(Object tenantId) {
+      return getDataSource();
+    }
+  }
+  
+  
   /**
    * Specify how UUID is stored.
    */

@@ -253,7 +253,9 @@ public class JdbcTransaction implements SpiTransaction {
 
   @Override
   public void sendChangeLog(ChangeSet changesRequest) {
-    manager.sendChangeLog(changesRequest);
+    if (manager != null) {
+      manager.sendChangeLog(changesRequest);
+    }
   }
 
   @Override
