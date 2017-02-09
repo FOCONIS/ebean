@@ -41,10 +41,10 @@ class DefaultCacheHolder {
 
   Supplier<ServerCache> getCache(Class<?> beanType, String cacheKey, ServerCacheType type) {
 
-    if (!tenantContext.isMultiTenant()) {
+    //if (!tenantContext.isMultiTenant()) {
       return new SimpleSupplier(getCacheInternal(beanType, cacheKey, type));
-    }
-    return new TenantSupplier(beanType, cacheKey, type);
+    //}
+    //return new TenantSupplier(beanType, cacheKey, type);
   }
 
   private String key(String cacheKey, ServerCacheType type) {
@@ -62,7 +62,8 @@ class DefaultCacheHolder {
 
   private ServerCache createCache(Class<?> beanType, ServerCacheType type, String key) {
     ServerCacheOptions options = getCacheOptions(beanType, type);
-    return cacheFactory.createCache(type, key, options);
+    
+    return cacheFactory.createCache(type, key, tenantContext, options);
   }
 
   void clearAll() {
@@ -97,28 +98,6 @@ class DefaultCacheHolder {
       return new ServerCacheOptions(tuning).applyDefaults(beanDefault);
     }
     return beanDefault.copy();
-  }
-
-  /**
-   * Multi-Tenant based cache supplier.
-   */
-  private class TenantSupplier implements Supplier<ServerCache> {
-
-    final Class<?> beanType;
-    final String key;
-    final ServerCacheType type;
-
-    private TenantSupplier(Class<?> beanType, String key, ServerCacheType type) {
-      this.beanType = beanType;
-      this.key = key;
-      this.type = type;
-    }
-
-    @Override
-    public ServerCache get() {
-      String fullKey = key + "_" + tenantContext.getTenantId();
-      return getCacheInternal(beanType, fullKey, type);
-    }
   }
 
   private static class SimpleSupplier implements Supplier<ServerCache> {

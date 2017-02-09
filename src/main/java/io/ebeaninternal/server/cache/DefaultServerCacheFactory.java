@@ -1,6 +1,7 @@
 package io.ebeaninternal.server.cache;
 
 import io.ebean.BackgroundExecutor;
+import io.ebean.TenantContext;
 import io.ebean.cache.ServerCache;
 import io.ebean.cache.ServerCacheFactory;
 import io.ebean.cache.ServerCacheOptions;
@@ -29,9 +30,9 @@ class DefaultServerCacheFactory implements ServerCacheFactory {
   }
 
   @Override
-  public ServerCache createCache(ServerCacheType type, String cacheKey, ServerCacheOptions cacheOptions) {
+  public ServerCache createCache(ServerCacheType type, String cacheKey, TenantContext tenantContext, ServerCacheOptions cacheOptions) {
 
-    DefaultServerCache cache = new DefaultServerCache(cacheKey, cacheOptions);
+    DefaultServerCache cache = new DefaultServerCache(cacheKey, tenantContext, cacheOptions);
     if (executor != null) {
       cache.periodicTrim(executor);
     }

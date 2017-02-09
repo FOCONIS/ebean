@@ -50,16 +50,28 @@ public class DefaultCacheHolderTest {
 
     tenantId = "ten_1";
     DefaultServerCache cache = cache(holder, Customer.class, "customer");
-    assertThat(cache.getName()).isEqualTo("customer_ten_1_B");
+    assertThat(cache.getName()).isEqualTo("customer_B");
 
+    cache.put("1", "value-for-tenant1");
+    cache.put("2", "an other value-for-tenant1");
+    
+    assertThat(cache.size()).isEqualTo(2);
+    
     tenantId = "ten_2";
-    DefaultServerCache cache2 = cache(holder, Customer.class, "customer");
-    assertThat(cache2).isNotSameAs(cache);
-    assertThat(cache2.getName()).isEqualTo("customer_ten_2_B");
 
+    cache.put("1", "value-for-tenant2");
+    cache.put("2", "an other value-for-tenant2");
+    
+    assertThat(cache.size()).isEqualTo(4);
+        
+    assertThat(cache.get("1")).isEqualTo("value-for-tenant2");
+    assertThat(cache.get("2")).isEqualTo("an other value-for-tenant2");
+    
+    
     tenantId = "ten_1";
-    DefaultServerCache cache3 = cache(holder, Customer.class, "customer");
-    assertThat(cache3).isSameAs(cache);
+    
+    assertThat(cache.get("1")).isEqualTo("value-for-tenant1");
+    assertThat(cache.get("2")).isEqualTo("an other value-for-tenant1");
   }
 
   @Test

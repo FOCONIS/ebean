@@ -55,14 +55,31 @@ public class DefaultServerCacheManagerTest {
 
     tenantId = "ten1";
     DefaultServerCache cache = cache(multiTenantManager, Customer.class);
-    assertThat(cache.getName()).isEqualTo("org.tests.model.basic.Customer_ten1_B");
+    assertThat(cache.getName()).isEqualTo("org.tests.model.basic.Customer_B");
+    
+    cache.put("1", "tenant1");
 
     tenantId = "ten2";
-    DefaultServerCache cache1 = cache(multiTenantManager, Customer.class);
-    assertThat(cache1).isNotSameAs(cache);
-    assertThat(cache1.getName()).isEqualTo("org.tests.model.basic.Customer_ten2_B");
+  
+    assertThat(cache.get("1")).isNull();
+    
   }
 
+  @Test
+  public void getCache_singleTenant() throws Exception {
+
+    tenantId = "ten1";
+    DefaultServerCache cache = cache(manager, Customer.class);
+    assertThat(cache.getName()).isEqualTo("org.tests.model.basic.Customer_B");
+    
+    cache.put("1", "tenant1");
+
+    tenantId = "ten2";
+  
+    assertThat(cache.get("1")).isEqualTo("tenant1");
+    
+  }
+  
   @Test
   public void isLocalL2Caching() throws Exception {
 
