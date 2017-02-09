@@ -26,11 +26,17 @@ public class CallableQueryCount<T> extends CallableQuery<T> implements Callable<
    */
   @Override
   public Integer call() throws Exception {
+    // switch to tenant at construction, so that all caches are accessed correctly
+    Object old = server.getTenantContext().setTenantId(tenantId);
     try {
-      return server.findCountWithCopy(query, transaction);
+      try {
+        return server.findCountWithCopy(query, transaction);
+      } finally {
+        // cleanup the underlying connection
+        transaction.end();
+      }
     } finally {
-      // cleanup the underlying connection
-      transaction.end();
+      server.getTenantContext().setTenantId(old);
     }
   }
 

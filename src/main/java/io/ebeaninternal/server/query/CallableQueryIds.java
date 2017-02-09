@@ -27,10 +27,15 @@ public class CallableQueryIds<T> extends CallableQuery<T> implements Callable<Li
     // we have already made a copy of the query
     // this way the same query instance is available to the
     // QueryFutureIds (as so has access to the List before it is done)
+    Object old = server.getTenantContext().setTenantId(tenantId);
     try {
-      return server.findIdsWithCopy(query, transaction);
+      try {
+        return server.findIdsWithCopy(query, transaction);
+      } finally {
+        transaction.end();
+      }
     } finally {
-      transaction.end();
+      server.getTenantContext().setTenantId(old);
     }
   }
 

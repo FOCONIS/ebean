@@ -24,11 +24,16 @@ public class CallableQueryList<T> extends CallableQuery<T> implements Callable<L
    */
   @Override
   public List<T> call() throws Exception {
+    Object old = server.getTenantContext().setTenantId(tenantId);
     try {
-      return server.findList(query, transaction);
+      try {
+        return server.findList(query, transaction);
+      } finally {
+        // cleanup the underlying connection
+        transaction.end();
+      }
     } finally {
-      // cleanup the underlying connection
-      transaction.end();
+      server.getTenantContext().setTenantId(old);
     }
   }
 

@@ -18,8 +18,11 @@ abstract class CallableQuery<T> {
 
   protected final Transaction transaction;
 
+  protected final Object tenantId;
+
   CallableQuery(SpiEbeanServer server, SpiQuery<T> query, Transaction t) {
     this.server = server;
+    this.tenantId = server.currentTenantId(); // save tenantId in originating thread
     this.query = query;
     this.transaction = t;
   }
