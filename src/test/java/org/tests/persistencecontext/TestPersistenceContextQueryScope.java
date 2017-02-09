@@ -27,7 +27,7 @@ public class TestPersistenceContextQueryScope extends BaseTestCase {
       EBasicVer bean1 = Ebean.find(EBasicVer.class, bean.getId());
 
       // do an update of the name in the DB
-      SqlUpdate sqlUpdate = Ebean.createSqlUpdate("update e_basicver set name=? where id=?");
+      SqlUpdate sqlUpdate = Ebean.createSqlUpdate("update ${tenant_schema}.e_basicver set name=? where id=?");
       sqlUpdate.setParameter(1, "second");
       sqlUpdate.setParameter(2, bean.getId());
       int rowCount = sqlUpdate.execute();

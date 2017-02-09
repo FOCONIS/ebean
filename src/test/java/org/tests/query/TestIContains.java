@@ -39,7 +39,7 @@ public class TestIContains extends BaseTestCase {
     Ebean.find(Customer.class).where().icontains("name", "Rob").findList();
     Ebean.find(Customer.class).where().icontains("name", "Rob").findList();
 
-    String sql = "select id, status, name from o_customer where lower(name) like :name";
+    String sql = "select id, status, name from ${tenant_schema}.o_customer where lower(name) like :name";
     RawSql parse = RawSqlBuilder.parse(sql).create();
 
     Ebean.find(Customer.class).setRawSql(parse).setParameter("name", "Jim").findList();

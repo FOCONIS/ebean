@@ -17,7 +17,7 @@ public class TestJoinOptOneCascade extends BaseTestCase {
     Query<EOptOneA> query = Ebean.find(EOptOneA.class).fetch("b").fetch("b.c");
 
     query.findList();
-    String sql = query.getGeneratedSql();
+    String sql = sqlOf(query);
 
     assertThat(sql).contains("left join eopt_one_b ");
     assertThat(sql).contains("left join eopt_one_c ");

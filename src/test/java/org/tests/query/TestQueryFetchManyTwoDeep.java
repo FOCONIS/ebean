@@ -31,10 +31,11 @@ public class TestQueryFetchManyTwoDeep extends BaseTestCase {
 
     List<Customer> list = query.findList();
     Assert.assertTrue("has rows", !list.isEmpty());
-    Assert.assertTrue(query.getGeneratedSql().contains("from o_customer t0 "));
-    Assert.assertTrue(query.getGeneratedSql().contains("left join o_order t1 on t1.kcustomer_id = t0.id"));
-    Assert.assertTrue(query.getGeneratedSql().contains("left join o_customer t2 on t2.id = t1.kcustomer_id"));
-    Assert.assertFalse(query.getGeneratedSql().contains("join or_order_ship"));
+    String sql = sqlOf(query);
+    Assert.assertTrue(sql.contains("from o_customer t0 "));
+    Assert.assertTrue(sql.contains("left join o_order t1 on t1.kcustomer_id = t0.id"));
+    Assert.assertTrue(sql.contains("left join o_customer t2 on t2.id = t1.kcustomer_id"));
+    Assert.assertFalse(sql.contains("join or_order_ship"));
 
     //select t0.id c0, t0.status c1, t0.name c2, t0.smallnote c3, t0.anniversary c4, t0.cretime c5, t0.updtime c6, t0.billing_address_id c7, t0.shipping_address_id c8, t1.id c9, t1.status c10, t1.order_date c11, t1.ship_date c12,
     //       t2.name c13, t1.cretime c14, t1.updtime c15, t1.kcustomer_id c16
@@ -49,7 +50,7 @@ public class TestQueryFetchManyTwoDeep extends BaseTestCase {
     Assert.assertEquals(1, secondaryQueries.size());
 
     SpiQuery<?> secondaryQuery = secondaryQueries.get(0);
-    String secondarySql = secondaryQuery.getGeneratedSql();
+    String secondarySql = sqlOf(secondaryQuery);
     Assert.assertTrue(secondarySql.contains("from o_order_detail t0 where t0.id > 0 and (t0.order_id) in"));
 
     // select t0.order_id c0, t0.id c1, t0.order_qty c2, t0.ship_qty c3, t0.unit_price c4, t0.cretime c5, t0.updtime c6, t0.order_id c7, t0.product_id c8
@@ -72,7 +73,7 @@ public class TestQueryFetchManyTwoDeep extends BaseTestCase {
     List<OrderShipment> shipList = shipQuery.findList();
     Assert.assertTrue("has rows", !shipList.isEmpty());
 
-    String generatedSql = shipQuery.getGeneratedSql();
+    String generatedSql = sqlOf(shipQuery);
 
     // select ...
     // from or_order_ship t0
@@ -113,7 +114,7 @@ public class TestQueryFetchManyTwoDeep extends BaseTestCase {
     List<Contact> shipList = query.findList();
     Assert.assertTrue("has rows", !shipList.isEmpty());
 
-    String generatedSql = query.getGeneratedSql();
+    String generatedSql = sqlOf(query);
 
     // select ...
     // from contact t0
@@ -145,7 +146,7 @@ public class TestQueryFetchManyTwoDeep extends BaseTestCase {
     List<Contact> list = query.findList();
     Assert.assertTrue("has rows", !list.isEmpty());
 
-    String generatedSql = query.getGeneratedSql();
+    String generatedSql = sqlOf(query);
 
     // select ...
     // from contact t0

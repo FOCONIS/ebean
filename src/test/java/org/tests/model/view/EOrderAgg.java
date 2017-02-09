@@ -12,7 +12,7 @@ import javax.persistence.OneToOne;
 
 @Cache(enableQueryCache = true)
 @Entity
-@View(name = "order_agg_vw", dependentTables = {"o_order", "o_order_detail"})
+@View(name = "${tenant_schema}.order_agg_vw", dependentTables = {"o_order", "o_order_detail"})
 public class EOrderAgg {
 
   @Id

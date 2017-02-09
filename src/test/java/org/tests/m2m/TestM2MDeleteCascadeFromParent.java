@@ -32,7 +32,7 @@ public class TestM2MDeleteCascadeFromParent extends BaseTestCase {
     c0.getBs().add(b0);
     Ebean.save(c0);
 
-    SqlQuery sqlQuery = Ebean.createSqlQuery("select count(*) as count from mny_b_mny_c");
+    SqlQuery sqlQuery = Ebean.createSqlQuery("select count(*) as count from ${tenant_schema}.mny_b_mny_c");
     SqlRow unique = sqlQuery.findUnique();
     assertEquals(Long.valueOf(1), unique.getLong("count"));
 

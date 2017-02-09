@@ -19,7 +19,7 @@ public class TestMyAdHocSqlSelect extends BaseTestCase {
 
     ResetBasicData.reset();
 
-    String sql = "select order_id, count(*) as detailCount from o_order_detail group by order_id";
+    String sql = "select order_id, count(*) as detailCount from ${tenant_schema}.o_order_detail group by order_id";
 
     RawSql rawSql = RawSqlBuilder
       .parse(sql)
@@ -41,7 +41,7 @@ public class TestMyAdHocSqlSelect extends BaseTestCase {
 
     ResetBasicData.reset();
 
-    String sql = "select order_id, count(*) as detail_count from o_order_detail group by order_id";
+    String sql = "select order_id, count(*) as detail_count from ${tenant_schema}.o_order_detail group by order_id";
 
     RawSql rawSql = RawSqlBuilder
       .parse(sql)

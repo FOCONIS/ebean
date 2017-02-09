@@ -29,7 +29,7 @@ public class TestNativeILikeExpression extends BaseTestCase {
     List<Customer> list = query.findList();
 
     if (expectNative) {
-      assertThat(query.getGeneratedSql()).contains(" from o_customer t0 where t0.name ilike ?");
+      assertThat(query.getGeneratedSql()).contains(" from " + SCHEMA_PREFIX + "o_customer t0 where t0.name ilike ?");
       assertThat(list).isNotEmpty();
     }
   }
