@@ -11,7 +11,7 @@ public class SqlServer2016PlatformTest {
 
   @Test
   public void testHistorySupport() {
-    SqlServerPlatform platform = new SqlServerPlatform();
+    SqlServerPlatform platform = SqlServerPlatform.create();
     assertTrue(platform.getHistorySupport() instanceof SqlServerHistorySupport);
   }
 }

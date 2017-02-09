@@ -18,7 +18,6 @@ public class SqlServerDdl extends PlatformDdl {
     this.inlineUniqueOneToOne = false;
     this.columnSetDefault = "add default";
     this.dropConstraintIfExists = "drop constraint";
-    this.historyDdl = new SqlServerHistoryDdl();
   }
 
   @Override

@@ -13,7 +13,7 @@ import java.sql.Types;
 /**
  * Microsoft SQL Server platform.
  */
-public class SqlServerPlatform extends DatabasePlatform {
+public abstract class SqlServerPlatform extends DatabasePlatform {
 
   public SqlServerPlatform() {
     super();
@@ -53,6 +53,11 @@ public class SqlServerPlatform extends DatabasePlatform {
     dbTypeMap.put(DbType.TIME, new DbPlatformType("time"));
     dbTypeMap.put(DbType.TIMESTAMP, new DbPlatformType("datetime2"));
 
+  }
+
+  public static SqlServerPlatform create() {
+    
+    return new SqlServer2014Platform();
   }
 
 }

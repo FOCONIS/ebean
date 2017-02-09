@@ -17,7 +17,7 @@ public class PlatformDdl_AlterColumnTest {
   PlatformDdl pgDdl = new PostgresPlatform().getPlatformDdl();
   PlatformDdl mysqlDdl = new MySqlPlatform().getPlatformDdl();
   PlatformDdl oraDdl = new OraclePlatform().getPlatformDdl();
-  PlatformDdl sqlServerDdl = new SqlServerPlatform().getPlatformDdl();
+  PlatformDdl sqlServerDdl = SqlServerPlatform.create().getPlatformDdl();
 
   AlterColumn alterNotNull() {
     AlterColumn alterColumn = new AlterColumn();
