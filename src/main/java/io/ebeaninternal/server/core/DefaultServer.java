@@ -28,7 +28,6 @@ import io.ebean.Update;
 import io.ebean.UpdateQuery;
 import io.ebean.ValuePair;
 import io.ebean.Version;
-import io.ebean.bean.BeanCollection;
 import io.ebean.bean.BeanCollectionLoader;
 import io.ebean.bean.CallStack;
 import io.ebean.bean.EntityBean;

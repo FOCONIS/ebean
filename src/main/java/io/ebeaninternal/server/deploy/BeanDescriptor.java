@@ -1649,7 +1649,7 @@ public class BeanDescriptor<T> implements MetaBeanInfo, BeanType<T> {
   public EntityBean createEntityBean(boolean isNew) {
     try {
       EntityBean bean = (EntityBean) prototypeEntityBean._ebean_newInstance();
-
+      bean._ebean_getIntercept().setBeanLoader(ebeanServer);
       if (beanPostConstructListener != null) {
         beanPostConstructListener.autowire(bean); // calls all registered listeners
         beanPostConstructListener.postConstruct(bean); // calls first the @PostConstruct method and then the listeners

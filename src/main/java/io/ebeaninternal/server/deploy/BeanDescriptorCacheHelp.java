@@ -497,7 +497,6 @@ final class BeanDescriptorCacheHelp<T> {
 
     // Not using a loadContext for beans coming out of L2 cache
     // so that means no batch lazy loading for these beans
-    ebi.setBeanLoader(desc.getEbeanServer());
     if (Boolean.TRUE.equals(readOnly)) {
       ebi.setReadOnly(true);
     }
