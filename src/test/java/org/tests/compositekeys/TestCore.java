@@ -31,7 +31,6 @@ public class TestCore extends BaseTestCase {
 
   @Before
   public void setUp() throws Exception {
-    if (isSqlServer()) return;
 
     Ebean.createUpdate(Item.class, "delete from Item").execute();
     Ebean.createUpdate(Region.class, "delete from Region").execute();
@@ -108,7 +107,6 @@ public class TestCore extends BaseTestCase {
 
   @Test
   public void testFind() {
-    if (isSqlServer()) return;
 
     List<Item> items = server().find(Item.class).findList();
 
@@ -132,8 +130,6 @@ public class TestCore extends BaseTestCase {
   @Test
   public void testDoubleLazyLoad() {
 
-    if (isSqlServer()) return;
-
     ItemKey itemKey = new ItemKey();
     itemKey.setCustomer(2);
     itemKey.setItemNumber("ITEM1");
@@ -154,8 +150,6 @@ public class TestCore extends BaseTestCase {
   @Test
   public void testEmbeddedWithOrder() {
 
-    if (isSqlServer()) return;
-
     List<Item> items = server().find(Item.class).order("auditInfo.created asc, type asc").findList();
 
     assertNotNull(items);
@@ -164,8 +158,6 @@ public class TestCore extends BaseTestCase {
 
   @Test
   public void testFindAndOrderByEType() {
-
-    if (isSqlServer()) return;
 
     List<Item> items = server().find(Item.class).order("eType").findList();
 
