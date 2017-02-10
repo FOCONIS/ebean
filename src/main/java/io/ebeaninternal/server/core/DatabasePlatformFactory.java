@@ -6,7 +6,6 @@ import io.ebean.config.dbplatform.DatabasePlatform;
 import io.ebean.config.dbplatform.h2.H2Platform;
 import io.ebean.config.dbplatform.hsqldb.HsqldbPlatform;
 import io.ebean.config.dbplatform.sqlserver.SqlServer2005Platform;
-import io.ebean.config.dbplatform.sqlserver.SqlServer2012Platform;
 import io.ebean.config.dbplatform.sqlserver.SqlServer2014Platform;
 import io.ebean.config.dbplatform.sqlserver.SqlServer2016Platform;
 import io.ebean.config.dbplatform.sqlserver.SqlServerPlatform;
@@ -147,8 +146,8 @@ public class DatabasePlatformFactory {
         return new SqlServer2016Platform();
       } else if (majorVersion == 12) {
         return new SqlServer2014Platform();
-      } else if (majorVersion == 11) {
-        return new SqlServer2012Platform();
+//      } else if (majorVersion == 11) {
+//        return new SqlServer2012Platform();
       } else {
         return new SqlServer2005Platform(); // 2005 and older
       }

@@ -15,6 +15,7 @@ public class SqlServerDdl extends PlatformDdl {
     super(platform);
     this.identitySuffix = " identity(1,1)";
     this.foreignKeyRestrict = "";
+    this.alterTableIfExists = "";
     this.inlineUniqueOneToOne = false;
     this.columnSetDefault = "add default";
     this.dropConstraintIfExists = "drop constraint";
@@ -29,7 +30,16 @@ public class SqlServerDdl extends PlatformDdl {
   public String alterTableDropForeignKey(String tableName, String fkName) {
     return "IF OBJECT_ID('" + fkName + "', 'F') IS NOT NULL " + super.alterTableDropForeignKey(tableName, fkName);
   }
+  
+  @Override
+  public String dropSequence(String sequenceName) {
+    return "IF OBJECT_ID('" + sequenceName + "', 'SO') IS NOT NULL drop sequence " + sequenceName; 
+  }
 
+  @Override
+  public String dropIndex(String indexName, String tableName) {
+    return "IF NOT EXISTS (SELECT name FROM sysindexes WHERE name = '" + indexName + "') drop index " + indexName + " ON " + tableName;
+  }
   /**
    * MsSqlServer specific null handling on unique constraints.
    */
@@ -53,6 +63,29 @@ public class SqlServerDdl extends PlatformDdl {
     return sb.toString();
   }
 
+  /**
+   * Generate and return the create sequence DDL.
+   */
+  @Override
+  public String createSequence(String sequenceName, int initialValue, int allocationSize) {
+
+    StringBuilder sb = new StringBuilder("create sequence ");
+    sb.append(sequenceName);
+    sb.append(" as bigint ");
+    if (initialValue > 1) {
+      sb.append(" start with ").append(initialValue);
+    } else {
+      sb.append(" start with 1 ");
+    }
+    if (allocationSize > 0 && allocationSize != 50) {
+      // at this stage ignoring allocationSize 50 as this is the 'default' and
+      // not consistent with the way Ebean batch fetches sequence values
+      sb.append(" increment by ").append(allocationSize);
+    }
+    sb.append(";");
+    return sb.toString();
+  }
+  
   @Override
   public String alterColumnDefaultValue(String tableName, String columnName, String defaultValue) {
 

@@ -10,10 +10,11 @@ import org.slf4j.LoggerFactory;
 
 import javax.persistence.PersistenceException;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -61,6 +62,17 @@ public abstract class SequenceIdGenerator implements PlatformIdGenerator {
   }
 
   public abstract String getSql(int batchSize);
+
+  /**
+   * Converts the resultset into IDs
+   */
+  protected List<Long> processResult(ResultSet rset, int loadSize) throws SQLException {
+    List<Long> newIds = new ArrayList<>(loadSize);
+    while (rset.next()) {
+      newIds.add(rset.getLong(1));
+   }
+   return newIds;
+  }
 
   /**
    * Returns the sequence name.
@@ -155,7 +167,7 @@ public abstract class SequenceIdGenerator implements PlatformIdGenerator {
     
     protected void loadMoreIds(final int numberToLoad, Transaction t) {
 
-      ArrayList<Long> newIds = getMoreIds(numberToLoad, t);
+      List<Long> newIds = getMoreIds(numberToLoad, t);
 
       if (logger.isDebugEnabled()) {
         logger.debug("... seq:" + seqName + " loaded:" + numberToLoad + " tenant: " + tenantId + " ids:" + newIds);
@@ -173,40 +185,37 @@ public abstract class SequenceIdGenerator implements PlatformIdGenerator {
      * Get more Id's by executing a query and reading the Id's returned.
      */
     @SuppressWarnings("null")
-    protected ArrayList<Long> getMoreIds(int loadSize, Transaction t) {
+    protected List<Long> getMoreIds(int loadSize, Transaction t) {
 
       String sql = getSql(loadSize);
 
       
       sql = tenantContext.translateSql(sql, tenantId); // make SQL tenant aware
  
-      ArrayList<Long> newIds = new ArrayList<>(loadSize);
+      
 
       boolean useTxnConnection = t != null;
 
       Connection c = null;
-      PreparedStatement pstmt = null;
+      Statement pstmt = null;
       ResultSet rset = null;
       try {
         c = useTxnConnection ? t.getConnection() : dataSource.dataSource(tenantId).getConnection();
 
-        pstmt = c.prepareStatement(sql);
-        rset = pstmt.executeQuery();
-        while (rset.next()) {
-          newIds.add(rset.getLong(1));
-        }
+        pstmt = c.createStatement();
+        rset = pstmt.executeQuery(sql);
+
+        List<Long> newIds = processResult(rset, loadSize);
         if (newIds.isEmpty()) {
           throw new PersistenceException("Always expecting more than 1 row from " + sql);
         }
-
         return newIds;
-
       } catch (SQLException e) {
         if (e.getMessage().contains("Database is already closed")) {
           String msg = "Error getting SEQ when DB shutting down " + e.getMessage();
           logger.info(msg);
           System.out.println(msg);
-          return newIds;
+          return new ArrayList<>();
         } else {
           throw new PersistenceException("Error getting sequence nextval", e);
         }
@@ -222,7 +231,7 @@ public abstract class SequenceIdGenerator implements PlatformIdGenerator {
     /**
      * Close the JDBC resources.
      */
-    protected void closeResources(Connection c, PreparedStatement pstmt, ResultSet rset) {
+    protected void closeResources(Connection c, Statement pstmt, ResultSet rset) {
       try {
         if (rset != null) {
           rset.close();
