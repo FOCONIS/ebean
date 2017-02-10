@@ -57,8 +57,10 @@ public class SqlServerDdl extends PlatformDdl {
       sb.append(columns[i]);
     }
     sb.append(") where");
+    String sep = " ";
     for (String column : columns) {
-      sb.append(" ").append(column).append(" is not null");
+      sb.append(sep).append(column).append(" is not null");
+      sep = " and ";
     }
     return sb.toString();
   }

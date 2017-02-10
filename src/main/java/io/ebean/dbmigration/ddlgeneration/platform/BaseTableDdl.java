@@ -54,6 +54,8 @@ public class BaseTableDdl implements TableDdl {
    * Used when unique constraints specifically for OneToOne can't be created normally (MsSqlServer).
    */
   protected List<Column> externalUnique = new ArrayList<>();
+  
+  protected List<UniqueConstraint> externalCompoundUnique = new ArrayList<>();
 
   // counters used when constraint names are truncated due to maximum length
   // and these counters are used to keep the constraint name unique
@@ -85,6 +87,7 @@ public class BaseTableDdl implements TableDdl {
   protected void reset() {
     indexSet.clear();
     externalUnique.clear();
+    externalCompoundUnique.clear();
     countCheck = 0;
     countUnique = 0;
     countForeignKey = 0;
@@ -205,6 +208,18 @@ public class BaseTableDdl implements TableDdl {
     for (Column col : externalUnique) {
       String uqName = col.getUniqueOneToOne();
       String[] columnNames = {col.getName()};
+      write.apply()
+        .append(platformDdl.alterTableAddUniqueConstraint(tableName, uqName, columnNames))
+        .endOfStatement();
+
+      write.dropAllForeignKeys()
+        .append(platformDdl.dropIndex(uqName, tableName))
+        .endOfStatement();
+    }
+    
+    for (UniqueConstraint constraint : externalCompoundUnique) {
+      String uqName = constraint.getName();
+      String[] columnNames = StringHelper.delimitedToArray(constraint.getColumnNames(), ",", false);
       write.apply()
         .append(platformDdl.alterTableAddUniqueConstraint(tableName, uqName, columnNames))
         .endOfStatement();
@@ -404,14 +419,19 @@ public class BaseTableDdl implements TableDdl {
   }
 
   protected void writeCompoundUniqueConstraints(DdlBuffer apply, CreateTable createTable) throws IOException {
-
+    
     List<UniqueConstraint> uniqueConstraints = createTable.getUniqueConstraint();
+    boolean inlineUniqueCompound = platformDdl.isInlineUniqueOneToOne();
     for (UniqueConstraint uniqueConstraint : uniqueConstraints) {
-      String uqName = uniqueConstraint.getName();
-      String[] columns = toColumnNamesSplit(uniqueConstraint.getColumnNames());
-      apply.append(",").newLine();
-      apply.append("  constraint ").append(uqName).append(" unique");
-      appendColumns(columns, apply);
+       if (inlineUniqueCompound) {
+        String uqName = uniqueConstraint.getName();
+        String[] columns = toColumnNamesSplit(uniqueConstraint.getColumnNames());
+        apply.append(",").newLine();
+        apply.append("  constraint ").append(uqName).append(" unique");
+        appendColumns(columns, apply);
+      } else {
+        externalCompoundUnique.add(uniqueConstraint);
+      }
     }
   }
 

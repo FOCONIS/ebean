@@ -1,7 +1,6 @@
 package io.ebean.config.dbplatform.sqlserver;
 
 import io.ebean.BackgroundExecutor;
-import io.ebean.PersistBatch;
 import io.ebean.Platform;
 import io.ebean.TenantContext;
 import io.ebean.config.TenantDataSourceProvider;
@@ -22,9 +21,6 @@ public abstract class SqlServerPlatform extends DatabasePlatform {
   public SqlServerPlatform() {
     super();
     this.platform = Platform.SQLSERVER;
-    // effectively disable persistBatchOnCascade mode for SQL Server
-    // due to lack of support for getGeneratedKeys in batch mode
-    this.persistBatchOnCascade = PersistBatch.NONE;
     this.idInExpandedForm = true;
     this.selectCountWithAlias = true;
     this.sqlLimiter = new SqlServerSqlLimiter();
