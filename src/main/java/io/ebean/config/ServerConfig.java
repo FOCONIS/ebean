@@ -2832,18 +2832,37 @@ public class ServerConfig {
   public DataSource runDbMigration(DataSource dataSource) {
     if (migrationConfig.isRunMigration()) {
       if (tenantMode == TenantMode.SCHEMA) {
-
+        
+        if (migrationConfig.getRunPlaceholderMap() == null) {
+          migrationConfig.setRunPlaceholderMap(new HashMap<>());
+        }
+       
         String path = migrationConfig.migrationPath;
+        Map<String, String> original = migrationConfig.getRunPlaceholderMap();
         try {
+          Map<String, String> params = new HashMap<>();
+          if (original != null) {
+            params.putAll(original);
+          }
+          if (tenantSharedSchema != null) {
+            params.put("shared_schema", tenantSharedSchema);
+          }
+          migrationConfig.setRunPlaceholderMap(params);
+          
+          // run shared migration
           migrationConfig.migrationPath = path + "/" + DbSchemaType.SHARED.name().toLowerCase();
-
+          
           runDbMigration(dataSource, getTenantSharedSchema());
 
           migrationConfig.migrationPath = path + "/" + DbSchemaType.TENANT.name().toLowerCase();
 
-          getSchemas(dataSource).forEach(schema->runDbMigration(dataSource, schema));
+          getSchemas(dataSource).forEach(schema-> {
+            params.put("tenant_schema", schema);
+            runDbMigration(dataSource, schema);
+          });
         } finally {
           migrationConfig.migrationPath = path; // restore path
+          migrationConfig.setRunPlaceholderMap(original);
         }
       } else {
         return runDbMigration(dataSource, null);
