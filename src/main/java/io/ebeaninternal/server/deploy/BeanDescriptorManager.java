@@ -4,6 +4,7 @@ import io.ebean.BackgroundExecutor;
 import io.ebean.Model;
 import io.ebean.RawSqlBuilder;
 import io.ebean.TenantContext;
+import io.ebean.annotation.CustomAnnotationParser;
 import io.ebean.bean.BeanCollection;
 import io.ebean.bean.EntityBean;
 import io.ebean.config.EncryptKey;
@@ -327,15 +328,27 @@ public class BeanDescriptorManager implements BeanDescriptorMap {
     try {
       createListeners();
       readEntityDeploymentInitial();
+      runCustomDeploy(CustomAnnotationParser.Stage.INITIAL); 
+      
       readXmlMapping();
+      runCustomDeploy(CustomAnnotationParser.Stage.XML_MAPPING);
+      
       readEmbeddedDeployment();
+      runCustomDeploy(CustomAnnotationParser.Stage.EMBEDDED_DEPLOYMENT);
+      
       readEntityBeanTable();
+      runCustomDeploy(CustomAnnotationParser.Stage.BEAN_TABLE);
+
       readEntityDeploymentAssociations();
+      runCustomDeploy(CustomAnnotationParser.Stage.DEPLOYMENT_ASSOCIATIONS);
+
       readInheritedIdGenerators();
-      runCustomDeploy(); 
+      runCustomDeploy(CustomAnnotationParser.Stage.ID_GENERATORS);
+      
       // creates the BeanDescriptors
       readEntityRelationships();
-
+      runCustomDeploy(CustomAnnotationParser.Stage.RELATIONSHIPS);
+      
       List<BeanDescriptor<?>> list = new ArrayList<>(descMap.values());
       Collections.sort(list, beanDescComparator);
       immutableDescriptorList = Collections.unmodifiableList(list);
@@ -784,10 +797,11 @@ public class BeanDescriptorManager implements BeanDescriptorMap {
     }
   }
 
-  private void runCustomDeploy() {
+  private void runCustomDeploy(CustomAnnotationParser.Stage stage) {
     for (Map.Entry<Class<?>, DeployBeanInfo<?>> entry : deployInfoMap.entrySet()) {
       new AnnotationCustomDeploy(entry.getValue(), 
-          serverConfig.getClassLoadConfig().isJavaxValidationAnnotationsPresent()).parse();
+          serverConfig.getClassLoadConfig().isJavaxValidationAnnotationsPresent(),
+          stage).parse();
     }
   }
   /**

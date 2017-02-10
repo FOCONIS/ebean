@@ -1,9 +1,15 @@
 package io.ebean.annotation;
 
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
+
+import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
+import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+
+import javax.validation.constraints.Size;
 
 import io.ebeaninternal.server.deploy.parse.AnnotationParser;
 
@@ -17,11 +23,30 @@ import io.ebeaninternal.server.deploy.parse.AnnotationParser;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
+@Repeatable(CustomAnnotationParser.List.class)
 public @interface CustomAnnotationParser {
 
+  public enum Stage {
+    INITIAL, XML_MAPPING, EMBEDDED_DEPLOYMENT, BEAN_TABLE, DEPLOYMENT_ASSOCIATIONS, ID_GENERATORS, RELATIONSHIPS
+  }
   /**
    * The CustomDeployParser classes
    */
-  Class<? extends AnnotationParser>[] value();
+  Class<? extends AnnotationParser> value();
+  
+  Stage stage() default Stage.ID_GENERATORS;
+  
+  /**
+   * Defines several {@link CustomAnnotationParser} annotations on the same element.
+   *
+   * @see Size
+   */
+  @Target({ ElementType.TYPE })
+  @Retention(RUNTIME)
+  @Documented
+  @interface List {
+
+    CustomAnnotationParser[] value();
+  }
 
 }

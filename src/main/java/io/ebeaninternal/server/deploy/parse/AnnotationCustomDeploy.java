@@ -15,15 +15,16 @@ import java.util.Set;
 public class AnnotationCustomDeploy extends AnnotationParser {
 
   private static final Logger logger = LoggerFactory.getLogger(AnnotationCustomDeploy.class);
+  private final CustomAnnotationParser.Stage stage;
 
 
 
   /**
    * Create for normal early parse of class level annotations.
    */
-  public AnnotationCustomDeploy(DeployBeanInfo<?> info, boolean validationAnnotations) {
+  public AnnotationCustomDeploy(DeployBeanInfo<?> info, boolean validationAnnotations, CustomAnnotationParser.Stage stage) {
     super(info, validationAnnotations);
-
+    this.stage = stage;
   }
 
 
@@ -35,8 +36,8 @@ public class AnnotationCustomDeploy extends AnnotationParser {
     Set<CustomAnnotationParser> customParserAnnotations = AnnotationBase.findAnnotations(descriptor.getBeanType(), CustomAnnotationParser.class);
     Set<Class<? extends AnnotationParser>> parserClasses = new HashSet<>();
     for (CustomAnnotationParser customParserAnnotation : customParserAnnotations) {
-      for (Class<? extends AnnotationParser> annotationParserClass : customParserAnnotation.value()) {
-        parserClasses.add(annotationParserClass);
+      if (customParserAnnotation.stage().equals(stage)) {
+        parserClasses.add(customParserAnnotation.value());
       }
     }
     for (Class<? extends AnnotationParser> annotationParserClass: parserClasses) {
