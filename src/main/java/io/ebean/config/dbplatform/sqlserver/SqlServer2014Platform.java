@@ -6,6 +6,6 @@ package io.ebean.config.dbplatform.sqlserver;
 public class SqlServer2014Platform extends SqlServerPlatform {
 
   public SqlServer2014Platform() {
-    
+    this.historySupport = new SqlServer2014HistorySupport();
   }
 }

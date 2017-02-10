@@ -18,6 +18,11 @@ import java.sql.Types;
  */
 public abstract class SqlServerPlatform extends DatabasePlatform {
 
+  public static final int SQLSERVER_2016 = 2016;
+  public static final int SQLSERVER_2014 = 2014;
+  private static int version = SQLSERVER_2014;
+
+
   public SqlServerPlatform() {
     super();
     this.platform = Platform.SQLSERVER;
@@ -26,7 +31,6 @@ public abstract class SqlServerPlatform extends DatabasePlatform {
     this.sqlLimiter = new SqlServerSqlLimiter();
     this.basicSqlLimiter = new SqlServerBasicSqlLimiter();
     this.platformDdl = new SqlServerDdl(this);
-    this.historySupport = new SqlServerHistorySupport();
     
     // Not using getGeneratedKeys as instead we will
     // batch load sequences which enables JDBC batch execution
@@ -58,14 +62,7 @@ public abstract class SqlServerPlatform extends DatabasePlatform {
 
   }
 
-  /**
-   * Returns an instance of this platform.
-   */
-  public static SqlServerPlatform create() {
-    // FIXME: make this switchable!
-    //return new SqlServer2016Platform();
-    return new SqlServer2014Platform();
-  }
+
 
   
   /**
@@ -76,5 +73,21 @@ public abstract class SqlServerPlatform extends DatabasePlatform {
       TenantDataSourceProvider ds, String seqName, int batchSize, boolean perTenant, TenantContext tenantContext) {
 
     return new SqlServerSequenceIdGenerator(be, ds, seqName, batchSize, perTenant, tenantContext);
+  }
+
+  /**
+   * Returns an instance of this platform.
+   */
+  public static SqlServerPlatform create() {
+    switch (version) {
+    case SQLSERVER_2016:
+      return new SqlServer2016Platform();
+    case SQLSERVER_2014:
+      return new SqlServer2014Platform();
+    }
+    throw new IllegalStateException("Version " + version + " is not a supported SqlServer version");
+  }
+  public static void setVersion(int v) {
+     version = v;
   }
 }

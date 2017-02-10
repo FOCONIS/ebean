@@ -7,7 +7,7 @@ import io.ebean.config.dbplatform.DbStandardHistorySupport;
  *
  * @author Vilmos Nagy  <vilmos.nagy@outlook.com>
  */
-public class SqlServerHistorySupport extends DbStandardHistorySupport {
+public class SqlServer2016HistorySupport extends DbStandardHistorySupport {
 
     /**
      * Return the ' as of timestamp ?' clause appended after the table name.

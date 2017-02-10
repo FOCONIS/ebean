@@ -64,7 +64,7 @@ public class TestQuerySingleAttribute extends BaseTestCase {
     if (isSqlServer()) {
       assertThat(sqlOf(query)).contains("select distinct top 100 t0.name from o_customer t0 where t0.status = ?  order by t0.name");
     } else {
-      assertThat(sqlOf(query)).contains("select distinct t0.name from o_customer t0 where t0.status = ?  order by t0.name ");
+      assertThat(sqlOf(query)).contains("select distinct t0.name from o_customer t0 where t0.status = ?  order by t0.name limit 100");
     }
   }
 
@@ -143,8 +143,11 @@ public class TestQuerySingleAttribute extends BaseTestCase {
       .setMaxRows(100);
 
     List<String> cities = query.findSingleAttributeList();
-
-    assertThat(sqlOf(query)).contains("select distinct t1.city from o_customer t0 left join o_address t1 on t1.id = t0.billing_address_id");
+    if (isSqlServer()) {
+      assertThat(sqlOf(query)).contains("select distinct top 100 t1.city from o_customer t0 left join o_address t1 on t1.id = t0.billing_address_id");
+    } else {
+      assertThat(sqlOf(query)).contains("select distinct t1.city from o_customer t0 left join o_address t1 on t1.id = t0.billing_address_id");
+    }
     assertThat(cities).isNotNull();
   }
   
@@ -159,8 +162,11 @@ public class TestQuerySingleAttribute extends BaseTestCase {
       .setMaxRows(100);
 
     List<String> cities = query.findSingleAttributeList();
-
-    assertThat(sqlOf(query)).contains("select distinct t0.more from rawinherit_parent t0 where t0.type = 'A'  limit 100");
+    if (isSqlServer()) {
+      assertThat(sqlOf(query)).contains("select distinct top 100 t0.more from rawinherit_parent t0 where t0.type = 'A'");
+    } else {
+      assertThat(sqlOf(query)).contains("select distinct t0.more from rawinherit_parent t0 where t0.type = 'A'  limit 100");
+    }
     assertThat(cities).isNotNull();
   }
 

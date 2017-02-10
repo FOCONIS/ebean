@@ -267,6 +267,10 @@ class CQueryBuilder {
     SqlLimitResponse s = buildSql(sqlSelect, request, predicates, sqlTree);
     String sql = s.getSql();
     if (hasMany || query.isRawSql()) {
+      int pos = sql.indexOf(" order by "); // raw sql - mssql does not like order by in subqueries
+      if (pos != -1) {
+        sql = sql.substring(0, pos);
+      }
       sql = "select count(*) from ( " + sql + ")";
       if (selectCountWithAlias) {
         sql += " as c";

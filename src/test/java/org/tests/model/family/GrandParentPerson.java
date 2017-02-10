@@ -38,7 +38,7 @@ public class GrandParentPerson extends InheritablePerson {
 
 
   @ManyToOne(optional = true, fetch = FetchType.EAGER)
-  @Formula(select = "f2.id", join = "left join ${tenant_schema}.e_basic f2 on f2.name = ${ta}.family_name")
+  @Formula(select = "f3.id", join = "left join ${tenant_schema}.e_basic f3 on f3.name = ${ta}.family_name")
   private EBasic basicSameName;
   
   
