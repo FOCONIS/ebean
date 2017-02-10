@@ -1,10 +1,11 @@
 package io.ebean.dbmigration;
 
 import io.ebean.Transaction;
-import io.ebean.config.AvailableTenantsProvider;
 import io.ebean.config.ServerConfig;
 import io.ebean.config.TenantMode;
 import io.ebean.config.TenantSchemaProvider;
+import io.ebean.config.tenant.TenantEntity;
+import io.ebean.config.tenant.TenantRepository;
 import io.ebean.dbmigration.model.CurrentModel;
 import io.ebean.util.TenantUtil;
 import io.ebeaninternal.api.SpiEbeanServer;
@@ -54,7 +55,7 @@ public class DdlGenerator {
   private final boolean createOnly;
   private final String sharedSchema;
   private final TenantMode tenantMode;
-  private final AvailableTenantsProvider tenants;
+  private final TenantRepository tenantRepository;
   private final TenantSchemaProvider tenantSchemaProvider;
   
   // cache for reuse...
@@ -82,9 +83,9 @@ public class DdlGenerator {
     this.server = server;
     this.generateDdl = serverConfig.isDdlGenerate();
     this.createOnly = serverConfig.isDdlCreateOnly();
-    this.tenants = serverConfig.getAvailableTenantsProvider();
+    this.tenantRepository = serverConfig.getTenantRepository();
     this.tenantSchemaProvider = serverConfig.getTenantSchemaProvider();
-    if (serverConfig.getTenantMode().isDynamicDataSource() && serverConfig.isDdlRun() && tenants == null) {
+    if (serverConfig.getTenantMode().isDynamicDataSource() && serverConfig.isDdlRun() && tenantRepository == null) {
       log.warn("DDL can't be run on startup with TenantMode " + serverConfig.getTenantMode());
       this.runDdl = false;
     } else {
@@ -134,24 +135,25 @@ public class DdlGenerator {
     try {
       runInitSql();
       if (tenantMode == TenantMode.SCHEMA) {
-        
+        runInitTenats();
         Transaction transaction = createTransaction();
         Connection connection = transaction.getConnection();
         Collection<String> tenantSchemas = new ArrayList<>();
         Set<String> existingSchemas = new HashSet<>();
         try {
-          Collection<Object> tenantIds = tenants.getTenantIds(connection);
+          
+          List<TenantEntity> tenants = tenantRepository.getTenants(connection);
           DatabaseMetaData md = connection.getMetaData();
           ResultSet res = md.getSchemas();
           while (res.next()) {
               existingSchemas.add(res.getString(1));
           }
-          for (Object tenantId : tenantIds) {
-            String tenantSchema = tenantSchemaProvider.schema(tenantId);
+          for (TenantEntity tenant : tenants) {
+            String tenantSchema = tenantSchemaProvider.schema(tenant.getId());
             tenantSchemas.add(tenantSchema);
             if (!existingSchemas.contains(tenantSchema)) {
               Statement stmt = connection.createStatement();
-              log.info("Creating schema {} for tenant {}", tenantSchema, tenantId);
+              log.info("Creating schema {} for tenant {}", tenantSchema, tenant);
               stmt.execute("CREATE SCHEMA " + tenantSchema);
             }
           } 
@@ -190,6 +192,20 @@ public class DdlGenerator {
       throw new RuntimeException(msg, e);
     }
   }
+
+  private void runInitTenats() {
+    Transaction transaction = createTransaction();
+    Connection connection = transaction.getConnection();
+    try {
+      tenantRepository.init(connection);
+      transaction.commit();
+    } catch (SQLException e) {
+      throw new PersistenceException("Failed to init tenants", e);
+    } finally {
+      transaction.end();
+    }
+  }
+
 
   /**
    * Execute all the DDL statements in the script.

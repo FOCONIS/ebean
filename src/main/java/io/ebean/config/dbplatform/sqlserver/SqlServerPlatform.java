@@ -1,11 +1,15 @@
 package io.ebean.config.dbplatform.sqlserver;
 
+import io.ebean.BackgroundExecutor;
 import io.ebean.PersistBatch;
 import io.ebean.Platform;
+import io.ebean.TenantContext;
+import io.ebean.config.TenantDataSourceProvider;
 import io.ebean.config.dbplatform.DatabasePlatform;
 import io.ebean.config.dbplatform.DbPlatformType;
 import io.ebean.config.dbplatform.DbType;
 import io.ebean.config.dbplatform.IdType;
+import io.ebean.config.dbplatform.PlatformIdGenerator;
 import io.ebean.dbmigration.ddlgeneration.platform.SqlServerDdl;
 
 import java.sql.Types;
@@ -27,9 +31,12 @@ public abstract class SqlServerPlatform extends DatabasePlatform {
     this.basicSqlLimiter = new SqlServerBasicSqlLimiter();
     this.platformDdl = new SqlServerDdl(this);
     this.historySupport = new SqlServerHistorySupport();
-    this.dbIdentity.setIdType(IdType.IDENTITY);
-    this.dbIdentity.setSupportsGetGeneratedKeys(true);
-    this.dbIdentity.setSupportsIdentity(true);
+    
+    // Not using getGeneratedKeys as instead we will
+    // batch load sequences which enables JDBC batch execution
+    dbIdentity.setSupportsGetGeneratedKeys(false);
+    dbIdentity.setIdType(IdType.SEQUENCE);
+    dbIdentity.setSupportsSequence(true);
 
     this.openQuote = "[";
     this.closeQuote = "]";
@@ -55,9 +62,23 @@ public abstract class SqlServerPlatform extends DatabasePlatform {
 
   }
 
+  /**
+   * Returns an instance of this platform.
+   */
   public static SqlServerPlatform create() {
-    
+    // FIXME: make this switchable!
+    //return new SqlServer2016Platform();
     return new SqlServer2014Platform();
   }
 
+  
+  /**
+   * Create a Postgres specific sequence IdGenerator.
+   */
+  @Override
+  public PlatformIdGenerator createSequenceIdGenerator(BackgroundExecutor be,
+      TenantDataSourceProvider ds, String seqName, int batchSize, boolean perTenant, TenantContext tenantContext) {
+
+    return new SqlServerSequenceIdGenerator(be, ds, seqName, batchSize, perTenant, tenantContext);
+  }
 }

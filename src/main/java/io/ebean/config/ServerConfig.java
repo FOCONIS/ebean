@@ -12,6 +12,7 @@ import io.ebean.cache.ServerCachePlugin;
 import io.ebean.config.dbplatform.DatabasePlatform;
 import io.ebean.config.dbplatform.DbEncrypt;
 import io.ebean.config.dbplatform.DbType;
+import io.ebean.config.tenant.TenantRepository;
 import io.ebean.dbmigration.DbSchemaType;
 import io.ebean.dbmigration.MigrationRunner;
 import io.ebean.event.BeanFindController;
@@ -28,7 +29,6 @@ import io.ebean.event.changelog.ChangeLogRegister;
 import io.ebean.event.readaudit.ReadAuditLogger;
 import io.ebean.event.readaudit.ReadAuditPrepare;
 import io.ebean.meta.MetaInfoManager;
-import io.ebeaninternal.server.core.AvailableTenantsByQuery;
 
 import org.avaje.datasource.DataSourceConfig;
 
@@ -134,7 +134,7 @@ public class ServerConfig {
 
   private TenantDataSourceProvider tenantDataSourceProvider;
 
-  private AvailableTenantsProvider availableTenantsProvider;
+  private TenantRepository tenantRepository;
   
   private TenantSchemaProvider tenantSchemaProvider;
 
@@ -683,15 +683,15 @@ public class ServerConfig {
   /**
    * Get the availableTenantProvider.
    */
-  public AvailableTenantsProvider getAvailableTenantsProvider() {
-    return availableTenantsProvider;
+  public TenantRepository getTenantRepository() {
+    return tenantRepository;
   }
   
   /**
    * Sets an availableTenantsProvider that can provide the availabe tenants.
    */
-  public void setAvailableTenantsProvider(AvailableTenantsProvider availableTenantsProvider) {
-    this.availableTenantsProvider = availableTenantsProvider;
+  public void setTenantRepository(TenantRepository tenantRepository) {
+    this.tenantRepository = tenantRepository;
   }
   
   /**
@@ -2631,16 +2631,21 @@ public class ServerConfig {
     }
 
     tenantSharedSchema = p.get("tenant.sharedSchema");
-    String tenantQueryString = p.get("tenant.queryString");
-    if (tenantQueryString != null) {
-      availableTenantsProvider = new AvailableTenantsByQuery(tenantQueryString);
-      String tenantSchemaPrefix = p.get("tenant.schemaPrefix");
-      if (tenantSchemaPrefix != null) {
-        tenantSchemaProvider = tenantId -> tenantId == null ? tenantSharedSchema : (tenantSchemaPrefix + tenantId);
-      } else {
-        tenantSchemaProvider = tenantId -> tenantId == null ? tenantSharedSchema : String.valueOf(tenantId);
+
+    if (tenantRepository == null) {
+      tenantRepository = createInstance(p, TenantRepository.class, "tenant.repository", null);
+      if (tenantRepository != null) {
+        tenantRepository.configure(databasePlatform, p.withPrefix("tenantRepository"));
       }
     }
+
+    String tenantSchemaPrefix = p.get("tenant.schemaPrefix");
+    if (tenantSchemaPrefix != null) {
+      tenantSchemaProvider = tenantId -> tenantId == null ? tenantSharedSchema : (tenantSchemaPrefix + tenantId);
+    } else {
+      tenantSchemaProvider = tenantId -> tenantId == null ? tenantSharedSchema : String.valueOf(tenantId);
+    }
+    
     currentTenantProvider = createInstance(p, CurrentTenantProvider.class, "tenant.currentTenantProvider", currentTenantProvider);
     tenantDataSourceProvider = createInstance(p, TenantDataSourceProvider.class, "tenant.dataSourceProvider", tenantDataSourceProvider);
     if (tenantDataSourceProvider == null) {
@@ -2809,7 +2814,10 @@ public class ServerConfig {
     try {
       Connection conn = dataSource.getConnection();
       try {
-        return availableTenantsProvider.getTenantIds(conn).stream().map(tenantSchemaProvider::schema).collect(Collectors.toList());
+        return tenantRepository.getTenants(conn)
+            .stream()
+            .map(tenant -> tenantSchemaProvider.schema(tenant.getId()))
+            .collect(Collectors.toList());
       } finally {
         conn.close();
       }
