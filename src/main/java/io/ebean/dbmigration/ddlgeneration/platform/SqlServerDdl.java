@@ -28,7 +28,12 @@ public abstract class SqlServerDdl extends PlatformDdl {
 
   @Override
   public String alterTableDropForeignKey(String tableName, String fkName) {
-    return "IF OBJECT_ID('" + fkName + "', 'F') IS NOT NULL " + super.alterTableDropForeignKey(tableName, fkName);
+    int pos = tableName.lastIndexOf('.');
+    String objectId = fkName;
+    if (pos != -1) {
+      objectId = tableName.substring(0, pos + 1) + fkName;
+    } 
+    return "IF OBJECT_ID('" + objectId + "', 'F') IS NOT NULL " + super.alterTableDropForeignKey(tableName, fkName);
   }
   
   @Override

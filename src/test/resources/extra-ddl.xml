@@ -22,10 +22,9 @@
   </ddl-script>
 
   <ddl-script name="order views mssql" platforms="sqlserver" perTenant="true">
-    IF EXISTS (SELECT TABLE_NAME FROM INFORMATION_SCHEMA.VIEWS WHERE TABLE_NAME = 'order_agg_vw')
-      DROP VIEW order_agg_vw;
+    IF OBJECT_ID('${tenant_schema}.order_agg_vw', 'V') IS NOT NULL DROP VIEW ${tenant_schema}.order_agg_vw;
 
-    create view order_agg_vw as
+    create view ${tenant_schema}.order_agg_vw as
       select d.order_id, sum(d.order_qty * d.unit_price) as order_total,
              sum(d.ship_qty * d.unit_price) as ship_total
       from ${tenant_schema}.o_order_detail d
