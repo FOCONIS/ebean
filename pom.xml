@@ -23,9 +23,6 @@
   <profiles>
   	<profile>
   		<id>sqlserver</id>
-  		<properties>
-  			<datasource.default>ms</datasource.default>
-  		</properties>
   		<dependencies>
 			<dependency>
 				<groupId>com.microsoft.sqlserver</groupId>
@@ -94,7 +91,7 @@
     <dependency>
       <groupId>io.ebean</groupId>
       <artifactId>ebean-dbmigration</artifactId>
-      <version>10.1.3</version>
+      <version>10.1.4-SNAPSHOT</version>
     </dependency>
 
     <dependency>
