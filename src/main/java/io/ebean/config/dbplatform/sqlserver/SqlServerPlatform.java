@@ -9,7 +9,6 @@ import io.ebean.config.dbplatform.DbPlatformType;
 import io.ebean.config.dbplatform.DbType;
 import io.ebean.config.dbplatform.IdType;
 import io.ebean.config.dbplatform.PlatformIdGenerator;
-import io.ebean.dbmigration.ddlgeneration.platform.SqlServerDdl;
 
 import java.sql.Types;
 
@@ -30,7 +29,7 @@ public abstract class SqlServerPlatform extends DatabasePlatform {
     this.selectCountWithAlias = true;
     this.sqlLimiter = new SqlServerSqlLimiter();
     this.basicSqlLimiter = new SqlServerBasicSqlLimiter();
-    this.platformDdl = new SqlServerDdl(this);
+
     
     // Not using getGeneratedKeys as instead we will
     // batch load sequences which enables JDBC batch execution

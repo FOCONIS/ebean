@@ -9,7 +9,7 @@ import java.io.IOException;
 /**
  * MS SQL Server platform specific DDL.
  */
-public class SqlServerDdl extends PlatformDdl {
+public abstract class SqlServerDdl extends PlatformDdl {
 
   public SqlServerDdl(DatabasePlatform platform) {
     super(platform);
