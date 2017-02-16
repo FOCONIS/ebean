@@ -130,8 +130,8 @@ public class TestQuerySingleAttribute extends BaseTestCase {
     query2.findList();
     assertThat(sqlOf(query2, 1)).contains("select t0.id, t0.name from o_customer t0");
   }
-  
-  
+
+
   @Test
   public void distinctWithElPath() {
 
@@ -150,7 +150,23 @@ public class TestQuerySingleAttribute extends BaseTestCase {
     }
     assertThat(cities).isNotNull();
   }
-  
+
+  @Test
+  public void testDistinctWithElPathOnId(){
+    Query<Customer> query = Ebean.find(Customer.class)
+      .setDistinct(true)
+      .fetchProperties("id")
+      .setMaxRows(100);
+
+    List<String> ids = query.findSingleAttributeList();
+    if (isSqlServer()) {
+      assertThat(sqlOf(query)).contains("select distinct top 100 t0.id from o_customer t0");
+    } else {
+      assertThat(sqlOf(query)).contains("select distinct t0.id from o_customer t0 limit 100");
+    }
+    assertThat(ids).isNotNull();
+  }
+
   @Test
   public void distinctWithKind() {
 
