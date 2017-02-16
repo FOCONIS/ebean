@@ -752,4 +752,9 @@ public interface SpiQuery<T> extends Query<T> {
    * Simplify nested expression lists where possible.
    */
   void simplifyExpressions();
+
+  /**
+   * Return true if the query uses custom specified fetchProperties
+   */
+  boolean isCustomFetchProperties();
 }

@@ -249,6 +249,7 @@ public class DefaultOrmQuery<T> implements SpiQuery<T> {
   private OrmUpdateProperties updateProperties;
 
   private String nativeSql;
+  private boolean customFetchProperties;
 
   public DefaultOrmQuery(BeanDescriptor<T> desc, EbeanServer server, ExpressionFactory expressionFactory) {
     this.beanDescriptor = desc;
@@ -1470,6 +1471,11 @@ public class DefaultOrmQuery<T> implements SpiQuery<T> {
   }
 
   @Override
+  public boolean isCustomFetchProperties() {
+    return customFetchProperties;
+  }
+
+  @Override
   public DefaultOrmQuery<T> having(Expression expression) {
     having().add(expression);
     return this;
@@ -1653,6 +1659,7 @@ public class DefaultOrmQuery<T> implements SpiQuery<T> {
 
   @Override
   public Query<T> fetchProperties(String... elPaths) {
+    customFetchProperties = true;
     detail.fetchProperties(beanDescriptor, elPaths);
     return this;
   }
