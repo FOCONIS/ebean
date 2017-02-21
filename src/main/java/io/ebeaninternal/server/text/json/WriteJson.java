@@ -39,11 +39,14 @@ public class WriteJson implements JsonWriter {
 
   private final JsonConfig.Include include;
 
+  private final boolean entitiesAsReference;
+
   /**
    * Construct for full bean use (normal).
    */
   public WriteJson(SpiEbeanServer server, JsonGenerator generator, FetchPath fetchPath,
-                   Map<String, JsonWriteBeanVisitor<?>> visitors, Object objectMapper, JsonConfig.Include include) {
+                   Map<String, JsonWriteBeanVisitor<?>> visitors, Object objectMapper, JsonConfig.Include include, 
+                   boolean entitiesAsReference) {
 
     this.server = server;
     this.generator = generator;
@@ -51,6 +54,7 @@ public class WriteJson implements JsonWriter {
     this.visitors = visitors;
     this.objectMapper = objectMapper;
     this.include = include;
+    this.entitiesAsReference = entitiesAsReference;
     this.parentBeans = new ArrayStack<>();
     this.pathStack = new PathStack();
   }
@@ -67,6 +71,7 @@ public class WriteJson implements JsonWriter {
     this.objectMapper = null;
     this.parentBeans = null;
     this.pathStack = null;
+    this.entitiesAsReference = false;
   }
 
   /**
@@ -492,7 +497,7 @@ public class WriteJson implements JsonWriter {
           }
         }
 
-        if (!isReferenceOnly()) {
+        if (!isReferenceOnly() && (!writeJson.entitiesAsReference || desc.isDocStoreOnly())) {
           // render all the properties and invoke lazy loading if required
           BeanProperty[] props = desc.propertiesNonTransient();
           for (BeanProperty prop1 : props) {

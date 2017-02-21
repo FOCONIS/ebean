@@ -342,7 +342,8 @@ public class DJsonContext implements JsonContext {
   private WriteJson createWriteJson(JsonGenerator gen, JsonWriteOptions options) {
     FetchPath pathProps = (options == null) ? null : options.getPathProperties();
     Map<String, JsonWriteBeanVisitor<?>> visitors = (options == null) ? null : options.getVisitorMap();
-    return new WriteJson(server, gen, pathProps, visitors, determineObjectMapper(options), determineInclude(options));
+    boolean entitiesAsReference = (options == null) ? false : options.isEntitiesAsReference();
+    return new WriteJson(server, gen, pathProps, visitors, determineObjectMapper(options), determineInclude(options), entitiesAsReference);
   }
 
   private <T> void toJsonFromCollection(Collection<T> collection, String key, JsonGenerator gen, JsonWriteOptions options) throws IOException {

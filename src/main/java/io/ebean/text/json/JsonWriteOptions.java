@@ -1,6 +1,7 @@
 package io.ebean.text.json;
 
 import io.ebean.FetchPath;
+import io.ebean.annotation.DocStore;
 import io.ebean.config.JsonConfig;
 import io.ebean.text.PathProperties;
 
@@ -23,6 +24,8 @@ public class JsonWriteOptions {
   protected JsonConfig.Include include;
 
   protected Map<String, JsonWriteBeanVisitor<?>> visitorMap;
+
+  private boolean entitiesAsReference;
 
   /**
    * Parse and return a PathProperties from nested string format like
@@ -114,5 +117,16 @@ public class JsonWriteOptions {
    */
   public void setObjectMapper(Object objectMapper) {
     this.objectMapper = objectMapper;
+  }
+ 
+  /**
+   * Sets the writer to write entites (not &#64;{@link DocStore}) as reference
+   */
+  public void setEntitiesAsReference(boolean entitiesAsReference) {
+    this.entitiesAsReference = entitiesAsReference;
+  }
+  
+  public boolean isEntitiesAsReference() {
+    return entitiesAsReference;
   }
 }
