@@ -106,6 +106,6 @@ public interface EntityBean extends Serializable {
   /**
    * Recalcs the bean. This is invoked by PersistRequestBean.
    */
-  default void reCalc(PersistRequest.Type type) {};
+  default void _ebean_recalc(PersistRequest.Type type) {};
 
 }
