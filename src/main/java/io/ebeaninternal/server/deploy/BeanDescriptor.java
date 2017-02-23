@@ -821,9 +821,8 @@ public class BeanDescriptor<T> implements MetaBeanInfo, BeanType<T> {
   /**
    * Return the bean change for a delete.
    */
-  @SuppressWarnings("unchecked")
   private BeanChange deleteBeanChange(PersistRequestBean<T> request) {
-    return newBeanChange(request.getBeanId(), ChangeType.DELETE, Collections.EMPTY_MAP);
+    return newBeanChange(request.getBeanId(), ChangeType.DELETE, Collections.<String, ValuePair>emptyMap());
   }
 
   /**
@@ -2162,7 +2161,7 @@ public class BeanDescriptor<T> implements MetaBeanInfo, BeanType<T> {
 
     if (propertyDeploy && chain != null) {
       ElPropertyDeploy fk = elDeployCache.get(propName);
-      if (fk != null && fk instanceof BeanFkeyProperty) {
+      if (fk instanceof BeanFkeyProperty) {
         // propertyDeploy chain for foreign key column
         return ((BeanFkeyProperty) fk).create(chain.getExpression(), chain.isContainsMany());
       }
