@@ -47,7 +47,7 @@ public class TestJsonEmbedded extends BaseTestCase {
       
     LoggedSqlCollector.start();
     Ebean.save(bean);
-    assertThat(LoggedSqlCollector.stop().toString()).contains("insert into json_containing_model");
+    assertThat(LoggedSqlCollector.stop().toString()).contains("insert into " + SCHEMA_PREFIX + "json_containing_model");
     bean = Ebean.find(JsonContainingModel.class, bean.getId());  
 
     assertEquals("Hello" , bean.getJsonModel().getName());
