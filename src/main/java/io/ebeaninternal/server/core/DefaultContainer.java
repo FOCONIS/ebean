@@ -281,7 +281,7 @@ public class DefaultContainer implements SpiContainer {
 
   private DataSource getDataSourceFromConfig(ServerConfig config) {
 
-    if (DbOffline.isSet()) {
+    if (config.isDbOffline() || DbOffline.isSet()) {
       logger.debug("... DbOffline using platform [{}]", DbOffline.getPlatform());
       return null;
     }
@@ -349,7 +349,7 @@ public class DefaultContainer implements SpiContainer {
    */
   private boolean checkDataSource(ServerConfig serverConfig) {
 
-    if (DbOffline.isSet()) {
+    if (serverConfig.isDbOffline() || DbOffline.isSet()) {
       return false;
     }
 
