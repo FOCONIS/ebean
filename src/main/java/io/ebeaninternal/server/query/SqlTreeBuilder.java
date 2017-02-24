@@ -310,7 +310,6 @@ public class SqlTreeBuilder {
 
   private SqlTreeNode buildNode(String prefix, BeanPropertyAssoc<?> prop, BeanDescriptor<?> desc, List<SqlTreeNode> myList, SqlTreeProperties props) {
 
-	boolean distinct = query == null ? false : query.isDistinct();
     if (prefix == null) {
       buildExtraJoins(desc, myList);
 
@@ -444,7 +443,6 @@ public class SqlTreeBuilder {
       } else if (p.isId() && (query == null || !query.isSingleAttribute())) {
         // do not bother to include id for normal queries as the
         // id is always added (except for subQueries)
-        // Note: if .fetchProperties(...) is used in query, the id has to be included
 
       } else if (p instanceof BeanPropertyAssoc<?>) {
         // need to check if this property should be
