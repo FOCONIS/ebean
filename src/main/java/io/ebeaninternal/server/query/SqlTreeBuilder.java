@@ -311,20 +311,21 @@ public class SqlTreeBuilder {
   private SqlTreeNode buildNode(String prefix, BeanPropertyAssoc<?> prop, BeanDescriptor<?> desc, List<SqlTreeNode> myList, SqlTreeProperties props) {
 
 	boolean distinct = query == null ? false : query.isDistinct();
-
     if (prefix == null) {
       buildExtraJoins(desc, myList);
 
       // Optional many property for lazy loading query
       BeanPropertyAssocMany<?> lazyLoadMany = (query == null) ? null : query.getLazyLoadMany();
       boolean withId = !rawNoId && !subQuery && (query == null || query.isWithId());
-      return new SqlTreeNodeRoot(desc, props, myList, withId, includeJoin, lazyLoadMany, temporalMode, disableLazyLoad, distinct);
+      return new SqlTreeNodeRoot(desc, props, myList, withId, includeJoin, lazyLoadMany, temporalMode, disableLazyLoad);
 
     } else if (prop instanceof BeanPropertyAssocMany<?>) {
-      return new SqlTreeNodeManyRoot(prefix, (BeanPropertyAssocMany<?>) prop, props, myList, temporalMode, disableLazyLoad, distinct);
+      return new SqlTreeNodeManyRoot(prefix, (BeanPropertyAssocMany<?>) prop, props, myList, temporalMode, disableLazyLoad);
 
     } else {
-      return new SqlTreeNodeBean(prefix, prop, props, myList, temporalMode, disableLazyLoad, distinct);
+      // do not read Id on child beans (e.g. when used with fetch())
+      boolean withId = (query == null || !query.isSingleAttribute()); 
+      return new SqlTreeNodeBean(prefix, prop, props, myList, withId, temporalMode, disableLazyLoad);
     }
   }
 
@@ -440,7 +441,7 @@ public class SqlTreeBuilder {
         p = desc.getIdProperty();
         selectProps.add(p);
 
-      } else if (p.isId() && query != null && !query.isCustomFetchProperties()) {
+      } else if (p.isId() && (query == null || !query.isSingleAttribute())) {
         // do not bother to include id for normal queries as the
         // id is always added (except for subQueries)
         // Note: if .fetchProperties(...) is used in query, the id has to be included

@@ -443,7 +443,7 @@ public class OrmQueryDetail implements Serializable {
     }
   }
 
-  private boolean hasSelectClause() {
+  public boolean hasSelectClause() {
     return baseProps.hasSelectClause();
   }
 

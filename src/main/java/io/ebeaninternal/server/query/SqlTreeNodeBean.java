@@ -58,8 +58,6 @@ class SqlTreeNodeBean implements SqlTreeNode {
    * False if report bean and has no id property.
    */
   protected final boolean readId;
-
-  protected final boolean readDiscriminator;
   
   private final boolean disableLazyLoad;
 
@@ -91,17 +89,17 @@ class SqlTreeNodeBean implements SqlTreeNode {
    * Construct for leaf node.
    */
   SqlTreeNodeBean(String prefix, BeanPropertyAssoc<?> beanProp, SqlTreeProperties props,
-                  List<SqlTreeNode> myChildren, SpiQuery.TemporalMode temporalMode, boolean disableLazyLoad, boolean distinct) {
+                  List<SqlTreeNode> myChildren, boolean withId, SpiQuery.TemporalMode temporalMode, boolean disableLazyLoad) {
 
-    this(prefix, beanProp, beanProp.getTargetDescriptor(), props, myChildren, true, null, temporalMode, disableLazyLoad, distinct);
+    this(prefix, beanProp, beanProp.getTargetDescriptor(), props, myChildren, withId, null, temporalMode, disableLazyLoad);
   }
 
   /**
    * Construct for root node.
    */
   SqlTreeNodeBean(BeanDescriptor<?> desc, SqlTreeProperties props, List<SqlTreeNode> myList, boolean withId,
-                  BeanPropertyAssocMany<?> many, SpiQuery.TemporalMode temporalMode, boolean disableLazyLoad, boolean distinct) {
-    this(null, null, desc, props, myList, withId, many, temporalMode, disableLazyLoad, distinct);
+                  BeanPropertyAssocMany<?> many, SpiQuery.TemporalMode temporalMode, boolean disableLazyLoad) {
+    this(null, null, desc, props, myList, withId, many, temporalMode, disableLazyLoad);
   }
 
   /**
@@ -109,7 +107,7 @@ class SqlTreeNodeBean implements SqlTreeNode {
    */
   private SqlTreeNodeBean(String prefix, BeanPropertyAssoc<?> beanProp, BeanDescriptor<?> desc, SqlTreeProperties props,
                           List<SqlTreeNode> myChildren, boolean withId, BeanPropertyAssocMany<?> lazyLoadParent,
-                          SpiQuery.TemporalMode temporalMode, boolean disableLazyLoad, boolean distinct) {
+                          SpiQuery.TemporalMode temporalMode, boolean disableLazyLoad) {
 
     this.lazyLoadParent = lazyLoadParent;
     this.lazyLoadParentIdBinder = (lazyLoadParent == null) ? null : lazyLoadParent.getBeanDescriptor().getIdBinder();
@@ -124,8 +122,7 @@ class SqlTreeNodeBean implements SqlTreeNode {
     this.extraWhere = (beanProp == null) ? null : beanProp.getExtraWhere();
 
     // the bean has an Id property and we want to use it
-    this.readId = withId && (desc.getIdProperty() != null) && !distinct;
-    this.readDiscriminator = !distinct;
+    this.readId = withId && (desc.getIdProperty() != null);
     this.disableLazyLoad = disableLazyLoad || !readId || desc.isRawSqlBased() || temporalVersions;
 
     this.partialObject = props.isPartialObject();
@@ -138,9 +135,11 @@ class SqlTreeNodeBean implements SqlTreeNode {
 
   @Override
   public BeanProperty getSingleProperty() {
-	if (properties == null || properties.length == 0) {
-	  return children[0].getSingleProperty();
-	}
+    if (properties == null || properties.length == 0) {
+      // if we have no property ask first children (in a distinct select with join)
+      // if we have also no children, NPE happens anyway.
+      return children[0].getSingleProperty();
+    }
     return properties[0];
   }
 
@@ -168,9 +167,9 @@ class SqlTreeNodeBean implements SqlTreeNode {
   @Override
   public void buildRawSqlSelectChain(List<String> selectChain) {
     if (readId) {
-      if (desc.hasInheritance()) {
+      if (inheritInfo != null) {
         // discriminator column always proceeds id column
-        selectChain.add(getPath(prefix, desc.getInheritInfo().getDiscriminatorColumn()));
+        selectChain.add(getPath(prefix, inheritInfo.getDiscriminatorColumn()));
       }
       idBinder.buildRawSqlSelectChain(prefix, selectChain);
     }
@@ -440,13 +439,11 @@ class SqlTreeNodeBean implements SqlTreeNode {
       lazyLoadParent.addSelectExported(ctx, prefix);
     }
 
-    if (readDiscriminator) {
+    if (readId) {
       if (!subQuery && inheritInfo != null) {
         ctx.appendColumn(inheritInfo.getDiscriminatorColumn());
       }
-    }
-    
-    if (readId) {
+
       appendSelectId(ctx, idBinder.getBeanProperty());
     }
     appendSelect(ctx, subQuery, properties);
