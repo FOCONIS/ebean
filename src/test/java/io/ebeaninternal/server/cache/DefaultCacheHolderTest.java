@@ -14,7 +14,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class DefaultCacheHolderTest {
 
-  private String tenantId;
+  private ThreadLocal<String> tenantId = new ThreadLocal<>();
 
   private final ServerCacheFactory cacheFactory = new DefaultServerCacheFactory();
   private final ServerCacheOptions defaultOptions = new ServerCacheOptions();
@@ -44,7 +44,7 @@ public class DefaultCacheHolderTest {
 
     DefaultCacheHolder holder = new DefaultCacheHolder(cacheFactory, defaultOptions, defaultOptions, new MultiTenantContext());
 
-    tenantId = "ten_1";
+    tenantId.set("ten_1");
     DefaultServerCache cache = cache(holder, Customer.class, "customer");
     assertThat(cache.getName()).isEqualTo("customer_B");
 
@@ -53,7 +53,7 @@ public class DefaultCacheHolderTest {
     
     assertThat(cache.size()).isEqualTo(2);
     
-    tenantId = "ten_2";
+    tenantId.set("ten_2");
 
     cache.put("1", "value-for-tenant2");
     cache.put("2", "an other value-for-tenant2");
@@ -64,10 +64,39 @@ public class DefaultCacheHolderTest {
     assertThat(cache.get("2")).isEqualTo("an other value-for-tenant2");
     
     
-    tenantId = "ten_1";
+    tenantId.set("ten_1");
     
     assertThat(cache.get("1")).isEqualTo("value-for-tenant1");
     assertThat(cache.get("2")).isEqualTo("an other value-for-tenant1");
+    
+    Exception exInThread[] = new Exception[1]; 
+    Thread t = new Thread() {
+      @Override
+      public void run() {
+        try {
+          assertThat(cache.get("1")).isNull();
+          tenantId.set("ten_2");
+
+          cache.put("1", "value-for-tenant2");
+          cache.put("2", "an other value-for-tenant2");
+          
+          tenantId.set(null);
+          
+          cache.clear();
+        } catch (Exception e) {
+          exInThread[0] = e;
+        }
+      };
+    };
+    
+    // do some async work
+    t.start();
+    t.join();
+    if (exInThread[0] != null) { 
+      throw exInThread[0];
+    }
+    assertThat(cache.size()).isEqualTo(0);
+
   }
 
   @Test
@@ -100,7 +129,7 @@ public class DefaultCacheHolderTest {
     }
     @Override
     public Object getTenantId() {
-      return tenantId;
+      return tenantId.get();
     }
   }
 }
