@@ -16,6 +16,7 @@ public abstract class SqlServerDdl extends PlatformDdl {
     this.identitySuffix = " identity(1,1)";
     this.foreignKeyRestrict = "";
     this.alterTableIfExists = "";
+    this.addColumn = "add";
     this.inlineUniqueOneToOne = false;
     this.columnSetDefault = "add default";
     this.dropConstraintIfExists = "drop constraint";
@@ -112,9 +113,9 @@ public abstract class SqlServerDdl extends PlatformDdl {
     boolean notnull = (alter.isNotnull() != null) ? alter.isNotnull() : Boolean.TRUE.equals(alter.isCurrentNotnull());
     String notnullClause = notnull ? " not null" : "";
 
-    return "alter table " + tableName + " alter column " + columnName + " " + type + notnullClause;
+    return "alter table " + tableName + " " + alterColumn + " " + columnName + " " + type + notnullClause;
   }
-
+  
   @Override
   public String alterColumnType(String tableName, String columnName, String type) {
 

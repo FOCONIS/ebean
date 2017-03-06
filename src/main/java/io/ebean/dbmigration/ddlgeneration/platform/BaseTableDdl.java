@@ -856,21 +856,11 @@ public class BaseTableDdl implements TableDdl {
   }
 
   protected void alterTableAddColumn(DdlBuffer buffer, String tableName, Column column, boolean onHistoryTable) throws IOException {
-
-    String convertedType = platformDdl.convert(column.getType(), false);
-    buffer.append("alter table ").append(tableName)
-      .append(" add column ").append(column.getName())
-      .append(" ").append(convertedType);
-
-    if (!onHistoryTable) {
-      if (isTrue(column.isNotnull())) {
-        buffer.append(" not null");
-      }
-      if (hasValue(column.getCheckConstraint())) {
-        buffer.append(" ").append(column.getCheckConstraint());
-      }
+    String ddl = platformDdl.alterTableAddColumn(tableName, column, onHistoryTable);
+    if (hasValue(ddl)) {
+      buffer.append(ddl);
+      buffer.endOfStatement();
     }
-    buffer.endOfStatement();
   }
 
   protected boolean isFalse(Boolean value) {
