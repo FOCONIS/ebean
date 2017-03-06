@@ -251,8 +251,7 @@ public class TestQuerySingleAttribute extends BaseTestCase {
     ResetBasicData.reset();
 
     Query<EUncle> query = Ebean.find(EUncle.class)
-      .fetch("parent","more")
-      .setMaxRows(100);
+      .fetch("parent","more");
 
     Ebean.getDefaultServer().findSingleAttributeList(query, null);
 
