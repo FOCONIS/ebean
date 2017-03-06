@@ -56,7 +56,7 @@ public class DJsonContext implements JsonContext {
     this.jsonFactory = (jsonFactory != null) ? jsonFactory : new JsonFactory();
     this.defaultObjectMapper = this.server.getServerConfig().getObjectMapper();
     this.defaultInclude = this.server.getServerConfig().getJsonInclude();
-    this.jsonScalar = new DJsonScalar(typeManager);
+    this.jsonScalar = new DJsonScalar(this.typeManager);
   }
 
   @Override

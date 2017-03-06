@@ -16,7 +16,6 @@ import io.ebeaninternal.server.core.bootup.BootupClasses;
 import io.ebeanservice.docstore.api.mapping.DocPropertyType;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalDateTime;
@@ -217,7 +216,6 @@ public final class DefaultTypeManager implements TypeManager {
   /**
    * Load custom scalar types registered via ExtraTypeFactory and ServiceLoader.
    */
-  @SuppressWarnings("rawtypes")
   private void loadTypesFromProviders(ServerConfig config, Object objectMapper) {
 
     ServiceLoader<ExtraTypeFactory> factories = ServiceLoader.load(ExtraTypeFactory.class);
@@ -251,12 +249,12 @@ public final class DefaultTypeManager implements TypeManager {
    * can have many classes if it uses method overrides and we need to register all
    * the variations/classes for the enum.
    */
-  @SuppressWarnings({"unchecked", "rawtypes"})
+  @SuppressWarnings({ "rawtypes", "unchecked" })
   @Override
-  public void  addEnumType(ScalarType<?> scalarType, Class<? extends Enum<?>> enumClass) {
+  public void addEnumType(ScalarType<?> scalarType, Class<? extends Enum> enumClass) {
 
     Set<Class<?>> mappedClasses = new HashSet<>();
-    for (Object value : EnumSet.allOf((Class) enumClass).toArray()) {
+    for (Object value : EnumSet.allOf(enumClass).toArray()) {
       mappedClasses.add(value.getClass());
     }
     for (Class<?> cls : mappedClasses) {
@@ -793,9 +791,9 @@ public final class DefaultTypeManager implements TypeManager {
   }
 
   /**
-   * Detect if Joda classes are in the classpath and if so register the Joda
-   * data types.
+   * Detect if Joda classes are in the classpath and if so register the Joda data types.
    */
+  @SuppressWarnings("deprecation")
   private void initialiseJodaTypes(JsonConfig.DateTime mode, ServerConfig config) {
 
     // detect if Joda classes are in the classpath
@@ -805,7 +803,7 @@ public final class DefaultTypeManager implements TypeManager {
       typeMap.put(LocalDateTime.class, new ScalarTypeJodaLocalDateTime(mode));
       typeMap.put(DateTime.class, new ScalarTypeJodaDateTime(mode));
       typeMap.put(LocalDate.class, new ScalarTypeJodaLocalDate());
-      typeMap.put(DateMidnight.class, new ScalarTypeJodaDateMidnight());
+      typeMap.put(org.joda.time.DateMidnight.class, new ScalarTypeJodaDateMidnight());
 
       String jodaLocalTimeMode = config.getJodaLocalTimeMode();
       if ("normal".equalsIgnoreCase(jodaLocalTimeMode)) {
