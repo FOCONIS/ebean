@@ -51,6 +51,7 @@ public class SimpleSequenceIdGenerator implements PlatformIdGenerator {
     // just ignore this
   }
 
+  @SuppressWarnings("null")
   @Override
   public Object nextId(Transaction t) {
 
