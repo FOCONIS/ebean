@@ -27,6 +27,7 @@ public class SqlServerHistoryDdl implements PlatformHistoryDdl {
   public void createWithHistory(DdlWrite writer, MTable table) throws IOException {
     String baseTable = table.getName();
     enableSystemVersioning(writer, baseTable);
+   
   }
 
   private void enableSystemVersioning(DdlWrite writer, String baseTable) throws IOException {
@@ -36,7 +37,16 @@ public class SqlServerHistoryDdl implements PlatformHistoryDdl {
       .append("        ").append(systemPeriodEnd).append("   datetime2 GENERATED ALWAYS AS ROW END   NOT NULL,").newLine()
       .append("period for system_time (").append(systemPeriodStart).append(", ").append(systemPeriodEnd).append(")").endOfStatement();
 
-    apply.append("alter table ").append(baseTable).append(" set (system_versioning = on)").endOfStatement();
+    String historyTable = baseTable + "_history"; // history must contain schema, otherwise you'll get
+    // Setting SYSTEM_VERSIONING to ON failed because history table 'xxx_history' is not specified in two-part name format.
+    if (historyTable.indexOf('.') == -1) {
+      historyTable = "dbo." +historyTable; // so add the default schema, if none was specified.
+    }
+    apply.append("alter table ").append(baseTable).append(" set (system_versioning = on (history_table=").append(historyTable).append("))").endOfStatement();
+    
+    DdlBuffer drop = writer.dropAll();
+    drop.append("IF OBJECT_ID('").append(baseTable).append("', 'U') IS NOT NULL alter table ").append(baseTable).append(" set (system_versioning = off)").endOfStatement();
+    drop.append("IF OBJECT_ID('").append(baseTable).append("_history', 'U') IS NOT NULL drop table ").append(baseTable).append("_history").endOfStatement();
   }
 
   @Override

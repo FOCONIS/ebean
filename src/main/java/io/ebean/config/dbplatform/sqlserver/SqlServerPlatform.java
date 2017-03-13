@@ -37,7 +37,7 @@ public class SqlServerPlatform extends DatabasePlatform {
     this.exceptionTranslator =
       new SqlErrorCodes()
         .addAcquireLock("1222")
-        .addDuplicateKey("2601","2627")
+        .addDuplicateKey("2601","2627","23000")
         .addDataIntegrity("544","8114","8115")
         .build();
 
