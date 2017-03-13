@@ -16,7 +16,7 @@
   <url>http://ebean-orm.github.io/</url>
 
   <scm>
-    <developerConnection>scm:git:git@github.com:ebean-orm/ebean.git</developerConnection>
+    <developerConnection>scm:git:git@github.com:FOCONIS/ebean.git</developerConnection>
     <tag>HEAD</tag>
   </scm>
 
@@ -98,7 +98,7 @@
     <dependency>
       <groupId>io.ebean</groupId>
       <artifactId>ebean-dbmigration</artifactId>
-      <version>10.1.4</version>
+      <version>10.1.5</version>
     </dependency>
 
     <dependency>
@@ -397,12 +397,17 @@
   use   mvn clean source:jar deploy -DaltDeploymentRepository=foconis::default::sftp://bamboo@repo.foconis.de/var/www/html/repo/maven-snapshot/
  
    -->
-    <distributionManagement>
+  <distributionManagement>
     <repository>
-        <id>foconis-snapshot</id>
-        <name>Default Deploy Repository</name>
-        <url>sftp://bamboo@repo.foconis.de/var/www/html/repo/maven-snapshot/</url>
+      <id>foconis-snapshot</id>
+      <name>Default Deploy Repository</name>
+      <url>sftp://bamboo@repo.foconis.de/var/www/html/repo/maven-release/</url>
     </repository>
-    </distributionManagement>
+    <snapshotRepository>
+      <id>foconis-snapshot</id>
+      <name>Default Deploy Repository</name>
+      <url>sftp://bamboo@repo.foconis.de/var/www/html/repo/maven-snapshot/</url>
+    </snapshotRepository>
+  </distributionManagement>
 
 </project>
