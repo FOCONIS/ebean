@@ -16,7 +16,7 @@ public class PlatformDdl_dropUniqueConstraintTest {
   PlatformDdl pgDdl = new PostgresPlatform().getPlatformDdl();
   PlatformDdl mysqlDdl = new MySqlPlatform().getPlatformDdl();
   PlatformDdl oraDdl = new OraclePlatform().getPlatformDdl();
-  PlatformDdl sqlServerDdl = SqlServerPlatform.create().getPlatformDdl();
+  PlatformDdl sqlServerDdl = new SqlServerPlatform().getPlatformDdl();
 
   @Test
   public void test() throws Exception {

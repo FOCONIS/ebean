@@ -9,7 +9,7 @@ import java.io.IOException;
 /**
  * MS SQL Server platform specific DDL.
  */
-public abstract class SqlServerDdl extends PlatformDdl {
+public class SqlServerDdl extends PlatformDdl {
 
   public SqlServerDdl(DatabasePlatform platform) {
     super(platform);
@@ -20,6 +20,7 @@ public abstract class SqlServerDdl extends PlatformDdl {
     this.inlineUniqueOneToOne = false;
     this.columnSetDefault = "add default";
     this.dropConstraintIfExists = "drop constraint";
+    this.historyDdl = new SqlServerHistoryDdl();
   }
 
   @Override

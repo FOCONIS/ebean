@@ -5,9 +5,6 @@ import io.ebean.config.dbplatform.db2.DB2Platform;
 import io.ebean.config.dbplatform.DatabasePlatform;
 import io.ebean.config.dbplatform.h2.H2Platform;
 import io.ebean.config.dbplatform.hsqldb.HsqldbPlatform;
-import io.ebean.config.dbplatform.sqlserver.SqlServer2005Platform;
-import io.ebean.config.dbplatform.sqlserver.SqlServer2014Platform;
-import io.ebean.config.dbplatform.sqlserver.SqlServer2016Platform;
 import io.ebean.config.dbplatform.sqlserver.SqlServerPlatform;
 import io.ebean.config.dbplatform.mysql.MySqlPlatform;
 import io.ebean.config.dbplatform.oracle.OraclePlatform;
@@ -88,7 +85,7 @@ public class DatabasePlatformFactory {
       return new OraclePlatform();
     }
     if (dbName.equals("sqlserver")) {
-      return SqlServerPlatform.create();
+      return new SqlServerPlatform();
     }
     if (dbName.equals("sqlanywhere")) {
       return new SqlAnywherePlatform();
@@ -141,17 +138,7 @@ public class DatabasePlatformFactory {
     if (dbProductName.contains("oracle")) {
       return new OraclePlatform();
     } else if (dbProductName.contains("microsoft")) {
-      int majorVersion = metaData.getDatabaseMajorVersion();
-      if (majorVersion >= 13) {
-        return new SqlServer2016Platform();
-      } else if (majorVersion == 12) {
-        return new SqlServer2014Platform();
-//      } else if (majorVersion == 11) {
-//        return new SqlServer2012Platform();
-      } else {
-        return new SqlServer2005Platform(); // 2005 and older
-      }
-      
+      return new SqlServerPlatform();
     } else if (dbProductName.contains("mysql")) {
       return new MySqlPlatform();
     } else if (dbProductName.contains("h2")) {

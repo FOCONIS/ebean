@@ -550,7 +550,7 @@ public class DbMigration {
       case ORACLE:
         return new OraclePlatform();
       case SQLSERVER:
-        return SqlServerPlatform.create();
+        return new SqlServerPlatform();
       case DB2:
         return new DB2Platform();
       case SQLITE:

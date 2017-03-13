@@ -645,6 +645,7 @@ public class JdbcTransaction implements SpiTransaction {
     }
   }
 
+  @Override
   public PersistenceException translate(String message, SQLException cause) {
     if (manager != null) {
       return manager.translate(message, cause);

@@ -76,6 +76,7 @@ public class ScalarTypeArrayList extends ScalarTypeJsonCollection<List> implemen
   /**
    * Return the DB column definition for DDL generation.
    */
+  @Override
   public String getDbColumnDefn() {
     return arrayType + "[]";
   }
