@@ -2,6 +2,7 @@ package io.ebeaninternal.server.transaction;
 
 import io.ebean.BackgroundExecutor;
 import io.ebean.PersistBatch;
+import io.ebean.config.dbplatform.DatabasePlatform;
 import io.ebean.config.dbplatform.DatabasePlatform.OnQueryOnly;
 import io.ebean.event.changelog.ChangeLogListener;
 import io.ebean.event.changelog.ChangeLogPrepare;
@@ -18,7 +19,9 @@ import io.ebeanservice.docstore.api.DocStoreUpdates;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.persistence.PersistenceException;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Set;
 
@@ -98,11 +101,14 @@ public class TransactionManager {
 
   private final TransactionFactory transactionFactory;
 
+  private final DatabasePlatform databasePlatform;
+
   /**
    * Create the TransactionManager
    */
   public TransactionManager(TransactionManagerOptions options) {
 
+    this.databasePlatform = options.config.getDatabasePlatform();
     this.skipCacheAfterWrite = options.config.isSkipCacheAfterWrite();
     this.localL2Caching = options.localL2Caching;
     this.persistBatch = options.config.getPersistBatch();
@@ -123,6 +129,13 @@ public class TransactionManager {
     this.onQueryOnly = initOnQueryOnly(options.config.getDatabasePlatform().getOnQueryOnly());
 
     transactionFactory = new TransactionFactoryBasic(this, dataSourceSupplier);
+  }
+
+  /**
+   * Translate the SQLException into a specific exception if possible based on the DB platform.
+   */
+  public PersistenceException translate(String message, SQLException cause) {
+    return databasePlatform.translate(message, cause);
   }
 
   public void shutdown(boolean shutdownDataSource, boolean deregisterDriver) {

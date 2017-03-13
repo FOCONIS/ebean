@@ -9,6 +9,7 @@ import io.ebean.config.dbplatform.DbPlatformType;
 import io.ebean.config.dbplatform.DbType;
 import io.ebean.config.dbplatform.IdType;
 import io.ebean.config.dbplatform.PlatformIdGenerator;
+import io.ebean.config.dbplatform.SqlErrorCodes;
 
 import java.sql.Types;
 
@@ -36,6 +37,13 @@ public abstract class SqlServerPlatform extends DatabasePlatform {
     dbIdentity.setSupportsGetGeneratedKeys(false);
     dbIdentity.setIdType(IdType.SEQUENCE);
     dbIdentity.setSupportsSequence(true);
+
+    this.exceptionTranslator =
+      new SqlErrorCodes()
+        .addAcquireLock("1222")
+        .addDuplicateKey("2601","2627")
+        .addDataIntegrity("544","8114","8115")
+        .build();
 
     this.openQuote = "[";
     this.closeQuote = "]";

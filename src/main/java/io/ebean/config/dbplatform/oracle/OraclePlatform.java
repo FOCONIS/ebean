@@ -4,6 +4,7 @@ import io.ebean.BackgroundExecutor;
 import io.ebean.Platform;
 import io.ebean.TenantContext;
 import io.ebean.config.TenantDataSourceProvider;
+import io.ebean.Query;
 import io.ebean.config.dbplatform.BasicSqlAnsiLimiter;
 import io.ebean.config.dbplatform.DatabasePlatform;
 import io.ebean.config.dbplatform.DbPlatformType;
@@ -71,7 +72,14 @@ public class OraclePlatform extends DatabasePlatform {
   }
 
   @Override
-  protected String withForUpdate(String sql) {
-    return sql + " for update";
+  protected String withForUpdate(String sql, Query.ForUpdate forUpdateMode) {
+    switch (forUpdateMode) {
+      case SKIPLOCKED:
+        return sql + " for update skip locked";
+      case NOWAIT:
+        return sql + " for update nowait";
+      default:
+        return sql + " for update";
+    }
   }
 }

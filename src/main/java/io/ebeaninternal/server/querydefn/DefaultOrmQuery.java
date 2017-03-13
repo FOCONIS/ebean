@@ -204,9 +204,9 @@ public class DefaultOrmQuery<T> implements SpiQuery<T> {
   private Boolean autoTune;
 
   /**
-   * Allow to fetch a record "for update" which should lock it on read
+   * For update mode.
    */
-  private boolean forUpdate;
+  private ForUpdate forUpdate;
 
   private boolean singleAttribute;
 
@@ -567,7 +567,7 @@ public class DefaultOrmQuery<T> implements SpiQuery<T> {
     // includes joins and we use - delete ... where id in (...)
     maxRows = 0;
     firstRow = 0;
-    forUpdate = false;
+    forUpdate = null;
     rootTableAlias = "${RTA}"; // alias we remove later
     setSelectId();
   }
@@ -780,11 +780,6 @@ public class DefaultOrmQuery<T> implements SpiQuery<T> {
   }
 
   @Override
-  public boolean isForUpdate() {
-    return forUpdate;
-  }
-
-  @Override
   public void setDefaultRawSqlIfRequired() {
     if (beanDescriptor.isRawSqlBased() && rawSql == null) {
       rawSql = beanDescriptor.getNamedRawSql(DEFAULT_QUERY_NAME);
@@ -799,9 +794,40 @@ public class DefaultOrmQuery<T> implements SpiQuery<T> {
 
   @Override
   public DefaultOrmQuery<T> setForUpdate(boolean forUpdate) {
-    this.forUpdate = forUpdate;
+    this.forUpdate = (forUpdate) ? ForUpdate.BASE : null;
     this.excludeBeanCache = true;
     return this;
+  }
+
+  @Override
+  public DefaultOrmQuery<T> forUpdate() {
+    return setForUpdateWithMode(ForUpdate.BASE);
+  }
+
+  @Override
+  public DefaultOrmQuery<T> forUpdateNoWait() {
+    return setForUpdateWithMode(ForUpdate.NOWAIT);
+  }
+
+  @Override
+  public DefaultOrmQuery<T> forUpdateSkipLocked() {
+    return setForUpdateWithMode(ForUpdate.SKIPLOCKED);
+  }
+
+  private DefaultOrmQuery<T> setForUpdateWithMode(ForUpdate mode) {
+    this.forUpdate = mode;
+    this.excludeBeanCache = true;
+    return this;
+  }
+
+  @Override
+  public boolean isForUpdate() {
+    return forUpdate != null;
+  }
+
+  @Override
+  public ForUpdate getForUpdateMode() {
+    return forUpdate;
   }
 
   @Override
