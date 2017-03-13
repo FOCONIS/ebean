@@ -730,11 +730,16 @@ public class JdbcTransaction implements SpiTransaction {
    * </p>
    */
   @Override
-  public void flushBatch() {
+  public void flush() {
     if (!isActive()) {
       throw new IllegalStateException(illegalStateMessage);
     }
     internalBatchFlush();
+  }
+
+  @Override
+  public void flushBatch() {
+    flush();
   }
 
   /**
@@ -1133,11 +1138,7 @@ public class JdbcTransaction implements SpiTransaction {
    * Alias for end(), which enables this class to be used in try-with-resources.
    */
   @Override
-  public void close() throws IOException {
-    try {
-      end();
-    } catch (PersistenceException ex) {
-      throw new IOException(ex);
-    }
+  public void close() {
+    end();
   }
 }

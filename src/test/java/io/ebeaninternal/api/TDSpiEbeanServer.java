@@ -457,6 +457,11 @@ public class TDSpiEbeanServer implements SpiEbeanServer {
   }
 
   @Override
+  public void flush() {
+
+  }
+
+  @Override
   public void commitTransaction() {
 
   }

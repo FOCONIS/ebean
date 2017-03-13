@@ -864,6 +864,11 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
     return transactionScopeManager.get();
   }
 
+  @Override
+  public void flush() {
+    currentTransaction().flush();
+  }
+
   /**
    * Commit the current transaction.
    */

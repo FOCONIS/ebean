@@ -5,13 +5,12 @@ import io.ebean.config.DocStoreConfig;
 import io.ebean.config.ServerConfig;
 
 import javax.persistence.PersistenceException;
-import java.io.Closeable;
 import java.sql.Connection;
 
 /**
  * The Transaction object. Typically representing a JDBC or JTA transaction.
  */
-public interface Transaction extends Closeable {
+public interface Transaction extends AutoCloseable {
 
   /**
    * Read Committed transaction isolation. Same as
@@ -124,7 +123,13 @@ public interface Transaction extends Closeable {
   /**
    * If the transaction is active then perform rollback. Otherwise do nothing.
    */
-  void end() throws PersistenceException;
+  void end();
+
+
+  /**
+   * Synonym for end() to support AutoClosable.
+   */
+  void close();
 
   /**
    * Return true if the transaction is active.
@@ -422,7 +427,16 @@ public interface Transaction extends Closeable {
    * <li>A query is executed on the same transaction</li>
    * <li>UpdateSql or CallableSql are mixed with bean save and delete</li>
    * <li>Transaction commit occurs</li>
+   * <li>A getter method is called on a batched bean</li>
    * </ul>
+   */
+  void flush() throws PersistenceException;
+
+  /**
+   * This is a synonym for flush() and will be deprecated.
+   * <p>
+   * flush() is preferred as it matches the JPA flush() method.
+   * </p>
    */
   void flushBatch() throws PersistenceException;
 
