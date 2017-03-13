@@ -36,14 +36,14 @@ public class SqlServerHistoryDdl implements PlatformHistoryDdl {
       .append("        ").append(systemPeriodEnd).append("   datetime2 GENERATED ALWAYS AS ROW END   NOT NULL,").newLine()
       .append("period for system_time (").append(systemPeriodStart).append(", ").append(systemPeriodEnd).append(")").endOfStatement();
 
-    apply.append("alter table ").append(baseTable).append("set (system_versioning = on)").endOfStatement();
+    apply.append("alter table ").append(baseTable).append(" set (system_versioning = on)").endOfStatement();
   }
 
   @Override
   public void dropHistoryTable(DdlWrite writer, DropHistoryTable dropHistoryTable) throws IOException {
     String baseTable = dropHistoryTable.getBaseTable();
     DdlBuffer apply = writer.applyHistory();
-    apply.append("alter table ").append(baseTable).append("set (system_versioning = off)").endOfStatement();
+    apply.append("alter table ").append(baseTable).append(" set (system_versioning = off)").endOfStatement();
     apply.append("alter table ").append(baseTable).append(" drop column ").append(systemPeriodStart).endOfStatement();
     apply.append("alter table ").append(baseTable).append(" drop column ").append(systemPeriodEnd).endOfStatement();
   }
