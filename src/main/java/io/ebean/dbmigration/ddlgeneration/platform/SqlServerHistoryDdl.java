@@ -34,7 +34,7 @@ public class SqlServerHistoryDdl implements PlatformHistoryDdl {
     apply.append("alter table ").append(baseTable).newLine()
       .append("    add ").append(systemPeriodStart).append(" datetime2 GENERATED ALWAYS AS ROW START NOT NULL DEFAULT SYSUTCDATETIME(),").newLine()
       .append("        ").append(systemPeriodEnd).append("   datetime2 GENERATED ALWAYS AS ROW END   NOT NULL,").newLine()
-      .append("period for system_time (").append(systemPeriodStart).append("From, ").append(systemPeriodEnd).append("To)").endOfStatement();
+      .append("period for system_time (").append(systemPeriodStart).append(", ").append(systemPeriodEnd).append(")").endOfStatement();
 
     apply.append("alter table ").append(baseTable).append("set (system_versioning = on)").endOfStatement();
   }
