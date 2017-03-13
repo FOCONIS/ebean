@@ -105,7 +105,7 @@ public class TestDbArray_asSet extends BaseTestCase {
     List<String> sql = LoggedSqlCollector.stop();
 
     // we don't update the phone numbers (as they are not dirty)
-    assertThat(sql.get(0)).contains("update " + SCHEMA_PREFIX + ".earray_set_bean set name=?, version=? where");
+    assertThat(sql.get(0)).contains("update " + SCHEMA_PREFIX + "earray_set_bean set name=?, version=? where");
   }
 
   //@Test//(dependsOnMethods = "update_when_notDirty")
@@ -118,7 +118,7 @@ public class TestDbArray_asSet extends BaseTestCase {
     Ebean.save(found);
     List<String> sql = LoggedSqlCollector.stop();
 
-    assertThat(sql.get(0)).contains("update earray_set_bean set phone_numbers=?, uids=?, version=? where");
+    assertThat(sql.get(0)).contains("update " + SCHEMA_PREFIX + "earray_set_bean set phone_numbers=?, uids=?, version=? where");
   }
 
   @Test
