@@ -252,7 +252,15 @@
 
   <build>
     <plugins>
-
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-release-plugin</artifactId>
+        <configuration>
+          <tagNameFormat>v@{project.version}</tagNameFormat>
+          <localCheckout>true</localCheckout>
+          <pushChanges>true</pushChanges>
+        </configuration>
+      </plugin>
       <plugin>
         <groupId>io.ebean</groupId>
         <artifactId>ebean-maven-plugin</artifactId>
