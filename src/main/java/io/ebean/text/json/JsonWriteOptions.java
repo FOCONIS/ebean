@@ -26,6 +26,8 @@ public class JsonWriteOptions {
   protected Map<String, JsonWriteBeanVisitor<?>> visitorMap;
 
   private boolean entitiesAsReference;
+  
+  private boolean includeTransients = true;
 
   /**
    * Parse and return a PathProperties from nested string format like
@@ -128,5 +130,19 @@ public class JsonWriteOptions {
   
   public boolean isEntitiesAsReference() {
     return entitiesAsReference;
+  }
+  
+  /**
+   * @return the includeTransients
+   */
+  public boolean isIncludeTransients() {
+	return includeTransients;
+  }
+  
+  /**
+   * @param includeTransients the includeTransients to set
+   */
+  public void setIncludeTransients(boolean includeTransients) {
+	this.includeTransients = includeTransients;
   }
 }

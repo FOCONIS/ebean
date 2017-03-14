@@ -41,12 +41,13 @@ public class WriteJson implements JsonWriter {
 
   private final boolean entitiesAsReference;
 
+  private final boolean includeTransients;
   /**
    * Construct for full bean use (normal).
    */
   public WriteJson(SpiEbeanServer server, JsonGenerator generator, FetchPath fetchPath,
                    Map<String, JsonWriteBeanVisitor<?>> visitors, Object objectMapper, JsonConfig.Include include, 
-                   boolean entitiesAsReference) {
+                   boolean entitiesAsReference, boolean includeTransients) {
 
     this.server = server;
     this.generator = generator;
@@ -55,6 +56,7 @@ public class WriteJson implements JsonWriter {
     this.objectMapper = objectMapper;
     this.include = include;
     this.entitiesAsReference = entitiesAsReference;
+    this.includeTransients = includeTransients;
     this.parentBeans = new ArrayStack<>();
     this.pathStack = new PathStack();
   }
@@ -72,6 +74,7 @@ public class WriteJson implements JsonWriter {
     this.parentBeans = null;
     this.pathStack = null;
     this.entitiesAsReference = false;
+    this.includeTransients = true;
   }
 
   /**
@@ -505,11 +508,13 @@ public class WriteJson implements JsonWriter {
               prop1.jsonWrite(writeJson, currentBean);
             }
           }
+          if (writeJson.includeTransients) {
           props = desc.propertiesTransient();
           for (BeanProperty prop : props) {
             if (isIncludeTransientProperty(prop)) {
               prop.jsonWrite(writeJson, currentBean);
             }
+          }
           }
         }
 
