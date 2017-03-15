@@ -63,7 +63,7 @@
         <dependency>
           <groupId>io.ebean</groupId>
           <artifactId>ebean</artifactId>
-          <version>10.1.6-FOC3-SNAPSHOT</version>
+          <version>10.1.8-FOC2-SNAPSHOT</version>
         </dependency>
       </dependencies>      
     </profile>
