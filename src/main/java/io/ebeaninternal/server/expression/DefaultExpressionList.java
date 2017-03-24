@@ -759,8 +759,8 @@ public class DefaultExpressionList<T> implements SpiExpressionList<T> {
   }
 
   @Override
-  public ExpressionList<T> idIn(List<?> idList) {
-    add(expr.idIn(idList));
+  public ExpressionList<T> idIn(Collection<?> idCollection) {
+    add(expr.idIn(idCollection));
     return this;
   }
 

@@ -822,7 +822,7 @@ public interface ExpressionList<T> {
   /**
    * Id IN a list of id values.
    */
-  ExpressionList<T> idIn(List<?> idValues);
+  ExpressionList<T> idIn(Collection<?> idValues);
 
   /**
    * Id Equal to - ID property is equal to the value.
