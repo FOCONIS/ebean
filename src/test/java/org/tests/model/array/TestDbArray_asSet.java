@@ -2,6 +2,7 @@ package org.tests.model.array;
 
 import io.ebean.BaseTestCase;
 import io.ebean.Ebean;
+import io.ebean.Platform;
 import io.ebean.Query;
 import org.avaje.ebeantest.LoggedSqlCollector;
 import org.junit.Test;
@@ -30,7 +31,6 @@ public class TestDbArray_asSet extends BaseTestCase {
     phNumbers.add("4321");
     phNumbers.add("9823");
 
-
     Set<Double> doubles = new LinkedHashSet<>();
     doubles.add(1.3);
     doubles.add(2.4);
@@ -43,10 +43,13 @@ public class TestDbArray_asSet extends BaseTestCase {
     bean.getOtherIds().add(97L);
     bean.setDoubs(doubles);
 
+    bean.getEnums().add(Platform.GENERIC);
+    bean.getEnums().add(Platform.H2);
+    bean.getEnums().add(Platform.MYSQL);
     Ebean.save(bean);
-
+    
     found = Ebean.find(EArraySetBean.class, bean.getId());
-
+    
     assertThat(found.getPhoneNumbers()).containsExactly("4321", "9823");
 
     if (isPostgres()) {
@@ -55,6 +58,7 @@ public class TestDbArray_asSet extends BaseTestCase {
         .arrayContains("otherIds", 96L, 97L)
         .arrayContains("uids", first)
         .arrayContains("phoneNumbers", "9823")
+        .arrayContains("enums", Platform.H2)
         .arrayIsNotEmpty("phoneNumbers")
         .query();
 
@@ -93,6 +97,7 @@ public class TestDbArray_asSet extends BaseTestCase {
     assertEquals(found.getId(), fromJson.getId());
     assertEquals(found.getId(), fromJson.getId());
     assertEquals(found.getName(), fromJson.getName());
+    assertThat(fromJson.getEnums()).containsExactlyElementsOf(found.getEnums());
     assertThat(fromJson.getPhoneNumbers()).containsExactly("4321", "9823");
   }
 

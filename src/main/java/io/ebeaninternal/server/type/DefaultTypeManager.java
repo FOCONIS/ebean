@@ -334,14 +334,15 @@ public final class DefaultTypeManager implements TypeManager {
   public ScalarType<?> getArrayScalarType(Class<?> type, DbArray dbArray, Type genericType) {
 
     Type valueType = getValueType(genericType);
+    boolean isEnum = valueType instanceof Class && Enum.class.isAssignableFrom((Class<?>) valueType);
     if (type.equals(List.class)) {
-      if (arrayTypeListFactory != null) {
+      if (arrayTypeListFactory != null && !isEnum ) {
         return arrayTypeListFactory.typeFor(valueType);
       }
       // fallback to JSON storage in VARCHAR column
       return new ScalarTypeJsonList.Varchar(getDocType(valueType));
     } else if (type.equals(Set.class)) {
-      if (arrayTypeSetFactory != null) {
+      if (arrayTypeSetFactory != null&& !isEnum) {
         return arrayTypeSetFactory.typeFor(valueType);
       }
       // fallback to JSON storage in VARCHAR column
@@ -404,6 +405,9 @@ public final class DefaultTypeManager implements TypeManager {
       ScalarType<?> found = typeMap.get(genericType);
       if (found != null) {
         return found.getDocType();
+      }
+      if (Enum.class.isAssignableFrom((Class<?>) genericType)) {
+    	 return DocPropertyType.ENUM;
       }
     }
     return DocPropertyType.OBJECT;

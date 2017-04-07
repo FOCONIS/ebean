@@ -1,6 +1,7 @@
 package org.tests.model.array;
 
 
+import io.ebean.Platform;
 import io.ebean.annotation.DbArray;
 
 import javax.persistence.Entity;
@@ -30,6 +31,9 @@ public class EArraySetBean {
   @DbArray
   Set<Double> doubs;
 
+  @DbArray
+  Set<Platform> enums = new LinkedHashSet<>();
+  
   @Version
   Long version;
 
@@ -87,5 +91,13 @@ public class EArraySetBean {
 
   public void setVersion(Long version) {
     this.version = version;
+  }
+  
+  public Set<Platform> getEnums() {
+    return enums;
+  }
+
+  public void setEnums(Set<Platform> enums) {
+    this.enums = enums;
   }
 }
