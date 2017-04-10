@@ -44,6 +44,10 @@ class ScalarTypeArrayListH2 extends ScalarTypeArrayList {
       if (valueType.equals(String.class)) {
         return STRING;
       }
+      if (valueType instanceof Class && Enum.class.isAssignableFrom((Class<?>) valueType)) {
+        return new ScalarTypeArrayListH2("varchar", DocPropertyType.TEXT,
+            new ArrayElementConverter.EnumConverter<>((Class<? extends Enum>) valueType));
+      }
       throw new IllegalArgumentException("Type [" + valueType + "] not supported for @DbArray mapping");
     }
   }

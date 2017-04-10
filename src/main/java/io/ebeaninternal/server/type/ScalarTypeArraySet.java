@@ -12,9 +12,12 @@ import java.lang.reflect.Type;
 import java.sql.Array;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * Type mapped for DB ARRAY type (Postgres only effectively).
@@ -53,6 +56,10 @@ public class ScalarTypeArraySet extends ScalarTypeJsonCollection<Set> implements
       if (valueType.equals(String.class)) {
         return STRING;
       }
+      if (valueType instanceof Class && Enum.class.isAssignableFrom((Class<?>) valueType)) {
+        return new ScalarTypeArraySet("varchar", DocPropertyType.TEXT,
+            new ArrayElementConverter.EnumConverter<>((Class<? extends Enum>) valueType));
+      }
       throw new IllegalArgumentException("Type [" + valueType + "] not supported for @DbArray mapping on set");
     }
   }
@@ -90,7 +97,12 @@ public class ScalarTypeArraySet extends ScalarTypeJsonCollection<Set> implements
   }
 
   protected Object[] toArray(Set value) {
-    return value.toArray();
+    Object[] ret = new Object[value.size()];
+    int i = 0;
+    for (Object element : value) {
+      ret[i++] = converter.fromElement(element);
+    }
+    return ret;
   }
 
   @Override
@@ -132,12 +144,16 @@ public class ScalarTypeArraySet extends ScalarTypeJsonCollection<Set> implements
 
   @Override
   public Set jsonRead(JsonParser parser) throws IOException {
-    return EJson.parseSet(parser, parser.getCurrentToken());
+    LinkedHashSet ret = new LinkedHashSet<>();
+    for (Object element : EJson.parseList(parser, parser.getCurrentToken())) {
+      ret.add(converter.toElement(element));
+    }
+    return new ModifyAwareSet<>(ret);
   }
 
   @Override
   public void jsonWrite(JsonGenerator writer, Set value) throws IOException {
-    EJson.write(value, writer);
+    EJson.write(value.stream().map(converter::fromElement).collect(Collectors.toList()), writer);
   }
 
 }

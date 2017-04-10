@@ -336,13 +336,13 @@ public final class DefaultTypeManager implements TypeManager {
     Type valueType = getValueType(genericType);
     boolean isEnum = valueType instanceof Class && Enum.class.isAssignableFrom((Class<?>) valueType);
     if (type.equals(List.class)) {
-      if (arrayTypeListFactory != null && !isEnum ) {
+      if (arrayTypeListFactory != null) {
         return arrayTypeListFactory.typeFor(valueType);
       }
       // fallback to JSON storage in VARCHAR column
       return new ScalarTypeJsonList.Varchar(getDocType(valueType));
     } else if (type.equals(Set.class)) {
-      if (arrayTypeSetFactory != null&& !isEnum) {
+      if (arrayTypeSetFactory != null) {
         return arrayTypeSetFactory.typeFor(valueType);
       }
       // fallback to JSON storage in VARCHAR column

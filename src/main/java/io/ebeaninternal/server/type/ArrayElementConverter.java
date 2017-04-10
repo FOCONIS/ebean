@@ -12,6 +12,15 @@ interface ArrayElementConverter<T> {
    */
   T toElement(Object rawValue);
 
+  
+  /**
+   * Convert the array element  the logical type.
+   */
+  default Object fromElement(T value) {
+    return value;
+  }
+  
+  
   /**
    * The UUID converter implementation.
    */
@@ -91,6 +100,29 @@ interface ArrayElementConverter<T> {
     @Override
     public T toElement(Object rawValue) {
       return (T) rawValue;
+    }
+  }
+  
+  class EnumConverter<T extends Enum> implements ArrayElementConverter<T> {
+    private Class<? extends T> enumType;
+
+    EnumConverter(Class<? extends T> enumType) {
+      this.enumType = enumType;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public T toElement(Object rawValue) {
+      if (rawValue == null) {
+        return null;
+      }
+
+      return (T) Enum.valueOf(enumType, (String) rawValue);
+    }
+    
+    @Override
+    public Object fromElement(T value) {
+      return value.name();
     }
   }
 

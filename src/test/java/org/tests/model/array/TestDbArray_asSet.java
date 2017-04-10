@@ -51,7 +51,8 @@ public class TestDbArray_asSet extends BaseTestCase {
     found = Ebean.find(EArraySetBean.class, bean.getId());
     
     assertThat(found.getPhoneNumbers()).containsExactly("4321", "9823");
-
+    assertThat(found.getEnums()).contains(Platform.GENERIC);
+    
     if (isPostgres()) {
       Query<EArraySetBean> query = Ebean.find(EArraySetBean.class)
         .where()
