@@ -11,6 +11,7 @@ import io.ebean.config.ServerConfig;
 import io.ebean.config.TenantDataSourceProvider;
 import io.ebean.dbmigration.ddlgeneration.DdlHandler;
 import io.ebean.dbmigration.ddlgeneration.platform.PlatformDdl;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -176,6 +177,8 @@ public class DatabasePlatform {
   protected boolean supportsNativeIlike;
 
   protected SqlExceptionTranslator exceptionTranslator = new SqlCodeTranslator();
+  
+  protected char[] specialLikeCharacters = { '%', '_' };
 
   /**
    * Instantiates a new database platform.
@@ -621,5 +624,38 @@ public class DatabasePlatform {
     } catch (SQLException e) {
       logger.error("Error closing resultSet", e);
     }
+  }
+
+  /**
+   * Escapes the like string for this DB-Platform
+   */
+  public String escapeLikeString(String value) {
+    StringBuilder sb = null;
+    for (int i = 0; i < value.length(); i++) {
+      char ch = value.charAt(i);
+      boolean escaped = false;
+      for (char escapeChar: specialLikeCharacters) {
+        if (ch == escapeChar) {
+          if (sb == null) {
+            sb = new StringBuilder(value.substring(0, i));
+          }
+          escapeLikeCharacter(escapeChar, sb);
+          escaped = true;
+          break;
+        }
+      }
+      if (!escaped && sb != null) {
+        sb.append(ch);
+      }
+    }
+    if (sb == null) {
+      return value;
+    } else {
+      return sb.toString();
+    }
+  }
+  
+  protected void escapeLikeCharacter(char ch, StringBuilder sb) {
+    sb.append('\\').append(ch);
   }
 }

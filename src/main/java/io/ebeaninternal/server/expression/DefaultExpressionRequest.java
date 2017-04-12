@@ -92,6 +92,11 @@ public class DefaultExpressionRequest implements SpiExpressionRequest {
     sql.append(queryRequest.getDBLikeClause());
     sql.append(" ");
   }
+  
+  @Override
+  public String escapeLikeString(String value) {
+    return queryRequest.escapeLikeString(value);
+  }
 
   /**
    * Increments the parameter index and returns that value.
