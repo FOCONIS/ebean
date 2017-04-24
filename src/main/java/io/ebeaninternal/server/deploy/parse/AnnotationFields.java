@@ -93,7 +93,6 @@ public class AnnotationFields extends AnnotationParser {
                           boolean javaxValidationAnnotations, boolean jacksonAnnotationsPresent, boolean eagerFetchLobs) {
 
     super(info, javaxValidationAnnotations);
-
     this.jacksonAnnotationsPresent = jacksonAnnotationsPresent;
     this.generatedPropFactory = generatedPropFactory;
 
@@ -319,6 +318,10 @@ public class AnnotationFields extends AnnotationParser {
       prop.setExcludedFromHistory();
     }
 
+    io.ebean.annotation.NotNull nonNull  = get(prop, io.ebean.annotation.NotNull.class);
+    if (nonNull != null) {
+      prop.setNullable(false);
+    }
     if (util.getNotNullAnnotations() != null) {
       for (Class<? extends Annotation> annClass : util.getNotNullAnnotations()) {
         Annotation ann = get(prop, annClass);
