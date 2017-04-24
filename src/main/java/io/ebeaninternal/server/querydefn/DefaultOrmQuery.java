@@ -1556,11 +1556,7 @@ public class DefaultOrmQuery<T> implements SpiQuery<T> {
       namedParams = new HashMap<>();
     }
 
-    ONamedParam param = namedParams.get(name);
-    if (param == null) {
-      param = new ONamedParam(name);
-      namedParams.put(name, param);
-    }
+    ONamedParam param = namedParams.computeIfAbsent(name, ONamedParam::new);
     return param;
   }
 

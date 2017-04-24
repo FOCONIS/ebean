@@ -350,7 +350,7 @@ public class BeanDescriptorManager implements BeanDescriptorMap {
       runCustomDeploy(CustomAnnotationParser.Stage.RELATIONSHIPS);
       
       List<BeanDescriptor<?>> list = new ArrayList<>(descMap.values());
-      Collections.sort(list, beanDescComparator);
+      list.sort(beanDescComparator);
       immutableDescriptorList = Collections.unmodifiableList(list);
 
       initialiseAll();
