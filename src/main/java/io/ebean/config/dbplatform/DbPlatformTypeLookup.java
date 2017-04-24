@@ -40,6 +40,7 @@ class DbPlatformTypeLookup {
     // Extra mapping for Float and Varchar2
     add("FLOAT", DbType.REAL);
     add("VARCHAR2", DbType.VARCHAR);
+    add("VARCHAR[]", DbType.VARCHAR_ARRAY);
     for (DbType type : DbType.values()) {
       add(type.name(), type);
     }

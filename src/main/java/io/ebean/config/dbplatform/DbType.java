@@ -48,8 +48,10 @@ public enum DbType {
   JSONB(ExtraDbTypes.JSONB),
   JSONCLOB(ExtraDbTypes.JSONClob),
   JSONBLOB(ExtraDbTypes.JSONBlob),
-  JSONVARCHAR(ExtraDbTypes.JSONVarchar);
+  JSONVARCHAR(ExtraDbTypes.JSONVarchar),
 
+  VARCHAR_ARRAY(ExtraDbTypes.VARCHAR_ARRAY);
+  
   private final int id;
 
   DbType(int id) {

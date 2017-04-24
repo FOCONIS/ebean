@@ -69,5 +69,10 @@ public interface ExtraDbTypes {
    * Geo MultiPolygon
    */
   int MULTILINESTRING = 6007;
+  
+  /**
+   * Varchar array
+   */
+  int VARCHAR_ARRAY = 7000;
 
 }

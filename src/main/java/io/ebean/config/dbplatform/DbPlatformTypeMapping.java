@@ -26,6 +26,8 @@ public class DbPlatformTypeMapping {
   private static final DbPlatformType MULTILINESTRING = new DbPlatformType("multilinestring");
   private static final DbPlatformType MULTIPOLYGON = new DbPlatformType("multipolygon");
 
+  private static final DbPlatformType VARCHAR_ARRAY = new DbPlatformType("varchar[]");
+  
   private final Map<DbType, DbPlatformType> typeMap = new EnumMap<>(DbType.class);
 
   /**
@@ -75,6 +77,8 @@ public class DbPlatformTypeMapping {
     put(DbType.MULTIPOINT, MULTIPOINT);
     put(DbType.MULTILINESTRING, MULTILINESTRING);
     put(DbType.MULTIPOLYGON, MULTIPOLYGON);
+    
+    put(DbType.VARCHAR_ARRAY, VARCHAR_ARRAY);
 
     if (logicalTypes) {
       // keep it logical for 2 layer DDL generation

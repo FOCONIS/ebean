@@ -64,6 +64,7 @@ public class SqlServerPlatform extends DatabasePlatform {
     dbTypeMap.put(DbType.DATE, new DbPlatformType("date"));
     dbTypeMap.put(DbType.TIME, new DbPlatformType("time"));
     dbTypeMap.put(DbType.TIMESTAMP, new DbPlatformType("datetime2"));
+    dbTypeMap.put(DbType.VARCHAR_ARRAY, new DbPlatformType("nvarchar(max)"));
 
   }
 

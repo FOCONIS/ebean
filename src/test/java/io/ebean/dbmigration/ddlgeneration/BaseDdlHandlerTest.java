@@ -60,7 +60,7 @@ public class BaseDdlHandlerTest extends BaseTestCase {
     DdlHandler sqlserverHandler = sqlserverHandler();
     sqlserverHandler.generate(write, Helper.getAlterTableAddDbArrayColumn());
     //MS SqlServer does not support @DbArray like PostgreSQL and should just use JSON in a VARCHAR type.
-    assertThat(write.apply().getBuffer()).isEqualTo("alter table foo add dbarray_added_to_foo varchar;\n\n");
+    assertThat(write.apply().getBuffer()).isEqualTo("alter table foo add dbarray_added_to_foo nvarchar(max);\n\n");
   }
 
   @Test
