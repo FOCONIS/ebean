@@ -147,7 +147,9 @@ public class DefaultContainer implements SpiContainer {
           }
         }
         // start any services after registering with clusterManager
-        server.start();
+        if (serverConfig.isAutostart()) {
+          server.start();
+        }
       }
       DbOffline.reset();
       return server;
