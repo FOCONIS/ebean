@@ -1,6 +1,5 @@
 package org.tests.json;
 
-import org.avaje.ebeantest.LoggedSqlCollector;
 import org.junit.Test;
 import org.tests.model.basic.EBasic;
 import org.tests.model.json.JsonContainingModel;
@@ -13,6 +12,8 @@ import io.ebean.text.json.JsonWriteOptions;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.*;
+
+import org.ebeantest.LoggedSqlCollector;
 
 
 public class TestJsonEmbedded extends BaseTestCase {
