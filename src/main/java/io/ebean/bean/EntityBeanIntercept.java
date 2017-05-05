@@ -4,6 +4,7 @@ import io.ebean.Ebean;
 import io.ebean.ValuePair;
 import io.ebeaninternal.api.SpiEbeanServer;
 
+import java.util.Arrays;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.PersistenceException;
 import java.beans.PropertyChangeEvent;
@@ -1105,7 +1106,7 @@ public final class EntityBeanIntercept implements Serializable {
 
     if (state == STATE_NEW) {
       setLoadedProperty(propertyIndex);
-    } else if (!areEqualChars(oldValue, newValue)) {
+    } else if (!Arrays.equals(oldValue, newValue)) {
       setChangedPropertyValue(propertyIndex, intercept, oldValue);
     } else {
       return null;
@@ -1120,53 +1121,11 @@ public final class EntityBeanIntercept implements Serializable {
 
     if (state == STATE_NEW) {
       setLoadedProperty(propertyIndex);
-    } else if (!areEqualBytes(oldValue, newValue)) {
+    } else if (!Arrays.equals(oldValue, newValue)) {
       setChangedPropertyValue(propertyIndex, intercept, oldValue);
     } else {
       return null;
     }
     return (pcs == null) ? null : new PropertyChangeEvent(owner, getProperty(propertyIndex), oldValue, newValue);
-  }
-
-  private static boolean areEqualBytes(byte[] b1, byte[] b2) {
-    if (b1 == null) {
-      return (b2 == null);
-
-    } else if (b2 == null) {
-      return false;
-
-    } else if (b1 == b2) {
-      return true;
-
-    } else if (b1.length != b2.length) {
-      return false;
-    }
-    for (int i = 0; i < b1.length; i++) {
-      if (b1[i] != b2[i]) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  private static boolean areEqualChars(char[] b1, char[] b2) {
-    if (b1 == null) {
-      return (b2 == null);
-
-    } else if (b2 == null) {
-      return false;
-
-    } else if (b1 == b2) {
-      return true;
-
-    } else if (b1.length != b2.length) {
-      return false;
-    }
-    for (int i = 0; i < b1.length; i++) {
-      if (b1[i] != b2[i]) {
-        return false;
-      }
-    }
-    return true;
   }
 }

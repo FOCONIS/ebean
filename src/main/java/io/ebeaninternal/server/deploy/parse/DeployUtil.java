@@ -184,9 +184,9 @@ public class DeployUtil {
     ScalarType<?> scalarType = getScalarType(property);
     if (scalarType != null) {
       // set the jdbc type this maps to
-
       property.setDbType(scalarType.getJdbcType());
       property.setScalarType(scalarType);
+      property.checkPrimitiveBoolean();
     }
   }
 
