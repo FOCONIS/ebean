@@ -2,6 +2,7 @@ package io.ebeaninternal.server.cache;
 
 import io.ebean.BackgroundExecutor;
 import io.ebean.TenantContext;
+import io.ebean.bean.TenantCacheKey;
 import io.ebean.cache.ServerCache;
 import io.ebean.cache.ServerCacheOptions;
 import io.ebean.cache.ServerCacheStatistics;
@@ -35,44 +36,6 @@ public class DefaultServerCache implements ServerCache {
   public static final CompareByLastAccess BY_LAST_ACCESS = new CompareByLastAccess();
 
 /**
- * We use a combined key, if this serverCache is per tenant.
- */
-  public static final class CacheKey implements Serializable {
-    private static final long serialVersionUID = 1L;
-    
-    final Object tenantId;
-    final Object key;
-    
-    CacheKey(Object tenantId, Object key) {
-      super();
-      this.tenantId = tenantId;
-      this.key = key;
-    }
-
-    @Override
-    public int hashCode() {
-      int result = key.hashCode();
-      result = 31 * result + ((tenantId == null) ? 0 : tenantId.hashCode());
-      return result;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-      if (obj instanceof CacheKey) {
-        CacheKey other = (CacheKey) obj;
-        if (other.key.equals(this.key)) {
-          if (other.tenantId == null && this.tenantId == null) {
-            return true;
-          } else if (this.tenantId != null) {
-            return this.tenantId.equals(other.tenantId);
-          }
-        }
-      }
-      return false;
-    }
-  }
-
-  /**
    * The underlying map (ConcurrentHashMap or similar)
    */
   protected final Map<Object, CacheEntry> map;
@@ -234,7 +197,7 @@ public class DefaultServerCache implements ServerCache {
 
   private Object convertKey(Object key) {
     if (tenantContext != null && tenantContext.isMultiTenant()) {
-      return new CacheKey(tenantContext.getTenantId(), key);
+      return new TenantCacheKey(tenantContext.getTenantId(), key);
     } else {
       return key;
     }

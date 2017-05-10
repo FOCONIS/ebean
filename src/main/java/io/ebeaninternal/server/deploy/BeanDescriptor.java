@@ -5,6 +5,7 @@ import io.ebean.PersistenceContextScope;
 import io.ebean.Query;
 import io.ebean.RawSql;
 import io.ebean.SqlUpdate;
+import io.ebean.TenantContext;
 import io.ebean.Transaction;
 import io.ebean.ValuePair;
 import io.ebean.annotation.DocStoreMode;
@@ -13,6 +14,7 @@ import io.ebean.bean.EntityBean;
 import io.ebean.bean.EntityBeanIntercept;
 import io.ebean.bean.PersistenceContext;
 import io.ebean.bean.PersistenceContextUtil;
+import io.ebean.bean.TenantCacheKey;
 import io.ebean.config.EncryptKey;
 import io.ebean.config.ServerConfig;
 import io.ebean.config.dbplatform.IdType;
@@ -1854,28 +1856,38 @@ public class BeanDescriptor<T> implements MetaBeanInfo, BeanType<T> {
    * Get the bean from the persistence context.
    */
   public Object contextGet(PersistenceContext pc, Object id) {
-    return pc.get(rootBeanType, id);
+    return pc.get(rootBeanType, convertKey(id));
   }
 
   /**
    * Get the bean from the persistence context with delete check option.
    */
   public PersistenceContext.WithOption contextGetWithOption(PersistenceContext pc, Object id) {
-    return pc.getWithOption(rootBeanType, id);
+    return pc.getWithOption(rootBeanType, convertKey(id));
   }
 
   /**
    * Put the bean into the persistence context.
    */
   public void contextPut(PersistenceContext pc, Object id, Object bean) {
-    pc.put(rootBeanType, id, bean);
+    pc.put(rootBeanType, convertKey(id), bean);
   }
 
+  private Object convertKey(Object key) {
+    TenantContext tenantContext = sharedEntity ? null : ebeanServer.getTenantContext();
+        
+    if (tenantContext != null && tenantContext.isMultiTenant()) {
+      return new TenantCacheKey(tenantContext.getTenantId(), key);
+    } else {
+      return key;
+    }
+  }
+  
   /**
    * Put the bean into the persistence context if it is absent.
    */
   public Object contextPutIfAbsent(PersistenceContext pc, Object id, EntityBean localBean) {
-    return pc.putIfAbsent(rootBeanType, id, localBean);
+    return pc.putIfAbsent(rootBeanType, convertKey(id), localBean);
   }
 
   /**
@@ -1888,15 +1900,15 @@ public class BeanDescriptor<T> implements MetaBeanInfo, BeanType<T> {
   /**
    * Clear a bean from the persistence context.
    */
-  public void contextClear(PersistenceContext pc, Object idValue) {
-    pc.clear(rootBeanType, idValue);
+  public void contextClear(PersistenceContext pc, Object id) {
+    pc.clear(rootBeanType, convertKey(id));
   }
 
   /**
    * Delete a bean from the persistence context (such that we don't fetch it in the same transaction).
    */
-  public void contextDeleted(PersistenceContext pc, Object idValue) {
-    pc.deleted(rootBeanType, idValue);
+  public void contextDeleted(PersistenceContext pc, Object id) {
+    pc.deleted(rootBeanType, convertKey(id));
   }
 
   /**
