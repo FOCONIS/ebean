@@ -184,7 +184,7 @@ public final class OrmQueryRequest<T> extends BeanRequest implements BeanQueryRe
     if (query.isRawSql()) {
       return new DeployPropertyParserMap(query.getRawSql().getColumnMapping().getMapping());
     } else {
-      return beanDescriptor.createDeployPropertyParser(query.isDistinct());
+      return beanDescriptor.createDeployPropertyParser();
     }
   }
 
