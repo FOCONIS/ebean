@@ -44,7 +44,7 @@ public class QueryTenantRepository implements TenantRepository {
   @Override
   public void init(Connection sqlConnection) throws SQLException {
 
-    logger.info("QueryTenantRepository: init: {}, query: {}, create: {}, delete  {}", init, query, create, delete);
+    logger.debug("QueryTenantRepository: init: {}, query: {}, create: {}, delete  {}", init, query, create, delete);
     if (StringHelper.isNull(init)) {
       return;
     }
