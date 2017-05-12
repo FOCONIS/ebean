@@ -94,7 +94,7 @@ public class QueryTenantRepository implements TenantRepository {
     if (StringHelper.isNull(create)) {
       throw new UnsupportedOperationException();
     }
-    PreparedStatement stmt = sqlConnection.prepareStatement(query);
+    PreparedStatement stmt = sqlConnection.prepareStatement(create);
     try {
       map(tenant, stmt);
       return stmt.executeUpdate() == 1;
