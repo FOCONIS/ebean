@@ -552,6 +552,14 @@ public class OrmQueryDetail implements Serializable {
     }
   }
   
+  protected void addFetch(Map<String, StringBuilder> fetchs, String elPath) {
+    int pos = elPath.lastIndexOf('.');
+    if (pos ==-1) {
+      addFetch(fetchs, "", elPath);
+    } else {
+      addFetch(fetchs, elPath.substring(0,pos), elPath.substring(pos+1));
+    }
+  }
   /*
    * Special case for embedded beans, we must shift down one EL-path.
    */
@@ -578,10 +586,14 @@ public class OrmQueryDetail implements Serializable {
         if (((BeanPropertyAssocOne<?>)property).isEmbedded()) {
           addFetchEmbedded(fetchs, property);
         } else {
-          addFetch(fetchs, property.getElName(), "*");
+          // fetch whole bean
+          addFetch(fetchs,elPath);
         }
       } else if (property instanceof ElPropertyChain) {
-        if (((ElPropertyChain) property).isEmbedded()) {
+        if (property.getBeanProperty().isId()) {
+          // When fetching ID property fetch the underlying bean
+          addFetch(fetchs, property.getElPrefix());
+        } else if (((ElPropertyChain) property).isEmbedded()) {
           addFetchEmbedded(fetchs, property);
         } else {
           addFetch(fetchs, property.getElPrefix(), property.getName());
