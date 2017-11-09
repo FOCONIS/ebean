@@ -1773,8 +1773,9 @@ public class BeanDescriptor<T> implements MetaBeanInfo, BeanType<T> {
       if (unloadProperties == null) {
         synchronized (this) {
           if (this.unloadProperties == null) {
-            unloadProperties = this.unloadProperties = derivePropertiesToUnload(bean);
+            this.unloadProperties = derivePropertiesToUnload(bean);
           }
+          unloadProperties = this.unloadProperties;
         }
       }
       if (unloadProperties.length > 0) {
