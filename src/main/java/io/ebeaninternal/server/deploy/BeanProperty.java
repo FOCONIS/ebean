@@ -47,8 +47,10 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 /**
@@ -730,11 +732,28 @@ public class BeanProperty implements ElPropertyValue, Property {
   public void setValue(EntityBean bean, Object value) {
     try {
       if (value instanceof OwnerBeanAware) {
-        ((OwnerBeanAware) value).setOwnerBeanInfo(bean, getName());
+        ((OwnerBeanAware) value).setOwnerBeanInfo(bean, getName(), null);
+        
+      } else if (value instanceof Collection) {
+        for (Object entry : (Collection<?>) value) {
+          int i = 0;
+          if (entry instanceof OwnerBeanAware) {
+            ((OwnerBeanAware) entry).setOwnerBeanInfo(bean, getName(), i);
+          }
+          i++;
+        }
+        
+      } else if (value instanceof Map) {
+        for (Entry<?,?> entry : ((Map<?,?>) value).entrySet()) {
+          if (entry.getValue() instanceof OwnerBeanAware) {
+            ((OwnerBeanAware) entry.getValue()).setOwnerBeanInfo(bean, getName(), entry.getKey());
+          }
+        }
       }
 
       setter.set(bean, value);
     } catch (Exception ex) {
+      ex.printStackTrace();
       throw new RuntimeException(setterErrorMsg(bean, value, "set "), ex);
     }
   }

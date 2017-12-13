@@ -2,7 +2,6 @@ package org.tests.model.docstore;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.persistence.Inheritance;
 import javax.persistence.OneToMany;
 import javax.persistence.Transient;
@@ -19,6 +18,7 @@ import io.ebean.bean.OwnerBeanAware;
 @JsonSerialize(using = EbeanJsonSerializer.class)
 @JsonDeserialize(using = EbeanJsonDeserializer.class)
 public class Report implements OwnerBeanAware {
+  
   private String title;
 
   @OneToMany
@@ -26,7 +26,7 @@ public class Report implements OwnerBeanAware {
 
   @OneToMany
   private List<ReportComment> comments = new ArrayList<>();
-
+  
   @Transient
   @JsonIgnore
   private Object parentBean;
@@ -60,7 +60,7 @@ public class Report implements OwnerBeanAware {
   }
 
   @Override
-  public void setOwnerBeanInfo(Object parent, String propertyName) {
+  public void setOwnerBeanInfo(Object parent, String propertyName, Object additionalKey) {
     this.parentBean = parent;
     this.propertyName = propertyName;
   }

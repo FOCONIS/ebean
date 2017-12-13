@@ -74,7 +74,7 @@ public class BeanPropertyAssocManyJsonHelp {
       }
 
       if (detailBean instanceof OwnerBeanAware) {
-        ((OwnerBeanAware) detailBean).setOwnerBeanInfo(parentBean, many.name);
+        ((OwnerBeanAware) detailBean).setOwnerBeanInfo(parentBean, many.name, null);
       }
 
     } while (true);

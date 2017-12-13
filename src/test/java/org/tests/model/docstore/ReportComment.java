@@ -12,8 +12,6 @@ import io.ebean.bean.OwnerBeanAware;
 @DocStore
 public class ReportComment implements OwnerBeanAware {
 
-
-
   private String comment;
 
   @ManyToOne
@@ -44,7 +42,7 @@ public class ReportComment implements OwnerBeanAware {
   }
 
   @Override
-  public void setOwnerBeanInfo(Object parent, String propertyName) {
+  public void setOwnerBeanInfo(Object parent, String propertyName, Object additionalKey) {
     this.parentBean = parent;
     this.propertyName = propertyName;
   }

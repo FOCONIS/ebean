@@ -38,13 +38,9 @@ import io.ebean.text.json.JsonWriteOptions;
 
 public class CustomerReportTest extends BaseTestCase {
 
-
-
   @Test
   public void testToJson() throws Exception {
     ResetBasicData.reset();
-
-
 
     String json = server().json().toJson(getCustomerReport());
     assertThat(json).isEqualTo("{\"dtype\":\"CR\",\"friends\":[{\"id\":2},{\"id\":3}],\"customer\":{\"id\":1}}");
@@ -59,8 +55,6 @@ public class CustomerReportTest extends BaseTestCase {
     });
     json = server().json().toJson(getCustomerReport(),opts);
     assertThat(json).isEqualTo("{\"_bv\":3,\"dtype\":\"CR\",\"friends\":[{\"_bv\":0,\"id\":2},{\"_bv\":0,\"id\":3}],\"customer\":{\"_bv\":0,\"id\":1}}");
-
-
   }
 
   @Test
@@ -89,8 +83,6 @@ public class CustomerReportTest extends BaseTestCase {
     assertThat(report).isInstanceOf(CustomerReport.class);
   }
 
-
-
   @Test
   public void testFromJson() throws Exception {
     ResetBasicData.reset();
@@ -105,7 +97,6 @@ public class CustomerReportTest extends BaseTestCase {
     assertThat(report.getFriends().get(0).getName()).isEqualTo("Cust NoAddress");
     assertThat(report.getFriends().get(1).getName()).isEqualTo("Fiona");
   }
-
 
   @Test
   public void testEmbeddedDocs() throws Exception {
@@ -193,7 +184,6 @@ public class CustomerReportTest extends BaseTestCase {
     assertThat(comment2.getParentBean()).isSameAs(report);
 
 
-
     String json = server().json().toJson(entity);
     System.out.println("JSON:" + json);
     assertThat(entity.getVersion()).isNull();
@@ -205,7 +195,6 @@ public class CustomerReportTest extends BaseTestCase {
     entity.getReport().setTitle("blubbblubb");
     server().save(entity);
     assertThat(entity.getVersion()).isEqualTo(2);
-
 
     entity = server().find(ReportEntity.class, entity.getId());
     Report report2 = entity.getReport();

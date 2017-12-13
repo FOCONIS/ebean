@@ -45,11 +45,11 @@ public abstract class ScalarTypeBase<T> implements ScalarType<T> {
 
   @Override
   public boolean isDirty(Object oldValue, Object value) {
-    if (value instanceof ModifyAwareOwner) {
-      return ((ModifyAwareOwner) value).isMarkedDirty();
-    } else {
+//    if (value instanceof ModifyAwareOwner) {
+//      return ((ModifyAwareOwner) value).isMarkedDirty();
+//    } else {
       return !format(oldValue).equals(format(value));
-    }
+//    }
   }
 
   /**

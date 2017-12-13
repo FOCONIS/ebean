@@ -1,5 +1,7 @@
 package org.tests.model.docstore;
 
+import java.util.List;
+
 import javax.persistence.Entity;
 
 import org.tests.model.basic.BasicDomain;
@@ -12,6 +14,9 @@ public class ReportEntity extends BasicDomain {
 
   @DbJson
   private Report report;
+  
+  @DbJson
+  private List<Report> reports;
 
   public Report getReport() {
     return report;
