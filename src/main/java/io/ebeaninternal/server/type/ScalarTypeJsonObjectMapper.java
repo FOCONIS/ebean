@@ -266,10 +266,10 @@ public class ScalarTypeJsonObjectMapper {
     protected JavaType getJavaType(JavaType type) {
       if (type.getRawClass().equals(Set.class)) {
         // Treat sets as linked hash sets
-        return objectMapper.getTypeFactory().constructRawCollectionType(LinkedHashSet.class);
+        return objectMapper.getTypeFactory().constructCollectionType(LinkedHashSet.class, type.getContentType());
       } else if (type.getRawClass().equals(Map.class)) {
         // Treat maps as linked hash maps
-        return objectMapper.getTypeFactory().constructRawMapType(LinkedHashMap.class);
+        return objectMapper.getTypeFactory().constructMapType(LinkedHashMap.class,type.getKeyType(), type.getContentType());
       } else {
         return type;
       }
