@@ -18,8 +18,6 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.sql.SQLException;
 import java.sql.Types;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -86,6 +84,11 @@ public class ScalarTypeJsonObjectMapper {
       Set value = super.read(reader);
       return value == null ? null : new ModifyAwareSet(value);
     }
+    
+    @Override
+    public boolean isDirty(Object oldValue, Object value) {
+      return !oldValue.equals(value);
+    }
   }
 
   /**
@@ -121,6 +124,11 @@ public class ScalarTypeJsonObjectMapper {
     public Map read(DataReader reader) throws SQLException {
       Map value = super.read(reader);
       return value == null ? null : new ModifyAwareMap(value);
+    }
+    
+    @Override
+    public boolean isDirty(Object oldValue, Object value) {
+      return !oldValue.equals(value);
     }
   }
 
@@ -164,7 +172,7 @@ public class ScalarTypeJsonObjectMapper {
         return null;
       }
       try {
-        return objectMapper.readValue(json, getJavaType(javaType));
+        return objectMapper.readValue(json, javaType);
       } catch (IOException e) {
         throw new SQLException("Unable to convert JSON", e);
       }
@@ -214,7 +222,7 @@ public class ScalarTypeJsonObjectMapper {
     @Override
     public T parse(String value) {
       try {
-        return objectMapper.readValue(value, getJavaType(javaType));
+        return objectMapper.readValue(value, javaType);
       } catch (IOException e) {
         throw new PersistenceException("Unable to convert JSON", e);
       }
@@ -237,7 +245,7 @@ public class ScalarTypeJsonObjectMapper {
 
     @Override
     public T jsonRead(JsonParser parser) throws IOException {
-      return objectMapper.readValue(parser, getJavaType(javaType));
+      return objectMapper.readValue(parser, javaType);
     }
 
     @Override
@@ -260,18 +268,6 @@ public class ScalarTypeJsonObjectMapper {
         dataOutput.writeBoolean(false);
       } else {
         ScalarHelp.writeUTF(dataOutput, format(value));
-      }
-    }
-    
-    protected JavaType getJavaType(JavaType type) {
-      if (type.getRawClass().equals(Set.class)) {
-        // Treat sets as linked hash sets
-        return objectMapper.getTypeFactory().constructCollectionType(LinkedHashSet.class, type.getContentType());
-      } else if (type.getRawClass().equals(Map.class)) {
-        // Treat maps as linked hash maps
-        return objectMapper.getTypeFactory().constructMapType(LinkedHashMap.class,type.getKeyType(), type.getContentType());
-      } else {
-        return type;
       }
     }
   }
