@@ -2,6 +2,7 @@ package io.ebeaninternal.server.deploy;
 
 import com.fasterxml.jackson.core.JsonToken;
 import io.ebean.ValuePair;
+import io.ebean.bean.BeanCollection;
 import io.ebean.bean.EntityBean;
 import io.ebean.bean.OwnerBeanAware;
 import io.ebean.bean.PersistenceContext;
@@ -734,6 +735,9 @@ public class BeanProperty implements ElPropertyValue, Property {
       if (value instanceof OwnerBeanAware) {
         ((OwnerBeanAware) value).setOwnerBeanInfo(bean, getName(), null);
         
+      } else if (value instanceof BeanCollection) { 
+        // NOP
+      
       } else if (value instanceof Collection) {
         for (Object entry : (Collection<?>) value) {
           int i = 0;

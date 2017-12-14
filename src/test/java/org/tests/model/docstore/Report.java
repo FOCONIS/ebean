@@ -17,7 +17,7 @@ import io.ebean.bean.OwnerBeanAware;
 @Inheritance
 @JsonSerialize(using = EbeanJsonSerializer.class)
 @JsonDeserialize(using = EbeanJsonDeserializer.class)
-public class Report implements OwnerBeanAware {
+public abstract class Report implements OwnerBeanAware {
   
   private String title;
 
@@ -35,6 +35,10 @@ public class Report implements OwnerBeanAware {
   @JsonIgnore
   private String propertyName;
 
+  @Transient
+  @JsonIgnore
+  private Object additionalKey;
+  
   public void setTitle(String title) {
     this.title = title;
   }
@@ -63,6 +67,7 @@ public class Report implements OwnerBeanAware {
   public void setOwnerBeanInfo(Object parent, String propertyName, Object additionalKey) {
     this.parentBean = parent;
     this.propertyName = propertyName;
+    this.additionalKey = additionalKey;
   }
 
   public Object getParentBean() {
@@ -71,5 +76,9 @@ public class Report implements OwnerBeanAware {
 
   public String getPropertyName() {
     return propertyName;
+  }
+  
+  public Object getAdditionalKey() {
+    return additionalKey;
   }
 }
