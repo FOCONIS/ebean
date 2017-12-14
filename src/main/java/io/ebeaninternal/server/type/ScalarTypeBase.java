@@ -1,7 +1,5 @@
 package io.ebeaninternal.server.type;
 
-import io.ebeaninternal.json.ModifyAwareOwner;
-
 /**
  * Base ScalarType object.
  */

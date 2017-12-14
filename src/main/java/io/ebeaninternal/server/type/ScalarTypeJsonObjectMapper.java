@@ -18,6 +18,8 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -162,7 +164,7 @@ public class ScalarTypeJsonObjectMapper {
         return null;
       }
       try {
-        return objectMapper.readValue(json, javaType);
+        return objectMapper.readValue(json, getJavaType(javaType));
       } catch (IOException e) {
         throw new SQLException("Unable to convert JSON", e);
       }
@@ -212,7 +214,7 @@ public class ScalarTypeJsonObjectMapper {
     @Override
     public T parse(String value) {
       try {
-        return objectMapper.readValue(value, javaType);
+        return objectMapper.readValue(value, getJavaType(javaType));
       } catch (IOException e) {
         throw new PersistenceException("Unable to convert JSON", e);
       }
@@ -235,7 +237,7 @@ public class ScalarTypeJsonObjectMapper {
 
     @Override
     public T jsonRead(JsonParser parser) throws IOException {
-      return objectMapper.readValue(parser, javaType);
+      return objectMapper.readValue(parser, getJavaType(javaType));
     }
 
     @Override
@@ -258,6 +260,18 @@ public class ScalarTypeJsonObjectMapper {
         dataOutput.writeBoolean(false);
       } else {
         ScalarHelp.writeUTF(dataOutput, format(value));
+      }
+    }
+    
+    protected JavaType getJavaType(JavaType type) {
+      if (type.getRawClass().equals(Set.class)) {
+        // Treat sets as linked hash sets
+        return objectMapper.getTypeFactory().constructRawCollectionType(LinkedHashSet.class);
+      } else if (type.getRawClass().equals(Map.class)) {
+        // Treat maps as linked hash maps
+        return objectMapper.getTypeFactory().constructRawMapType(LinkedHashMap.class);
+      } else {
+        return type;
       }
     }
   }
