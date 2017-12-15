@@ -107,6 +107,11 @@ public class ScalarTypeJsonObjectMapper {
       List value = super.read(reader);
       return value == null ? null : new ModifyAwareList(value);
     }
+    
+    @Override
+    public boolean isDirty(Object oldValue, Object value) {
+      return !oldValue.equals(value);
+    }
   }
 
   /**
