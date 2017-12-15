@@ -4,6 +4,8 @@ import io.ebean.Ebean;
 import io.ebean.ValuePair;
 
 import java.util.Arrays;
+import java.util.Collection;
+
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.PersistenceException;
 import java.beans.PropertyChangeEvent;
@@ -16,6 +18,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 /**
  * This is the object added to every entity bean using byte code enhancement.
@@ -994,8 +997,23 @@ public final class EntityBeanIntercept implements Serializable {
   public PropertyChangeEvent preSetter(boolean intercept, int propertyIndex, Object oldValue, Object newValue) {
 
     if (newValue instanceof OwnerBeanAware) {
-      ((OwnerBeanAware) newValue).setOwnerBeanInfo(owner, getProperty(propertyIndex));
+      ((OwnerBeanAware) newValue).setOwnerBeanInfo(owner, getProperty(propertyIndex), null);
+    } else if (newValue instanceof Collection) {
+      for (Object entry : (Collection<?>) newValue) {
+        int i = 0;
+        if (entry instanceof OwnerBeanAware) {
+          ((OwnerBeanAware) entry).setOwnerBeanInfo(owner, getProperty(propertyIndex), i);
+        }
+        i++;
+      }
+    } else if (newValue instanceof Map) {
+      for (Entry<?,?> entry : ((Map<?,?>) newValue).entrySet()) {
+        if (entry.getValue() instanceof OwnerBeanAware) {
+          ((OwnerBeanAware) entry.getValue()).setOwnerBeanInfo(owner, getProperty(propertyIndex), entry.getKey());
+        }
+      }
     }
+    
     if (state == STATE_NEW) {
       setLoadedProperty(propertyIndex);
     } else if (!areEqual(oldValue, newValue)) {

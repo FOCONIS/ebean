@@ -620,7 +620,7 @@ public class BeanPropertyAssocMany<T> extends BeanPropertyAssoc<T> {
     }
 
     if (child instanceof OwnerBeanAware) {
-      ((OwnerBeanAware) child).setOwnerBeanInfo(parent, getName());
+      ((OwnerBeanAware) child).setOwnerBeanInfo(parent, getName(), mapKeyValue);
     }
 
     if (!manyToMany && childMasterProperty != null) {

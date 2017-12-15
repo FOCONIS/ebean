@@ -227,9 +227,11 @@ abstract class AbstractBeanCollection<E> implements BeanCollection<E> {
     this.propertyName = other.propertyName;
   }
 
+  //protected abstract void updateOwningBean();
+  
   protected void owningBean(E bean) {
     if (bean instanceof OwnerBeanAware) {
-      ((OwnerBeanAware) bean).setOwnerBeanInfo(ownerBean, propertyName);
+      ((OwnerBeanAware) bean).setOwnerBeanInfo(ownerBean, propertyName, null);
     }
   }
 }

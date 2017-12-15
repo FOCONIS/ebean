@@ -39,7 +39,7 @@ public class ScalarTypePostgresHstoreTest {
     assertTrue(hstore.isDirty(null, emptyMap));
 
     ModifyAwareMap<String, Object> modAware = new ModifyAwareMap<>(emptyMap);
-    assertFalse(hstore.isDirty(null, modAware));
+    assertTrue(hstore.isDirty(null, modAware));
     modAware.put("foo", "Rob");
     assertTrue(hstore.isDirty(null, modAware));
   }
