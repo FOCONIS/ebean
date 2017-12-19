@@ -8,5 +8,5 @@ package io.ebean.bean;
 public interface OwnerBeanAware {
 
     void setOwnerBeanInfo(Object parent, String propertyName, Object additionalKey);
-    
+
 }

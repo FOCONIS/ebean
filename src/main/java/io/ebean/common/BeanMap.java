@@ -281,7 +281,7 @@ public final class BeanMap<K, E> extends AbstractBeanCollection<E> implements Ma
   public E put(K key, E value) {
     checkReadOnly();
     init();
-    owningBean(value);
+    owningBean(value, key);
     if (modifyListening) {
       E oldBean = map.put(key, value);
       if (value != oldBean) {
@@ -303,14 +303,14 @@ public final class BeanMap<K, E> extends AbstractBeanCollection<E> implements Ma
       for (Entry<? extends K, ? extends E> entry : puts.entrySet()) {
         Object oldBean = map.put(entry.getKey(), entry.getValue());
         if (entry.getValue() != oldBean) {
-          owningBean(entry.getValue());
+          owningBean(entry.getValue(), entry.getKey());
           modifyAddition(entry.getValue());
           modifyRemoval(oldBean);
         }
       }
     } else {
       for (Entry<? extends K, ? extends E> entry : puts.entrySet()) {
-        owningBean(entry.getValue());
+        owningBean(entry.getValue(), entry.getKey());
       }
       map.putAll(puts);
     }

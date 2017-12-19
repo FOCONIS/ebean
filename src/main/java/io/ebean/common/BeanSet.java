@@ -219,7 +219,7 @@ public final class BeanSet<E> extends AbstractBeanCollection<E> implements Set<E
   public boolean add(E o) {
     checkReadOnly();
     init();
-    owningBean(o);
+    owningBean(o, null);
     if (modifyListening) {
       if (set.add(o)) {
         modifyAddition(o);
@@ -236,7 +236,7 @@ public final class BeanSet<E> extends AbstractBeanCollection<E> implements Set<E
     checkReadOnly();
     init();
     for (E bean : addCollection) {
-      owningBean(bean);
+      owningBean(bean, null);
     }
     if (modifyListening) {
       boolean changed = false;

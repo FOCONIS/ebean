@@ -214,7 +214,7 @@ abstract class AbstractBeanCollection<E> implements BeanCollection<E> {
   boolean holdsModifications() {
     return modifyHolder != null && modifyHolder.hasModifications();
   }
-  
+
   /**
    * Copies all relevant properties for a clone. See {@link #getShallowCopy()}
    * @param other
@@ -228,10 +228,10 @@ abstract class AbstractBeanCollection<E> implements BeanCollection<E> {
   }
 
   //protected abstract void updateOwningBean();
-  
-  protected void owningBean(E bean) {
+
+  protected void owningBean(E bean, Object additionalKey) {
     if (bean instanceof OwnerBeanAware) {
-      ((OwnerBeanAware) bean).setOwnerBeanInfo(ownerBean, propertyName, null);
+      ((OwnerBeanAware) bean).setOwnerBeanInfo(ownerBean, propertyName, additionalKey);
     }
   }
 }

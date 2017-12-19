@@ -241,7 +241,7 @@ public final class BeanList<E> extends AbstractBeanCollection<E> implements List
   public void add(int index, E element) {
     checkReadOnly();
     init();
-    owningBean(element);
+    owningBean(element, index);
     if (modifyListening) {
       modifyAddition(element);
     }
@@ -257,7 +257,7 @@ public final class BeanList<E> extends AbstractBeanCollection<E> implements List
   public boolean add(E o) {
     checkReadOnly();
     init();
-    owningBean(o);
+    owningBean(o, list.size());
     if (modifyListening) {
       if (list.add(o)) {
         modifyAddition(o);
@@ -277,8 +277,9 @@ public final class BeanList<E> extends AbstractBeanCollection<E> implements List
       // all elements in c are added (no contains checking)
       getModifyHolder().modifyAdditionAll(c);
     }
+    int i = list.size();
     for (E bean : c) {
-      owningBean(bean);
+      owningBean(bean, i++);
     }
     return list.addAll(c);
   }
@@ -291,8 +292,9 @@ public final class BeanList<E> extends AbstractBeanCollection<E> implements List
       // all elements in c are added (no contains checking)
       getModifyHolder().modifyAdditionAll(c);
     }
+    int i = index;
     for (E bean : c) {
-      owningBean(bean);
+      owningBean(bean, i++);
     }
     return list.addAll(index, c);
   }
