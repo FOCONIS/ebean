@@ -1392,6 +1392,7 @@ public class BeanProperty implements ElPropertyValue, Property, SqlTreeProperty 
   /**
    * Return the property type.
    */
+  @Override
   public Class<?> getPropertyType() {
     return propertyType;
   }

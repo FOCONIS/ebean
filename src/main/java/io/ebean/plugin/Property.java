@@ -11,6 +11,11 @@ public interface Property {
   String getName();
 
   /**
+   * Return the type of the property.
+   */
+  Class<?> getPropertyType();
+
+  /**
    * Return the value of the property on the given bean.
    */
   Object getVal(Object bean);
