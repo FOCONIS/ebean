@@ -2,11 +2,14 @@ package org.tests.query.other;
 
 import io.ebean.BaseTestCase;
 import io.ebean.Ebean;
+import io.ebean.FetchPath;
 import io.ebean.Query;
+import io.ebean.text.PathProperties;
 
 import org.tests.model.basic.Contact;
 import org.tests.model.basic.Customer;
 import org.tests.model.basic.ResetBasicData;
+
 import org.tests.inherit.ChildA;
 import org.tests.inherit.Data;
 import org.tests.inherit.EUncle;
@@ -29,7 +32,7 @@ public class TestQuerySingleAttributeWithFetchProperty extends BaseTestCase {
     List<String> names =
       Ebean.find(Customer.class)
         .setDistinct(true)
-        .fetchProperties("name")
+        .apply(toFetchPath("name"))
         .where().eq("status", Customer.Status.NEW)
         .orderBy().asc("name")
         .setMaxRows(100)
@@ -46,7 +49,7 @@ public class TestQuerySingleAttributeWithFetchProperty extends BaseTestCase {
     List<Date> dates =
       Ebean.find(Customer.class)
         .setDistinct(true)
-        .fetchProperties("anniversary")
+        .apply(toFetchPath("anniversary"))
         .where().isNotNull("anniversary")
         .orderBy().asc("anniversary")
         .findSingleAttributeList();
@@ -60,7 +63,7 @@ public class TestQuerySingleAttributeWithFetchProperty extends BaseTestCase {
     Query<Customer> query =
       Ebean.find(Customer.class)
         .setDistinct(true)
-        .fetchProperties("name")
+        .apply(toFetchPath("name"))
         .where().eq("status", Customer.Status.NEW)
         .orderBy().asc("name");
 
@@ -73,7 +76,7 @@ public class TestQuerySingleAttributeWithFetchProperty extends BaseTestCase {
 
     ResetBasicData.reset();
 
-    Query<Customer> query = Ebean.find(Customer.class).fetchProperties("name");
+    Query<Customer> query = Ebean.find(Customer.class).apply(toFetchPath("name"));
 
     List<String> names = query.findSingleAttributeList();//String.class);
 
@@ -88,7 +91,7 @@ public class TestQuerySingleAttributeWithFetchProperty extends BaseTestCase {
 
     Query<Customer> query = Ebean.find(Customer.class)
       .setDistinct(true)
-      .fetchProperties("name")
+      .apply(toFetchPath("name"))
       .where().eq("status", Customer.Status.NEW)
       .query();
 
@@ -105,7 +108,7 @@ public class TestQuerySingleAttributeWithFetchProperty extends BaseTestCase {
 
     Query<Customer> query = Ebean.find(Customer.class)
       .setDistinct(true)
-      .fetchProperties("name")
+      .apply(toFetchPath("name"))
       .where().eq("status", Customer.Status.NEW)
       .istartsWith("billingAddress.city", "auck")
       .query();
@@ -122,11 +125,11 @@ public class TestQuerySingleAttributeWithFetchProperty extends BaseTestCase {
 
     ResetBasicData.reset();
 
-    Query<Customer> query = Ebean.find(Customer.class).fetchProperties("name");
+    Query<Customer> query = Ebean.find(Customer.class).apply(toFetchPath("name"));
     query.findSingleAttributeList();
     assertThat(sqlOf(query)).contains("select t0.name from o_customer t0");
 
-    Query<Customer> query2 = Ebean.find(Customer.class).fetchProperties("name");
+    Query<Customer> query2 = Ebean.find(Customer.class).apply(toFetchPath("name"));
     query2.findList();
     assertThat(sqlOf(query2, 1)).contains("select t0.id, t0.name from o_customer t0");
   }
@@ -135,7 +138,7 @@ public class TestQuerySingleAttributeWithFetchProperty extends BaseTestCase {
   public void distinctOnIdProperty(){
     Query<Customer> query = Ebean.find(Customer.class)
         .setDistinct(true)
-        .fetchProperties("id")
+        .apply(toFetchPath("id"))
         .setMaxRows(100);
 
     List<String> ids = query.findSingleAttributeList();
@@ -158,7 +161,7 @@ public class TestQuerySingleAttributeWithFetchProperty extends BaseTestCase {
 
     Query<Customer> query = Ebean.find(Customer.class)
         .setDistinct(true)
-        .fetchProperties("billingAddress.city");
+        .apply(toFetchPath("billingAddress.city"));
 
     List<String> cities = query.findSingleAttributeList();
 
@@ -173,7 +176,7 @@ public class TestQuerySingleAttributeWithFetchProperty extends BaseTestCase {
 
     Query<Contact> query = Ebean.find(Contact.class)
         .setDistinct(true)
-        .fetchProperties("customer.billingAddress.city");
+        .apply(toFetchPath("customer.billingAddress.city"));
 
     List<String> cities = query.findSingleAttributeList();
 
@@ -187,7 +190,7 @@ public class TestQuerySingleAttributeWithFetchProperty extends BaseTestCase {
 
     Query<ChildA> query = Ebean.find(ChildA.class)
         .setDistinct(true)
-        .fetchProperties("more");
+        .apply(toFetchPath("more"));
 
     query.findSingleAttributeList();
     assertThat(sqlOf(query)).contains("select distinct t0.more from rawinherit_parent t0 where t0.type = 'A'");
@@ -201,7 +204,7 @@ public class TestQuerySingleAttributeWithFetchProperty extends BaseTestCase {
 
     Query<EUncle> query = Ebean.find(EUncle.class)
         .setDistinct(true)
-        .fetchProperties("parent.more");
+        .apply(toFetchPath("parent.more"));
 
     query.findSingleAttributeList();
 
@@ -214,7 +217,7 @@ public class TestQuerySingleAttributeWithFetchProperty extends BaseTestCase {
   @Test
   public void findSingleOnIdProperty(){
     Query<Customer> query = Ebean.find(Customer.class)
-        .fetchProperties("id")
+        .apply(toFetchPath("id"))
         .setMaxRows(100);
 
     List<String> ids = query.findSingleAttributeList();
@@ -236,7 +239,7 @@ public class TestQuerySingleAttributeWithFetchProperty extends BaseTestCase {
     ResetBasicData.reset();
 
     Query<Customer> query = Ebean.find(Customer.class)
-        .fetchProperties("billingAddress.city");
+        .apply(toFetchPath("billingAddress.city"));
 
     List<String> cities = query.findSingleAttributeList();
 
@@ -250,7 +253,7 @@ public class TestQuerySingleAttributeWithFetchProperty extends BaseTestCase {
     ResetBasicData.reset();
 
     Query<ChildA> query = Ebean.find(ChildA.class)
-        .fetchProperties("more");
+        .apply(toFetchPath("more"));
 
     query.findSingleAttributeList();
     assertThat(sqlOf(query)).contains("select t0.more from rawinherit_parent t0 where t0.type = 'A'");
@@ -263,7 +266,7 @@ public class TestQuerySingleAttributeWithFetchProperty extends BaseTestCase {
     ResetBasicData.reset();
 
     Query<EUncle> query = Ebean.find(EUncle.class)
-        .fetchProperties("parent.more");
+        .apply(toFetchPath("parent.more"));
 
     query.findSingleAttributeList();
 
@@ -276,7 +279,7 @@ public class TestQuerySingleAttributeWithFetchProperty extends BaseTestCase {
     ResetBasicData.reset();
 
     Query<EUncle> query = Ebean.find(EUncle.class)
-      .fetchProperties("parent.more");
+      .apply(toFetchPath("parent.more"));
 
     Ebean.getDefaultServer().findSingleAttributeList(query, null);
 
@@ -291,7 +294,7 @@ public class TestQuerySingleAttributeWithFetchProperty extends BaseTestCase {
 
     Query<Data> query = Ebean.find(Data.class)
         .setDistinct(true)
-        .fetchProperties("parents.more")
+        .apply(toFetchPath("parents.more"))
         .setMaxRows(100);
 
     query.findSingleAttributeList();
@@ -308,7 +311,7 @@ public class TestQuerySingleAttributeWithFetchProperty extends BaseTestCase {
 
     Query<Contact> query = Ebean.find(Contact.class)
       .setDistinct(true)
-      .fetchProperties("customer")
+      .apply(toFetchPath("customer"))
       .orderBy().desc("customer");
 
     query.findSingleAttributeList();
@@ -323,7 +326,7 @@ public class TestQuerySingleAttributeWithFetchProperty extends BaseTestCase {
 
     Query<Contact> query = Ebean.find(Contact.class)
       .setDistinct(true)
-      .fetchProperties("customer.billingAddress")
+      .apply(toFetchPath("customer.billingAddress"))
       .orderBy().desc("customer.billingAddress");
 
     query.findSingleAttributeList();
@@ -338,7 +341,7 @@ public class TestQuerySingleAttributeWithFetchProperty extends BaseTestCase {
 
     Query<Contact> query = Ebean.find(Contact.class)
         .setDistinct(true)
-        .fetchProperties("customer.id")
+        .apply(toFetchPath("customer.id"))
         .orderBy().desc("customer.id");
 
     List<Integer> ids = query.findSingleAttributeList();
@@ -358,7 +361,7 @@ public class TestQuerySingleAttributeWithFetchProperty extends BaseTestCase {
 
     Query<Contact> query = Ebean.find(Contact.class)
         .setDistinct(true)
-        .fetchProperties("customer.billingAddress.id")
+        .apply(toFetchPath("customer.billingAddress.id"))
         .orderBy().desc("customer.billingAddress.id");
 
     List<Short> ids = query.findSingleAttributeList();
@@ -376,7 +379,7 @@ public class TestQuerySingleAttributeWithFetchProperty extends BaseTestCase {
 
     Query<Contact> query = Ebean.find(Contact.class)
         .setDistinct(true)
-        .fetchProperties("customer.billingAddress.id")
+        .apply(toFetchPath("customer.billingAddress.id"))
         .where().eq("customer.billingAddress.city", "Auckland")
         .orderBy().desc("customer.billingAddress.id");
 
@@ -397,7 +400,7 @@ public class TestQuerySingleAttributeWithFetchProperty extends BaseTestCase {
 
     Query<Contact> query = Ebean.find(Contact.class)
         .setDistinct(true)
-        .fetchProperties("customer.billingAddress")
+        .apply(toFetchPath("customer.billingAddress"))
         .where().eq("customer.billingAddress.city", "Auckland")
         .orderBy().desc("customer.billingAddress.id");
 
@@ -418,7 +421,7 @@ public class TestQuerySingleAttributeWithFetchProperty extends BaseTestCase {
 
     Query<Contact> query = Ebean.find(Contact.class)
         .setDistinct(true)
-        .fetchProperties("customer.billingAddress.id")
+        .apply(toFetchPath("customer.billingAddress.id"))
         .where().eq("customer.billingAddress.city", "Auckland")
         .orderBy().desc("customer.billingAddress.id");
 
@@ -439,7 +442,7 @@ public class TestQuerySingleAttributeWithFetchProperty extends BaseTestCase {
 
     Query<Contact> query = Ebean.find(Contact.class)
         .setDistinct(true)
-        .fetchProperties("customer.billingAddress.id")
+        .apply(toFetchPath("customer.billingAddress.id"))
         .where().eq("customer.shippingAddress.city", "Auckland") // query on shippingAddress
         .orderBy().desc("customer.billingAddress.id");
 
@@ -452,5 +455,21 @@ public class TestQuerySingleAttributeWithFetchProperty extends BaseTestCase {
         + "where t2.city = ?  "
         + "order by t1.billing_address_id desc");
 
+  }
+
+  public static FetchPath toFetchPath(final String... paths) {
+    PathProperties ret = new PathProperties();
+    for (String path : paths) {
+      if (path.endsWith(".id")) {
+        path = path.substring(0, path.length()-3);
+      }
+      int pos = path.lastIndexOf('.');
+      if (pos == -1) {
+        ret.addToPath(null, path);
+      } else {
+        ret.addToPath(path.substring(0, pos), path.substring(pos + 1));
+      }
+    }
+    return ret;
   }
 }
