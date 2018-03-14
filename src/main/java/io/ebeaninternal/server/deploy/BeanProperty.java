@@ -561,6 +561,7 @@ public class BeanProperty implements ElPropertyValue, Property, SqlTreeProperty 
    * Add any extra joins required to support this property. Generally a no
    * operation except for a OneToOne exported.
    */
+  @Override
   public void appendFrom(DbSqlContext ctx, SqlJoinType joinType) {
     if (formula && sqlFormulaJoin != null) {
       ctx.appendFormulaJoin(sqlFormulaJoin, joinType);
@@ -585,6 +586,7 @@ public class BeanProperty implements ElPropertyValue, Property, SqlTreeProperty 
     return aggregation != null;
   }
 
+  @Override
   public void appendSelect(DbSqlContext ctx, boolean subQuery) {
 
     if (aggregation != null) {
@@ -623,14 +625,17 @@ public class BeanProperty implements ElPropertyValue, Property, SqlTreeProperty 
     return owningType.isAssignableFrom(type);
   }
 
+  @Override
   public void loadIgnore(DbReadContext ctx) {
     scalarType.loadIgnore(ctx.getDataReader());
   }
 
+  @Override
   public void load(SqlBeanLoad sqlBeanLoad) {
     sqlBeanLoad.load(this);
   }
 
+  @Override
   public void buildRawSqlSelectChain(String prefix, List<String> selectChain) {
     if (prefix == null) {
       selectChain.add(name);
@@ -1001,6 +1006,7 @@ public class BeanProperty implements ElPropertyValue, Property, SqlTreeProperty 
   /**
    * Return the full name of this property.
    */
+  @Override
   public String getFullBeanName() {
     return descriptor.getFullName() + "." + name;
   }
@@ -1022,6 +1028,7 @@ public class BeanProperty implements ElPropertyValue, Property, SqlTreeProperty 
   /**
    * Return the scalarType.
    */
+  @Override
   @SuppressWarnings(value = "unchecked")
   public ScalarType<Object> getScalarType() {
     return scalarType;
@@ -1400,6 +1407,7 @@ public class BeanProperty implements ElPropertyValue, Property, SqlTreeProperty 
   /**
    * Return true if this is included in the unique id.
    */
+  @Override
   public boolean isId() {
     return id;
   }
@@ -1408,6 +1416,7 @@ public class BeanProperty implements ElPropertyValue, Property, SqlTreeProperty 
    * Return true if this is an Embedded property. In this case it shares the
    * table and primary key of its owner object.
    */
+  @Override
   public boolean isEmbedded() {
     return embedded;
   }
