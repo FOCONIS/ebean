@@ -141,9 +141,7 @@ public class VisitAllUsing {
     public void visit(InheritInfo inheritInfo) {
       BeanProperty[] propertiesLocal = inheritInfo.desc().propertiesLocal();
       for (BeanProperty aPropertiesLocal : propertiesLocal) {
-        if (aPropertiesLocal.isDDLColumn()) {
-          owner.visit(pv, aPropertiesLocal);
-        }
+        owner.visit(pv, aPropertiesLocal);
       }
     }
   }
