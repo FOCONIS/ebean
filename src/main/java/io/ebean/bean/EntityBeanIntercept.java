@@ -54,6 +54,8 @@ public final class EntityBeanIntercept implements Serializable {
    */
   private int state;
 
+  private boolean forceUpdate;
+
   private boolean readOnly;
 
   private boolean dirty;
@@ -131,6 +133,20 @@ public final class EntityBeanIntercept implements Serializable {
    */
   public void setNodeUsageCollector(NodeUsageCollector usageCollector) {
     this.nodeUsageCollector = usageCollector;
+  }
+
+  /**
+   * Return the ownerId (IdClass).
+   */
+  public Object getOwnerId() {
+    return ownerId;
+  }
+
+  /**
+   * Set the ownerId (IdClass).
+   */
+  public void setOwnerId(Object ownerId) {
+    this.ownerId = ownerId;
   }
 
   /**
@@ -292,6 +308,20 @@ public final class EntityBeanIntercept implements Serializable {
    */
   public void setReadOnly(boolean readOnly) {
     this.readOnly = readOnly;
+  }
+
+  /**
+   * Set the bean to be updated when persisted (for merge).
+   */
+  public void setForceUpdate(boolean forceUpdate) {
+    this.forceUpdate = forceUpdate;
+  }
+
+  /**
+   * Return true if the entity should be updated.
+   */
+  public boolean isUpdate() {
+    return forceUpdate || state == STATE_LOADED;
   }
 
   /**

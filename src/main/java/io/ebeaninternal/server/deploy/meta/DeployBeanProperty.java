@@ -52,6 +52,7 @@ public class DeployBeanProperty implements DeployBeanPropertyMeta {
   private static final int AUDITCOLUMN_ORDER = -1000000;
   private static final int VERSIONCOLUMN_ORDER = -1000000;
   private static final Set<Class<?>> PRIMITIVE_NUMBER_TYPES = new HashSet<>();
+
   static {
     PRIMITIVE_NUMBER_TYPES.add(float.class);
     PRIMITIVE_NUMBER_TYPES.add(double.class);
@@ -64,6 +65,8 @@ public class DeployBeanProperty implements DeployBeanPropertyMeta {
    * Flag to mark this at part of the unique id.
    */
   private boolean id;
+
+  boolean importedPrimaryKey;
 
   /**
    * Flag to mark the property as embedded. This could be on
@@ -207,6 +210,8 @@ public class DeployBeanProperty implements DeployBeanPropertyMeta {
   protected final DeployBeanDescriptor<?> desc;
 
   private boolean undirectionalShadow;
+
+  private boolean elementProperty;
 
   private int sortOrder;
 
@@ -442,7 +447,11 @@ public class DeployBeanProperty implements DeployBeanPropertyMeta {
   }
 
   public BeanPropertySetter getSetter() {
-    return setter;
+    if (elementProperty) {
+      return new BeanPropertyElementSetter(sortOrder);
+    } else {
+      return setter;
+    }
   }
 
   /**
@@ -617,6 +626,16 @@ public class DeployBeanProperty implements DeployBeanPropertyMeta {
     this.dbUpdateable = false;
   }
 
+  public void setImportedPrimaryKey() {
+    this.importedPrimaryKey = true;
+  }
+
+  /**
+   * Set to true if this is part of the primary key.
+   */
+  public void setImportedPrimaryKeyColumn(DeployBeanProperty primaryKey) {
+    this.importedPrimaryKey = true;
+  }
 
   public boolean isAggregation() {
     return aggregation != null;
@@ -898,6 +917,13 @@ public class DeployBeanProperty implements DeployBeanPropertyMeta {
   }
 
   /**
+   * Return true if this is part of the primary key.
+   */
+  public boolean isImportedPrimaryKey() {
+    return importedPrimaryKey;
+  }
+
+  /**
    * Return true if this is included in the unique id.
    */
   public boolean isId() {
@@ -1054,6 +1080,10 @@ public class DeployBeanProperty implements DeployBeanPropertyMeta {
     return tenantId;
   }
 
+  public boolean isIdClass() {
+    return desc.isIdClass();
+  }
+
   public void addDbMigrationInfo(DbMigrationInfo info) {
     if (dbMigrationInfos == null) {
       dbMigrationInfos = new ArrayList<>();
@@ -1065,4 +1095,10 @@ public class DeployBeanProperty implements DeployBeanPropertyMeta {
     return dbMigrationInfos;
   }
 
+  /**
+   * Set when this property is part of a 'element bean' used with ElementCollection.
+   */
+  public void setElementProperty() {
+    this.elementProperty = true;
+  }
 }

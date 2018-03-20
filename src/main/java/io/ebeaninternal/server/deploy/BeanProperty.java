@@ -24,9 +24,9 @@ import io.ebeaninternal.server.el.ElPropertyChainBuilder;
 import io.ebeaninternal.server.el.ElPropertyValue;
 import io.ebeaninternal.server.properties.BeanPropertyGetter;
 import io.ebeaninternal.server.properties.BeanPropertySetter;
+import io.ebeaninternal.server.query.STreeProperty;
 import io.ebeaninternal.server.query.SqlBeanLoad;
 import io.ebeaninternal.server.query.SqlJoinType;
-import io.ebeaninternal.server.query.SqlTreeProperty;
 import io.ebeaninternal.server.text.json.ReadJson;
 import io.ebeaninternal.server.text.json.SpiJsonWriter;
 import io.ebeaninternal.server.type.DataBind;
@@ -60,14 +60,16 @@ import java.util.Set;
  * Description of a property of a bean. Includes its deployment information such
  * as database column mapping information.
  */
-public class BeanProperty implements ElPropertyValue, Property, SqlTreeProperty {
+public class BeanProperty implements ElPropertyValue, Property, STreeProperty {
 
   private static final Logger logger = LoggerFactory.getLogger(BeanProperty.class);
 
   /**
-   * Flag to mark this at part of the unique id.
+   * Flag to mark this is the id property.
    */
   final boolean id;
+
+  final boolean importedPrimaryKey;
 
   /**
    * Flag to make this as a dummy property for unidirecitonal relationships.
@@ -278,6 +280,7 @@ public class BeanProperty implements ElPropertyValue, Property, SqlTreeProperty 
     this.name = InternString.intern(deploy.getName());
     this.propertyIndex = deploy.getPropertyIndex();
     this.unidirectionalShadow = deploy.isUndirectionalShadow();
+    this.importedPrimaryKey = deploy.isImportedPrimaryKey();
     this.discriminator = deploy.isDiscriminator();
     this.localEncrypted = deploy.isLocalEncrypted();
     this.dbEncrypted = deploy.isDbEncrypted();
@@ -399,6 +402,7 @@ public class BeanProperty implements ElPropertyValue, Property, SqlTreeProperty 
     this.softDeleteDbSet = source.softDeleteDbSet;
     this.softDeleteDbPredicate = source.softDeleteDbPredicate;
     this.fetchEager = source.fetchEager;
+    this.importedPrimaryKey = source.importedPrimaryKey;
     this.unidirectionalShadow = source.unidirectionalShadow;
     this.discriminator = source.discriminator;
     this.localEncrypted = source.isLocalEncrypted();
@@ -455,11 +459,10 @@ public class BeanProperty implements ElPropertyValue, Property, SqlTreeProperty 
    * initialise variables that can't be done in construction due to recursive
    * issues.
    */
-  public void initialise() {
+  public void initialise(BeanDescriptorInitContext initContext) {
     // do nothing for normal BeanProperty
     if (!isTransient && scalarType == null) {
-      String msg = "No ScalarType assigned to " + descriptor.getFullName() + "." + getName();
-      throw new RuntimeException(msg);
+      throw new RuntimeException("No ScalarType assigned to " + descriptor.getFullName() + "." + getName());
     }
   }
 
@@ -477,8 +480,7 @@ public class BeanProperty implements ElPropertyValue, Property, SqlTreeProperty 
     this.deployOrder = deployOrder;
   }
 
-  public ElPropertyValue buildElPropertyValue(String propName, String remainder, ElPropertyChainBuilder chain,
-                                              boolean propertyDeploy) {
+  public ElPropertyValue buildElPropertyValue(String propName, String remainder, ElPropertyChainBuilder chain, boolean propertyDeploy) {
     return null;
   }
 
@@ -506,6 +508,7 @@ public class BeanProperty implements ElPropertyValue, Property, SqlTreeProperty 
   /**
    * Return true if this property is based on a formula.
    */
+  @Override
   public boolean isFormula() {
     return formula;
   }
@@ -537,6 +540,11 @@ public class BeanProperty implements ElPropertyValue, Property, SqlTreeProperty 
    */
   public EncryptKey getEncryptKey() {
     return descriptor.getEncryptKey(this);
+  }
+
+  @Override
+  public String getEncryptKeyAsString() {
+    return getEncryptKey().getStringValue();
   }
 
   public String getDecryptProperty(String propertyName) {
@@ -597,8 +605,7 @@ public class BeanProperty implements ElPropertyValue, Property, SqlTreeProperty 
     } else if (!isTransient && !ignoreDraftOnlyProperty(ctx.isDraftQuery())) {
 
       if (secondaryTableJoin != null) {
-        String relativePrefix = ctx.getRelativePrefix(secondaryTableJoinPrefix);
-        ctx.pushTableAlias(relativePrefix);
+        ctx.pushTableAlias(ctx.getRelativePrefix(secondaryTableJoinPrefix));
       }
 
       if (dbEncrypted) {
@@ -845,13 +852,6 @@ public class BeanProperty implements ElPropertyValue, Property, SqlTreeProperty 
     setValue(bean, cacheData);
   }
 
-  /**
-   * Get the property value from a compound value type.
-   */
-  public Object getValueObject(Object bean) {
-    throw new RuntimeException("Expected to be called only on BeanPropertyCompoundScalar");
-  }
-
   @Override
   public Object getVal(Object bean) {
     return getValue((EntityBean) bean);
@@ -973,6 +973,13 @@ public class BeanProperty implements ElPropertyValue, Property, SqlTreeProperty 
   public String getAssocIdInValueExpr(boolean not, int size) {
     // Returns null as not an AssocOne.
     return null;
+  }
+
+  /**
+   * If true this bean maps to the primary key.
+   */
+  public boolean isImportedPrimaryKey() {
+    return importedPrimaryKey;
   }
 
   @Override
