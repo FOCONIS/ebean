@@ -55,7 +55,6 @@ import io.ebeaninternal.server.query.CQueryPlan;
 import io.ebeaninternal.server.type.ScalarType;
 import io.ebeaninternal.server.type.ScalarTypeInteger;
 import io.ebeaninternal.server.type.TypeManager;
-import io.ebeaninternal.xmlmapping.XmlMappingReader;
 import io.ebeaninternal.xmlmapping.model.XmAliasMapping;
 import io.ebeaninternal.xmlmapping.model.XmColumnMapping;
 import io.ebeaninternal.xmlmapping.model.XmEbean;
@@ -71,16 +70,12 @@ import javax.persistence.MappedSuperclass;
 import javax.persistence.PersistenceException;
 import javax.persistence.Transient;
 import javax.sql.DataSource;
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -356,12 +351,12 @@ public class BeanDescriptorManager implements BeanDescriptorMap {
   /**
    * Deploy returning the asOfTableMap (which is required by the SQL builders).
    */
-  public Map<String, String> deploy() {
+  public Map<String, String> deploy(List<XmEbean> mappings) {
 
     try {
       createListeners();
       readEntityDeploymentInitial();
-      readXmlMapping();
+      readXmlMapping(mappings);
       readEmbeddedDeployment();
       readEntityBeanTable();
       readEntityDeploymentAssociations();
@@ -395,30 +390,14 @@ public class BeanDescriptorManager implements BeanDescriptorMap {
     }
   }
 
-  private void readXmlMapping() {
+  private void readXmlMapping(List<XmEbean> mappings) {
+    ClassLoader classLoader = serverConfig.getClassLoadConfig().getClassLoader();
 
-    try {
-      ClassLoader classLoader = serverConfig.getClassLoadConfig().getClassLoader();
-
-      Enumeration<URL> resources = classLoader.getResources("ebean.xml");
-
-      List<XmEbean> mappings = new ArrayList<>();
-      while (resources.hasMoreElements()) {
-        URL url = resources.nextElement();
-        try (InputStream is = url.openStream()) {
-          mappings.add(XmlMappingReader.read(is));
-        }
+    for (XmEbean mapping : mappings) {
+      List<XmEntity> entityDeploy = mapping.getEntity();
+      for (XmEntity deploy : entityDeploy) {
+        readEntityMapping(classLoader, deploy);
       }
-
-      for (XmEbean mapping : mappings) {
-        List<XmEntity> entityDeploy = mapping.getEntity();
-        for (XmEntity deploy : entityDeploy) {
-          readEntityMapping(classLoader, deploy);
-        }
-      }
-
-    } catch (IOException e) {
-      throw new RuntimeException("Error reading ebean.xml", e);
     }
   }
 

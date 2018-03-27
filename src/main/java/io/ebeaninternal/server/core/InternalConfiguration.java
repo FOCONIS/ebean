@@ -157,10 +157,12 @@ public class InternalConfiguration {
 
     this.deployCreateProperties = new DeployCreateProperties(typeManager);
     this.deployUtil = new DeployUtil(typeManager, serverConfig);
-    this.dtoBeanManager = new DtoBeanManager(typeManager);
 
+    InternalConfigXmlRead xmlRead = new InternalConfigXmlRead(serverConfig);
+
+    this.dtoBeanManager = new DtoBeanManager(typeManager, xmlRead.readDtoMapping());
     this.beanDescriptorManager = new BeanDescriptorManager(this);
-    Map<String, String> asOfTableMapping = beanDescriptorManager.deploy();
+    Map<String, String> asOfTableMapping = beanDescriptorManager.deploy(xmlRead.xmlDeployment());
     Map<String, String> draftTableMap = beanDescriptorManager.getDraftTableMap();
     beanDescriptorManager.scheduleBackgroundTrim();
 

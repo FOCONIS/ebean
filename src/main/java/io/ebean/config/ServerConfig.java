@@ -498,6 +498,11 @@ public class ServerConfig {
   private boolean defaultOrderById = false;
 
   /**
+   * The mappingLocations for searching xml mapping.
+   */
+  private List<String> mappingLocations = new ArrayList<>();
+
+  /**
    * Construct a Server Configuration for programmatically creating an EbeanServer.
    */
   public ServerConfig() {
@@ -2815,10 +2820,8 @@ public class ServerConfig {
     dbOffline = p.getBoolean("dbOffline", dbOffline);
     serverCachePlugin = p.createInstance(ServerCachePlugin.class, "serverCachePlugin", serverCachePlugin);
 
-    if (packages != null) {
-      String packagesProp = p.get("search.packages", p.get("packages", null));
-      packages = getSearchJarsPackages(packagesProp);
-    }
+    String packagesProp = p.get("search.packages", p.get("packages", null));
+    packages = getSearchList(packagesProp, packages);
 
     collectQueryStatsByNode = p.getBoolean("collectQueryStatsByNode", collectQueryStatsByNode);
     collectQueryOrigins = p.getBoolean("collectQueryOrigins", collectQueryOrigins);
@@ -2899,6 +2902,9 @@ public class ServerConfig {
     tenantSchemaProvider = p.createInstance(TenantSchemaProvider.class, "tenant.schemaProvider", tenantSchemaProvider);
     tenantPartitionColumn = p.get("tenant.partitionColumn", tenantPartitionColumn);
     classes = getClasses(p);
+
+    String mappingsProp = p.get("mappingLocations", null);
+    mappingLocations = getSearchList(mappingsProp, mappingLocations);
   }
 
   private NamingConvention createNamingConvention(PropertiesWrapper properties, NamingConvention namingConvention) {
@@ -2935,17 +2941,17 @@ public class ServerConfig {
     return classes;
   }
 
-  private List<String> getSearchJarsPackages(String searchPackages) {
+  private List<String> getSearchList(String searchNames, List<String> defaultValue) {
 
-    if (searchPackages != null) {
-      String[] entries = StringHelper.splitNames(searchPackages);
+    if (searchNames != null) {
+      String[] entries = StringHelper.splitNames(searchNames);
 
       List<String> hitList = new ArrayList<>(entries.length);
       Collections.addAll(hitList, entries);
 
       return hitList;
     } else {
-      return new ArrayList<>();
+      return defaultValue;
     }
   }
 
@@ -3111,6 +3117,33 @@ public class ServerConfig {
     PlatformConfig config = new PlatformConfig(platformConfig);
     config.loadSettings(p);
     return config;
+  }
+
+  /**
+   * Add a mapping location to search for xml mapping via class path search.
+   */
+  public void addMappingLocation(String mappingLocation) {
+    if (mappingLocations == null) {
+      mappingLocations = new ArrayList<>();
+    }
+    mappingLocations.add(mappingLocation);
+  }
+
+  /**
+   * Return mapping locations to search for xml mapping via class path search.
+   */
+  public List<String> getMappingLocations() {
+    return mappingLocations;
+  }
+
+  /**
+   * Set mapping locations to search for xml mapping via class path search.
+   * <p>
+   * This is only used if classes have not been explicitly specified.
+   * </p>
+   */
+  public void setMappingLocations(List<String> mappingLocations) {
+    this.mappingLocations = mappingLocations;
   }
 
   public enum UuidVersion {

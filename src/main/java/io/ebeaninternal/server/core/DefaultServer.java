@@ -806,7 +806,7 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
    */
   @Override
   public void commitTransaction() {
-    transactionManager.scope().commit();
+    currentTransaction().commit();
   }
 
   /**
@@ -814,7 +814,7 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
    */
   @Override
   public void rollbackTransaction() {
-    transactionManager.scope().rollback();
+    currentTransaction().rollback();
   }
 
   /**
@@ -847,7 +847,10 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
    */
   @Override
   public void endTransaction() {
-    transactionManager.scope().end();
+    Transaction transaction = currentTransaction();
+    if (transaction != null) {
+      transaction.end();
+    }
   }
 
   /**
@@ -970,7 +973,7 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
   }
 
   @Override
-  public <T> Query<T> createQuery(Class<T> beanType, String eql) {
+  public <T> DefaultOrmQuery<T> createQuery(Class<T> beanType, String eql) {
     DefaultOrmQuery<T> query = createQuery(beanType);
     EqlParser.parse(eql, query);
     return query;
@@ -1001,6 +1004,16 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
 
     DtoBeanDescriptor<T> descriptor = dtoBeanManager.getDescriptor(dtoType);
     return new DefaultDtoQuery<>(this, descriptor, sql.trim());
+  }
+
+  @Override
+  public <T> DtoQuery<T> createNamedDtoQuery(Class<T> dtoType, String namedQuery) {
+    DtoBeanDescriptor<T> descriptor = dtoBeanManager.getDescriptor(dtoType);
+    String sql = descriptor.getNamedRawSql(namedQuery);
+    if (sql == null) {
+      throw new PersistenceException("No named query called " + namedQuery + " for bean:" + dtoType.getName());
+    }
+    return new DefaultDtoQuery<>(this, descriptor, sql);
   }
 
   @Override
