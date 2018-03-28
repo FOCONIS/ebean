@@ -23,6 +23,7 @@ import io.ebeaninternal.server.deploy.generatedproperty.GeneratedProperty;
 import io.ebeaninternal.server.deploy.id.ImportedId;
 import io.ebeaninternal.server.persist.BatchControl;
 import io.ebeaninternal.server.persist.BatchedSqlException;
+import io.ebeaninternal.server.persist.Flags;
 import io.ebeaninternal.server.persist.PersistExecute;
 import io.ebeaninternal.server.transaction.BeanPersistIdMap;
 import io.ebeanservice.docstore.api.DocStoreUpdate;
@@ -74,6 +75,8 @@ public final class PersistRequestBean<T> extends PersistRequest implements BeanP
   private final boolean dirty;
 
   private final boolean publish;
+
+  private int flags;
 
   private DocStoreMode docStoreMode;
 
@@ -151,12 +154,17 @@ public final class PersistRequestBean<T> extends PersistRequest implements BeanP
    */
   private boolean getterCallback;
 
+  /**
+   * postUpdate notifications. Used to combine bean and element update updates into single postUpdate event.
+   */
+  private int pendingPostUpdateNotify;
+
   public PersistRequestBean(SpiEbeanServer server, T bean, Object parentBean, BeanManager<T> mgr, SpiTransaction t,
-                            PersistExecute persistExecute, PersistRequest.Type type, boolean saveRecurse, boolean publish) {
+                            PersistExecute persistExecute, PersistRequest.Type type, int flags) {
 
     super(server, t, persistExecute);
     this.entityBean = (EntityBean) bean;
-    this.entityBean._ebean_recalc();
+    this.entityBean._ebean_onPersistTrigger();
     this.intercept = entityBean._ebean_getIntercept();
     this.beanManager = mgr;
     this.beanDescriptor = mgr.getBeanDescriptor();
@@ -166,7 +174,8 @@ public final class PersistRequestBean<T> extends PersistRequest implements BeanP
     this.controller = beanDescriptor.getPersistController();
     this.type = type;
     this.docStoreMode = calcDocStoreMode(transaction, type);
-    if (saveRecurse) {
+    this.flags = flags;
+    if (Flags.isRecurse(flags)) {
       this.persistCascade = t.isPersistCascade();
     }
 
@@ -180,7 +189,7 @@ public final class PersistRequestBean<T> extends PersistRequest implements BeanP
       beanDescriptor.checkMutableProperties(intercept);
     }
     this.concurrencyMode = beanDescriptor.getConcurrencyMode(intercept);
-    this.publish = publish;
+    this.publish = Flags.isPublish(flags);
     if (isMarkDraftDirty(publish)) {
       beanDescriptor.setDraftDirty(entityBean, true);
     }
@@ -232,6 +241,13 @@ public final class PersistRequestBean<T> extends PersistRequest implements BeanP
     if (createImplicitTransIfRequired()) {
       docStoreMode = calcDocStoreMode(transaction, type);
     }
+    checkBatchEscalationOnCascade();
+  }
+
+  /**
+   * Check for batch escalation on cascade.
+   */
+  public void checkBatchEscalationOnCascade() {
     if (transaction.checkBatchEscalationOnCascade(this)) {
       // we escalated to use batch mode so flush when done
       // but if createdTransaction then commit will flush it
@@ -327,9 +343,14 @@ public final class PersistRequestBean<T> extends PersistRequest implements BeanP
 
   @Override
   public void preGetterTrigger(int propertyIndex) {
-    if (propertyIndex < 0 || beanDescriptor.isGeneratedProperty(propertyIndex)) {
+    if (flushBatchOnGetter(propertyIndex)) {
       transaction.flushBatch();
     }
+  }
+
+  private boolean flushBatchOnGetter(int propertyIndex) {
+    // propertyIndex of -1 the Id property, no flush for get Id on UPDATE
+    return propertyIndex == -1 ? type == Type.INSERT : beanDescriptor.isGeneratedProperty(propertyIndex);
   }
 
   public void setSkipBatchForTopLevel() {
@@ -848,6 +869,16 @@ public final class PersistRequestBean<T> extends PersistRequest implements BeanP
     }
   }
 
+  private void postUpdateNotify() {
+    if (pendingPostUpdateNotify > 0) {
+      // invoke the delayed postUpdate notification (combined with element collection update)
+      controller.postUpdate(this);
+    } else {
+      // batched update with no element collection, send postUpdate notification once it executes
+      pendingPostUpdateNotify = -1;
+    }
+  }
+
   /**
    * Aggressive L1 and L2 cache cleanup for deletes.
    */
@@ -897,13 +928,38 @@ public final class PersistRequestBean<T> extends PersistRequest implements BeanP
     }
   }
 
+  /**
+   * Ensure the preUpdate event fires (for case where only element collection has changed).
+   */
+  public void preElementCollectionUpdate() {
+    if (controller != null && !dirty) {
+      // fire preUpdate notification when only element collection updated
+      controller.preUpdate(this);
+    }
+  }
+
+  /**
+   * Combine with the beans postUpdate event notification.
+   */
+  public void postElementCollectionUpdate() {
+    if (controller != null) {
+      pendingPostUpdateNotify += 2;
+    }
+  }
+
   private void controllerPost() {
     switch (type) {
       case INSERT:
         controller.postInsert(this);
         break;
       case UPDATE:
-        controller.postUpdate(this);
+        if (pendingPostUpdateNotify == -1) {
+          // notify now - batched bean update with no element collection
+          controller.postUpdate(this);
+        } else {
+          // delay notify to combine with element collection update
+          pendingPostUpdateNotify++;
+        }
         break;
       case SOFT_DELETE:
         controller.postSoftDelete(this);
@@ -1023,6 +1079,7 @@ public final class PersistRequestBean<T> extends PersistRequest implements BeanP
       setNotifyCache();
       addEvent();
     }
+    postUpdateNotify();
   }
 
   /**
@@ -1077,6 +1134,13 @@ public final class PersistRequestBean<T> extends PersistRequest implements BeanP
     }
 
     return requestUpdateAllLoadedProps;
+  }
+
+  /**
+   * Return the flags set on this persist request.
+   */
+  public int getFlags() {
+    return flags;
   }
 
   /**
@@ -1228,5 +1292,26 @@ public final class PersistRequestBean<T> extends PersistRequest implements BeanP
   @Override
   public void profile() {
     profileBase(type.profileEventId, profileOffset, beanDescriptor.getProfileId(), 1);
+  }
+
+  /**
+   * Set the request flags indicating this is an insert.
+   */
+  public void flagInsert() {
+    flags = Flags.setInsert(flags);
+  }
+
+  /**
+   * Unset the request insert flag indicating this is an update.
+   */
+  public void flagUpdate() {
+    flags = Flags.unsetInsert(flags);
+  }
+
+  /**
+   * Return true if this request is an insert.
+   */
+  public boolean isInsertedParent() {
+    return Flags.isInsert(flags);
   }
 }

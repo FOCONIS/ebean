@@ -42,9 +42,12 @@ import io.ebeaninternal.server.deploy.parse.DeployInherit;
 import io.ebeaninternal.server.deploy.parse.DeployUtil;
 import io.ebeaninternal.server.dto.DtoBeanManager;
 import io.ebeaninternal.server.expression.DefaultExpressionFactory;
+import io.ebeaninternal.server.expression.platform.DbExpressionHandler;
+import io.ebeaninternal.server.expression.platform.DbExpressionHandlerFactory;
 import io.ebeaninternal.server.persist.Binder;
 import io.ebeaninternal.server.persist.DefaultPersister;
 import io.ebeaninternal.server.persist.platform.MultiValueBind;
+import io.ebeaninternal.server.persist.platform.MultiValueBindFactory;
 import io.ebeaninternal.server.persist.platform.OracleMultiValueBind;
 import io.ebeaninternal.server.persist.platform.PostgresMultiValueBind;
 import io.ebeaninternal.server.persist.platform.SqlServerMultiValueBind;
@@ -155,10 +158,12 @@ public class InternalConfiguration {
 
     this.deployCreateProperties = new DeployCreateProperties(typeManager);
     this.deployUtil = new DeployUtil(typeManager, serverConfig);
-    this.dtoBeanManager = new DtoBeanManager(typeManager);
 
+    InternalConfigXmlRead xmlRead = new InternalConfigXmlRead(serverConfig);
+
+    this.dtoBeanManager = new DtoBeanManager(typeManager, xmlRead.readDtoMapping());
     this.beanDescriptorManager = new BeanDescriptorManager(this);
-    Map<String, String> asOfTableMapping = beanDescriptorManager.deploy();
+    Map<String, String> asOfTableMapping = beanDescriptorManager.deploy(xmlRead.xmlDeployment());
     Map<String, String> draftTableMap = beanDescriptorManager.getDraftTableMap();
     beanDescriptorManager.scheduleBackgroundTrim();
 
@@ -269,36 +274,12 @@ public class InternalConfiguration {
    * Return the JSON expression handler for the given database platform.
    */
   private DbExpressionHandler getDbExpressionHandler(DatabasePlatform databasePlatform) {
-    Platform platform = databasePlatform.getPlatform();
-    String concatOperator = databasePlatform.getConcatOperator();
-    switch (platform) {
-      case POSTGRES:
-        return new PostgresDbExpression(concatOperator);
-      case ORACLE:
-        return new OracleDbExpression(concatOperator);
-      case SQLSERVER16:
-      case SQLSERVER17:
-      case SQLSERVER:
-        return new SqlServerDbExpression(concatOperator);
-      default:
-        return new BasicDbExpression(concatOperator);
-    }
+    return DbExpressionHandlerFactory.from(databasePlatform);
   }
 
   private MultiValueBind createMultiValueBind(Platform platform) {
-    // only Postgres at this stage
-    switch (platform) {
-      case POSTGRES:
-        return new PostgresMultiValueBind();
-      case SQLSERVER16:
-      case SQLSERVER17:
-      case SQLSERVER:
-        return new SqlServerMultiValueBind();
-      case ORACLE:
-        return new OracleMultiValueBind();
-      default:
-        return new MultiValueBind();
-    }
+    return MultiValueBindFactory.from(platform);
+
   }
 
   public SpiJsonContext createJsonContext(SpiEbeanServer server) {

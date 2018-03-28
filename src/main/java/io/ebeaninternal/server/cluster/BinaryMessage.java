@@ -3,6 +3,8 @@ package io.ebeaninternal.server.cluster;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 
+import io.ebeaninternal.server.transaction.BeanPersistIds;
+
 /**
  * Represents a relatively small independent message.
  * <p>
@@ -20,12 +22,25 @@ import java.io.DataOutputStream;
  */
 public class BinaryMessage {
 
+  @Deprecated
   public static final int TYPE_MSGCONTROL = 0;
+
+  /**
+   * Message for {@link BeanPersistIds}
+   */
   public static final int TYPE_BEANIUD = 1;
+  /**
+   * Message for TableIUD events
+   */
   public static final int TYPE_TABLEIUD = 2;
+  /**
+   * Message for RemoteCacheEvents
+   */
   public static final int TYPE_CACHE = 3;
 
+  @Deprecated
   public static final int TYPE_MSGACK = 8;
+  @Deprecated
   public static final int TYPE_MSGRESEND = 9;
 
   private final ByteArrayOutputStream buffer;

@@ -11,6 +11,7 @@ import io.ebean.Filter;
 import io.ebean.FutureIds;
 import io.ebean.FutureList;
 import io.ebean.FutureRowCount;
+import io.ebean.MergeOptions;
 import io.ebean.PagedList;
 import io.ebean.PersistenceContextScope;
 import io.ebean.Query;
@@ -237,6 +238,16 @@ public class TDSpiEbeanServer implements SpiEbeanServer {
   }
 
   @Override
+  public void merge(Object bean, MergeOptions options) {
+
+  }
+
+  @Override
+  public void merge(Object bean, MergeOptions options, Transaction transaction) {
+
+  }
+
+  @Override
   public <T> List<Version<T>> findVersions(Query<T> query, Transaction transaction) {
     return null;
   }
@@ -422,6 +433,11 @@ public class TDSpiEbeanServer implements SpiEbeanServer {
   }
 
   @Override
+  public <T> DtoQuery<T> createNamedDtoQuery(Class<T> dtoType, String namedQuery) {
+    return null;
+  }
+
+  @Override
   public <D> DtoQuery<D> findDto(Class<D> dtoType, SpiQuery<?> ormQuery) {
     return null;
   }
@@ -549,6 +565,11 @@ public class TDSpiEbeanServer implements SpiEbeanServer {
   @Override
   public void refreshMany(Object bean, String propertyName) {
 
+  }
+
+  @Override
+  public boolean exists(Class<?> beanType, Object beanId, Transaction transaction) {
+    return false;
   }
 
   @Override

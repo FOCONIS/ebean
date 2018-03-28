@@ -122,7 +122,7 @@ public class BeanDescriptorJsonHelp<T> {
 
   protected T jsonReadObject(ReadJson readJson, String path) throws IOException {
 
-    EntityBean bean = desc.createEntityBean();
+    EntityBean bean = desc.createEntityBeanForJson();
     return jsonReadProperties(readJson, bean, path);
   }
 
