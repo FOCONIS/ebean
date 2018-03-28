@@ -510,11 +510,8 @@ public final class DefaultPersister implements Persister {
       if (request.isDirty()) {
         request.executeOrQueue();
 
-      } else {
-        // skip validation on unchanged bean
-        if (logger.isDebugEnabled()) {
-          logger.debug(Message.msg("persist.update.skipped", request.getBean()));
-        }
+      } else if (logger.isDebugEnabled()) {
+        logger.debug(Message.msg("persist.update.skipped", request.getBean()));
       }
 
       if (request.isPersistCascade()) {
@@ -906,10 +903,10 @@ public final class DefaultPersister implements Persister {
       return new SaveManyBeans(insertedParent, many, parentBean, request, this);
 
     } else if (many.getManyType().isMap()) {
-      return new SaveManySimpleMap(insertedParent, many, parentBean, request);
+      return new SaveManyElementCollectionMap(insertedParent, many, parentBean, request);
 
     } else {
-      return new SaveManySimpleCollection(insertedParent, many, parentBean, request);
+      return new SaveManyElementCollection(insertedParent, many, parentBean, request);
     }
   }
 
