@@ -38,7 +38,7 @@ class BeanDescriptorElementEmbeddedMap<T> extends BeanDescriptorElementEmbedded<
       ctx.writeFieldName(keyName);
       writeJsonElement(ctx, entry.getValue());
     } else {
-      ctx.writeFieldName("key");
+      ctx.writeFieldName("_key");
       scalarTypeKey.jsonWrite(ctx.gen(), entry.getKey());
       ctx.writeFieldName("value");
       writeJsonElement(ctx, entry.getValue());

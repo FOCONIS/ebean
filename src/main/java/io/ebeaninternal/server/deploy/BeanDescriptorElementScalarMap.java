@@ -42,7 +42,7 @@ class BeanDescriptorElementScalarMap<T> extends BeanDescriptorElement<T> {
       ctx.writeFieldName(keyName);
       scalarTypeVal.jsonWrite(ctx.gen(), entry.getValue());
     } else {
-      ctx.writeFieldName("key");
+      ctx.writeFieldName("_key");
       scalarTypeKey.jsonWrite(ctx.gen(), entry.getKey());
       ctx.writeFieldName("value");
       scalarTypeVal.jsonWrite(ctx.gen(), entry.getValue());

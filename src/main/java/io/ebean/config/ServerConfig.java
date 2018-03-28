@@ -34,7 +34,6 @@ import io.ebean.util.StringHelper;
 import org.avaje.datasource.DataSourceConfig;
 
 import javax.sql.DataSource;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
