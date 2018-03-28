@@ -35,7 +35,6 @@ import org.avaje.datasource.DataSourceConfig;
 
 import javax.sql.DataSource;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -364,7 +363,8 @@ public class ServerConfig {
   private UuidVersion uuidVersion = UuidVersion.VERSION4;
 
   /**
-   * The UUID state file (for Version 1 UUIDs).
+   * The UUID state file (for Version 1 UUIDs). By default, the file is created in
+   * ${HOME}/.ebean/${servername}-uuid.state
    */
   private String uuidStateFile;
 
@@ -1919,15 +1919,18 @@ public class ServerConfig {
     this.uuidVersion = uuidVersion;
   }
 
+
   /**
    * Return the UUID state file.
    */
   public String getUuidStateFile() {
-    if (uuidStateFile == null) {
-      uuidStateFile = name + "-ebean-uuid.state";
-      String tmpDir = System.getProperty("java.io.tmpdir");
-      if (tmpDir != null && !tmpDir.isEmpty()) {
-        uuidStateFile = new File(new File(tmpDir),uuidStateFile).getAbsolutePath();
+    if (uuidStateFile == null || uuidStateFile.isEmpty()) {
+      // by default, add servername...
+      uuidStateFile = name + "-uuid.state";
+      // and store it in the user's home directory
+      String homeDir = System.getProperty("user.home");
+      if (homeDir != null && homeDir.isEmpty()) {
+        uuidStateFile = homeDir + "/.ebean/" + uuidStateFile;
       }
     }
     return uuidStateFile;

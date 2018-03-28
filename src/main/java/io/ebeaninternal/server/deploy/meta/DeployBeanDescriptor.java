@@ -1173,16 +1173,6 @@ public class DeployBeanDescriptor<T> implements DeployBeanDescriptorMeta {
     namedRawSql.put(name, rawSql);
   }
 
-  @Override
-  public String getDiscriminatorColumn() {
-    return inheritInfo == null ? null : inheritInfo.getDiscriminatorColumn();
-  }
-
-  @Override
-  public DeployBeanDescriptorMeta getDeployBeanDescriptorMeta(Class<?> propertyType) {
-    return getDeploy(propertyType).getDescriptor();
-  }
-
   /**
    * Parse the aggregation formula into expressions with table alias placeholders.
    */
@@ -1217,4 +1207,13 @@ public class DeployBeanDescriptor<T> implements DeployBeanDescriptorMeta {
     return (property == null) ? null : "${ta}." + property.getDbColumn();
   }
 
+  @Override
+  public String getDiscriminatorColumn() {
+    return inheritInfo == null ? null : inheritInfo.getDiscriminatorColumn();
+  }
+
+  @Override
+  public DeployBeanDescriptorMeta getDeployBeanDescriptorMeta(Class<?> propertyType) {
+    return getDeploy(propertyType).getDescriptor();
+  }
 }

@@ -25,7 +25,7 @@ public interface DeployBeanDescriptorMeta {
   public DeployBeanDescriptorMeta getDeployBeanDescriptorMeta(Class<?> propertyType);
 
   /**
-   * Return the BeanProperty that is the unique id.
+   * Return the BeanProperty that make up the unique id.
    */
   public DeployBeanPropertyMeta idProperty();
 

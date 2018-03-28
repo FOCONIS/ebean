@@ -77,7 +77,6 @@ public class UuidV1IdGenerator extends UuidV1RndIdGenerator {
 
   /**
    * Find hardware ID.
-   * @throws SocketException
    */
   private static byte[] getHardwareId() throws SocketException {
     final Enumeration<NetworkInterface> e = NetworkInterface.getNetworkInterfaces();
@@ -191,6 +190,10 @@ public class UuidV1IdGenerator extends UuidV1RndIdGenerator {
     prop.setProperty("nodeId", getNodeIdentifier());
     prop.setProperty("clockSeq", String.valueOf(clockSeq.get()));
     prop.setProperty("timeStamp", String.valueOf(timeStamp.get()));
+    File dir = stateFile.getParentFile();
+    if (dir != null) {
+      dir.mkdirs();
+    }
     try (OutputStream os = new FileOutputStream(stateFile)) {
       prop.store(os, "ebean uuid state file");
       logger.debug("Persisted state to '{}'", stateFile);
