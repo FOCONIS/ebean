@@ -217,8 +217,8 @@ class AnnotationAssocManys extends AnnotationParser {
     if (!prop.getManyType().isMap()) {
       elementDescriptor.setProperties(new String[]{"value"});
     } else {
-      elementDescriptor.setProperties(new String[]{"_key", "value"});
-      String dbKeyColumn = "_key";
+      elementDescriptor.setProperties(new String[]{"key", "value"});
+      String dbKeyColumn = "mkey";
       MapKeyColumn mapKeyColumn = get(prop, MapKeyColumn.class);
       if (mapKeyColumn != null) {
         dbKeyColumn = mapKeyColumn.name();
@@ -227,7 +227,7 @@ class AnnotationAssocManys extends AnnotationParser {
       ScalarType<?> keyScalarType = util.getTypeManager().getScalarType(prop.getMapKeyType());
 
       DeployBeanProperty keyProp = new DeployBeanProperty(elementDescriptor, elementType, keyScalarType, null);
-      setElementProperty(keyProp, "_key", dbKeyColumn, sortOrder++);
+      setElementProperty(keyProp, "key", dbKeyColumn, sortOrder++);
       elementDescriptor.addBeanProperty(keyProp);
       if (mapKeyColumn != null) {
         keyProp.setDbLength(mapKeyColumn.length());

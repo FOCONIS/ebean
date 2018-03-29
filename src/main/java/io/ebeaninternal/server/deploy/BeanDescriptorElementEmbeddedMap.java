@@ -3,9 +3,9 @@ package io.ebeaninternal.server.deploy;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import io.ebean.bean.EntityBean;
+import io.ebeaninternal.api.json.SpiJsonReader;
+import io.ebeaninternal.api.json.SpiJsonWriter;
 import io.ebeaninternal.server.deploy.meta.DeployBeanDescriptor;
-import io.ebeaninternal.server.text.json.ReadJson;
-import io.ebeaninternal.server.text.json.SpiJsonWriter;
 import io.ebeaninternal.server.type.ScalarType;
 
 import java.io.IOException;
@@ -38,7 +38,7 @@ class BeanDescriptorElementEmbeddedMap<T> extends BeanDescriptorElementEmbedded<
       ctx.writeFieldName(keyName);
       writeJsonElement(ctx, entry.getValue());
     } else {
-      ctx.writeFieldName("_key");
+      ctx.writeFieldName("key");
       scalarTypeKey.jsonWrite(ctx.gen(), entry.getKey());
       ctx.writeFieldName("value");
       writeJsonElement(ctx, entry.getValue());
@@ -47,7 +47,7 @@ class BeanDescriptorElementEmbeddedMap<T> extends BeanDescriptorElementEmbedded<
   }
 
   @Override
-  public Object jsonReadCollection(ReadJson readJson, EntityBean parentBean) throws IOException {
+  public Object jsonReadCollection(SpiJsonReader readJson, EntityBean parentBean) throws IOException {
 
     JsonParser parser = readJson.getParser();
     ElementCollector add = elementHelp.createCollector();

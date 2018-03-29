@@ -5,8 +5,9 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import io.ebean.bean.EntityBean;
 import io.ebean.text.json.EJson;
-import io.ebeaninternal.server.text.json.ReadJson;
-import io.ebeaninternal.server.text.json.SpiJsonWriter;
+import io.ebean.text.json.JsonReader;
+import io.ebeaninternal.api.json.SpiJsonReader;
+import io.ebeaninternal.api.json.SpiJsonWriter;
 
 import java.io.IOException;
 import java.util.LinkedHashMap;
@@ -71,7 +72,7 @@ public class BeanDescriptorJsonHelp<T> {
   }
 
   @SuppressWarnings("unchecked")
-  public T jsonRead(ReadJson jsonRead, String path) throws IOException {
+  public T jsonRead(JsonReader jsonRead, String path) throws IOException {
 
     JsonParser parser = jsonRead.getParser();
     //noinspection StatementWithEmptyBody
@@ -92,7 +93,7 @@ public class BeanDescriptorJsonHelp<T> {
     parser = jsonRead.getParser();
 
     if (desc.inheritInfo == null) {
-      return jsonReadObject(jsonRead, path);
+      return jsonReadObject((SpiJsonReader) jsonRead, path);
     }
 
     // check for the discriminator value to determine the correct sub type
@@ -109,25 +110,25 @@ public class BeanDescriptorJsonHelp<T> {
       BeanProperty property = desc.getBeanProperty(propName);
       if (property != null) {
         EntityBean bean = desc.createEntityBean();
-        property.jsonRead(jsonRead, bean);
-        return jsonReadProperties(jsonRead, bean, path);
+        property.jsonRead((SpiJsonReader) jsonRead, bean);
+        return jsonReadProperties((SpiJsonReader) jsonRead, bean, path);
       }
       String msg = "Error reading inheritance discriminator, expected property [" + discColumn + "] but got [" + propName + "] ?";
       throw new JsonParseException(parser, msg, parser.getCurrentLocation());
     }
 
     String discValue = parser.nextTextValue();
-    return (T) inheritInfo.readType(discValue).desc().jsonReadObject(jsonRead, path);
+    return (T) inheritInfo.readType(discValue).desc().jsonReadObject((SpiJsonReader) jsonRead, path);
   }
 
-  protected T jsonReadObject(ReadJson readJson, String path) throws IOException {
+  protected T jsonReadObject(SpiJsonReader readJson, String path) throws IOException {
 
     EntityBean bean = desc.createEntityBeanForJson();
     return jsonReadProperties(readJson, bean, path);
   }
 
   @SuppressWarnings("unchecked")
-  protected T jsonReadProperties(ReadJson readJson, EntityBean bean, String path) throws IOException {
+  protected T jsonReadProperties(SpiJsonReader readJson, EntityBean bean, String path) throws IOException {
 
     if (path != null) {
       readJson.pushPath(path);
