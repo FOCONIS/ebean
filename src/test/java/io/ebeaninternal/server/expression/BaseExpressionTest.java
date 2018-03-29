@@ -7,6 +7,8 @@ import io.ebean.Transaction;
 import io.ebean.event.BeanQueryRequest;
 import io.ebeaninternal.api.SpiExpression;
 import io.ebeaninternal.server.deploy.BeanDescriptor;
+import io.ebeaninternal.server.persist.platform.MultiValueBind.IsSupported;
+
 import org.tests.model.basic.Customer;
 import org.tests.model.basic.Order;
 
@@ -38,26 +40,26 @@ public abstract class BaseExpressionTest extends BaseTestCase {
   /**
    * Request with Multi-Value support.
    */
-  protected InExpressionTest.TDQueryRequest<Customer> multi() {
+  protected TDQueryRequest<Customer> multi() {
     return MULTI_VALUE;
   }
 
   /**
    * Request with NO Multi-Value support.
    */
-  protected InExpressionTest.TDQueryRequest<Customer> noMulti() {
+  protected TDQueryRequest<Customer> noMulti() {
     return NO_MULTI_VALUE;
   }
 
 
-  private static final TDQueryRequest<Customer> MULTI_VALUE= new TDQueryRequest<>(true);
-  private static final TDQueryRequest<Customer> NO_MULTI_VALUE = new TDQueryRequest<>(false);
+  private static final TDQueryRequest<Customer> MULTI_VALUE= new TDQueryRequest<>(IsSupported.YES);
+  private static final TDQueryRequest<Customer> NO_MULTI_VALUE = new TDQueryRequest<>(IsSupported.NO);
 
   static class TDQueryRequest<T> implements BeanQueryRequest<T> {
 
-    final boolean supported;
+    final IsSupported supported;
 
-    TDQueryRequest(boolean supported) {
+    TDQueryRequest(IsSupported supported) {
       this.supported = supported;
     }
 
@@ -77,12 +79,12 @@ public abstract class BaseExpressionTest extends BaseTestCase {
     }
 
     @Override
-    public boolean isMultiValueIdSupported() {
+    public IsSupported isMultiValueIdSupported() {
       return supported;
     }
 
     @Override
-    public boolean isMultiValueSupported(Class<?> valueType) {
+    public IsSupported isMultiValueSupported(Class<?> valueType) {
       return supported;
     }
   }
