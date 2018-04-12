@@ -1,6 +1,8 @@
 package io.ebean;
 
+import java.util.concurrent.Callable;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -37,4 +39,16 @@ public interface BackgroundExecutor {
    * </p>
    */
   void executePeriodically(Runnable r, long delay, TimeUnit unit);
+
+  /**
+   * Schedules an execution for a certain time.
+   */
+  ScheduledFuture<?> schedule(Runnable r, long delay, TimeUnit unit);
+
+  /**
+   * Schedules an execution for a certain time.
+   */
+  <V> ScheduledFuture<V> schedule(Callable<V> c, long delay, TimeUnit unit);
+
+
 }
