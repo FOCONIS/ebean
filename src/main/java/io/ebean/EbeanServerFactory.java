@@ -67,11 +67,10 @@ public class EbeanServerFactory {
       throw new PersistenceException("The name is null (it is required)");
     }
 
-    PrimaryServer.setSkip(config.isRegister());
-
     EbeanServer server = createInternal(config);
 
     if (config.isRegister()) {
+      PrimaryServer.setSkip(true);
       Ebean.register(server, config.isDefaultServer());
     }
 

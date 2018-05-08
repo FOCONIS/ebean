@@ -836,9 +836,12 @@ public final class Ebean {
    * @param beanType the type of entity bean
    * @param id       the id value
    */
-  @Nonnull
   public static <T> T getReference(Class<T> beanType, Object id) {
-    return serverMgr.getDefaultServer().getReference(beanType, id);
+    if (!ready()) {
+      return null;
+    } else {
+      return serverMgr.getDefaultServer().getReference(beanType, id);
+    }
   }
 
   /**
@@ -1426,10 +1429,10 @@ public final class Ebean {
   }
 
   /**
-   * This will be false, when we bootstrapping.
+   * This will be false, when we bootstrapping ebean.
    */
-  public static boolean isDefaultServerReady() {
-    return serverMgr != null && serverMgr.defaultServer != null;
+  public static boolean ready() {
+    return serverMgr != null;
   }
 
 }
