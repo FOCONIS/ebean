@@ -837,11 +837,7 @@ public final class Ebean {
    * @param id       the id value
    */
   public static <T> T getReference(Class<T> beanType, Object id) {
-    if (!ready()) {
-      return null;
-    } else {
-      return serverMgr.getDefaultServer().getReference(beanType, id);
-    }
+    return serverMgr.getDefaultServer().getReference(beanType, id);
   }
 
   /**
@@ -1426,13 +1422,6 @@ public final class Ebean {
    */
   public static JsonContext json() {
     return serverMgr.getDefaultServer().json();
-  }
-
-  /**
-   * This will be false, when we bootstrapping ebean.
-   */
-  public static boolean ready() {
-    return serverMgr != null;
   }
 
 }
