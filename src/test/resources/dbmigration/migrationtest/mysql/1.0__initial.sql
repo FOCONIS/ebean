@@ -85,6 +85,8 @@ create table migtest_e_history (
 create table migtest_e_history2 (
   id                            integer auto_increment not null,
   test_string                   varchar(255),
+  obsolete_string1              varchar(255),
+  obsolete_string2              varchar(255),
   constraint pk_migtest_e_history2 primary key (id)
 );
 
@@ -141,6 +143,8 @@ alter table migtest_e_history2 add column sys_period_end datetime(6);
 create table migtest_e_history2_history(
   id                            integer,
   test_string                   varchar(255),
+  obsolete_string1              varchar(255),
+  obsolete_string2              varchar(255),
   sys_period_start              datetime(6),
   sys_period_end                datetime(6)
 );
@@ -148,10 +152,10 @@ create view migtest_e_history2_with_history as select * from migtest_e_history2 
 
 delimiter $$
 create trigger migtest_e_history2_history_upd before update on migtest_e_history2 for each row begin
-    insert into migtest_e_history2_history (sys_period_start,sys_period_end,id, test_string) values (OLD.sys_period_start, now(6),OLD.id, OLD.test_string);
+    insert into migtest_e_history2_history (sys_period_start,sys_period_end,id, test_string, obsolete_string2) values (OLD.sys_period_start, now(6),OLD.id, OLD.test_string, OLD.obsolete_string2);
     set NEW.sys_period_start = now(6);
 end$$
 delimiter $$
 create trigger migtest_e_history2_history_del before delete on migtest_e_history2 for each row begin
-    insert into migtest_e_history2_history (sys_period_start,sys_period_end,id, test_string) values (OLD.sys_period_start, now(6),OLD.id, OLD.test_string);
+    insert into migtest_e_history2_history (sys_period_start,sys_period_end,id, test_string, obsolete_string2) values (OLD.sys_period_start, now(6),OLD.id, OLD.test_string, OLD.obsolete_string2);
 end$$

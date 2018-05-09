@@ -85,6 +85,8 @@ create table migtest_e_history (
 create table migtest_e_history2 (
   id                            integer auto_increment not null,
   test_string                   varchar(255),
+  obsolete_string1              varchar(255),
+  obsolete_string2              varchar(255),
   constraint pk_migtest_e_history2 primary key (id)
 );
 
@@ -141,6 +143,8 @@ alter table migtest_e_history2 add column sys_period_end datetime(6);
 create table migtest_e_history2_history(
   id                            integer,
   test_string                   varchar(255),
+  obsolete_string1              varchar(255),
+  obsolete_string2              varchar(255),
   sys_period_start              datetime(6),
   sys_period_end                datetime(6)
 );

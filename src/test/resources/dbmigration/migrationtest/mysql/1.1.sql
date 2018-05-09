@@ -1,4 +1,7 @@
 -- Migrationscripts for ebean unittest
+-- drop dependencies
+drop view if exists migtest_e_history2_with_history;
+
 -- apply changes
 create table migtest_e_user (
   id                            integer auto_increment not null,
@@ -114,16 +117,18 @@ create trigger migtest_e_history_history_del before delete on migtest_e_history 
     insert into migtest_e_history_history (sys_period_start,sys_period_end,id, test_string) values (OLD.sys_period_start, now(6),OLD.id, OLD.test_string);
 end$$
 -- changes: [add test_string2, add test_string3, add new_column]
+create view migtest_e_history2_with_history as select * from migtest_e_history2 union all select * from migtest_e_history2_history;
+
 lock tables migtest_e_history2 write;
 drop trigger migtest_e_history2_history_upd;
 drop trigger migtest_e_history2_history_del;
 delimiter $$
 create trigger migtest_e_history2_history_upd before update on migtest_e_history2 for each row begin
-    insert into migtest_e_history2_history (sys_period_start,sys_period_end,id, test_string, test_string2, test_string3, new_column) values (OLD.sys_period_start, now(6),OLD.id, OLD.test_string, OLD.test_string2, OLD.test_string3, OLD.new_column);
+    insert into migtest_e_history2_history (sys_period_start,sys_period_end,id, test_string, test_string2, test_string3, new_column, obsolete_string2) values (OLD.sys_period_start, now(6),OLD.id, OLD.test_string, OLD.test_string2, OLD.test_string3, OLD.new_column, OLD.obsolete_string2);
     set NEW.sys_period_start = now(6);
 end$$
 delimiter $$
 create trigger migtest_e_history2_history_del before delete on migtest_e_history2 for each row begin
-    insert into migtest_e_history2_history (sys_period_start,sys_period_end,id, test_string, test_string2, test_string3, new_column) values (OLD.sys_period_start, now(6),OLD.id, OLD.test_string, OLD.test_string2, OLD.test_string3, OLD.new_column);
+    insert into migtest_e_history2_history (sys_period_start,sys_period_end,id, test_string, test_string2, test_string3, new_column, obsolete_string2) values (OLD.sys_period_start, now(6),OLD.id, OLD.test_string, OLD.test_string2, OLD.test_string3, OLD.new_column, OLD.obsolete_string2);
 end$$
 unlock tables;

@@ -38,6 +38,9 @@ comment on column migtest_e_history.test_string is '';
 comment on table migtest_e_history is '';
 alter table migtest_e_history2 alter column test_string drop default;
 alter table migtest_e_history2 alter column test_string set null;
+alter table migtest_e_history2 add column obsolete_string1 varchar(255);
+alter table migtest_e_history2 add column obsolete_string2 varchar(255);
+
 create index ix_migtest_e_basic_indextest1 on migtest_e_basic (indextest1);
 create index ix_migtest_e_basic_indextest5 on migtest_e_basic (indextest5);
 drop index if exists ix_migtest_e_basic_indextest3;

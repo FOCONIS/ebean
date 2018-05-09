@@ -1,4 +1,7 @@
 -- Migrationscripts for ebean unittest
+-- drop dependencies
+drop view if exists migtest_e_history2_with_history;
+
 -- apply changes
 create table migtest_e_ref (
   id                            integer auto_increment not null,
@@ -34,6 +37,11 @@ alter table migtest_e_basic add constraint uq_migtest_e_basic_indextest2 unique 
 alter table migtest_e_basic add constraint uq_migtest_e_basic_indextest6 unique  (indextest6);
 alter table migtest_e_history comment = '';
 alter table migtest_e_history2 alter test_string drop default;
+alter table migtest_e_history2 add column obsolete_string1 varchar(255);
+alter table migtest_e_history2 add column obsolete_string2 varchar(255);
+alter table migtest_e_history2_history add column obsolete_string1 varchar(255);
+alter table migtest_e_history2_history add column obsolete_string2 varchar(255);
+
 create index ix_migtest_e_basic_indextest1 on migtest_e_basic (indextest1);
 create index ix_migtest_e_basic_indextest5 on migtest_e_basic (indextest5);
 drop index ix_migtest_e_basic_indextest3 on migtest_e_basic;
@@ -41,3 +49,19 @@ drop index ix_migtest_e_basic_indextest6 on migtest_e_basic;
 create index ix_migtest_e_basic_eref_id on migtest_e_basic (eref_id);
 alter table migtest_e_basic add constraint fk_migtest_e_basic_eref_id foreign key (eref_id) references migtest_e_ref (id) on delete restrict on update restrict;
 
+-- changes: [add obsolete_string1, add obsolete_string2]
+create view migtest_e_history2_with_history as select * from migtest_e_history2 union all select * from migtest_e_history2_history;
+
+lock tables migtest_e_history2 write;
+drop trigger migtest_e_history2_history_upd;
+drop trigger migtest_e_history2_history_del;
+delimiter $$
+create trigger migtest_e_history2_history_upd before update on migtest_e_history2 for each row begin
+    insert into migtest_e_history2_history (sys_period_start,sys_period_end,id, test_string, obsolete_string2, test_string2, test_string3, new_column) values (OLD.sys_period_start, now(6),OLD.id, OLD.test_string, OLD.obsolete_string2, OLD.test_string2, OLD.test_string3, OLD.new_column);
+    set NEW.sys_period_start = now(6);
+end$$
+delimiter $$
+create trigger migtest_e_history2_history_del before delete on migtest_e_history2 for each row begin
+    insert into migtest_e_history2_history (sys_period_start,sys_period_end,id, test_string, obsolete_string2, test_string2, test_string3, new_column) values (OLD.sys_period_start, now(6),OLD.id, OLD.test_string, OLD.obsolete_string2, OLD.test_string2, OLD.test_string3, OLD.new_column);
+end$$
+unlock tables;

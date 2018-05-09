@@ -64,6 +64,8 @@
         <createTable name="migtest_e_history2" withHistory="true" pkName="pk_migtest_e_history2">
             <column name="id" type="integer" primaryKey="true"/>
             <column name="test_string" type="varchar"/>
+            <column name="obsolete_string1" type="varchar" historyExclude="true"/>
+            <column name="obsolete_string2" type="varchar"/>
         </createTable>
         <createTable name="migtest_e_ref" pkName="pk_migtest_e_ref">
             <column name="id" type="integer" primaryKey="true"/>

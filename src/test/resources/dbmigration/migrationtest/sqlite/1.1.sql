@@ -63,9 +63,6 @@ alter table migtest_e_history2 alter column test_string set not null;
 alter table migtest_e_history2 add column test_string2 varchar(255);
 alter table migtest_e_history2 add column test_string3 varchar(255) default 'unknown' not null;
 alter table migtest_e_history2 add column new_column varchar(20);
-alter table migtest_e_history2_history add column test_string2 varchar(255);
-alter table migtest_e_history2_history add column test_string3 varchar(255);
-alter table migtest_e_history2_history add column new_column varchar(20);
 
 alter table migtest_e_softdelete add column deleted int default 0 not null;
 

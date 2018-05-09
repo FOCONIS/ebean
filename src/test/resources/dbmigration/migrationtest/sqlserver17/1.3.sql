@@ -55,6 +55,9 @@ DECLARE @Tmp nvarchar(200);select @Tmp = t1.name  from sys.default_constraints t
   join sys.columns t2 on t1.object_id = t2.default_object_id
   where t1.parent_object_id = OBJECT_ID('migtest_e_history2') and t2.name = 'test_string';
 if @Tmp is not null EXEC('alter table migtest_e_history2 drop constraint ' + @Tmp)$$;
+alter table migtest_e_history2 add obsolete_string1 nvarchar(255);
+alter table migtest_e_history2 add obsolete_string2 nvarchar(255);
+
 create index ix_migtest_e_basic_indextest1 on migtest_e_basic (indextest1);
 create index ix_migtest_e_basic_indextest5 on migtest_e_basic (indextest5);
 IF EXISTS (SELECT name FROM sys.indexes WHERE object_id = OBJECT_ID('migtest_e_basic','U') AND name = 'ix_migtest_e_basic_indextest3') drop index ix_migtest_e_basic_indextest3 ON migtest_e_basic;

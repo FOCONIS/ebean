@@ -102,6 +102,8 @@ create sequence migtest_e_history_seq as bigint  start with 1 ;
 create table migtest_e_history2 (
   id                            integer not null,
   test_string                   nvarchar(255),
+  obsolete_string1              nvarchar(255),
+  obsolete_string2              nvarchar(255),
   constraint pk_migtest_e_history2 primary key (id)
 );
 create sequence migtest_e_history2_seq as bigint  start with 1 ;

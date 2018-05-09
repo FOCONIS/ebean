@@ -88,6 +88,8 @@ create table migtest_e_history (
 create table migtest_e_history2 (
   id                            integer not null,
   test_string                   varchar(255),
+  obsolete_string1              varchar(255),
+  obsolete_string2              varchar(255),
   constraint pk_migtest_e_history2 primary key (id)
 );
 

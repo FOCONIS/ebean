@@ -115,6 +115,8 @@ create sequence migtest_e_history_seq;
 create table migtest_e_history2 (
   id                            number(10) not null,
   test_string                   varchar2(255),
+  obsolete_string1              varchar2(255),
+  obsolete_string2              varchar2(255),
   constraint pk_migtest_e_history2 primary key (id)
 );
 create sequence migtest_e_history2_seq;

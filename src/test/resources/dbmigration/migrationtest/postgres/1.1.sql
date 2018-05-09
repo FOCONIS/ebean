@@ -123,16 +123,16 @@ create trigger migtest_e_history_history_upd
   for each row execute procedure migtest_e_history_history_version();
 
 -- changes: [add test_string2, add test_string3, add new_column]
-create or replace view migtest_e_history2_with_history as select id, test_string, test_string2, test_string3, new_column, sys_period from migtest_e_history2 union all select id, test_string, test_string2, test_string3, new_column, sys_period from migtest_e_history2_history;
+create view migtest_e_history2_with_history as select * from migtest_e_history2 union all select * from migtest_e_history2_history;
 
 create or replace function migtest_e_history2_history_version() returns trigger as $$
 begin
   if (TG_OP = 'UPDATE') then
-    insert into migtest_e_history2_history (sys_period,id, test_string, test_string2, test_string3, new_column) values (tstzrange(lower(OLD.sys_period), current_timestamp), OLD.id, OLD.test_string, OLD.test_string2, OLD.test_string3, OLD.new_column);
+    insert into migtest_e_history2_history (sys_period,id, test_string, test_string2, test_string3, new_column, obsolete_string2) values (tstzrange(lower(OLD.sys_period), current_timestamp), OLD.id, OLD.test_string, OLD.test_string2, OLD.test_string3, OLD.new_column, OLD.obsolete_string2);
     NEW.sys_period = tstzrange(current_timestamp,null);
     return new;
   elsif (TG_OP = 'DELETE') then
-    insert into migtest_e_history2_history (sys_period,id, test_string, test_string2, test_string3, new_column) values (tstzrange(lower(OLD.sys_period), current_timestamp), OLD.id, OLD.test_string, OLD.test_string2, OLD.test_string3, OLD.new_column);
+    insert into migtest_e_history2_history (sys_period,id, test_string, test_string2, test_string3, new_column, obsolete_string2) values (tstzrange(lower(OLD.sys_period), current_timestamp), OLD.id, OLD.test_string, OLD.test_string2, OLD.test_string3, OLD.new_column, OLD.obsolete_string2);
     return old;
   end if;
 end;
