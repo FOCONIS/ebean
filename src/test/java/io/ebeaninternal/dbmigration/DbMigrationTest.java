@@ -65,6 +65,7 @@ public class DbMigrationTest extends BaseTestCase {
         "migtest_e_history3",
         "migtest_e_history4",
         "migtest_e_history5",
+        "migtest_e_history6",
         "migtest_e_ref",
         "migtest_e_softdelete",
         "migtest_e_user",
@@ -187,6 +188,11 @@ public class DbMigrationTest extends BaseTestCase {
     update = server().createSqlUpdate("insert into migtest_e_history5 (id, test_number) values (1, 42)");
     assertThat(server().execute(update)).isEqualTo(1);
     update = server().createSqlUpdate("update migtest_e_history5 set test_number = 45 where id = 1");
+    assertThat(server().execute(update)).isEqualTo(1);
+
+    update = server().createSqlUpdate("insert into migtest_e_history6 (id, test_number2) values (1, 7)");
+    assertThat(server().execute(update)).isEqualTo(1);
+    update = server().createSqlUpdate("update migtest_e_history6 set test_number2 = 45 where id = 1");
     assertThat(server().execute(update)).isEqualTo(1);
   }
 
