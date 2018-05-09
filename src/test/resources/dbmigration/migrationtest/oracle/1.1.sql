@@ -90,6 +90,9 @@ alter table migtest_e_history2 add test_string2 varchar2(255);
 alter table migtest_e_history2 add test_string3 varchar2(255) default 'unknown' not null;
 alter table migtest_e_history2 add new_column varchar2(20);
 
+alter table migtest_e_history4 modify test_number number(19);
+alter table migtest_e_history5 add test_boolean number(1) default 0 not null;
+
 alter table migtest_e_softdelete add deleted number(1) default 0 not null;
 
 alter table migtest_oto_child add master_id number(19);

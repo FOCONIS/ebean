@@ -77,6 +77,9 @@ alter table migtest_e_history2 add test_string2 nvarchar(255);
 alter table migtest_e_history2 add test_string3 nvarchar(255) default 'unknown' not null;
 alter table migtest_e_history2 add new_column nvarchar(20);
 
+alter table migtest_e_history4 alter column test_number numeric(19);
+alter table migtest_e_history5 add test_boolean bit default 0 not null;
+
 alter table migtest_e_softdelete add deleted bit default 0 not null;
 
 alter table migtest_oto_child add master_id numeric(19);

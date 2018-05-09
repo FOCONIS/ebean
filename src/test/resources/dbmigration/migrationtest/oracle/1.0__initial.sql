@@ -121,6 +121,27 @@ create table migtest_e_history2 (
 );
 create sequence migtest_e_history2_seq;
 
+create table migtest_e_history3 (
+  id                            number(10) not null,
+  test_string                   varchar2(255),
+  constraint pk_migtest_e_history3 primary key (id)
+);
+create sequence migtest_e_history3_seq;
+
+create table migtest_e_history4 (
+  id                            number(10) not null,
+  test_number                   number(10),
+  constraint pk_migtest_e_history4 primary key (id)
+);
+create sequence migtest_e_history4_seq;
+
+create table migtest_e_history5 (
+  id                            number(10) not null,
+  test_number                   number(10),
+  constraint pk_migtest_e_history5 primary key (id)
+);
+create sequence migtest_e_history5_seq;
+
 create table migtest_e_ref (
   id                            number(10) not null,
   name                          varchar2(127) not null,

@@ -69,6 +69,9 @@ alter table migtest_e_history2 add column test_string2 varchar(255);
 alter table migtest_e_history2 add column test_string3 varchar(255) default 'unknown' not null;
 alter table migtest_e_history2 add column new_column varchar(20);
 
+alter table migtest_e_history4 alter column test_number bigint;
+alter table migtest_e_history5 add column test_boolean boolean default false not null;
+
 alter table migtest_e_softdelete add column deleted boolean default false not null;
 
 alter table migtest_oto_child add column master_id bigint;

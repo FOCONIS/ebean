@@ -442,26 +442,25 @@ public class PlatformDdl {
       .append(" ").append(addColumn).append(" ").append(column.getName())
       .append(" ").append(convertedType);
 
-    if (!onHistoryTable) {
 
-      if (defaultValue != null) {
-        buffer.append(" default ");
-        buffer.append(defaultValue);
-      }
-
-      if (isTrue(column.isNotnull())) {
-        buffer.append(" not null");
-      }
-      buffer.endOfStatement();
-
-      // check constraints cannot be added in one statement for h2
-      if (!StringHelper.isNull(column.getCheckConstraint())) {
-        String ddl = alterTableAddCheckConstraint(tableName, column.getCheckConstraintName(), column.getCheckConstraint());
-        buffer.append(ddl).endOfStatement();
-      }
-    } else {
-      buffer.endOfStatement();
+    // Add default value and 'not null' also to history table.
+    if (defaultValue != null) {
+      buffer.append(" default ");
+      buffer.append(defaultValue);
     }
+
+    if (isTrue(column.isNotnull())) {
+      buffer.append(" not null");
+    }
+    buffer.endOfStatement();
+
+    // check constraints cannot be added in one statement for h2
+    if (!onHistoryTable && !StringHelper.isNull(column.getCheckConstraint())) {
+      String ddl = alterTableAddCheckConstraint(tableName, column.getCheckConstraintName(),
+          column.getCheckConstraint());
+      buffer.append(ddl).endOfStatement();
+    }
+
 
   }
 

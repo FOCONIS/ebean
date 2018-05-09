@@ -93,6 +93,24 @@ create table migtest_e_history2 (
   constraint pk_migtest_e_history2 primary key (id)
 );
 
+create table migtest_e_history3 (
+  id                            integer not null,
+  test_string                   varchar(255),
+  constraint pk_migtest_e_history3 primary key (id)
+);
+
+create table migtest_e_history4 (
+  id                            integer not null,
+  test_number                   integer,
+  constraint pk_migtest_e_history4 primary key (id)
+);
+
+create table migtest_e_history5 (
+  id                            integer not null,
+  test_number                   integer,
+  constraint pk_migtest_e_history5 primary key (id)
+);
+
 create table migtest_e_ref (
   id                            integer not null,
   name                          varchar(127) not null,

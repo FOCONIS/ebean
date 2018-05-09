@@ -781,8 +781,8 @@ public class BaseTableDdl implements TableDdl {
     String tableName = dropColumn.getTableName();
 
     alterTableDropColumn(writer.apply(), tableName, dropColumn.getColumnName());
-    MTable table = writer.getTable(tableName);
-    if (table != null && table.isWithHistory() && historySupport == HistorySupport.TRIGGER_BASED) {
+
+    if (isTrue(dropColumn.isWithHistory())  && historySupport == HistorySupport.TRIGGER_BASED) {
       // also drop from the history table
       regenerateHistoryTriggers(tableName, HistoryTableUpdate.Change.DROP, dropColumn.getColumnName());
       alterTableDropColumn(writer.apply(), historyTable(tableName), dropColumn.getColumnName());

@@ -59,6 +59,7 @@ if @Tmp is not null EXEC('alter table migtest_e_history2 drop constraint ' + @Tm
 alter table migtest_e_history2 add obsolete_string1 nvarchar(255);
 alter table migtest_e_history2 add obsolete_string2 nvarchar(255);
 
+alter table migtest_e_history4 alter column test_number integer;
 create index ix_migtest_e_basic_indextest1 on migtest_e_basic (indextest1);
 create index ix_migtest_e_basic_indextest5 on migtest_e_basic (indextest5);
 IF EXISTS (SELECT name FROM sys.indexes WHERE object_id = OBJECT_ID('migtest_e_basic','U') AND name = 'ix_migtest_e_basic_indextest3') drop index ix_migtest_e_basic_indextest3 ON migtest_e_basic;

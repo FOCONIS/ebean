@@ -1,6 +1,8 @@
 -- Migrationscripts for ebean unittest
 -- drop dependencies
 drop view if exists migtest_e_history2_with_history;
+drop view if exists migtest_e_history3_with_history;
+drop view if exists migtest_e_history4_with_history;
 
 -- apply changes
 create table migtest_e_ref (
@@ -48,6 +50,8 @@ alter table migtest_e_history2 add column obsolete_string2 varchar(255);
 alter table migtest_e_history2_history add column obsolete_string1 varchar(255);
 alter table migtest_e_history2_history add column obsolete_string2 varchar(255);
 
+alter table migtest_e_history4 alter column test_number integer;
+alter table migtest_e_history4_history alter column test_number integer;
 create index ix_migtest_e_basic_indextest1 on migtest_e_basic (indextest1);
 create index ix_migtest_e_basic_indextest5 on migtest_e_basic (indextest5);
 drop index if exists ix_migtest_e_basic_indextest3;
@@ -59,5 +63,14 @@ alter table migtest_e_basic add constraint fk_migtest_e_basic_eref_id foreign ke
 create view migtest_e_history2_with_history as select * from migtest_e_history2 union all select * from migtest_e_history2_history;
 
 drop trigger migtest_e_history2_history_upd;
--- put migtest_e_history2_history migration here;
 create trigger migtest_e_history2_history_upd before update,delete on migtest_e_history2 for each row call "io.ebean.config.dbplatform.h2.H2HistoryTrigger";
+-- changes: [include test_string]
+create view migtest_e_history3_with_history as select * from migtest_e_history3 union all select * from migtest_e_history3_history;
+
+drop trigger migtest_e_history3_history_upd;
+create trigger migtest_e_history3_history_upd before update,delete on migtest_e_history3 for each row call "io.ebean.config.dbplatform.h2.H2HistoryTrigger";
+-- changes: [alter test_number]
+create view migtest_e_history4_with_history as select * from migtest_e_history4 union all select * from migtest_e_history4_history;
+
+drop trigger migtest_e_history4_history_upd;
+create trigger migtest_e_history4_history_upd before update,delete on migtest_e_history4 for each row call "io.ebean.config.dbplatform.h2.H2HistoryTrigger";

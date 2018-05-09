@@ -39,7 +39,6 @@ public class H2HistoryDdl extends DbTriggerBasedHistoryDdl {
 
     DdlBuffer buffer = update.historyBuffer();
     dropTriggers(buffer, update.getBaseTable());
-    buffer.append("-- put ").append(update.getHistoryTable()).append(" migration here").endOfStatement();
     addCreateTrigger(buffer, updateTriggerName(update.getBaseTable()), update.getBaseTable());
   }
 
