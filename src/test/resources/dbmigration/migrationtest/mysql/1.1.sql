@@ -72,14 +72,19 @@ alter table migtest_e_history2 add column test_string2 varchar(255);
 alter table migtest_e_history2 add column test_string3 varchar(255) default 'unknown' not null;
 alter table migtest_e_history2 add column new_column varchar(20);
 alter table migtest_e_history2_history add column test_string2 varchar(255);
-alter table migtest_e_history2_history add column test_string3 varchar(255) default 'unknown' not null;
+alter table migtest_e_history2_history add column test_string3 varchar(255) default 'unknown';
 alter table migtest_e_history2_history add column new_column varchar(20);
 
 alter table migtest_e_history4 modify test_number bigint;
 alter table migtest_e_history4_history modify test_number bigint;
 alter table migtest_e_history5 add column test_boolean tinyint(1) default 0 not null;
-alter table migtest_e_history5_history add column test_boolean tinyint(1) default 0 not null;
+alter table migtest_e_history5_history add column test_boolean tinyint(1) default 0;
 
+
+update migtest_e_history6 set test_number1 = 42 where test_number1 is null;
+alter table migtest_e_history6 alter test_number1 set default 42;
+alter table migtest_e_history6 modify test_number1 integer not null;
+alter table migtest_e_history6 modify test_number2 integer;
 alter table migtest_e_softdelete add column deleted tinyint(1) default 0 not null;
 
 alter table migtest_oto_child add column master_id bigint;

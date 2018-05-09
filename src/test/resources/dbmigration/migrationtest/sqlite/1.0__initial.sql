@@ -111,6 +111,13 @@ create table migtest_e_history5 (
   constraint pk_migtest_e_history5 primary key (id)
 );
 
+create table migtest_e_history6 (
+  id                            integer not null,
+  test_number1                  integer,
+  test_number2                  integer not null,
+  constraint pk_migtest_e_history6 primary key (id)
+);
+
 create table migtest_e_ref (
   id                            integer not null,
   name                          varchar(127) not null,

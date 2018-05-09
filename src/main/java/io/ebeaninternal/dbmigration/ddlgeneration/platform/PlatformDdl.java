@@ -443,24 +443,29 @@ public class PlatformDdl {
       .append(" ").append(convertedType);
 
 
-    // Add default value and 'not null' also to history table.
+    // Add default value also to history table if it is not excluded
     if (defaultValue != null) {
-      buffer.append(" default ");
-      buffer.append(defaultValue);
+      if (!onHistoryTable || !isTrue(column.isHistoryExclude())) {
+        buffer.append(" default ");
+        buffer.append(defaultValue);
+      }
     }
 
-    if (isTrue(column.isNotnull())) {
-      buffer.append(" not null");
-    }
-    buffer.endOfStatement();
+    if (!onHistoryTable) {
+      if (isTrue(column.isNotnull())) {
+        buffer.append(" not null");
+      }
+      buffer.endOfStatement();
 
-    // check constraints cannot be added in one statement for h2
-    if (!onHistoryTable && !StringHelper.isNull(column.getCheckConstraint())) {
-      String ddl = alterTableAddCheckConstraint(tableName, column.getCheckConstraintName(),
-          column.getCheckConstraint());
-      buffer.append(ddl).endOfStatement();
+      // check constraints cannot be added in one statement for h2
+      if (!StringHelper.isNull(column.getCheckConstraint())) {
+        String ddl = alterTableAddCheckConstraint(tableName, column.getCheckConstraintName(),
+            column.getCheckConstraint());
+        buffer.append(ddl).endOfStatement();
+      }
+    } else {
+      buffer.endOfStatement();
     }
-
 
   }
 

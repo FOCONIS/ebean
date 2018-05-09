@@ -52,6 +52,8 @@
         <addColumn tableName="migtest_e_history5" withHistory="true">
             <column name="test_boolean" type="boolean" defaultValue="false" notnull="true"/>
         </addColumn>
+        <alterColumn columnName="test_number1" tableName="migtest_e_history6" withHistory="true" currentType="integer" defaultValue="42" notnull="true" currentNotnull="false"/>
+        <alterColumn columnName="test_number2" tableName="migtest_e_history6" withHistory="true" currentType="integer" notnull="false" currentNotnull="true"/>
         <addColumn tableName="migtest_e_softdelete">
             <column name="deleted" type="boolean" defaultValue="false" notnull="true"/>
         </addColumn>

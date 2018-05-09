@@ -50,6 +50,12 @@ alter table migtest_e_history2_history add column obsolete_string2 varchar(255);
 
 alter table migtest_e_history4 alter column test_number type integer;
 alter table migtest_e_history4_history alter column test_number type integer;
+alter table migtest_e_history6 alter column test_number1 drop default;
+alter table migtest_e_history6 alter column test_number1 drop not null;
+
+update migtest_e_history6 set test_number2 = 7 where test_number2 is null;
+alter table migtest_e_history6 alter column test_number2 set default 7;
+alter table migtest_e_history6 alter column test_number2 set not null;
 create index ix_migtest_e_basic_indextest1 on migtest_e_basic (indextest1);
 create index ix_migtest_e_basic_indextest5 on migtest_e_basic (indextest5);
 drop index if exists ix_migtest_e_basic_indextest3;

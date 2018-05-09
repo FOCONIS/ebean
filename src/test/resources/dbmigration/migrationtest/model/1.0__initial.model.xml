@@ -79,6 +79,11 @@
             <column name="id" type="integer" primaryKey="true"/>
             <column name="test_number" type="integer"/>
         </createTable>
+        <createTable name="migtest_e_history6" withHistory="true" pkName="pk_migtest_e_history6">
+            <column name="id" type="integer" primaryKey="true"/>
+            <column name="test_number1" type="integer"/>
+            <column name="test_number2" type="integer" notnull="true"/>
+        </createTable>
         <createTable name="migtest_e_ref" pkName="pk_migtest_e_ref">
             <column name="id" type="integer" primaryKey="true"/>
             <column name="name" type="varchar(127)" notnull="true"/>

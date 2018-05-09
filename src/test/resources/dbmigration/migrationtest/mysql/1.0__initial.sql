@@ -108,6 +108,13 @@ create table migtest_e_history5 (
   constraint pk_migtest_e_history5 primary key (id)
 );
 
+create table migtest_e_history6 (
+  id                            integer auto_increment not null,
+  test_number1                  integer,
+  test_number2                  integer not null,
+  constraint pk_migtest_e_history6 primary key (id)
+);
+
 create table migtest_e_ref (
   id                            integer auto_increment not null,
   name                          varchar(127) not null,
@@ -233,4 +240,24 @@ end$$
 delimiter $$
 create trigger migtest_e_history5_history_del before delete on migtest_e_history5 for each row begin
     insert into migtest_e_history5_history (sys_period_start,sys_period_end,id, test_number) values (OLD.sys_period_start, now(6),OLD.id, OLD.test_number);
+end$$
+alter table migtest_e_history6 add column sys_period_start datetime(6) default now(6);
+alter table migtest_e_history6 add column sys_period_end datetime(6);
+create table migtest_e_history6_history(
+  id                            integer,
+  test_number1                  integer,
+  test_number2                  integer,
+  sys_period_start              datetime(6),
+  sys_period_end                datetime(6)
+);
+create view migtest_e_history6_with_history as select * from migtest_e_history6 union all select * from migtest_e_history6_history;
+
+delimiter $$
+create trigger migtest_e_history6_history_upd before update on migtest_e_history6 for each row begin
+    insert into migtest_e_history6_history (sys_period_start,sys_period_end,id, test_number1, test_number2) values (OLD.sys_period_start, now(6),OLD.id, OLD.test_number1, OLD.test_number2);
+    set NEW.sys_period_start = now(6);
+end$$
+delimiter $$
+create trigger migtest_e_history6_history_del before delete on migtest_e_history6 for each row begin
+    insert into migtest_e_history6_history (sys_period_start,sys_period_end,id, test_number1, test_number2) values (OLD.sys_period_start, now(6),OLD.id, OLD.test_number1, OLD.test_number2);
 end$$

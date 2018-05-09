@@ -142,6 +142,14 @@ create table migtest_e_history5 (
 );
 create sequence migtest_e_history5_seq;
 
+create table migtest_e_history6 (
+  id                            number(10) not null,
+  test_number1                  number(10),
+  test_number2                  number(10) not null,
+  constraint pk_migtest_e_history6 primary key (id)
+);
+create sequence migtest_e_history6_seq;
+
 create table migtest_e_ref (
   id                            number(10) not null,
   name                          varchar2(127) not null,

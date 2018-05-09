@@ -129,6 +129,14 @@ create table migtest_e_history5 (
 );
 create sequence migtest_e_history5_seq as bigint  start with 1 ;
 
+create table migtest_e_history6 (
+  id                            integer not null,
+  test_number1                  integer,
+  test_number2                  integer not null,
+  constraint pk_migtest_e_history6 primary key (id)
+);
+create sequence migtest_e_history6_seq as bigint  start with 1 ;
+
 create table migtest_e_ref (
   id                            integer not null,
   name                          nvarchar(127) not null,
@@ -203,3 +211,8 @@ alter table migtest_e_history5
         sys_periodTo   datetime2 GENERATED ALWAYS AS ROW END   NOT NULL DEFAULT '9999-12-31T23:59:59.9999999',
 period for system_time (sys_periodFrom, sys_periodTo);
 alter table migtest_e_history5 set (system_versioning = on (history_table=dbo.migtest_e_history5_history));
+alter table migtest_e_history6
+    add sys_periodFrom datetime2 GENERATED ALWAYS AS ROW START NOT NULL DEFAULT SYSUTCDATETIME(),
+        sys_periodTo   datetime2 GENERATED ALWAYS AS ROW END   NOT NULL DEFAULT '9999-12-31T23:59:59.9999999',
+period for system_time (sys_periodFrom, sys_periodTo);
+alter table migtest_e_history6 set (system_versioning = on (history_table=dbo.migtest_e_history6_history));

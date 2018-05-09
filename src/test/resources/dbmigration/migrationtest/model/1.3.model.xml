@@ -30,6 +30,8 @@
         </addColumn>
         <alterColumn columnName="test_string" tableName="migtest_e_history3" withHistory="true" historyExclude="false"/>
         <alterColumn columnName="test_number" tableName="migtest_e_history4" withHistory="true" type="integer" currentType="bigint" currentNotnull="false"/>
+        <alterColumn columnName="test_number1" tableName="migtest_e_history6" withHistory="true" currentType="integer" defaultValue="DROP DEFAULT" notnull="false" currentNotnull="true"/>
+        <alterColumn columnName="test_number2" tableName="migtest_e_history6" withHistory="true" currentType="integer" defaultValue="7" notnull="true" currentNotnull="false"/>
         <createTable name="migtest_e_ref" pkName="pk_migtest_e_ref">
             <column name="id" type="integer" primaryKey="true"/>
             <column name="name" type="varchar(127)" notnull="true"/>
