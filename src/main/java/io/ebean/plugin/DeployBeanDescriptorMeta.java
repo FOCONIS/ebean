@@ -31,10 +31,12 @@ public interface DeployBeanDescriptorMeta {
 
   /**
    * Returns the discriminator column, if any.
-   * @return
    */
   public String getDiscriminatorColumn();
 
+  /**
+   * Returns the base table name.
+   */
   public String getBaseTable();
 
 }
