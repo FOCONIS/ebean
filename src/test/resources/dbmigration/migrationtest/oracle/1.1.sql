@@ -81,7 +81,6 @@ alter table migtest_e_basic drop constraint uq_migtest_e_basic_indextest6;
 comment on column migtest_e_history.test_string is 'Column altered to long now';
 alter table migtest_e_history modify test_string number(19);
 comment on table migtest_e_history is 'We have history now';
-alter table migtest_e_history2 modify id number(19);
 
 update migtest_e_history2 set test_string = 'unknown' where test_string is null;
 alter table migtest_e_history2 modify test_string default 'unknown';

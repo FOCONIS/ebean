@@ -17,7 +17,7 @@ import io.ebean.annotation.NotNull;
 public class EHistory2 {
 
   @Id
-  Long id;
+  Integer id;
 
   @NotNull
   @DbDefault("unknown")

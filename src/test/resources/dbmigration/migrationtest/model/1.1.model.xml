@@ -41,7 +41,6 @@
             <before platforms="postgres">alter table ${table} alter column ${column} TYPE bigint USING (${column}::integer)</before>
         </alterColumn>
         <addTableComment name="migtest_e_history" comment="We have history now"/>
-        <alterColumn columnName="id" tableName="migtest_e_history2" withHistory="true" type="bigint" currentType="integer" currentNotnull="false"/>
         <alterColumn columnName="test_string" tableName="migtest_e_history2" withHistory="true" currentType="varchar" defaultValue="'unknown'" notnull="true" currentNotnull="false"/>
         <addColumn tableName="migtest_e_history2" withHistory="true">
             <column name="test_string2" type="varchar" historyExclude="true"/>

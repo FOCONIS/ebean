@@ -41,8 +41,6 @@ alter table migtest_e_basic add constraint uq_migtest_e_basic_indextest2 unique 
 alter table migtest_e_basic add constraint uq_migtest_e_basic_indextest6 unique  (indextest6);
 comment on column migtest_e_history.test_string is '';
 comment on table migtest_e_history is '';
-alter table migtest_e_history2 alter column id integer;
-alter table migtest_e_history2_history alter column id integer;
 alter table migtest_e_history2 alter column test_string drop default;
 alter table migtest_e_history2 alter column test_string set null;
 alter table migtest_e_history2 add column obsolete_string1 varchar(255);
@@ -59,7 +57,7 @@ drop index if exists ix_migtest_e_basic_indextest6;
 create index ix_migtest_e_basic_eref_id on migtest_e_basic (eref_id);
 alter table migtest_e_basic add constraint fk_migtest_e_basic_eref_id foreign key (eref_id) references migtest_e_ref (id) on delete restrict on update restrict;
 
--- changes: [alter id, add obsolete_string1, add obsolete_string2]
+-- changes: [add obsolete_string1, add obsolete_string2]
 create view migtest_e_history2_with_history as select * from migtest_e_history2 union all select * from migtest_e_history2_history;
 
 drop trigger migtest_e_history2_history_upd;

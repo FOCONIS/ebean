@@ -64,8 +64,6 @@ alter table migtest_e_basic add constraint uq_migtest_e_basic_indextest4 unique 
 alter table migtest_e_basic add constraint uq_migtest_e_basic_indextest5 unique  (indextest5);
 alter table migtest_e_history modify test_string bigint;
 alter table migtest_e_history comment = 'We have history now';
-alter table migtest_e_history2 modify id bigint;
-alter table migtest_e_history2_history modify id bigint;
 
 update migtest_e_history2 set test_string = 'unknown' where test_string is null;
 alter table migtest_e_history2 alter test_string set default 'unknown';
@@ -126,7 +124,7 @@ delimiter $$
 create trigger migtest_e_history_history_del before delete on migtest_e_history for each row begin
     insert into migtest_e_history_history (sys_period_start,sys_period_end,id, test_string) values (OLD.sys_period_start, now(6),OLD.id, OLD.test_string);
 end$$
--- changes: [alter id, add test_string2, add test_string3, add new_column]
+-- changes: [add test_string2, add test_string3, add new_column]
 create view migtest_e_history2_with_history as select * from migtest_e_history2 union all select * from migtest_e_history2_history;
 
 lock tables migtest_e_history2 write;

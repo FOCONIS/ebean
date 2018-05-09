@@ -68,8 +68,6 @@ alter table migtest_e_history alter column test_string TYPE bigint USING (test_s
 comment on column migtest_e_history.test_string is 'Column altered to long now';
 alter table migtest_e_history alter column test_string type bigint;
 comment on table migtest_e_history is 'We have history now';
-alter table migtest_e_history2 alter column id type bigint;
-alter table migtest_e_history2_history alter column id type bigint;
 
 update migtest_e_history2 set test_string = 'unknown' where test_string is null;
 alter table migtest_e_history2 alter column test_string set default 'unknown';
@@ -132,7 +130,7 @@ create trigger migtest_e_history_history_upd
   before update or delete on migtest_e_history
   for each row execute procedure migtest_e_history_history_version();
 
--- changes: [alter id, add test_string2, add test_string3, add new_column]
+-- changes: [add test_string2, add test_string3, add new_column]
 create view migtest_e_history2_with_history as select * from migtest_e_history2 union all select * from migtest_e_history2_history;
 
 create or replace function migtest_e_history2_history_version() returns trigger as $$

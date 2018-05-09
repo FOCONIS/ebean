@@ -60,7 +60,6 @@ alter table migtest_e_basic drop constraint uq_mgtst__b_4ayc02;
 comment on column migtest_e_history.test_string is 'Column altered to long now';
 alter table migtest_e_history alter column test_string bigint;
 comment on table migtest_e_history is 'We have history now';
-alter table migtest_e_history2 alter column id bigint;
 
 update migtest_e_history2 set test_string = 'unknown' where test_string is null;
 alter table migtest_e_history2 alter column test_string set default 'unknown';

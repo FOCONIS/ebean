@@ -57,7 +57,6 @@ alter table migtest_e_basic drop constraint uq_migtest_e_basic_indextest5;
 -- NOT YET IMPLEMENTED: alter table migtest_e_basic add constraint uq_migtest_e_basic_indextest6 unique  (indextest6);
 comment on column migtest_e_history.test_string is '';
 comment on table migtest_e_history is '';
-alter table migtest_e_history2 modify id number(10);
 alter table migtest_e_history2 modify test_string default null;
 alter table migtest_e_history2 modify test_string null;
 alter table migtest_e_history2 add obsolete_string1 varchar2(255);
