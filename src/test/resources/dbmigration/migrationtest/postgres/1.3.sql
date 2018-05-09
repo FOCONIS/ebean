@@ -39,6 +39,8 @@ alter table migtest_e_basic add constraint uq_migtest_e_basic_indextest2 unique 
 alter table migtest_e_basic add constraint uq_migtest_e_basic_indextest6 unique  (indextest6);
 comment on column migtest_e_history.test_string is '';
 comment on table migtest_e_history is '';
+alter table migtest_e_history2 alter column id type integer;
+alter table migtest_e_history2_history alter column id type integer;
 alter table migtest_e_history2 alter column test_string drop default;
 alter table migtest_e_history2 alter column test_string drop not null;
 alter table migtest_e_history2 add column obsolete_string1 varchar(255);
@@ -53,17 +55,17 @@ drop index if exists ix_migtest_e_basic_indextest6;
 create index ix_migtest_e_basic_eref_id on migtest_e_basic (eref_id);
 alter table migtest_e_basic add constraint fk_migtest_e_basic_eref_id foreign key (eref_id) references migtest_e_ref (id) on delete restrict on update restrict;
 
--- changes: [add obsolete_string1, add obsolete_string2]
+-- changes: [alter id, add obsolete_string1, add obsolete_string2]
 create view migtest_e_history2_with_history as select * from migtest_e_history2 union all select * from migtest_e_history2_history;
 
 create or replace function migtest_e_history2_history_version() returns trigger as $$
 begin
   if (TG_OP = 'UPDATE') then
-    insert into migtest_e_history2_history (sys_period,id, test_string, obsolete_string2, test_string2, test_string3, new_column) values (tstzrange(lower(OLD.sys_period), current_timestamp), OLD.id, OLD.test_string, OLD.obsolete_string2, OLD.test_string2, OLD.test_string3, OLD.new_column);
+    insert into migtest_e_history2_history (sys_period,id, test_string, obsolete_string2, test_string3, new_column) values (tstzrange(lower(OLD.sys_period), current_timestamp), OLD.id, OLD.test_string, OLD.obsolete_string2, OLD.test_string3, OLD.new_column);
     NEW.sys_period = tstzrange(current_timestamp,null);
     return new;
   elsif (TG_OP = 'DELETE') then
-    insert into migtest_e_history2_history (sys_period,id, test_string, obsolete_string2, test_string2, test_string3, new_column) values (tstzrange(lower(OLD.sys_period), current_timestamp), OLD.id, OLD.test_string, OLD.obsolete_string2, OLD.test_string2, OLD.test_string3, OLD.new_column);
+    insert into migtest_e_history2_history (sys_period,id, test_string, obsolete_string2, test_string3, new_column) values (tstzrange(lower(OLD.sys_period), current_timestamp), OLD.id, OLD.test_string, OLD.obsolete_string2, OLD.test_string3, OLD.new_column);
     return old;
   end if;
 end;

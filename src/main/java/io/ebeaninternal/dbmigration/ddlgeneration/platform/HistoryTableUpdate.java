@@ -18,7 +18,7 @@ public class HistoryTableUpdate {
     DROP,
     INCLUDE,
     EXCLUDE,
-    MODIFY
+    ALTER
   }
 
   private static class Column {

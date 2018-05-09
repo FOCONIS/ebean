@@ -56,6 +56,7 @@ alter table migtest_e_basic add constraint uq_migtest_e_basic_name unique  (name
 alter table migtest_e_basic add constraint uq_migtest_e_basic_indextest4 unique  (indextest4);
 alter table migtest_e_basic add constraint uq_migtest_e_basic_indextest5 unique  (indextest5);
 alter table migtest_e_history alter column test_string integer;
+alter table migtest_e_history2 alter column id integer;
 
 update migtest_e_history2 set test_string = 'unknown' where test_string is null;
 alter table migtest_e_history2 alter column test_string set default 'unknown';

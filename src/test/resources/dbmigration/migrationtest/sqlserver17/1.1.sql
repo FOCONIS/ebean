@@ -68,6 +68,7 @@ create unique nonclustered index uq_migtest_e_basic_name on migtest_e_basic(name
 create unique nonclustered index uq_migtest_e_basic_indextest4 on migtest_e_basic(indextest4) where indextest4 is not null;
 create unique nonclustered index uq_migtest_e_basic_indextest5 on migtest_e_basic(indextest5) where indextest5 is not null;
 alter table migtest_e_history alter column test_string numeric(19);
+alter table migtest_e_history2 alter column id numeric(19);
 
 update migtest_e_history2 set test_string = 'unknown' where test_string is null;
 alter table migtest_e_history2 add default 'unknown' for test_string;

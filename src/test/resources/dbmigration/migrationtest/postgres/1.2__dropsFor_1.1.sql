@@ -23,11 +23,11 @@ create view migtest_e_history2_with_history as select * from migtest_e_history2 
 create or replace function migtest_e_history2_history_version() returns trigger as $$
 begin
   if (TG_OP = 'UPDATE') then
-    insert into migtest_e_history2_history (sys_period,id, test_string, test_string2, test_string3, new_column) values (tstzrange(lower(OLD.sys_period), current_timestamp), OLD.id, OLD.test_string, OLD.test_string2, OLD.test_string3, OLD.new_column);
+    insert into migtest_e_history2_history (sys_period,id, test_string, test_string3, new_column) values (tstzrange(lower(OLD.sys_period), current_timestamp), OLD.id, OLD.test_string, OLD.test_string3, OLD.new_column);
     NEW.sys_period = tstzrange(current_timestamp,null);
     return new;
   elsif (TG_OP = 'DELETE') then
-    insert into migtest_e_history2_history (sys_period,id, test_string, test_string2, test_string3, new_column) values (tstzrange(lower(OLD.sys_period), current_timestamp), OLD.id, OLD.test_string, OLD.test_string2, OLD.test_string3, OLD.new_column);
+    insert into migtest_e_history2_history (sys_period,id, test_string, test_string3, new_column) values (tstzrange(lower(OLD.sys_period), current_timestamp), OLD.id, OLD.test_string, OLD.test_string3, OLD.new_column);
     return old;
   end if;
 end;

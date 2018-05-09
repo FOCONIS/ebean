@@ -63,6 +63,8 @@ alter table migtest_e_basic add constraint uq_migtest_e_basic_indextest5 unique 
 comment on column migtest_e_history.test_string is 'Column altered to long now';
 alter table migtest_e_history alter column test_string bigint;
 comment on table migtest_e_history is 'We have history now';
+alter table migtest_e_history2 alter column id bigint;
+alter table migtest_e_history2_history alter column id bigint;
 
 update migtest_e_history2 set test_string = 'unknown' where test_string is null;
 alter table migtest_e_history2 alter column test_string set default 'unknown';
@@ -110,7 +112,7 @@ create table migtest_e_history_history(
 create view migtest_e_history_with_history as select * from migtest_e_history union all select * from migtest_e_history_history;
 
 create trigger migtest_e_history_history_upd before update,delete on migtest_e_history for each row call "io.ebean.config.dbplatform.h2.H2HistoryTrigger";
--- changes: [add test_string2, add test_string3, add new_column]
+-- changes: [alter id, add test_string2, add test_string3, add new_column]
 create view migtest_e_history2_with_history as select * from migtest_e_history2 union all select * from migtest_e_history2_history;
 
 drop trigger migtest_e_history2_history_upd;

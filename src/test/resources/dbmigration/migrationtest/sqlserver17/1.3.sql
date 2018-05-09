@@ -50,6 +50,7 @@ IF (OBJECT_ID('uq_migtest_e_basic_indextest5', 'UQ') IS NOT NULL) alter table mi
 IF EXISTS (SELECT name FROM sys.indexes WHERE object_id = OBJECT_ID('migtest_e_basic','U') AND name = 'uq_migtest_e_basic_indextest5') drop index uq_migtest_e_basic_indextest5 ON migtest_e_basic;
 create unique nonclustered index uq_migtest_e_basic_indextest2 on migtest_e_basic(indextest2) where indextest2 is not null;
 create unique nonclustered index uq_migtest_e_basic_indextest6 on migtest_e_basic(indextest6) where indextest6 is not null;
+alter table migtest_e_history2 alter column id integer;
 delimiter $$
 DECLARE @Tmp nvarchar(200);select @Tmp = t1.name  from sys.default_constraints t1
   join sys.columns t2 on t1.object_id = t2.default_object_id
