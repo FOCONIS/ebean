@@ -49,6 +49,7 @@ alter table migtest_e_history4_history modify test_number integer;
 alter table migtest_e_history6 alter test_number1 drop default;
 
 update migtest_e_history6 set test_number2 = 7 where test_number2 is null;
+-- TODO update history table;
 alter table migtest_e_history6 alter test_number2 set default 7;
 alter table migtest_e_history6 modify test_number2 integer not null;
 create index ix_migtest_e_basic_indextest1 on migtest_e_basic (indextest1);

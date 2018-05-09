@@ -66,6 +66,7 @@ DECLARE @Tmp nvarchar(200);select @Tmp = t1.name  from sys.default_constraints t
 if @Tmp is not null EXEC('alter table migtest_e_history6 drop constraint ' + @Tmp)$$;
 
 update migtest_e_history6 set test_number2 = 7 where test_number2 is null;
+-- TODO update history table;
 alter table migtest_e_history6 add default 7 for test_number2;
 alter table migtest_e_history6 alter column test_number2 integer not null;
 create index ix_migtest_e_basic_indextest1 on migtest_e_basic (indextest1);

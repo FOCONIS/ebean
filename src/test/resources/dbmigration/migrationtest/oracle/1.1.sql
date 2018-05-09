@@ -83,6 +83,7 @@ alter table migtest_e_history modify test_string number(19);
 comment on table migtest_e_history is 'We have history now';
 
 update migtest_e_history2 set test_string = 'unknown' where test_string is null;
+-- TODO update history table;
 alter table migtest_e_history2 modify test_string default 'unknown';
 alter table migtest_e_history2 modify test_string not null;
 alter table migtest_e_history2 add test_string2 varchar2(255);
@@ -94,6 +95,7 @@ alter table migtest_e_history5 add test_boolean number(1) default 0 not null;
 
 
 update migtest_e_history6 set test_number1 = 42 where test_number1 is null;
+-- TODO update history table;
 alter table migtest_e_history6 modify test_number1 default 42;
 alter table migtest_e_history6 modify test_number1 not null;
 alter table migtest_e_history6 modify test_number2 null;

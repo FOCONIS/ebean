@@ -70,6 +70,7 @@ create unique nonclustered index uq_migtest_e_basic_indextest5 on migtest_e_basi
 alter table migtest_e_history alter column test_string numeric(19);
 
 update migtest_e_history2 set test_string = 'unknown' where test_string is null;
+-- TODO update history table;
 alter table migtest_e_history2 add default 'unknown' for test_string;
 alter table migtest_e_history2 alter column test_string nvarchar(255) not null;
 alter table migtest_e_history2 add test_string2 nvarchar(255);
@@ -81,6 +82,7 @@ alter table migtest_e_history5 add test_boolean bit default 0 not null;
 
 
 update migtest_e_history6 set test_number1 = 42 where test_number1 is null;
+-- TODO update history table;
 alter table migtest_e_history6 add default 42 for test_number1;
 alter table migtest_e_history6 alter column test_number1 integer not null;
 alter table migtest_e_history6 alter column test_number2 integer;

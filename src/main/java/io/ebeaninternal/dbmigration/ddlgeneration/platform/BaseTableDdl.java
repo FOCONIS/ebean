@@ -129,7 +129,11 @@ public class BaseTableDdl implements TableDdl {
         if (defaultValue == null) {
           handleStrictError(tableName, columnName);
         }
-        before = Arrays.asList(platformDdl.getUpdateNullWithDefault());
+        if (isTrue(alter.isWithHistory())) {
+          before = Arrays.asList(platformDdl.getUpdateNullWithDefault(), "-- TODO update history table");
+        } else {
+          before = Arrays.asList(platformDdl.getUpdateNullWithDefault());
+        }
       } else {
         before = getScriptsForPlatform(alter.getBefore(), platformDdl.getPlatform().getName());
       }

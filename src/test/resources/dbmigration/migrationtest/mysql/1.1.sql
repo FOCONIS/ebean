@@ -66,6 +66,7 @@ alter table migtest_e_history modify test_string bigint;
 alter table migtest_e_history comment = 'We have history now';
 
 update migtest_e_history2 set test_string = 'unknown' where test_string is null;
+-- TODO update history table;
 alter table migtest_e_history2 alter test_string set default 'unknown';
 alter table migtest_e_history2 modify test_string varchar(255) not null;
 alter table migtest_e_history2 add column test_string2 varchar(255);
@@ -82,6 +83,7 @@ alter table migtest_e_history5_history add column test_boolean tinyint(1) defaul
 
 
 update migtest_e_history6 set test_number1 = 42 where test_number1 is null;
+-- TODO update history table;
 alter table migtest_e_history6 alter test_number1 set default 42;
 alter table migtest_e_history6 modify test_number1 integer not null;
 alter table migtest_e_history6 modify test_number2 integer;
