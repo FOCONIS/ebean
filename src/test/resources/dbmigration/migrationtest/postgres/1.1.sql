@@ -1,6 +1,9 @@
 -- Migrationscripts for ebean unittest
 -- drop dependencies
 drop view if exists migtest_e_history2_with_history;
+drop view if exists migtest_e_history3_with_history;
+drop view if exists migtest_e_history4_with_history;
+drop view if exists migtest_e_history5_with_history;
 
 -- apply changes
 create table migtest_e_user (
@@ -73,9 +76,19 @@ alter table migtest_e_history2 add column test_string2 varchar(255);
 alter table migtest_e_history2 add column test_string3 varchar(255) default 'unknown' not null;
 alter table migtest_e_history2 add column new_column varchar(20);
 alter table migtest_e_history2_history add column test_string2 varchar(255);
-alter table migtest_e_history2_history add column test_string3 varchar(255);
+alter table migtest_e_history2_history add column test_string3 varchar(255) default 'unknown';
 alter table migtest_e_history2_history add column new_column varchar(20);
 
+alter table migtest_e_history4 alter column test_number type bigint;
+alter table migtest_e_history4_history alter column test_number type bigint;
+alter table migtest_e_history5 add column test_boolean boolean default false not null;
+alter table migtest_e_history5_history add column test_boolean boolean default false;
+
+
+update migtest_e_history6 set test_number1 = 42 where test_number1 is null;
+alter table migtest_e_history6 alter column test_number1 set default 42;
+alter table migtest_e_history6 alter column test_number1 set not null;
+alter table migtest_e_history6 alter column test_number2 drop not null;
 alter table migtest_e_softdelete add column deleted boolean default false not null;
 
 alter table migtest_oto_child add column master_id bigint;
@@ -123,16 +136,64 @@ create trigger migtest_e_history_history_upd
   for each row execute procedure migtest_e_history_history_version();
 
 -- changes: [add test_string2, add test_string3, add new_column]
-create or replace view migtest_e_history2_with_history as select id, test_string, test_string2, test_string3, new_column, sys_period from migtest_e_history2 union all select id, test_string, test_string2, test_string3, new_column, sys_period from migtest_e_history2_history;
+create view migtest_e_history2_with_history as select * from migtest_e_history2 union all select * from migtest_e_history2_history;
 
 create or replace function migtest_e_history2_history_version() returns trigger as $$
 begin
   if (TG_OP = 'UPDATE') then
-    insert into migtest_e_history2_history (sys_period,id, test_string, test_string2, test_string3, new_column) values (tstzrange(lower(OLD.sys_period), current_timestamp), OLD.id, OLD.test_string, OLD.test_string2, OLD.test_string3, OLD.new_column);
+    insert into migtest_e_history2_history (sys_period,id, test_string, test_string3, new_column, obsolete_string1, obsolete_string2) values (tstzrange(lower(OLD.sys_period), current_timestamp), OLD.id, OLD.test_string, OLD.test_string3, OLD.new_column, OLD.obsolete_string1, OLD.obsolete_string2);
     NEW.sys_period = tstzrange(current_timestamp,null);
     return new;
   elsif (TG_OP = 'DELETE') then
-    insert into migtest_e_history2_history (sys_period,id, test_string, test_string2, test_string3, new_column) values (tstzrange(lower(OLD.sys_period), current_timestamp), OLD.id, OLD.test_string, OLD.test_string2, OLD.test_string3, OLD.new_column);
+    insert into migtest_e_history2_history (sys_period,id, test_string, test_string3, new_column, obsolete_string1, obsolete_string2) values (tstzrange(lower(OLD.sys_period), current_timestamp), OLD.id, OLD.test_string, OLD.test_string3, OLD.new_column, OLD.obsolete_string1, OLD.obsolete_string2);
+    return old;
+  end if;
+end;
+$$ LANGUAGE plpgsql;
+
+-- changes: [exclude test_string]
+create view migtest_e_history3_with_history as select * from migtest_e_history3 union all select * from migtest_e_history3_history;
+
+create or replace function migtest_e_history3_history_version() returns trigger as $$
+begin
+  if (TG_OP = 'UPDATE') then
+    insert into migtest_e_history3_history (sys_period,id) values (tstzrange(lower(OLD.sys_period), current_timestamp), OLD.id);
+    NEW.sys_period = tstzrange(current_timestamp,null);
+    return new;
+  elsif (TG_OP = 'DELETE') then
+    insert into migtest_e_history3_history (sys_period,id) values (tstzrange(lower(OLD.sys_period), current_timestamp), OLD.id);
+    return old;
+  end if;
+end;
+$$ LANGUAGE plpgsql;
+
+-- changes: [alter test_number]
+create view migtest_e_history4_with_history as select * from migtest_e_history4 union all select * from migtest_e_history4_history;
+
+create or replace function migtest_e_history4_history_version() returns trigger as $$
+begin
+  if (TG_OP = 'UPDATE') then
+    insert into migtest_e_history4_history (sys_period,id, test_number) values (tstzrange(lower(OLD.sys_period), current_timestamp), OLD.id, OLD.test_number);
+    NEW.sys_period = tstzrange(current_timestamp,null);
+    return new;
+  elsif (TG_OP = 'DELETE') then
+    insert into migtest_e_history4_history (sys_period,id, test_number) values (tstzrange(lower(OLD.sys_period), current_timestamp), OLD.id, OLD.test_number);
+    return old;
+  end if;
+end;
+$$ LANGUAGE plpgsql;
+
+-- changes: [add test_boolean]
+create view migtest_e_history5_with_history as select * from migtest_e_history5 union all select * from migtest_e_history5_history;
+
+create or replace function migtest_e_history5_history_version() returns trigger as $$
+begin
+  if (TG_OP = 'UPDATE') then
+    insert into migtest_e_history5_history (sys_period,id, test_number, test_boolean) values (tstzrange(lower(OLD.sys_period), current_timestamp), OLD.id, OLD.test_number, OLD.test_boolean);
+    NEW.sys_period = tstzrange(current_timestamp,null);
+    return new;
+  elsif (TG_OP = 'DELETE') then
+    insert into migtest_e_history5_history (sys_period,id, test_number, test_boolean) values (tstzrange(lower(OLD.sys_period), current_timestamp), OLD.id, OLD.test_number, OLD.test_boolean);
     return old;
   end if;
 end;

@@ -8,6 +8,7 @@ import javax.validation.constraints.Size;
 
 import io.ebean.annotation.DbDefault;
 import io.ebean.annotation.History;
+import io.ebean.annotation.HistoryExclude;
 import io.ebean.annotation.NotNull;
 
 @Entity
@@ -22,6 +23,7 @@ public class EHistory2 {
   @DbDefault("unknown")
   String testString;
 
+  @HistoryExclude
   String testString2;
 
   @NotNull
