@@ -97,6 +97,11 @@ public class DbMigrationTest extends BaseTestCase {
       assertThat(server().execute(update)).isEqualTo(2);
     }
 
+    SqlUpdate update = server().createSqlUpdate("insert into migtest_e_history2 (id, test_string, obsolete_string1, obsolete_string2) values (1, 'foo', 'bar', null)");
+    assertThat(server().execute(update)).isEqualTo(1);
+    update = server().createSqlUpdate("update migtest_e_history2 set test_string = 'baz' where id = 1");
+    assertThat(server().execute(update)).isEqualTo(1);
+
     // Run migration
     runScript(false, "1.1.sql");
     SqlQuery select = server().createSqlQuery("select * from migtest_e_basic order by id");
