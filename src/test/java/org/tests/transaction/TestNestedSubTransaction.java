@@ -6,12 +6,16 @@ import io.ebean.EbeanServer;
 import io.ebean.PersistenceContextScope;
 import io.ebean.Transaction;
 import io.ebean.TxScope;
+import io.ebean.annotation.IgnorePlatform;
+import io.ebean.annotation.Platform;
+
 import org.junit.Test;
 import org.tests.model.basic.EBasic;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+
 
 public class TestNestedSubTransaction extends BaseTestCase {
 
@@ -60,6 +64,7 @@ public class TestNestedSubTransaction extends BaseTestCase {
 
 
   @Test
+  @IgnorePlatform(Platform.SQLSERVER)
   public void nestedUseSavepoint_doubleNested_rollbackCommit() {
 
     EbeanServer server = server();
@@ -96,6 +101,7 @@ public class TestNestedSubTransaction extends BaseTestCase {
   }
 
   @Test
+  @IgnorePlatform(Platform.SQLSERVER)
   public void nestedUseSavepoint_doubleNested_commitRollback() {
 
     EbeanServer server = server();
@@ -132,6 +138,7 @@ public class TestNestedSubTransaction extends BaseTestCase {
   }
 
   @Test
+  @IgnorePlatform(Platform.SQLSERVER)
   public void nestedUseSavepoint_nested_RequiresNew() {
 
     EbeanServer server = server();
@@ -167,6 +174,7 @@ public class TestNestedSubTransaction extends BaseTestCase {
   }
 
   @Test
+  @IgnorePlatform(Platform.SQLSERVER)
   public void nestedUseSavepoint() {
 
     EbeanServer server = server();
