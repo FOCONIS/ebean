@@ -101,9 +101,7 @@ public class DbMigrationTest extends BaseTestCase {
       assertThat(server().execute(update)).isEqualTo(2);
     }
 
-    if (!isMySql()) {
-      createHistoryEntities();
-    }
+    createHistoryEntities();
 
     // Run migration
     runScript(false, "1.1.sql");
