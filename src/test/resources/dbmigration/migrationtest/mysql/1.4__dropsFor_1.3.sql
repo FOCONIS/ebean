@@ -50,8 +50,8 @@ create view migtest_e_history2_with_history as select * from migtest_e_history2 
 
 create view migtest_e_history5_with_history as select * from migtest_e_history5 union all select * from migtest_e_history5_history;
 
+lock tables migtest_e_history2 write, migtest_e_history5 write;
 -- changes: [drop test_string2, drop test_string3, drop new_column]
-lock tables migtest_e_history2 write;
 drop trigger migtest_e_history2_history_upd;
 drop trigger migtest_e_history2_history_del;
 delimiter $$
@@ -63,9 +63,7 @@ delimiter $$
 create trigger migtest_e_history2_history_del before delete on migtest_e_history2 for each row begin
     insert into migtest_e_history2_history (sys_period_start,sys_period_end,id, test_string, obsolete_string2) values (OLD.sys_period_start, now(6),OLD.id, OLD.test_string, OLD.obsolete_string2);
 end$$
-unlock tables;
 -- changes: [drop test_boolean]
-lock tables migtest_e_history5 write;
 drop trigger migtest_e_history5_history_upd;
 drop trigger migtest_e_history5_history_del;
 delimiter $$

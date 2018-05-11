@@ -139,8 +139,8 @@ delimiter $$
 create trigger migtest_e_history_history_del before delete on migtest_e_history for each row begin
     insert into migtest_e_history_history (sys_period_start,sys_period_end,id, test_string) values (OLD.sys_period_start, now(6),OLD.id, OLD.test_string);
 end$$
+lock tables migtest_e_history2 write, migtest_e_history3 write, migtest_e_history4 write, migtest_e_history5 write;
 -- changes: [add test_string2, add test_string3, add new_column]
-lock tables migtest_e_history2 write;
 drop trigger migtest_e_history2_history_upd;
 drop trigger migtest_e_history2_history_del;
 delimiter $$
@@ -152,9 +152,7 @@ delimiter $$
 create trigger migtest_e_history2_history_del before delete on migtest_e_history2 for each row begin
     insert into migtest_e_history2_history (sys_period_start,sys_period_end,id, test_string, test_string3, new_column, obsolete_string1, obsolete_string2) values (OLD.sys_period_start, now(6),OLD.id, OLD.test_string, OLD.test_string3, OLD.new_column, OLD.obsolete_string1, OLD.obsolete_string2);
 end$$
-unlock tables;
 -- changes: [exclude test_string]
-lock tables migtest_e_history3 write;
 drop trigger migtest_e_history3_history_upd;
 drop trigger migtest_e_history3_history_del;
 delimiter $$
@@ -166,9 +164,7 @@ delimiter $$
 create trigger migtest_e_history3_history_del before delete on migtest_e_history3 for each row begin
     insert into migtest_e_history3_history (sys_period_start,sys_period_end,id) values (OLD.sys_period_start, now(6),OLD.id);
 end$$
-unlock tables;
 -- changes: [alter test_number]
-lock tables migtest_e_history4 write;
 drop trigger migtest_e_history4_history_upd;
 drop trigger migtest_e_history4_history_del;
 delimiter $$
@@ -180,9 +176,7 @@ delimiter $$
 create trigger migtest_e_history4_history_del before delete on migtest_e_history4 for each row begin
     insert into migtest_e_history4_history (sys_period_start,sys_period_end,id, test_number) values (OLD.sys_period_start, now(6),OLD.id, OLD.test_number);
 end$$
-unlock tables;
 -- changes: [add test_boolean]
-lock tables migtest_e_history5 write;
 drop trigger migtest_e_history5_history_upd;
 drop trigger migtest_e_history5_history_del;
 delimiter $$
