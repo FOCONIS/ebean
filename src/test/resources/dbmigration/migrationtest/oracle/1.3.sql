@@ -66,8 +66,8 @@ alter table migtest_e_history4 modify test_number number(10);
 alter table migtest_e_history6 modify test_number1 default null;
 alter table migtest_e_history6 modify test_number1 null;
 
+-- NOTE: table has @History - special migration may be necessary
 update migtest_e_history6 set test_number2 = 7 where test_number2 is null;
--- TODO update history table;
 alter table migtest_e_history6 modify test_number2 default 7;
 alter table migtest_e_history6 modify test_number2 not null;
 create index ix_migtest_e_basic_indextest1 on migtest_e_basic (indextest1);
