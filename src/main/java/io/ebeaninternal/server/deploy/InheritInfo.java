@@ -6,6 +6,7 @@ import io.ebeaninternal.server.deploy.id.IdBinder;
 import io.ebeaninternal.server.deploy.parse.DeployInheritInfo;
 import io.ebeaninternal.server.query.SqlTreeProperties;
 
+import java.lang.reflect.Modifier;
 import javax.persistence.PersistenceException;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -288,10 +289,17 @@ public class InheritInfo {
   }
 
   /**
-   * Return true if this is considered a concrete type in the inheritance hierarchy.
+   * Return true if this is an abstract type in the inheritance hierarchy.
+   */
+  public boolean isAbstract() {
+    return Modifier.isAbstract(type.getModifiers());
+  }
+
+  /**
+   * Return true if this is considered a concrete type and also a leaf in the inheritance tree.
    */
   public boolean isConcrete() {
-    return children.isEmpty();
+    return getChildren().isEmpty();
   }
 
   /**

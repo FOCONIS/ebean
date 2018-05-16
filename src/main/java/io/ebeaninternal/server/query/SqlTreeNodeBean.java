@@ -282,7 +282,7 @@ class SqlTreeNodeBean implements SqlTreeNode {
 
     SqlBeanLoad sqlBeanLoad = new SqlBeanLoad(ctx, localType, localBean, queryMode);
 
-    if (inheritInfo == null || inheritInfo.isConcrete()) {
+    if (inheritInfo == null) {
       // normal behavior with no inheritance
       for (STreeProperty property : properties) {
         property.load(sqlBeanLoad);
