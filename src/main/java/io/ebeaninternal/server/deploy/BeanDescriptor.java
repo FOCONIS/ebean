@@ -1945,6 +1945,13 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
       }
     }
     try {
+     if (inheritInfo != null && !inheritInfo.isConcrete()) {
+        // we actually need to do a query because we don't know the type without the discriminator
+        // value, just select the id property and discriminator column (auto added)
+        DefaultOrmQuery<T> query = new DefaultOrmQuery<>(this, ebeanServer, ebeanServer.getExpressionFactory());
+        return query.select(getIdProperty().getName()).setId(id).findOne();
+      }
+        
       EntityBean eb = createEntityBean();
       id = convertSetId(id, eb);
 

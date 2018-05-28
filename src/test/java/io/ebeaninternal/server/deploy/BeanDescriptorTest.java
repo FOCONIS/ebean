@@ -46,6 +46,29 @@ public class BeanDescriptorTest extends BaseTestCase {
     Customer bean = customerDesc.createReference(Boolean.FALSE, true, 42, null);
     assertThat(server().getBeanState(bean).isDisableLazyLoad()).isTrue();
   }
+  
+  @Test
+  public void createReference_with_inheritance() {
+    Cat cat = new Cat();
+    cat.setName("Puss");
+    Ebean.save(cat);
+
+    Dog dog = new Dog();
+    dog.setRegistrationNumber("DOGGIE");
+    Ebean.save(dog);
+
+    AnimalShelter shelter = new AnimalShelter();
+    shelter.setName("My Animal Shelter");
+    shelter.getAnimals().add(cat);
+    shelter.getAnimals().add(dog);
+
+    Ebean.save(shelter);
+
+    BeanDescriptor<Animal> animalDesc = spiEbeanServer().getBeanDescriptor(Animal.class);
+
+    Animal bean = animalDesc.createReference(Boolean.FALSE, false, dog.getId(), null);
+    assertThat(bean.getId()).isEqualTo(cat.getId());
+  }
 
   @Test
   public void allProperties() {
