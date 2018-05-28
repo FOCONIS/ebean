@@ -116,16 +116,19 @@ public class TestInheritanceOnMany extends BaseTestCase {
     Ebean.save(dog);
 
     LoggedSqlCollector.start();
-    // Dog is concrete so we return as Dog even though
-    // it could be a BigDog (so we are trusting the caller)
+    // We must hit the database here and load the bean,
+    // as Dog could be a BigDog.
     Dog ref = Ebean.getReference(Dog.class, dog.getId());
 
     List<String> sql = LoggedSqlCollector.stop();
-    assertThat(sql).isEmpty();
+    assertThat(sql).hasSize(1);
     assertNotNull(ref);
 
-    // invoke lazy loading
+    // not longer lazy loading
+    LoggedSqlCollector.start();
     assertEquals("D2", ref.getRegistrationNumber());
+    sql = LoggedSqlCollector.stop();
+    assertThat(sql).isEmpty();
   }
 
   @Test
@@ -153,10 +156,13 @@ public class TestInheritanceOnMany extends BaseTestCase {
 
     sql = LoggedSqlCollector.stop();
     assertThat(sql).hasSize(1);
-    assertThat(trimSql(sql.get(0), 2)).contains("select t0.species, t0.id from animal t0 where t0.id = ?");
+    assertThat(trimSql(sql.get(0), 2)).contains("select t0.species, t0.id, t0.species, t0.version, t0.shelter_id, t0.name, t0.registration_number, t0.date_of_birth, t0.dog_size from animal t0 where t0.id = ?");
     assertNotNull(animal);
 
-    // invoke lazy loading
+    // not longer lazy loading
+    LoggedSqlCollector.start();
     assertNotNull(animal.getVersion());
+    sql = LoggedSqlCollector.stop();
+    assertThat(sql).hasSize(0);
   }
 }
