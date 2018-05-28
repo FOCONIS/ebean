@@ -503,6 +503,11 @@ public class ServerConfig {
   private List<String> mappingLocations = new ArrayList<>();
 
   /**
+   * When true we do not need explicit GeneratedValue mapping.
+   */
+  private boolean idGeneratorAutomatic = true;
+
+  /**
    * Construct a Server Configuration for programmatically creating an EbeanServer.
    */
   public ServerConfig() {
@@ -1986,7 +1991,7 @@ public class ServerConfig {
    * This is the same as serverConfig.getMigrationConfig().setRunMigration(). We have added this method here
    * as it is often the only thing we need to configure for migrations.
    */
-  public void setRunMigration(boolean runMigration){
+  public void setRunMigration(boolean runMigration) {
     migrationConfig.setRunMigration(runMigration);
   }
 
@@ -2810,6 +2815,7 @@ public class ServerConfig {
     useJtaTransactionManager = p.getBoolean("useJtaTransactionManager", useJtaTransactionManager);
     useJavaxValidationNotNull = p.getBoolean("useJavaxValidationNotNull", useJavaxValidationNotNull);
     autoReadOnlyDataSource = p.getBoolean("autoReadOnlyDataSource", autoReadOnlyDataSource);
+    idGeneratorAutomatic = p.getBoolean("idGeneratorAutomatic", idGeneratorAutomatic);
 
     backgroundExecutorSchedulePoolSize = p.getInt("backgroundExecutorSchedulePoolSize", backgroundExecutorSchedulePoolSize);
     backgroundExecutorShutdownSecs = p.getInt("backgroundExecutorShutdownSecs", backgroundExecutorShutdownSecs);
@@ -3147,6 +3153,23 @@ public class ServerConfig {
    */
   public void setMappingLocations(List<String> mappingLocations) {
     this.mappingLocations = mappingLocations;
+  }
+
+  /**
+   * When false we need explicit <code>@GeneratedValue</code> mapping to assign
+   * Identity or Sequence generated values. When true Id properties are automatically
+   * assigned Identity or Sequence without the GeneratedValue mapping.
+   */
+  public boolean isIdGeneratorAutomatic() {
+    return idGeneratorAutomatic;
+  }
+
+  /**
+   * Set to false such that Id properties require explicit <code>@GeneratedValue</code>
+   * mapping before they are assigned Identity or Sequence generation based on platform.
+   */
+  public void setIdGeneratorAutomatic(boolean idGeneratorAutomatic) {
+    this.idGeneratorAutomatic = idGeneratorAutomatic;
   }
 
   public enum UuidVersion {
