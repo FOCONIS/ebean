@@ -289,17 +289,10 @@ public class InheritInfo {
   }
 
   /**
-   * Return true if this is an abstract type in the inheritance hierarchy.
-   */
-  public boolean isAbstract() {
-    return Modifier.isAbstract(type.getModifiers());
-  }
-
-  /**
-   * Return true if this is considered a concrete type and also a leaf in the inheritance tree.
+   * Return true if this is considered a concrete type in the inheritance hierarchy.
    */
   public boolean isConcrete() {
-    return getChildren().isEmpty();
+    return !Modifier.isAbstract(type.getModifiers());
   }
 
   /**
