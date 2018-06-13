@@ -159,9 +159,6 @@ public class TestJsonVersioning extends BaseTestCase {
 
         version = 1;
         return;
-
-        //throw new JsonParseException(parser, "Error reading dataversion - expected [_v] but got ["
-        //    + parser.getCurrentName() + "] ?", parser.getCurrentLocation());
       }
       version = parser.nextIntValue(-1);
     }

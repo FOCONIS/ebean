@@ -13,20 +13,21 @@ import io.ebean.plugin.BeanType;
 public interface JsonVersionMigrationContext {
 
   /**
-   * Migrates a concrete bean of <code>beanType</code>.
+   * Reads the version from the json stream for this bean type. This method is called first.
    */
-  void migrate(BeanType<?> beanType) throws IOException;
+  void parseVersion() throws IOException;
 
   /**
    * Migrates a root bean of an inheritance tree. <code>beanType</code> is the root of the inheritance tree.
+   * This method is called after parseVersion if inheritInfo is present.
    */
 
   void migrateRoot() throws IOException;
 
   /**
-   * Reads the version from the json stream for this bean type.
+   * Migrates a concrete bean of <code>beanType</code>.
    */
-  void parseVersion() throws IOException;
+  void migrate(BeanType<?> beanType) throws IOException;
 
   /**
    * Returns the jsonReader that should be used to read the rest of the bean.
