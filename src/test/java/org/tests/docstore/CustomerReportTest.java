@@ -4,6 +4,7 @@ package org.tests.docstore;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +21,7 @@ import org.tests.model.docstore.ReportComment;
 import org.tests.model.docstore.ReportEntity;
 
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.JsonDeserializer;
@@ -36,11 +38,76 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
 import io.ebean.BaseTestCase;
+import io.ebean.plugin.BeanType;
 import io.ebean.text.json.JsonReadOptions;
+import io.ebean.text.json.JsonReader;
+import io.ebean.text.json.JsonVersionMigrationContext;
 import io.ebean.text.json.JsonWriteOptions;
 
 public class CustomerReportTest extends BaseTestCase {
 
+  private static class MigContext implements JsonVersionMigrationContext {
+
+    private JsonReader readJson;
+    private int version;
+    private ObjectNode objectNode;
+
+    public MigContext(JsonReader readJson, BeanType<?> bt) {
+      this.readJson = readJson;
+    }
+
+    @Override
+    public void parseVersion() throws IOException {
+      JsonParser parser = readJson.getParser();
+
+      assertThat(parser.nextToken()).isEqualTo(JsonToken.FIELD_NAME);
+      assertThat(parser.getCurrentName()).isEqualTo("_bv");
+      version = parser.nextIntValue(-1);
+
+    }
+
+    @Override
+    public void migrateRoot() throws IOException {
+      if (version == 2) {
+        if ("CustomerReport".equals(getObjectNode().get("dtype").asText())) {
+          getObjectNode().put("dtype", "CR");
+        }
+        version = 3;
+      }
+    }
+
+    @Override
+    public void migrate(BeanType<?> beanType) throws IOException {
+
+    }
+
+    /**
+     * Returns the content as object node.
+     */
+    ObjectNode getObjectNode() throws JsonProcessingException, IOException {
+      if (objectNode == null) {
+        if (readJson.getParser().nextToken() != JsonToken.FIELD_NAME) {
+          throw new IllegalStateException("Expected to read FIELD_NAME");
+        }
+        objectNode = readJson.getObjectMapper().readTree(readJson.getParser());
+      }
+      return objectNode;
+    }
+
+    @Override
+    public JsonReader getJsonReader() throws IOException {
+      if (objectNode != null) {
+        JsonParser newParser = objectNode.traverse();
+        if (newParser.nextToken() != JsonToken.START_OBJECT) {
+          throw new IllegalStateException("Could not read START_OBJECT from " + objectNode);
+        }
+        readJson = readJson.forJson(newParser, false);
+        objectNode = null;
+      }
+      return readJson;
+    }
+
+  }
   @Test
   public void testToJson() throws Exception {
     ResetBasicData.reset();
@@ -64,24 +131,7 @@ public class CustomerReportTest extends BaseTestCase {
   public void testMigration() {
     String json = "{\"_bv\":2,\"dtype\":\"CustomerReport\",\"friends\":[{\"_bv\":0,\"id\":2},{\"_bv\":0,\"id\":3}],\"customer\":{\"_bv\":0,\"id\":1}}";
     JsonReadOptions readOpts = new JsonReadOptions();
-    readOpts.setVersionMigrationHandler((reader, desc) -> {
-      JsonParser parser = reader.getParser();
-
-      assertThat(parser.nextToken()).isEqualTo(JsonToken.FIELD_NAME);
-      assertThat(parser.getCurrentName()).isEqualTo("_bv");
-      int version = parser.nextIntValue(-1);
-      if (version == 2) {
-        parser.nextToken();
-        ObjectNode node = reader.getObjectMapper().readTree(parser);
-        if ("CustomerReport".equals(node.get("dtype").asText())) {
-          node.put("dtype", "CR");
-        }
-        JsonParser newParser = node.traverse();
-        assertThat(newParser.nextToken()).isEqualTo(JsonToken.START_OBJECT);
-        return reader.forJson(newParser, false);
-      }
-      return reader;
-    });
+    readOpts.setVersionMigrationHandler(MigContext::new);
     Report report = server().json().toBean(Report.class, json, readOpts);
     assertThat(report).isInstanceOf(CustomerReport.class);
   }
