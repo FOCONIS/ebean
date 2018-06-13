@@ -1,6 +1,5 @@
 package io.ebean.text.json;
 
-import java.io.IOException;
 
 import io.ebean.plugin.BeanType;
 
@@ -12,6 +11,9 @@ import io.ebean.plugin.BeanType;
 @FunctionalInterface
 public interface JsonVersionMigrationHandler {
 
-  JsonReader migrate(JsonReader readJson, BeanType<?> beanType) throws IOException;
+  /**
+   * Creates a context to migrate a bean.
+   */
+  JsonVersionMigrationContext createContext(JsonReader readJson, BeanType<?> beanType);
 
 }

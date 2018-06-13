@@ -6,11 +6,13 @@ import io.ebean.plugin.BeanType;
 import io.ebean.text.json.JsonIOException;
 import io.ebean.text.json.JsonReadOptions;
 import io.ebean.text.json.JsonReader;
-import io.ebean.text.json.JsonVersionMigrationHandler;
+import io.ebean.text.json.JsonVersionMigrationContext;
 import io.ebean.text.json.JsonVersionWriter;
 import io.ebean.text.json.JsonWriteOptions;
 import io.ebean.text.json.JsonWriter;
 
+import org.tests.inheritance.abstrakt.AbstractBaseBlock;
+import org.tests.inheritance.abstrakt.Block;
 import org.tests.model.basic.Order;
 import org.tests.model.basic.OrderShipment;
 import org.tests.model.basic.ResetBasicData;
@@ -19,6 +21,7 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import org.junit.Before;
@@ -27,7 +30,10 @@ import org.junit.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
-import java.util.function.Consumer;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * This test case demonstrates, what happens in the lifetime of json models, and how the JSON-migration works.
@@ -60,6 +66,8 @@ public class TestJsonVersioning extends BaseTestCase {
         writer.writeNumberField("_v", 23);
       } else if (beanType.getBeanType().equals(OrderShipment.class)) {
         writer.writeNumberField("_v", 17);
+      } else if (beanType.getBeanType().equals(Block.class)) {
+        writer.writeNumberField("_v", 3);
       } else {
         writer.writeNumberField("_v", 1);
       }
@@ -75,41 +83,58 @@ public class TestJsonVersioning extends BaseTestCase {
    * @author Roland Praml, FOCONIS AG
    *
    */
-  private static class TestJsonVersionMigrationHandler implements JsonVersionMigrationHandler {
+  private static class TestJsonVersionMigrationContext implements JsonVersionMigrationContext {
+
+    private JsonReader readJson;
+    private BeanType<?> rootBean;
+    private int version;
+    private ObjectNode objectNode;
+
+    TestJsonVersionMigrationContext(JsonReader readJson, BeanType<?> beanType) {
+      this.readJson = readJson;
+      this.rootBean = beanType;
+    }
+
 
     @Override
-    public JsonReader migrate(JsonReader readJson, BeanType<?> beanType) throws IOException {
-
-      int version = getVersion(readJson);
+    public void migrate(BeanType<?> beanType) throws IOException {
 
       if (beanType.getBeanType().equals(Order.class)) {
         // === Order migration path
         if (version == 22) { // in version 22->23 we had a typo in shipments
-          readJson = update(readJson, mig-> mig.set("shipments", mig.remove("shipmetns")));
+          getObjectNode().set("shipments", getObjectNode().remove("shipmetns"));
           version = 23;
         }
         if (version == 23) { // current version
-          return readJson;
+          return ;
         }
       } else if (beanType.getBeanType().equals(OrderShipment.class)) {
         // === OrderShipment migration path
         if (version == 15) { // in version 15->16 we have changed the field name "updatedtime" -> "cretime"
           // and changed the resolution from seconds to millis
-          readJson = update(readJson, mig-> mig.put("updtime", mig.remove("updatedtime").longValue() * 1000));
-          readJson = update(readJson, mig-> mig.put("createdtime", mig.get("createdtime").longValue() * 1000));
+          getObjectNode().put("updtime", getObjectNode().remove("updatedtime").longValue() * 1000);
+          getObjectNode().put("createdtime", getObjectNode().get("createdtime").longValue() * 1000);
           version = 16;
         }
         if (version == 16) { // in version 16->17 we have changed the field name "createdtime" -> "cretime"
-          readJson = update(readJson, mig-> mig.set("cretime", mig.remove("createdtime")));
+          getObjectNode().set("cretime",  getObjectNode().remove("createdtime"));
           version = 17;
         }
         if (version == 17) { // current version
-          return readJson;
+          return ;
         }
-      } else {
+      } else if (beanType.getBeanType().equals(Block.class)) {
+        if (version == 2) { // old. prop was named xxx
+          getObjectNode().put("name",  getObjectNode().remove("xxx").asText());
+          version = 3;
+        }
+        if (version == 3) { // current version
+          return ;
+        }
+      }else {
         // all other beans that have no migration path.
         if (version == 1) { // current version
-          return readJson;
+          return ;
         }
       }
       throw new JsonParseException(readJson.getParser(), "No migration path from " + beanType.getName() + "(v=" + version+")");
@@ -119,7 +144,8 @@ public class TestJsonVersioning extends BaseTestCase {
      * Retuns the value of the "_v" property, which must be the first one in the JSON stream.
      * It is written by the {@link TestJsonVersionWriter}.
      */
-    private int getVersion(JsonReader readJson) throws JsonParseException, IOException {
+    @Override
+    public void parseVersion() throws JsonParseException, IOException {
       JsonParser parser = readJson.getParser();
 
       if (parser.nextToken() != JsonToken.FIELD_NAME) {
@@ -128,24 +154,57 @@ public class TestJsonVersioning extends BaseTestCase {
       }
 
       if (!"_v".equals(parser.getCurrentName())) {
-        throw new JsonParseException(parser, "Error reading dataversion - expected [_v] but got ["
-            + parser.getCurrentName() + "] ?", parser.getCurrentLocation());
+        // Houston, we have a problem, the format does not match, so convert it to object node
+        objectNode = readJson.getObjectMapper().readTree(readJson.getParser());
+
+        version = 1;
+        return;
+
+        //throw new JsonParseException(parser, "Error reading dataversion - expected [_v] but got ["
+        //    + parser.getCurrentName() + "] ?", parser.getCurrentLocation());
       }
-      return parser.nextIntValue(-1);
+      version = parser.nextIntValue(-1);
+    }
+
+
+
+    @Override
+    public void migrateRoot() throws IOException {
+      if (rootBean.getBeanType() == AbstractBaseBlock.class && version == 1) {
+        Map<String, JsonNode> children = new LinkedHashMap<>();
+        getObjectNode().fields().forEachRemaining(e -> children.put(e.getKey(), e.getValue()));
+        getObjectNode().removeAll();
+        // there is no putFirst, so we have to trick here.
+        getObjectNode().put("case_type", "2");
+        getObjectNode().setAll(children);
+        version = 2;
+      }
     }
 
     /**
-     * This is a utility method that convert the readJson to an other one.
+     * Returns the content as object node.
      */
-    private JsonReader update(JsonReader readJson, Consumer<ObjectNode> migration) throws JsonProcessingException, IOException {
-      readJson.nextToken();
-      ObjectNode node = readJson.getObjectMapper().readTree(readJson.getParser());
-      migration.accept(node);
-      JsonParser newParser = node.traverse();
-      if (newParser.nextToken() != JsonToken.START_OBJECT) {
-        throw new IllegalStateException("Could not read START_OBJECT from " + node);
+    ObjectNode getObjectNode() throws JsonProcessingException, IOException {
+      if (objectNode == null) {
+        if (readJson.getParser().nextToken() != JsonToken.FIELD_NAME) {
+          throw new IllegalStateException("Expected to read FIELD_NAME");
+        }
+        objectNode = readJson.getObjectMapper().readTree(readJson.getParser());
       }
-      return readJson.forJson(newParser, false);
+      return objectNode;
+    }
+
+    @Override
+    public JsonReader getJsonReader() throws IOException {
+      if (objectNode != null) {
+        JsonParser newParser = objectNode.traverse();
+        if (newParser.nextToken() != JsonToken.START_OBJECT) {
+          throw new IllegalStateException("Could not read START_OBJECT from " + objectNode);
+        }
+        readJson = readJson.forJson(newParser, false);
+        objectNode = null;
+      }
+      return readJson;
     }
 
   }
@@ -167,7 +226,6 @@ public class TestJsonVersioning extends BaseTestCase {
 
   }
 
-
   @Test
   public void testMigrateVersion22_15() throws IOException {
 
@@ -177,7 +235,7 @@ public class TestJsonVersioning extends BaseTestCase {
         + "\"cretime\":1519772400000,\"updtime\":1519772400000,\"totalAmount\":null,\"totalItems\":null}";
 
     JsonReadOptions options = new JsonReadOptions();
-    options.setVersionMigrationHandler(new TestJsonVersionMigrationHandler());
+    options.setVersionMigrationHandler(TestJsonVersionMigrationContext::new);
     Order o = Ebean.json().toBean(Order.class, s, options);
     assertThat(o.getCustomerName()).isEqualTo("Roland");
     assertThat(o.getShipments()).hasSize(1);
@@ -195,7 +253,7 @@ public class TestJsonVersioning extends BaseTestCase {
         + "\"cretime\":1519772400000,\"updtime\":1519772400000,\"totalAmount\":null,\"totalItems\":null}";
 
     JsonReadOptions options = new JsonReadOptions();
-    options.setVersionMigrationHandler(new TestJsonVersionMigrationHandler());
+    options.setVersionMigrationHandler(TestJsonVersionMigrationContext::new);
     Order o = Ebean.json().toBean(Order.class, s, options);
     assertThat(o.getCustomerName()).isEqualTo("Roland");
     assertThat(o.getShipments()).hasSize(1);
@@ -213,7 +271,7 @@ public class TestJsonVersioning extends BaseTestCase {
         + "\"cretime\":1519772400000,\"updtime\":1519772400000,\"totalAmount\":null,\"totalItems\":null}";
 
     JsonReadOptions options = new JsonReadOptions();
-    options.setVersionMigrationHandler(new TestJsonVersionMigrationHandler());
+    options.setVersionMigrationHandler(TestJsonVersionMigrationContext::new);
     Order o = Ebean.json().toBean(Order.class, s, options);
     assertThat(o.getCustomerName()).isEqualTo("Roland");
     assertThat(o.getShipments()).hasSize(1);
@@ -231,7 +289,7 @@ public class TestJsonVersioning extends BaseTestCase {
         + "\"cretime\":1519772400000,\"updtime\":1519772400000,\"totalAmount\":null,\"totalItems\":null}";
 
     JsonReadOptions options = new JsonReadOptions();
-    options.setVersionMigrationHandler(new TestJsonVersionMigrationHandler());
+    options.setVersionMigrationHandler(TestJsonVersionMigrationContext::new);
     Order o = Ebean.json().toBean(Order.class, s, options);
     assertThat(o.getCustomerName()).isEqualTo("Roland");
     assertThat(o.getShipments()).hasSize(1);
@@ -249,8 +307,88 @@ public class TestJsonVersioning extends BaseTestCase {
         + "\"cretime\":1519772400000,\"updtime\":1519772400000,\"totalAmount\":null,\"totalItems\":null}";
 
     JsonReadOptions options = new JsonReadOptions();
-    options.setVersionMigrationHandler(new TestJsonVersionMigrationHandler());
+    options.setVersionMigrationHandler(TestJsonVersionMigrationContext::new);
     Ebean.json().toBean(Order.class, s, options);
+
+  }
+
+  @Test
+  public void testWriteVersionInherit() throws IOException {
+
+    Block block = new Block();
+        block.setId(1);
+    block.setName("Test");
+
+    JsonWriteOptions jsonOpts = new JsonWriteOptions();
+    jsonOpts.setVersionWrite(new TestJsonVersionWriter());
+    String s = Ebean.json().toJson(block, jsonOpts);
+
+    assertThat(s).isEqualTo("{\"_v\":3,\"case_type\":\"2\",\"id\":1,\"name\":\"Test\"}");
+
+  }
+
+  @Test
+  public void testReadVersionReadConcrete() throws IOException {
+
+    String s = "{\"_v\":3,\"case_type\":\"2\",\"id\":1,\"name\":\"Test\"}";
+    JsonReadOptions options = new JsonReadOptions();
+    options.setVersionMigrationHandler(TestJsonVersionMigrationContext::new);
+    Block block = Ebean.json().toBean(Block.class, s, options);
+
+
+    assertThat(block.getName()).isEqualTo("Test");
+
+  }
+
+  @Test
+  public void testReadVersionReadAbstract() throws IOException {
+
+    String s = "{\"_v\":3,\"case_type\":\"2\",\"id\":1,\"name\":\"Test\"}";
+    JsonReadOptions options = new JsonReadOptions();
+    options.setVersionMigrationHandler(TestJsonVersionMigrationContext::new);
+    AbstractBaseBlock block = Ebean.json().toBean(AbstractBaseBlock.class, s, options);
+
+    assertThat(block).isInstanceOf(Block.class);
+    assertThat(block.getName()).isEqualTo("Test");
+
+  }
+
+  @Test
+  public void testReadVersionReadAbstractOldVersion() throws IOException {
+
+    String s = "{\"_v\":2,\"case_type\":\"2\",\"id\":1,\"xxx\":\"Test\"}";
+    JsonReadOptions options = new JsonReadOptions();
+    options.setVersionMigrationHandler(TestJsonVersionMigrationContext::new);
+    AbstractBaseBlock block = Ebean.json().toBean(AbstractBaseBlock.class, s, options);
+
+    assertThat(block).isInstanceOf(Block.class);
+    assertThat(block.getName()).isEqualTo("Test");
+
+  }
+
+  @Test
+  public void testReadVersionReadAbstractOlderVersion() throws IOException {
+
+    String s = "{\"_v\":1,\"id\":1,\"xxx\":\"Test\"}";
+    JsonReadOptions options = new JsonReadOptions();
+    options.setVersionMigrationHandler(TestJsonVersionMigrationContext::new);
+    AbstractBaseBlock block = Ebean.json().toBean(AbstractBaseBlock.class, s, options);
+
+    assertThat(block).isInstanceOf(Block.class);
+    assertThat(block.getName()).isEqualTo("Test");
+
+  }
+
+  @Test
+  public void testReadVersionReadAbstractNoVersion() throws IOException {
+
+    String s = "{\"id\":1,\"xxx\":\"Test\"}";
+    JsonReadOptions options = new JsonReadOptions();
+    options.setVersionMigrationHandler(TestJsonVersionMigrationContext::new);
+    AbstractBaseBlock block = Ebean.json().toBean(AbstractBaseBlock.class, s, options);
+
+    assertThat(block).isInstanceOf(Block.class);
+    assertThat(block.getName()).isEqualTo("Test");
 
   }
 }

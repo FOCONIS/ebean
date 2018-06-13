@@ -17,10 +17,10 @@ import io.ebean.plugin.BeanType;
 public interface JsonReader {
 
   /**
-   * Performs json migration by optionally returning a new {@link JsonReader} constructed
+   * Returns the JsonVersionMigrationContext to perform json migration.
    * by {@link JsonVersionMigrationHandler}.
    */
-  public JsonReader migrate(BeanType<?> desc) throws IOException;
+  JsonVersionMigrationContext createContext(BeanType<?> beanType);
 
   /**
    * Returns the wrapped Jackson JsonParser.

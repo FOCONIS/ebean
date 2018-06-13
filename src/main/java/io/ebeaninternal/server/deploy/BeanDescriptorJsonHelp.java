@@ -6,6 +6,8 @@ import com.fasterxml.jackson.core.JsonToken;
 import io.ebean.bean.EntityBean;
 import io.ebean.text.json.EJson;
 import io.ebean.text.json.JsonReader;
+import io.ebean.text.json.JsonVersionMigrationContext;
+import io.ebean.text.json.JsonVersionMigrationHandler;
 import io.ebeaninternal.api.json.SpiJsonReader;
 import io.ebeaninternal.api.json.SpiJsonWriter;
 
@@ -27,13 +29,15 @@ public class BeanDescriptorJsonHelp<T> {
   public void jsonWrite(SpiJsonWriter writeJson, EntityBean bean, String key) throws IOException {
 
     writeJson.writeStartObject(key);
-    writeJson.writeBeanVersion(desc);
 
     if (inheritInfo == null) {
+      writeJson.writeBeanVersion(desc);
       jsonWriteProperties(writeJson, bean);
 
     } else {
       InheritInfo localInheritInfo = inheritInfo.readType(bean.getClass());
+      writeJson.writeBeanVersion(localInheritInfo.desc());
+
       String discValue = localInheritInfo.getDiscriminatorStringValue();
       String discColumn = localInheritInfo.getDiscriminatorColumn();
       writeJson.gen().writeStringField(discColumn, discValue);
@@ -89,12 +93,18 @@ public class BeanDescriptorJsonHelp<T> {
       }
     }
     // migrate and fetch potential new parser
-    jsonRead = jsonRead.migrate(desc);
-    parser = jsonRead.getParser();
+    JsonVersionMigrationContext context = jsonRead.createContext(desc);
+    context.parseVersion();
 
     if (desc.inheritInfo == null) {
+      context.migrate(desc);
+      jsonRead = context.getJsonReader();
       return jsonReadObject((SpiJsonReader) jsonRead, path);
     }
+
+    context.migrateRoot();
+    jsonRead = context.getJsonReader(); // may obtain a new reader
+    parser = jsonRead.getParser();
 
     // check for the discriminator value to determine the correct sub type
     String discColumn = inheritInfo.getRoot().getDiscriminatorColumn();
@@ -118,7 +128,12 @@ public class BeanDescriptorJsonHelp<T> {
     }
 
     String discValue = parser.nextTextValue();
-    return (T) inheritInfo.readType(discValue).desc().jsonReadObject((SpiJsonReader) jsonRead, path);
+    BeanDescriptor<?> childDesc = inheritInfo.readType(discValue).desc();
+
+    context.migrate(childDesc);
+    jsonRead = context.getJsonReader(); // may obtain a new reader
+
+    return (T) childDesc.jsonReadObject((SpiJsonReader) jsonRead, path);
   }
 
   protected T jsonReadObject(SpiJsonReader readJson, String path) throws IOException {

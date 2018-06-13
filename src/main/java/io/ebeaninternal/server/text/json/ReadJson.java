@@ -10,6 +10,7 @@ import io.ebean.plugin.BeanType;
 import io.ebean.text.json.JsonReadBeanVisitor;
 import io.ebean.text.json.JsonReadOptions;
 import io.ebean.text.json.JsonReader;
+import io.ebean.text.json.JsonVersionMigrationContext;
 import io.ebean.text.json.JsonVersionMigrationHandler;
 import io.ebeaninternal.api.LoadContext;
 import io.ebeaninternal.api.json.SpiJsonReader;
@@ -49,6 +50,23 @@ public class ReadJson implements SpiJsonReader {
   private final LoadContext loadContext;
 
   private final JsonVersionMigrationHandler versionMigrationHandler;
+
+  private final JsonVersionMigrationContext defaultContext = new JsonVersionMigrationContext() {
+
+    @Override
+    public void parseVersion() throws IOException {}
+
+    @Override
+    public void migrateRoot() throws IOException {}
+
+    @Override
+    public void migrate(BeanType<?> beanType) throws IOException {}
+
+    @Override
+    public JsonReader getJsonReader() {
+      return ReadJson.this;
+    }
+  };
 
   /**
    * Construct with parser and readOptions.
@@ -237,8 +255,11 @@ public class ReadJson implements SpiJsonReader {
   }
 
   @Override
-  public JsonReader migrate(BeanType<?> desc) throws IOException {
-    return versionMigrationHandler == null ? this : versionMigrationHandler.migrate(this, desc);
+  public JsonVersionMigrationContext createContext(BeanType<?> beanType) {
+    if (versionMigrationHandler == null) {
+      return defaultContext;
+    } else {
+      return versionMigrationHandler.createContext(this, beanType);
+    }
   }
-
 }
