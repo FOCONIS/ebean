@@ -4,6 +4,8 @@ import io.ebean.DtoQuery;
 import io.ebean.EbeanServer;
 import io.ebean.PersistenceContextScope;
 import io.ebean.Query;
+import io.ebean.RowConsumer;
+import io.ebean.RowMapper;
 import io.ebean.Transaction;
 import io.ebean.TxScope;
 import io.ebean.bean.BeanCollectionLoader;
@@ -30,6 +32,11 @@ import java.util.function.Predicate;
  * Service Provider extension to EbeanServer.
  */
 public interface SpiEbeanServer extends EbeanServer, BeanLoader, BeanCollectionLoader {
+
+  /**
+   * Return the log manager.
+   */
+  SpiLogManager log();
 
   /**
    * Return the server extended Json context.
@@ -230,6 +237,31 @@ public interface SpiEbeanServer extends EbeanServer, BeanLoader, BeanCollectionL
   void scopedTransactionExit(Object returnOrThrowable, int opCode);
 
   /**
+   * SqlQuery find single attribute.
+   */
+  <T> T findSingleAttribute(SpiSqlQuery query, Class<T> cls);
+
+  /**
+   * SqlQuery find single attribute list.
+   */
+  <T> List<T> findSingleAttributeList(SpiSqlQuery query, Class<T> cls);
+
+  /**
+   * SqlQuery find one with mapper.
+   */
+  <T> T findOneMapper(SpiSqlQuery query, RowMapper<T> mapper);
+
+  /**
+   * SqlQuery find list with mapper.
+   */
+  <T> List<T> findListMapper(SpiSqlQuery query, RowMapper<T> mapper);
+
+  /**
+   * SqlQuery find each with consumer.
+   */
+  void findEachRow(SpiSqlQuery query, RowConsumer consumer);
+
+  /**
    * DTO findList query.
    */
   <T> List<T> findDtoList(SpiDtoQuery<T> query);
@@ -268,4 +300,15 @@ public interface SpiEbeanServer extends EbeanServer, BeanLoader, BeanCollectionL
    * Return true if a row for the bean type and id exists.
    */
   boolean exists(Class<?> beanType, Object beanId, Transaction transaction);
+
+  /**
+   * Add to JDBC batch for later execution.
+   */
+  void addBatch(SpiSqlUpdate defaultSqlUpdate, SpiTransaction transaction);
+
+  /**
+   * Execute the batched statement.
+   */
+  int[] executeBatch(SpiSqlUpdate defaultSqlUpdate, SpiTransaction transaction);
+
 }

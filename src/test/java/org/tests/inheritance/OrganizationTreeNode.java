@@ -17,29 +17,38 @@ import io.ebean.annotation.PrivateOwned;
 @Entity
 public class OrganizationTreeNode {
 
-	@Id
-	private Long id;
+  @Id
+  private Long id;
 
-	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "parentTreeNode")
-	@NotNull
-	@PrivateOwned
-	private OrganizationNode organizationNode;
+  private String name;
 
-	public Long getId() {
-		return id;
-	}
+  @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "parentTreeNode")
+  @NotNull
+  @PrivateOwned
+  private OrganizationNode organizationNode;
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+  public Long getId() {
+    return id;
+  }
 
-	public OrganizationNode getOrganizationNode() {
-		return organizationNode;
-	}
+  public void setId(Long id) {
+    this.id = id;
+  }
 
-	public void setOrganizationNode(OrganizationNode organizationNode) {
-		this.organizationNode = organizationNode;
-	}
+  public String getName() {
+    return name;
+  }
 
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public OrganizationNode getOrganizationNode() {
+    return organizationNode;
+  }
+
+  public void setOrganizationNode(OrganizationNode organizationNode) {
+    this.organizationNode = organizationNode;
+  }
 
 }

@@ -45,8 +45,6 @@ public class BeanPropertyAssocOne<T> extends BeanPropertyAssoc<T> implements STr
 
   private final boolean primaryKeyExport;
 
-  private final PropertyForeignKey foreignKey;
-
   private AssocOneHelp localHelp;
 
   protected final BeanProperty[] embeddedProps;
@@ -74,8 +72,6 @@ public class BeanPropertyAssocOne<T> extends BeanPropertyAssoc<T> implements STr
                               DeployBeanPropertyAssocOne<T> deploy) {
 
     super(descriptor, deploy);
-
-    foreignKey = deploy.getForeignKey();
     primaryKeyExport = deploy.isPrimaryKeyExport();
     oneToOne = deploy.isOneToOne();
     oneToOneExported = deploy.isOneToOneExported();
@@ -338,10 +334,6 @@ public class BeanPropertyAssocOne<T> extends BeanPropertyAssoc<T> implements STr
         embeddedProp.buildRawSqlSelectChain(prefix, selectChain);
       }
     }
-  }
-
-  public PropertyForeignKey getForeignKey() {
-    return foreignKey;
   }
 
   public boolean hasForeignKey() {

@@ -13,11 +13,14 @@ import io.ebean.FutureIds;
 import io.ebean.FutureList;
 import io.ebean.FutureRowCount;
 import io.ebean.MergeOptions;
+import io.ebean.MergeOptionsBuilder;
 import io.ebean.PagedList;
 import io.ebean.PersistenceContextScope;
 import io.ebean.ProfileLocation;
 import io.ebean.Query;
 import io.ebean.QueryIterator;
+import io.ebean.RowConsumer;
+import io.ebean.RowMapper;
 import io.ebean.SqlQuery;
 import io.ebean.SqlRow;
 import io.ebean.SqlUpdate;
@@ -63,8 +66,11 @@ import io.ebeaninternal.api.SpiBackgroundExecutor;
 import io.ebeaninternal.api.SpiDtoQuery;
 import io.ebeaninternal.api.SpiEbeanServer;
 import io.ebeaninternal.api.SpiJsonContext;
+import io.ebeaninternal.api.SpiLogManager;
 import io.ebeaninternal.api.SpiQuery;
 import io.ebeaninternal.api.SpiQuery.Type;
+import io.ebeaninternal.api.SpiSqlQuery;
+import io.ebeaninternal.api.SpiSqlUpdate;
 import io.ebeaninternal.api.SpiTransaction;
 import io.ebeaninternal.api.SpiTransactionManager;
 import io.ebeaninternal.api.TransactionEventTable;
@@ -188,6 +194,8 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
 
   private final CurrentTenantProvider currentTenantProvider;
 
+  private final SpiLogManager logManager;
+
   /**
    * The default PersistenceContextScope used if it is not explicitly set on a query.
    */
@@ -228,6 +236,7 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
    */
   public DefaultServer(InternalConfiguration config, ServerCacheManager cache) {
 
+    this.logManager = config.getLogManager();
     this.dtoBeanManager = config.getDtoBeanManager();
     this.serverConfig = config.getServerConfig();
     this.objectGraphStats = new ConcurrentHashMap<>();
@@ -315,6 +324,11 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
     for (Plugin plugin : serverPlugins) {
       plugin.online(online);
     }
+  }
+
+  @Override
+  public SpiLogManager log() {
+    return logManager;
   }
 
   @Override
@@ -911,6 +925,11 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
   }
 
   @Override
+  public void merge(Object bean) {
+    merge(bean, MergeOptionsBuilder.defaultOptions(), null);
+  }
+
+  @Override
   public void merge(Object bean, MergeOptions options) {
     merge(bean, options, null);
   }
@@ -1150,7 +1169,7 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
 
     SpiQuery<T> spiQuery = (SpiQuery<T>) query;
     spiQuery.setType(Type.BEAN);
-    if (SpiQuery.Mode.NORMAL == spiQuery.getMode() && !spiQuery.isBeanCacheReload()) {
+    if (SpiQuery.Mode.NORMAL == spiQuery.getMode() && !spiQuery.isForceHitDatabase()) {
       // See if we can skip doing the fetch completely by getting the bean from the
       // persistence context or the bean cache
       T bean = findIdCheckPersistenceContextAndCache(t, spiQuery, spiQuery.getId());
@@ -1269,8 +1288,11 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
   @Override
   public <T> int findCount(Query<T> query, Transaction t) {
 
-    SpiQuery<T> copy = ((SpiQuery<T>) query).copy();
-    return findCountWithCopy(copy, t);
+    SpiQuery<T> spiQuery = ((SpiQuery<T>) query);
+    if (!spiQuery.isDistinct()) {
+      spiQuery = spiQuery.copy();
+    }
+    return findCountWithCopy(spiQuery, t);
   }
 
   @Override
@@ -1557,6 +1579,41 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
     }
   }
 
+  private <P> P executeSqlQuery(Function<RelationalQueryRequest, P> fun, SpiSqlQuery query) {
+    RelationalQueryRequest request = new RelationalQueryRequest(this, relationalQueryEngine, query, null);
+    try {
+      request.initTransIfRequired();
+      return fun.apply(request);
+    } finally {
+      request.endTransIfRequired();
+    }
+  }
+
+  @Override
+  public void findEachRow(SpiSqlQuery query, RowConsumer consumer) {
+    executeSqlQuery((req) -> req.findEachRow(consumer), query);
+  }
+
+  @Override
+  public <T> List<T> findListMapper(SpiSqlQuery query, RowMapper<T> mapper) {
+    return executeSqlQuery((req) -> req.findListMapper(mapper), query);
+  }
+
+  @Override
+  public <T> T findOneMapper(SpiSqlQuery query, RowMapper<T> mapper) {
+    return executeSqlQuery((req) -> req.findOneMapper(mapper), query);
+  }
+
+  @Override
+  public <T> List<T> findSingleAttributeList(SpiSqlQuery query, Class<T> cls) {
+    return executeSqlQuery((req) -> req.findSingleAttributeList(cls), query);
+  }
+
+  @Override
+  public <T> T findSingleAttribute(SpiSqlQuery query, Class<T> cls) {
+    return executeSqlQuery((req) -> req.findSingleAttribute(cls), query);
+  }
+
   @Override
   public <T> void findDtoEach(SpiDtoQuery<T> query, Consumer<T> consumer) {
     DtoQueryRequest<T> request = new DtoQueryRequest<>(this, dtoQueryEngine, query);
@@ -1668,7 +1725,6 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
     if (beans == null || beans.isEmpty()) {
       return;
     }
-
     executeInTrans((txn) -> {
       for (Object bean : beans) {
         update(checkEntityBean(bean), txn);
@@ -1710,7 +1766,6 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
     if (beans == null || beans.isEmpty()) {
       return;
     }
-
     executeInTrans((txn) -> {
       for (Object bean : beans) {
         persister.insert(checkEntityBean(bean), txn);
@@ -1779,24 +1834,27 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
 
   @Override
   public int saveAll(Collection<?> beans, Transaction transaction) throws OptimisticLockException {
-    return saveAllInternal(beans.iterator(), transaction);
+    return saveAllInternal(beans, transaction);
   }
 
   @Override
   public int saveAll(Collection<?> beans) throws OptimisticLockException {
-    return saveAllInternal(beans.iterator(), null);
+    return saveAllInternal(beans, null);
   }
 
   /**
    * Save all beans in the iterator with an explicit transaction.
    */
-  private int saveAllInternal(Iterator<?> it, Transaction transaction) {
+  private int saveAllInternal(Collection<?> beans, Transaction transaction) {
 
+    if (beans == null || beans.isEmpty()) {
+      return 0;
+    }
     return executeInTrans((txn) -> {
       txn.checkBatchEscalationOnCollection();
       int saveCount = 0;
-      while (it.hasNext()) {
-        persister.save(checkEntityBean(it.next()), txn);
+      for (Object bean : beans) {
+        persister.save(checkEntityBean(bean), txn);
         saveCount++;
       }
 
@@ -1884,12 +1942,12 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
 
   @Override
   public int deleteAllPermanent(Collection<?> beans) {
-    return deleteAllInternal(beans.iterator(), null, true);
+    return deleteAllInternal(beans, null, true);
   }
 
   @Override
   public int deleteAllPermanent(Collection<?> beans, Transaction t) {
-    return deleteAllInternal(beans.iterator(), t, true);
+    return deleteAllInternal(beans, t, true);
   }
 
   /**
@@ -1897,7 +1955,7 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
    */
   @Override
   public int deleteAll(Collection<?> beans) {
-    return deleteAllInternal(beans.iterator(), null, false);
+    return deleteAllInternal(beans, null, false);
   }
 
   /**
@@ -1905,21 +1963,23 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
    */
   @Override
   public int deleteAll(Collection<?> beans, Transaction t) {
-    return deleteAllInternal(beans.iterator(), t, false);
+    return deleteAllInternal(beans, t, false);
   }
 
   /**
    * Delete all the beans in the iterator with an explicit transaction.
    */
-  private int deleteAllInternal(Iterator<?> it, Transaction transaction, boolean permanent) {
+  private int deleteAllInternal(Collection<?> beans, Transaction transaction, boolean permanent) {
 
+    if (beans == null || beans.isEmpty()) {
+      return 0;
+    }
     return executeInTrans((txn) -> {
 
       txn.checkBatchEscalationOnCollection();
       int deleteCount = 0;
-      while (it.hasNext()) {
-        EntityBean bean = checkEntityBean(it.next());
-        persister.delete(bean, txn, permanent);
+      for (Object bean : beans) {
+        persister.delete(checkEntityBean(bean), txn, permanent);
         deleteCount++;
       }
 
@@ -1950,6 +2010,16 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
   @Override
   public int execute(SqlUpdate updSql, Transaction t) {
     return persister.executeSqlUpdate(updSql, t);
+  }
+
+  @Override
+  public void addBatch(SpiSqlUpdate sqlUpdate, SpiTransaction transaction) {
+    persister.addBatch(sqlUpdate, transaction);
+  }
+
+  @Override
+  public int[] executeBatch(SpiSqlUpdate sqlUpdate, SpiTransaction transaction) {
+    return persister.executeBatch(sqlUpdate, transaction);
   }
 
   /**

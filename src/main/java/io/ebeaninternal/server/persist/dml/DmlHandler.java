@@ -154,9 +154,7 @@ public abstract class DmlHandler implements PersistHandler, BindableRequest {
    */
   protected void logSql(String sql) {
     if (logLevelSql) {
-      if (TransactionManager.SQL_LOGGER.isTraceEnabled()) {
-        sql = Str.add(sql, "; --bind(", bindLog.toString(), ")");
-      }
+      sql = Str.add(sql, "; --bind(", bindLog.toString(), ")");
       transaction.logSql(sql);
     }
   }
@@ -187,7 +185,10 @@ public abstract class DmlHandler implements PersistHandler, BindableRequest {
   @Override
   public void bindNoLog(Object value, int sqlType, String logPlaceHolder) throws SQLException {
     if (logLevelSql) {
-      bindLog.append(logPlaceHolder).append(" ");
+      if (bindLog.length() > 0) {
+        bindLog.append(",");
+      }
+      bindLog.append(logPlaceHolder);
     }
     dataBind.setObject(value, sqlType);
   }

@@ -154,6 +154,11 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
    */
   private final IdType idType;
 
+  /**
+   * Set when Id property is marked with GeneratedValue annotation.
+   */
+  private final boolean idGeneratedValue;
+
   private final boolean idTypePlatformDefault;
 
   private final PlatformIdGenerator idGenerator;
@@ -451,6 +456,7 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
 
     this.defaultSelectClause = deploy.getDefaultSelectClause();
     this.idType = deploy.getIdType();
+    this.idGeneratedValue = deploy.isIdGeneratedValue();
     this.idTypePlatformDefault = deploy.isIdTypePlatformDefault();
     this.idGenerator = deploy.getIdGenerator();
     this.sequenceName = deploy.getSequenceName();
@@ -632,9 +638,9 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
    */
   public void setEbeanServer(SpiEbeanServer ebeanServer) {
     this.ebeanServer = ebeanServer;
-    for (BeanPropertyAssocMany<?> aPropertiesMany : propertiesMany) {
+    for (BeanPropertyAssocMany<?> assocMany : propertiesMany) {
       // used for creating lazy loading lists etc
-      aPropertiesMany.setLoader(ebeanServer);
+      assocMany.setEbeanServer(ebeanServer);
     }
   }
 
@@ -1927,9 +1933,8 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
   }
 
   /**
-   * We actually need to do a query because we don't know the type without the
-   * discriminator value, just select the id property and discriminator column
-   * (auto added)
+   * We actually need to do a query because we don't know the type without the discriminator
+   * value, just select the id property and discriminator column (auto added)
    */
   private T findReferenceBean(Object id, PersistenceContext pc) {
     DefaultOrmQuery<T> query = new DefaultOrmQuery<>(this, ebeanServer, ebeanServer.getExpressionFactory());
@@ -3011,6 +3016,13 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
   @Override
   public IdType getIdType() {
     return idType;
+  }
+
+  /**
+   * Return true if the Id value is marked as a <code>@GeneratedValue</code>.
+   */
+  public boolean isIdGeneratedValue() {
+    return idGeneratedValue;
   }
 
   /**

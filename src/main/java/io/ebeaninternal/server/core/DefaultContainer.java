@@ -6,6 +6,7 @@ import io.ebean.cache.ServerCacheOptions;
 import io.ebean.cache.ServerCachePlugin;
 import io.ebean.config.ContainerConfig;
 import io.ebean.config.ServerConfig;
+import io.ebean.config.ServerConfigProvider;
 import io.ebean.config.TenantMode;
 import io.ebean.config.UnderscoreNamingConvention;
 import io.ebean.config.dbplatform.DatabasePlatform;
@@ -62,9 +63,8 @@ public class DefaultContainer implements SpiContainer {
   }
 
   private void invokeBootupPlugin() {
-    Iterator<SpiContainerBootup> it = ServiceLoader.load(SpiContainerBootup.class).iterator();
-    while (it.hasNext()) {
-      it.next().bootup();
+    for (SpiContainerBootup boot : ServiceLoader.load(SpiContainerBootup.class)) {
+      boot.bootup();
     }
   }
 
@@ -103,8 +103,13 @@ public class DefaultContainer implements SpiContainer {
   public SpiEbeanServer createServer(ServerConfig serverConfig) {
 
     synchronized (this) {
-      setNamingConvention(serverConfig);
+      if (serverConfig.isDefaultServer()) {
+        for (ServerConfigProvider configProvider : ServiceLoader.load(ServerConfigProvider.class)) {
+          configProvider.apply(serverConfig);
+        }
+      }
 
+      setNamingConvention(serverConfig);
       BootupClasses bootupClasses = getBootupClasses(serverConfig);
 
       boolean online = true;
@@ -379,25 +384,14 @@ public class DefaultContainer implements SpiContainer {
       throw new RuntimeException("DataSource not set?");
     }
 
-    Connection c = null;
-    try {
-      c = serverConfig.getDataSource().getConnection();
-      if (!serverConfig.isAutoCommitMode() && c.getAutoCommit()) {
+    try (Connection connection = serverConfig.getDataSource().getConnection()) {
+      if (!serverConfig.isAutoCommitMode() && connection.getAutoCommit()) {
         logger.warn("DataSource [{}] has autoCommit defaulting to true!", serverConfig.getName());
       }
       return true;
 
     } catch (SQLException ex) {
       throw new PersistenceException(ex);
-
-    } finally {
-      if (c != null) {
-        try {
-          c.close();
-        } catch (SQLException ex) {
-          logger.error("Error closing connection", ex);
-        }
-      }
     }
   }
 

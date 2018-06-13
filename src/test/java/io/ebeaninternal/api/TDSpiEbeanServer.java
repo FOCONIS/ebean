@@ -16,6 +16,8 @@ import io.ebean.PagedList;
 import io.ebean.PersistenceContextScope;
 import io.ebean.Query;
 import io.ebean.QueryIterator;
+import io.ebean.RowConsumer;
+import io.ebean.RowMapper;
 import io.ebean.SqlQuery;
 import io.ebean.SqlRow;
 import io.ebean.SqlUpdate;
@@ -75,6 +77,11 @@ public class TDSpiEbeanServer implements SpiEbeanServer {
 
   public TDSpiEbeanServer(String name) {
     this.name = name;
+  }
+
+  @Override
+  public SpiLogManager log() {
+    return null;
   }
 
   @Override
@@ -235,6 +242,11 @@ public class TDSpiEbeanServer implements SpiEbeanServer {
   @Override
   public <T> int update(Query<T> query, Transaction transaction) {
     return 0;
+  }
+
+  @Override
+  public void merge(Object bean) {
+
   }
 
   @Override
@@ -445,6 +457,31 @@ public class TDSpiEbeanServer implements SpiEbeanServer {
   @Override
   public SpiResultSet findResultSet(SpiQuery<?> ormQuery, SpiTransaction transaction) {
     return null;
+  }
+
+  @Override
+  public <T> T findSingleAttribute(SpiSqlQuery query, Class<T> cls) {
+    return null;
+  }
+
+  @Override
+  public <T> List<T> findSingleAttributeList(SpiSqlQuery query, Class<T> cls) {
+    return null;
+  }
+
+  @Override
+  public <T> T findOneMapper(SpiSqlQuery query, RowMapper<T> mapper) {
+    return null;
+  }
+
+  @Override
+  public <T> List<T> findListMapper(SpiSqlQuery query, RowMapper<T> mapper) {
+    return null;
+  }
+
+  @Override
+  public void findEachRow(SpiSqlQuery query, RowConsumer consumer) {
+
   }
 
   @Override
@@ -798,6 +835,16 @@ public class TDSpiEbeanServer implements SpiEbeanServer {
   @Override
   public int execute(SqlUpdate updSql, Transaction t) {
     return 0;
+  }
+
+  @Override
+  public void addBatch(SpiSqlUpdate sqlUpdate, SpiTransaction transaction) {
+
+  }
+
+  @Override
+  public int[] executeBatch(SpiSqlUpdate defaultSqlUpdate, SpiTransaction transaction) {
+    return new int[0];
   }
 
   @Override
