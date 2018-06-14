@@ -136,7 +136,7 @@ public class ScalarTypeArrayList extends ScalarTypeJsonCollection<List> implemen
     try {
       return EJson.parseList(value, false);
     } catch (IOException e) {
-      throw new TextException("Failed to parse JSON content as List: [" + value + "]", e);
+      throw new TextException("Failed to parse JSON [{}] as List", value, e);
     }
   }
 

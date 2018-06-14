@@ -72,7 +72,7 @@ public class ScalarTypePostgresHstore extends ScalarTypeBase<Map> {
     try {
       return EJson.parseObject(value);
     } catch (IOException e) {
-      throw new TextException("Failed to parse JSON content as Object: [" + value + "]", e);
+      throw new TextException("Failed to parse JSON [{}] as Object", value, e);
     }
   }
 

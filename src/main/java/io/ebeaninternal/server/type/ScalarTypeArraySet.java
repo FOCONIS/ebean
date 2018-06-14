@@ -136,7 +136,7 @@ public class ScalarTypeArraySet<T> extends ScalarTypeJsonCollection<Set<T>> impl
     try {
       return EJson.parseSet(value, false);
     } catch (IOException e) {
-      throw new TextException("Failed to parse JSON content as Set: [" + value + "]", e);
+      throw new TextException("Failed to parse JSON [{}] as Set", value, e);
     }
   }
 

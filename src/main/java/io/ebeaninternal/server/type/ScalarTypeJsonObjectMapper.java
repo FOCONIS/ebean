@@ -180,7 +180,7 @@ public class ScalarTypeJsonObjectMapper {
       try {
         return objectMapper.readValue(json, javaType);
       } catch (IOException e) {
-        throw new TextException("Failed to parse JSON content as " + javaType + ": [" + json + "]", e);
+        throw new TextException("Failed to parse JSON [{}] as " + javaType, json, e);
       }
     }
 
@@ -230,7 +230,7 @@ public class ScalarTypeJsonObjectMapper {
       try {
         return objectMapper.readValue(value, javaType);
       } catch (IOException e) {
-        throw new TextException("Failed to parse JSON content as " + javaType + ": [" + value + "]", e);
+        throw new TextException("Failed to parse JSON [{}] as " + javaType, value, e);
       }
     }
 

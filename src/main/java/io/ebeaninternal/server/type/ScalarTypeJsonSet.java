@@ -79,7 +79,7 @@ public class ScalarTypeJsonSet {
         // parse JSON into modifyAware list
         return EJson.parseSet(json, true);
       } catch (IOException e) {
-        throw new TextException("Failed to parse JSON content as Set: [" + json + "]", e);
+        throw new TextException("Failed to parse JSON [{}] as Set", json, e);
       }
     }
 
