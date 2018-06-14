@@ -1,6 +1,7 @@
 package io.ebeaninternal.server.type;
 
 import io.ebean.config.dbplatform.DbPlatformType;
+import io.ebean.text.TextException;
 import io.ebeaninternal.json.ModifyAwareList;
 import io.ebeaninternal.json.ModifyAwareMap;
 import io.ebeaninternal.json.ModifyAwareSet;
@@ -179,7 +180,7 @@ public class ScalarTypeJsonObjectMapper {
       try {
         return objectMapper.readValue(json, javaType);
       } catch (IOException e) {
-        throw new SQLException("Unable to convert JSON", e);
+        throw new TextException("Failed to parse JSON content as " + javaType + ": [" + json + "]", e);
       }
     }
 
@@ -229,7 +230,7 @@ public class ScalarTypeJsonObjectMapper {
       try {
         return objectMapper.readValue(value, javaType);
       } catch (IOException e) {
-        throw new PersistenceException("Unable to convert JSON", e);
+        throw new TextException("Failed to parse JSON content as " + javaType + ": [" + value + "]", e);
       }
     }
 
