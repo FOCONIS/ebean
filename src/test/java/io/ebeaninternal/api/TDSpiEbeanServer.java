@@ -7,6 +7,7 @@ import io.ebean.CallableSql;
 import io.ebean.DocumentStore;
 import io.ebean.DtoQuery;
 import io.ebean.ExpressionFactory;
+import io.ebean.ExtendedServer;
 import io.ebean.Filter;
 import io.ebean.FutureIds;
 import io.ebean.FutureList;
@@ -54,6 +55,7 @@ import io.ebeaninternal.server.transaction.RemoteTransactionEvent;
 import javax.persistence.OptimisticLockException;
 import javax.persistence.PersistenceException;
 import java.lang.reflect.Type;
+import java.time.Clock;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -77,6 +79,21 @@ public class TDSpiEbeanServer implements SpiEbeanServer {
 
   public TDSpiEbeanServer(String name) {
     this.name = name;
+  }
+
+  @Override
+  public ExtendedServer extended() {
+    return this;
+  }
+
+  @Override
+  public long clockNow() {
+    return System.currentTimeMillis();
+  }
+
+  @Override
+  public void setClock(Clock clock) {
+
   }
 
   @Override

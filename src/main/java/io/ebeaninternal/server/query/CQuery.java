@@ -39,6 +39,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Set;
 
 /**
  * An object that represents a SqlSelect statement.
@@ -818,5 +819,9 @@ public class CQuery<T> implements DbReadContext, CancelableQuery, SpiProfileTran
   @Override
   public Object handleLoadError(EntityBean bean, BeanProperty prop, String fullName, Exception e) {
     return query.handleLoadError(bean, prop, fullName, e);
+  }
+
+  public Set<String> getDependentTables() {
+    return queryPlan.getDependentTables();
   }
 }

@@ -1,6 +1,5 @@
 package io.ebeaninternal.server.deploy;
 
-import io.ebean.EbeanServer;
 import io.ebean.Query;
 import io.ebean.SqlUpdate;
 import io.ebean.Transaction;
@@ -9,6 +8,7 @@ import io.ebean.bean.EntityBean;
 import io.ebean.bean.EntityBeanIntercept;
 import io.ebean.bean.PersistenceContext;
 import io.ebean.util.SplitName;
+import io.ebeaninternal.api.SpiEbeanServer;
 import io.ebeaninternal.api.SpiQuery;
 import io.ebeaninternal.api.json.SpiJsonReader;
 import io.ebeaninternal.api.json.SpiJsonWriter;
@@ -255,7 +255,7 @@ public class BeanPropertyAssocOne<T> extends BeanPropertyAssoc<T> implements STr
 
     String rawWhere = deriveWhereParentIdSql(false);
 
-    EbeanServer server = server();
+    SpiEbeanServer server = server();
     Query<?> q = server.find(getPropertyType());
     bindParentIdEq(rawWhere, parentId, q);
     return server.findIds(q, t);
@@ -267,7 +267,7 @@ public class BeanPropertyAssocOne<T> extends BeanPropertyAssoc<T> implements STr
     String inClause = targetIdBinder.getIdInValueExpr(false, parentIds.size());
     String expr = rawWhere + inClause;
 
-    EbeanServer server = server();
+    SpiEbeanServer server = server();
     Query<?> q = server.find(getPropertyType());
     bindParentIdsIn(expr, parentIds, q);
 

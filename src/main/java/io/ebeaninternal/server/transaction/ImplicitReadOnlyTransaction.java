@@ -67,6 +67,7 @@ class ImplicitReadOnlyTransaction implements SpiTransaction, TxnProfileEventCode
   private Map<String, Object> userObjects;
 
   private long startNanos;
+  private long startMillis;
 
   /**
    * Create without a tenantId.
@@ -79,6 +80,7 @@ class ImplicitReadOnlyTransaction implements SpiTransaction, TxnProfileEventCode
     this.connection = connection;
     this.persistenceContext = new DefaultPersistenceContext();
     this.startNanos = System.nanoTime();
+    this.startMillis = manager.clockNowMillis();
   }
 
   /**
@@ -87,6 +89,12 @@ class ImplicitReadOnlyTransaction implements SpiTransaction, TxnProfileEventCode
   ImplicitReadOnlyTransaction(TransactionManager manager, Connection connection, Object tenantId) {
     this(manager, connection);
     this.tenantId = tenantId;
+  }
+
+  @Override
+  public long getStartMillis() {
+    // not used on read only transaction
+    return startMillis;
   }
 
   @Override
@@ -290,8 +298,22 @@ class ImplicitReadOnlyTransaction implements SpiTransaction, TxnProfileEventCode
   }
 
   @Override
+  public boolean isBatchMode() {
+    return false;
+  }
+
+  @Override
+  public boolean isBatchOnCascade() {
+    return false;
+  }
+
+  @Override
   public PersistBatch getBatch() {
     return null;
+  }
+
+  @Override
+  public void setBatchOnCascade(boolean batchMode) {
   }
 
   @Override
@@ -345,7 +367,7 @@ class ImplicitReadOnlyTransaction implements SpiTransaction, TxnProfileEventCode
    * this request should be executed immediately.
    */
   @Override
-  public boolean isBatchThisRequest(PersistRequest.Type type) {
+  public boolean isBatchThisRequest() {
     return false;
   }
 

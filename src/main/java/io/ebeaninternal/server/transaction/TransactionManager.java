@@ -5,6 +5,8 @@ import io.ebean.ProfileLocation;
 import io.ebean.TxScope;
 import io.ebean.annotation.PersistBatch;
 import io.ebean.annotation.TxType;
+import io.ebean.cache.ServerCacheNotification;
+import io.ebean.cache.ServerCacheNotify;
 import io.ebean.config.CurrentTenantProvider;
 import io.ebean.config.dbplatform.DatabasePlatform;
 import io.ebean.config.dbplatform.DatabasePlatform.OnQueryOnly;
@@ -27,6 +29,7 @@ import io.ebeaninternal.metric.MetricFactory;
 import io.ebeaninternal.metric.TimedMetric;
 import io.ebeaninternal.metric.TimedMetricMap;
 import io.ebeaninternal.server.cluster.ClusterManager;
+import io.ebeaninternal.server.core.ClockService;
 import io.ebeaninternal.server.deploy.BeanDescriptorManager;
 import io.ebeaninternal.server.profile.TimedProfileLocation;
 import io.ebeaninternal.server.profile.TimedProfileLocationRegistry;
@@ -46,7 +49,7 @@ import java.util.Set;
 /**
  * Manages transactions.
  * <p>
- * Keeps the Cache and Cluster in synch when transactions are committed.
+ * Keeps the Cache and Cluster in sync when transactions are committed.
  * </p>
  */
 public class TransactionManager implements SpiTransactionManager {
@@ -94,9 +97,9 @@ public class TransactionManager implements SpiTransactionManager {
    */
   protected final DocStoreUpdateProcessor docStoreUpdateProcessor;
 
-  protected final PersistBatch persistBatch;
+  protected final boolean persistBatch;
 
-  protected final PersistBatch persistBatchOnCascade;
+  protected final boolean persistBatchOnCascade;
 
   protected final BulkEventListenerMap bulkEventListenerMap;
 
@@ -136,6 +139,10 @@ public class TransactionManager implements SpiTransactionManager {
   private final TimedMetricMap txnNamed;
   private final TransactionScopeManager scopeManager;
 
+  private final TableModState tableModState;
+  private final ServerCacheNotify cacheNotify;
+  private final ClockService clockService;
+
   /**
    * Create the TransactionManager
    */
@@ -146,8 +153,8 @@ public class TransactionManager implements SpiTransactionManager {
     this.databasePlatform = options.config.getDatabasePlatform();
     this.skipCacheAfterWrite = options.config.isSkipCacheAfterWrite();
     this.notifyL2CacheInForeground = options.notifyL2CacheInForeground;
-    this.persistBatch = options.config.getPersistBatch();
-    this.persistBatchOnCascade = options.config.appliedPersistBatchOnCascade();
+    this.persistBatch = PersistBatch.ALL == options.config.getPersistBatch();
+    this.persistBatchOnCascade = PersistBatch.ALL == options.config.appliedPersistBatchOnCascade();
     this.rollbackOnChecked = options.config.isTransactionRollbackOnChecked();
     this.beanDescriptorManager = options.descMgr;
     this.viewInvalidation = options.descMgr.requiresViewEntityCacheInvalidation();
@@ -157,6 +164,9 @@ public class TransactionManager implements SpiTransactionManager {
     this.clusterManager = options.clusterManager;
     this.serverName = options.config.getName();
     this.scopeManager = options.scopeManager;
+    this.tableModState = options.tableModState;
+    this.cacheNotify = options.cacheNotify;
+    this.clockService = options.clockService;
     this.backgroundExecutor = options.backgroundExecutor;
     this.dataSourceSupplier = options.dataSourceSupplier;
     this.docStoreActive = options.config.getDocStoreConfig().isActive();
@@ -176,6 +186,13 @@ public class TransactionManager implements SpiTransactionManager {
     this.txnNamed = metricFactory.createTimedMetricMap(MetricType.TXN, "txn.named.");
 
     scopeManager.register(this);
+  }
+
+  /**
+   * Return the NOW timestamp in epoch millis.
+   */
+  public long clockNowMillis() {
+    return clockService.nowMillis();
   }
 
   /**
@@ -254,11 +271,11 @@ public class TransactionManager implements SpiTransactionManager {
     return bulkEventListenerMap;
   }
 
-  public PersistBatch getPersistBatch() {
+  public boolean getPersistBatch() {
     return persistBatch;
   }
 
-  public PersistBatch getPersistBatchOnCascade() {
+  public boolean getPersistBatchOnCascade() {
     return persistBatchOnCascade;
   }
 
@@ -323,7 +340,7 @@ public class TransactionManager implements SpiTransactionManager {
     ExternalJdbcTransaction t = new ExternalJdbcTransaction(id, true, c, this);
 
     // set the default batch mode
-    t.setBatch(persistBatch);
+    t.setBatchMode(persistBatch);
     t.setBatchOnCascade(persistBatchOnCascade);
     return t;
   }
@@ -434,7 +451,7 @@ public class TransactionManager implements SpiTransactionManager {
 
   private void externalModificationEvent(TransactionEventTable tableEvents) {
 
-    TransactionEvent event = new TransactionEvent();
+    TransactionEvent event = new TransactionEvent(clockNowMillis());
     event.add(tableEvents);
 
     PostCommitProcessing postCommit = new PostCommitProcessing(clusterManager, this, event);
@@ -495,10 +512,12 @@ public class TransactionManager implements SpiTransactionManager {
   /**
    * Invalidate the query caches for entities based on views.
    */
-  public void processViewInvalidation(Set<String> viewInvalidation) {
-    if (!viewInvalidation.isEmpty()) {
-      beanDescriptorManager.processViewInvalidation(viewInvalidation);
+  public void processTouchedTables(Set<String> touchedTables, long modTimestamp) {
+    tableModState.touch(touchedTables, modTimestamp);
+    if (viewInvalidation) {
+      beanDescriptorManager.processViewInvalidation(touchedTables);
     }
+    cacheNotify.notify(new ServerCacheNotification(modTimestamp, touchedTables));
   }
 
   /**

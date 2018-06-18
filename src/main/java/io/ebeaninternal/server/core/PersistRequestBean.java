@@ -23,6 +23,7 @@ import io.ebeaninternal.server.deploy.generatedproperty.GeneratedProperty;
 import io.ebeaninternal.server.deploy.id.ImportedId;
 import io.ebeaninternal.server.persist.BatchControl;
 import io.ebeaninternal.server.persist.BatchedSqlException;
+import io.ebeaninternal.server.persist.DeleteMode;
 import io.ebeaninternal.server.persist.Flags;
 import io.ebeaninternal.server.persist.PersistExecute;
 import io.ebeaninternal.server.transaction.BeanPersistIdMap;
@@ -272,7 +273,7 @@ public final class PersistRequestBean<T> extends PersistRequest implements BeanP
           onUpdateGeneratedProperties();
         }
         break;
-      case SOFT_DELETE:
+      case DELETE_SOFT:
         onUpdateGeneratedProperties();
         break;
     }
@@ -456,7 +457,7 @@ public final class PersistRequestBean<T> extends PersistRequest implements BeanP
           beanDescriptor.cacheHandleUpdate(idValue, this, changeSet);
           break;
         case DELETE:
-        case SOFT_DELETE:
+        case DELETE_SOFT:
           beanDescriptor.cacheHandleDelete(idValue, this, changeSet);
           break;
         default:
@@ -476,7 +477,7 @@ public final class PersistRequestBean<T> extends PersistRequest implements BeanP
         beanDescriptor.docStoreInsert(idValue, this, txn);
         break;
       case UPDATE:
-      case SOFT_DELETE:
+      case DELETE_SOFT:
         beanDescriptor.docStoreUpdate(idValue, this, txn);
         break;
       case DELETE:
@@ -497,7 +498,7 @@ public final class PersistRequestBean<T> extends PersistRequest implements BeanP
         docStoreUpdates.queueIndex(beanDescriptor.getDocStoreQueueId(), idValue);
         break;
       case UPDATE:
-      case SOFT_DELETE:
+      case DELETE_SOFT:
         docStoreUpdates.queueIndex(beanDescriptor.getDocStoreQueueId(), idValue);
         break;
       case DELETE:
@@ -528,7 +529,7 @@ public final class PersistRequestBean<T> extends PersistRequest implements BeanP
           beanPersistListener.deleted(bean);
           break;
 
-        case SOFT_DELETE:
+        case DELETE_SOFT:
           beanPersistListener.softDeleted(bean);
           break;
 
@@ -773,7 +774,7 @@ public final class PersistRequestBean<T> extends PersistRequest implements BeanP
         executeUpdate();
         return -1;
 
-      case SOFT_DELETE:
+      case DELETE_SOFT:
         prepareForSoftDelete();
         executeSoftDelete();
         return -1;
@@ -856,7 +857,7 @@ public final class PersistRequestBean<T> extends PersistRequest implements BeanP
     }
     switch (type) {
       case DELETE:
-      case SOFT_DELETE:
+      case DELETE_SOFT:
         postDelete();
         break;
       case UPDATE:
@@ -971,7 +972,7 @@ public final class PersistRequestBean<T> extends PersistRequest implements BeanP
           pendingPostUpdateNotify++;
         }
         break;
-      case SOFT_DELETE:
+      case DELETE_SOFT:
         controller.postSoftDelete(this);
         break;
       case DELETE:
@@ -996,7 +997,7 @@ public final class PersistRequestBean<T> extends PersistRequest implements BeanP
       case DELETE:
         transaction.logSummary("Deleted [" + name + "] [" + idValue + "]" + draft);
         break;
-      case SOFT_DELETE:
+      case DELETE_SOFT:
         transaction.logSummary("SoftDelete [" + name + "] [" + idValue + "]" + draft);
         break;
       default:
@@ -1187,10 +1188,10 @@ public final class PersistRequestBean<T> extends PersistRequest implements BeanP
   }
 
   /**
-   * Return true if this is a soft delete request.
+   * Return the delete mode - Soft or Hard.
    */
-  public boolean isSoftDelete() {
-    return Type.SOFT_DELETE == type;
+  public DeleteMode deleteMode() {
+    return Type.DELETE_SOFT == type ? DeleteMode.SOFT : DeleteMode.HARD;
   }
 
   /**
@@ -1277,7 +1278,7 @@ public final class PersistRequestBean<T> extends PersistRequest implements BeanP
    */
   public long now() {
     if (now == 0) {
-      now = System.currentTimeMillis();
+      now = ebeanServer.clockNow();
     }
     return now;
   }

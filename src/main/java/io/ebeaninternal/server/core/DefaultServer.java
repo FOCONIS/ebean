@@ -8,6 +8,7 @@ import io.ebean.DocumentStore;
 import io.ebean.DtoQuery;
 import io.ebean.ExpressionFactory;
 import io.ebean.ExpressionList;
+import io.ebean.ExtendedServer;
 import io.ebean.Filter;
 import io.ebean.FutureIds;
 import io.ebean.FutureList;
@@ -117,10 +118,10 @@ import javax.persistence.NonUniqueResultException;
 import javax.persistence.OptimisticLockException;
 import javax.persistence.PersistenceException;
 import javax.sql.DataSource;
+import java.time.Clock;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -148,6 +149,11 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
   private final TransactionManager transactionManager;
 
   private final DataTimeZone dataTimeZone;
+
+  /**
+   * Clock to use for WhenModified and WhenCreated.
+   */
+  private ClockService clockService;
 
   private final CallStackFactory callStackFactory;
 
@@ -276,6 +282,7 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
     this.beanLoader = new DefaultBeanLoader(this);
     this.jsonContext = config.createJsonContext(this);
     this.dataTimeZone = config.getDataTimeZone();
+    this.clockService = config.getClockService();
 
     DocStoreIntegration docStoreComponents = config.createDocStoreIntegration(this);
     this.transactionManager = config.createTransactionManager(docStoreComponents.updateProcessor());
@@ -501,6 +508,21 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
   @Override
   public String getName() {
     return serverName;
+  }
+
+  @Override
+  public ExtendedServer extended() {
+    return this;
+  }
+
+  @Override
+  public long clockNow() {
+    return clockService.nowMillis();
+  }
+
+  @Override
+  public void setClock(Clock clock) {
+    this.clockService.setClock(clock);
   }
 
   @Override

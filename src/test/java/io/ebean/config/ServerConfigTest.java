@@ -51,8 +51,8 @@ public class ServerConfigTest {
     serverConfig.setReadOnlyDataSourceConfig(new DataSourceConfig());
 
     Properties props = new Properties();
-    props.setProperty("persistBatch", "INSERT");
-    props.setProperty("persistBatchOnCascade", "INSERT");
+    props.setProperty("persistBatch", "ALL");
+    props.setProperty("persistBatchOnCascade", "ALL");
     props.setProperty("dbuuid", "binary");
     props.setProperty("jdbcFetchSizeFindEach", "42");
     props.setProperty("jdbcFetchSizeFindList", "43");
@@ -79,9 +79,10 @@ public class ServerConfigTest {
 
     assertThat(serverConfig.getNamingConvention()).isInstanceOf(MatchingNamingConvention.class);
 
-    assertEquals(IdType.SEQUENCE, serverConfig.getPlatformConfig().getIdType());
-    assertEquals(PersistBatch.INSERT, serverConfig.getPersistBatch());
-    assertEquals(PersistBatch.INSERT, serverConfig.getPersistBatchOnCascade());
+    assertEquals(IdType.SEQUENCE, serverConfig.getIdType());
+    assertEquals(PersistBatch.ALL, serverConfig.getPersistBatch());
+    assertEquals(PersistBatch.ALL, serverConfig.getPersistBatchOnCascade());
+
     assertEquals(PlatformConfig.DbUuid.BINARY, serverConfig.getPlatformConfig().getDbUuid());
     assertEquals(JsonConfig.DateTime.ISO8601, serverConfig.getJsonDateTime());
 

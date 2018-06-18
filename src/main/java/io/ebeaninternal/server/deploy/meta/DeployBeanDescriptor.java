@@ -442,6 +442,13 @@ public class DeployBeanDescriptor<T> implements DeployBeanDescriptorMeta {
   }
 
   /**
+   * Set that this type invalidates query caches.
+   */
+  public void setInvalidateQueryCache() {
+    this.cacheOptions = CacheOptions.INVALIDATE_QUERY_CACHE;
+  }
+
+  /**
    * Enable L2 bean and query caching based on Cache annotation.
    */
   public void setCache(Cache cache) {

@@ -102,6 +102,11 @@ public interface SpiTransaction extends Transaction {
   String getId();
 
   /**
+   * Return the start timestamp for the transaction (JVM side).
+   */
+  long getStartMillis();
+
+  /**
    * Return true if this transaction has updateAllLoadedProperties set.
    * If null is returned the server default is used (set on ServerConfig).
    */
@@ -179,7 +184,7 @@ public interface SpiTransaction extends Transaction {
    * Return true if this request should be batched. Conversely returns false
    * if this request should be executed immediately.
    */
-  boolean isBatchThisRequest(PersistRequest.Type type);
+  boolean isBatchThisRequest();
 
   /**
    * Return the BatchControl used to batch up persist requests.
