@@ -2,6 +2,8 @@ package org.tests.json;
 
 import io.ebean.BaseTestCase;
 import io.ebean.Ebean;
+import io.ebean.annotation.ForPlatform;
+import io.ebean.annotation.Platform;
 import io.ebean.plugin.Property;
 import io.ebean.text.TextException;
 
@@ -170,6 +172,7 @@ public class TestDbJson_List extends BaseTestCase {
     assertNotNull(asJson);
   }
 
+  @ForPlatform(Platform.H2)
   @Test
   public void find_corrupt_json() {
 

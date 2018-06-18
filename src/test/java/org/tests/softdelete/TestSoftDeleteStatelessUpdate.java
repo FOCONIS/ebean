@@ -43,8 +43,12 @@ public class TestSoftDeleteStatelessUpdate extends BaseTestCase {
     List<String> sql = LoggedSql.collect();
     assertThat(sql).hasSize(4);
     assertThat(sql.get(0)).contains("update esd_master set name=? where id=?");
-    assertThat(sql.get(1)).contains("update esd_detail set deleted=true where master_id = ? and not");
-
+    if (isMySql()) {
+      assertThat(sql.get(1)).contains("update esd_detail set deleted=1 where master_id = ? and not");
+    } else {
+      assertThat(sql.get(1)).contains("update esd_detail set deleted=true where master_id = ? and not");
+    }
+    
 
     EsdMaster fetchedWithSoftDeletes = Ebean.find(EsdMaster.class)
       .setId(master.getId())

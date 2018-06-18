@@ -64,7 +64,7 @@ public class TestNestedSubTransaction extends BaseTestCase {
 
 
   @Test
-  @IgnorePlatform(Platform.SQLSERVER)
+  @IgnorePlatform({Platform.SQLSERVER, Platform.MYSQL})
   public void nestedUseSavepoint_doubleNested_rollbackCommit() {
 
     EbeanServer server = server();
@@ -101,7 +101,7 @@ public class TestNestedSubTransaction extends BaseTestCase {
   }
 
   @Test
-  @IgnorePlatform(Platform.SQLSERVER)
+  @IgnorePlatform({Platform.SQLSERVER, Platform.MYSQL})
   public void nestedUseSavepoint_doubleNested_commitRollback() {
 
     EbeanServer server = server();
@@ -138,7 +138,7 @@ public class TestNestedSubTransaction extends BaseTestCase {
   }
 
   @Test
-  @IgnorePlatform(Platform.SQLSERVER)
+  @IgnorePlatform({Platform.SQLSERVER, Platform.MYSQL})
   public void nestedUseSavepoint_nested_RequiresNew() {
 
     EbeanServer server = server();
@@ -174,7 +174,7 @@ public class TestNestedSubTransaction extends BaseTestCase {
   }
 
   @Test
-  @IgnorePlatform(Platform.SQLSERVER)
+  @IgnorePlatform({Platform.SQLSERVER, Platform.MYSQL})
   public void nestedUseSavepoint() {
 
     EbeanServer server = server();
