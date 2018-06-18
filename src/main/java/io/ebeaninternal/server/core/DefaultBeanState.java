@@ -4,8 +4,11 @@ import io.ebean.BeanState;
 import io.ebean.ValuePair;
 import io.ebean.bean.EntityBean;
 import io.ebean.bean.EntityBeanIntercept;
+import io.ebean.plugin.Property;
 import io.ebeaninternal.server.deploy.BeanDescriptor;
+import io.ebeaninternal.server.deploy.BeanProperty;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -94,4 +97,20 @@ public class DefaultBeanState implements BeanState {
   public void resetForInsert() {
     intercept.setNew();
   }
+
+  @Override
+  public Map<Property, Exception> getLoadErrors() {
+    Exception[] loadErros = intercept.getLoadErrors();
+    if (loadErros == null) {
+      return null;
+    }
+    Map<Property, Exception> ret = new HashMap<>();
+    for (BeanProperty prop: descriptor.propertiesAll()) {
+      if (loadErros[prop.getPropertyIndex()] != null) {
+        ret.put(prop, loadErros[prop.getPropertyIndex()]);
+      }
+    }
+    return ret;
+  }
+
 }

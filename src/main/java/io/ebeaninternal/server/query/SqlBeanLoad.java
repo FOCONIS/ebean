@@ -88,8 +88,8 @@ public class SqlBeanLoad {
       return dbVal;
 
     } catch (Exception e) {
-      String msg = "Error loading on " + prop.getFullBeanName();
-      throw new PersistenceException(msg, e);
+      bean._ebean_getIntercept().setLoadError(prop.getPropertyIndex(), e);
+      return ctx.handleLoadError(bean, prop, prop.getFullBeanName(), e);
     }
   }
 

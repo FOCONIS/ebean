@@ -21,6 +21,7 @@ import io.ebeaninternal.server.core.SpiOrmQueryRequest;
 import io.ebeaninternal.server.deploy.BeanCollectionHelp;
 import io.ebeaninternal.server.deploy.BeanCollectionHelpFactory;
 import io.ebeaninternal.server.deploy.BeanDescriptor;
+import io.ebeaninternal.server.deploy.BeanProperty;
 import io.ebeaninternal.server.deploy.BeanPropertyAssocMany;
 import io.ebeaninternal.server.deploy.DbReadContext;
 import io.ebeaninternal.server.type.DataBind;
@@ -812,5 +813,10 @@ public class CQuery<T> implements DbReadContext, CancelableQuery, SpiProfileTran
    */
   PreparedStatement getPstmt() {
     return pstmt;
+  }
+
+  @Override
+  public Object handleLoadError(EntityBean bean, BeanProperty prop, String fullName, Exception e) {
+    return query.handleLoadError(bean, prop, fullName, e);
   }
 }

@@ -22,12 +22,14 @@ import io.ebean.QueryType;
 import io.ebean.RawSql;
 import io.ebean.Version;
 import io.ebean.bean.CallStack;
+import io.ebean.bean.EntityBean;
 import io.ebean.bean.ObjectGraphNode;
 import io.ebean.bean.ObjectGraphOrigin;
 import io.ebean.bean.PersistenceContext;
 import io.ebean.event.BeanQueryRequest;
 import io.ebean.event.readaudit.ReadEvent;
 import io.ebean.plugin.BeanType;
+import io.ebean.plugin.LoadErrorHandler;
 import io.ebeaninternal.api.BindParams;
 import io.ebeaninternal.api.CQueryPlanKey;
 import io.ebeaninternal.api.HashQuery;
@@ -43,6 +45,7 @@ import io.ebeaninternal.api.SpiQuerySecondary;
 import io.ebeaninternal.server.autotune.ProfilingListener;
 import io.ebeaninternal.server.core.SpiOrmQueryRequest;
 import io.ebeaninternal.server.deploy.BeanDescriptor;
+import io.ebeaninternal.server.deploy.BeanProperty;
 import io.ebeaninternal.server.deploy.BeanPropertyAssocMany;
 import io.ebeaninternal.server.deploy.TableJoin;
 import io.ebeaninternal.server.expression.DefaultExpressionList;
@@ -1941,5 +1944,10 @@ public class DefaultOrmQuery<T> implements SpiQuery<T> {
 
   public boolean isOrderById() {
     return orderById;
+  }
+
+  @Override
+  public Object handleLoadError(EntityBean bean, BeanProperty prop, String fullName, Exception e) {
+    return server.getServerConfig().getLoadErrorHandler().handleLoadError(bean, prop, fullName, e);
   }
 }
