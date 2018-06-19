@@ -8,7 +8,6 @@ import io.ebean.Transaction;
 import io.ebean.TxScope;
 import io.ebean.annotation.IgnorePlatform;
 import io.ebean.annotation.Platform;
-
 import org.junit.Test;
 import org.tests.model.basic.EBasic;
 
@@ -16,9 +15,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
-
 public class TestNestedSubTransaction extends BaseTestCase {
 
+  /**
+   * MySql only supports named savepoints - review.
+   */
+  @IgnorePlatform(Platform.MYSQL)
   @Test
   public void ebeanServer_commitTransaction_expect_sameAsTransactionCommit() {
 
@@ -63,8 +65,8 @@ public class TestNestedSubTransaction extends BaseTestCase {
   }
 
 
+  @IgnorePlatform(Platform.MYSQL)
   @Test
-  @IgnorePlatform({Platform.SQLSERVER, Platform.MYSQL})
   public void nestedUseSavepoint_doubleNested_rollbackCommit() {
 
     EbeanServer server = server();
@@ -100,8 +102,8 @@ public class TestNestedSubTransaction extends BaseTestCase {
     }
   }
 
+  @IgnorePlatform(Platform.MYSQL)
   @Test
-  @IgnorePlatform({Platform.SQLSERVER, Platform.MYSQL})
   public void nestedUseSavepoint_doubleNested_commitRollback() {
 
     EbeanServer server = server();
@@ -137,8 +139,8 @@ public class TestNestedSubTransaction extends BaseTestCase {
     }
   }
 
+  @IgnorePlatform(Platform.MYSQL)
   @Test
-  @IgnorePlatform({Platform.SQLSERVER, Platform.MYSQL})
   public void nestedUseSavepoint_nested_RequiresNew() {
 
     EbeanServer server = server();
@@ -173,8 +175,8 @@ public class TestNestedSubTransaction extends BaseTestCase {
     assertNull(after);
   }
 
+  @IgnorePlatform(Platform.MYSQL)
   @Test
-  @IgnorePlatform({Platform.SQLSERVER, Platform.MYSQL})
   public void nestedUseSavepoint() {
 
     EbeanServer server = server();

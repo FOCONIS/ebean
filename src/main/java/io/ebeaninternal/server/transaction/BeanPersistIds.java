@@ -11,7 +11,6 @@ import io.ebeaninternal.server.deploy.id.IdBinder;
 import java.io.DataInput;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -94,6 +93,7 @@ public class BeanPersistIds implements BinaryWritable {
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
+    sb.append("BeanIds[");
     if (beanDescriptor != null) {
       sb.append(beanDescriptor.getFullName());
     } else {
@@ -102,6 +102,7 @@ public class BeanPersistIds implements BinaryWritable {
     if (ids != null) {
       sb.append(" ids:").append(ids);
     }
+    sb.append("]");
     return sb.toString();
   }
 
@@ -129,7 +130,7 @@ public class BeanPersistIds implements BinaryWritable {
     // any change invalidates the query cache
     beanDescriptor.clearQueryCache();
     if (ids != null) {
-      beanDescriptor.cacheHandleInvalidate(ids);
+      beanDescriptor.cacheApplyInvalidate(ids);
     }
   }
 }

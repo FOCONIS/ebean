@@ -444,8 +444,7 @@ public class BeanDescriptorManager implements BeanDescriptorMap {
   }
 
   /**
-   * For SQL based modifications we need to invalidate appropriate parts of the
-   * cache.
+   * For SQL based modifications we need to invalidate appropriate parts of the cache.
    */
   public void cacheNotify(TransactionEventTable.TableIUD tableIUD) {
 

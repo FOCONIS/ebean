@@ -1144,6 +1144,7 @@ public final class EntityBeanIntercept implements Serializable {
       loadErrors = new Exception[owner._ebean_getPropertyNames().length];
     }
     loadErrors[propertyIndex] = t;
+    loadedProps[propertyIndex] = true;
   }
 
   /**
