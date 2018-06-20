@@ -2949,7 +2949,6 @@ public class ServerConfig {
       Logger logger = LoggerFactory.getLogger("io.ebean.SQL");
       loadErrorHandler = (bean, prop, fullName, e) -> {
         logger.error("Error loading on {}", fullName, e);
-        return null;
       };
     }
   }

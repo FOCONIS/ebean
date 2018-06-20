@@ -1947,7 +1947,7 @@ public class DefaultOrmQuery<T> implements SpiQuery<T> {
   }
 
   @Override
-  public Object handleLoadError(EntityBean bean, BeanProperty prop, String fullName, Exception e) {
-    return server.getServerConfig().getLoadErrorHandler().handleLoadError(bean, prop, fullName, e);
+  public void handleLoadError(EntityBean bean, BeanProperty prop, String fullName, Exception e) {
+    server.getServerConfig().getLoadErrorHandler().handleLoadError(bean, prop, fullName, e);
   }
 }

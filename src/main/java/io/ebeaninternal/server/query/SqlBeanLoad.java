@@ -89,7 +89,8 @@ public class SqlBeanLoad {
 
     } catch (Exception e) {
       bean._ebean_getIntercept().setLoadError(prop.getPropertyIndex(), e);
-      return ctx.handleLoadError(bean, prop, prop.getFullBeanName(), e);
+      ctx.handleLoadError(bean, prop, prop.getFullBeanName(), e);
+      return prop.getValue(bean);
     }
   }
 

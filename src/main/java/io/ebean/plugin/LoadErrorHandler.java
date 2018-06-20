@@ -10,5 +10,5 @@ import io.ebean.bean.EntityBean;
  */
 @FunctionalInterface
 public interface LoadErrorHandler {
-  Object handleLoadError(EntityBean bean, Property prop, String fullName, Exception e);
+  void handleLoadError(EntityBean bean, Property prop, String fullName, Exception e);
 }

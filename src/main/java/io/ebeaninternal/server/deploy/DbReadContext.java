@@ -94,6 +94,6 @@ public interface DbReadContext {
   /**
    * Handles a load error on given property.
    */
-  Object handleLoadError(EntityBean bean, BeanProperty prop, String fullName, Exception e);
+  void handleLoadError(EntityBean bean, BeanProperty prop, String fullName, Exception e);
 
 }

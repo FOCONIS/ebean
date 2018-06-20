@@ -817,8 +817,8 @@ public class CQuery<T> implements DbReadContext, CancelableQuery, SpiProfileTran
   }
 
   @Override
-  public Object handleLoadError(EntityBean bean, BeanProperty prop, String fullName, Exception e) {
-    return query.handleLoadError(bean, prop, fullName, e);
+  public void handleLoadError(EntityBean bean, BeanProperty prop, String fullName, Exception e) {
+    query.handleLoadError(bean, prop, fullName, e);
   }
 
   public Set<String> getDependentTables() {

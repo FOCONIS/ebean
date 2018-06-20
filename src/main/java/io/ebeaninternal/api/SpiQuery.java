@@ -854,5 +854,5 @@ public interface SpiQuery<T> extends Query<T>, TxnProfileEventCodes {
   /**
    * Handles load errors.
    */
-  Object handleLoadError(EntityBean bean, BeanProperty prop, String fullName, Exception e);
+  void handleLoadError(EntityBean bean, BeanProperty prop, String fullName, Exception e);
 }
