@@ -29,7 +29,11 @@ public class IdInExpression extends NonPrepareExpression {
 
   @Override
   public void prepareExpression(BeanQueryRequest<?> request) {
-    multiValueIdSupported = request.isMultiValueIdSupported();
+    if (idCollection.isEmpty()) {
+      multiValueIdSupported = IsSupported.NO;
+    } else {
+      multiValueIdSupported = request.isMultiValueIdSupported();
+    }
   }
 
   @Override
