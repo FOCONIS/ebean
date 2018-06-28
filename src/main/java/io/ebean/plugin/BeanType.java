@@ -12,6 +12,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
 
+import javax.annotation.Nonnull;
+
 /**
  * Information and methods on BeanDescriptors made available to plugins.
  */
@@ -20,6 +22,7 @@ public interface BeanType<T> {
   /**
    * Return the short name of the bean type.
    */
+  @Nonnull
   String getName();
 
   /**
@@ -30,11 +33,13 @@ public interface BeanType<T> {
   /**
    * Return the full name of the bean type.
    */
+  @Nonnull
   String getFullName();
 
   /**
    * Return the class type this BeanDescriptor describes.
    */
+  @Nonnull
   Class<T> getBeanType();
 
   /**
@@ -45,6 +50,7 @@ public interface BeanType<T> {
   /**
    * Return all the properties for this bean type.
    */
+  @Nonnull
   Collection<? extends Property> allProperties();
 
   /**
