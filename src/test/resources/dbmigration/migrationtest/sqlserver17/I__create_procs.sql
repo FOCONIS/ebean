@@ -14,7 +14,7 @@ delimiter $$
 -- This procedure deletes all indices refering to @tableName.@columnName
 ------------------------------------------------------------------------
 CREATE OR ALTER PROCEDURE usp_ebean_drop_indices @tableName nvarchar(255), @columnName nvarchar(255)
-AS 
+AS SET NOCOUNT ON
 declare @sql nvarchar(1000)
 declare @indexName nvarchar(255)
 BEGIN
@@ -27,7 +27,7 @@ BEGIN
   WHILE @@FETCH_STATUS = 0
     BEGIN
       set @sql = 'drop index ' + @indexName + ' on ' + @tableName;
-      EXEC sp_executesql @sql;
+      EXECUTE(@sql);
 
       FETCH NEXT FROM index_cursor INTO @indexName
     END;
@@ -41,7 +41,7 @@ delimiter $$
 -- This procedure deletes all constraints refering to @tableName.@columnName
 ----------------------------------------------------------------------------
 CREATE OR ALTER PROCEDURE usp_ebean_drop_constraints @tableName nvarchar(255), @columnName nvarchar(255)
-AS 
+AS SET NOCOUNT ON
 declare @sql nvarchar(1000)
 declare @constraintName nvarchar(255)
 BEGIN
@@ -52,12 +52,18 @@ BEGIN
   UNION SELECT cc.name from sys.check_constraints cc
     join sys.columns c on c.object_id = cc.parent_object_id and c.column_id = cc.parent_column_id
     where parent_object_id = OBJECT_ID(@tableName) AND c.name = @columnName
+  UNION SELECT fk.name from sys.foreign_keys fk
+    join sys.foreign_key_columns fkc on fkc.constraint_object_id = fk.object_id
+      and  fkc.parent_object_id = fk.parent_object_id
+    join sys.columns c on c.object_id = fkc.parent_object_id and c.column_id = fkc.parent_column_id
+    where fkc.parent_object_id = OBJECT_ID(@tableName) AND c.name = @columnName;
+
   OPEN name_cursor
   FETCH NEXT FROM name_cursor INTO @constraintName
   WHILE @@FETCH_STATUS = 0
     BEGIN
       set @sql = 'alter table ' + @tableName + ' drop constraint ' + @constraintName;
-      EXEC sp_executesql @sql;
+      EXECUTE(@sql);
 
       FETCH NEXT FROM name_cursor INTO @constraintName
     END;
@@ -72,13 +78,13 @@ delimiter $$
 -- it ensures that all references are dropped first
 -----------------------------------------------------------
 CREATE OR ALTER PROCEDURE usp_ebean_drop_column @tableName nvarchar(255), @columnName nvarchar(255)
-AS 
+AS SET NOCOUNT ON
 declare @sql nvarchar(1000)
 BEGIN
   EXEC usp_ebean_drop_indices @tableName, @columnName;
   EXEC usp_ebean_drop_constraints @tableName, @columnName;
 
   set @sql = 'alter table ' + @tableName + ' drop column ' + @columnName;
-  EXEC sp_executesql @sql;
+  EXECUTE(@sql);
 END
 $$
