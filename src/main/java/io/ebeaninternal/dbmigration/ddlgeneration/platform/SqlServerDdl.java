@@ -139,13 +139,7 @@ public class SqlServerDdl extends PlatformDdl {
     // a rather complex statement.
     StringBuilder sb = new StringBuilder();
     if (DdlHelp.isDropDefault(defaultValue)) {
-      sb.append("delimiter $$\n");
-      sb.append("DECLARE @Tmp nvarchar(200);");
-      sb.append("select @Tmp = t1.name  from sys.default_constraints t1\n");
-      sb.append("  join sys.columns t2 on t1.object_id = t2.default_object_id\n");
-      sb.append("  where t1.parent_object_id = OBJECT_ID('").append(tableName)
-        .append("') and t2.name = '").append(columnName).append("';\n");
-      sb.append("if @Tmp is not null EXEC('alter table ").append(tableName).append(" drop constraint ' + @Tmp)$$");
+      sb.append("EXEC usp_ebean_drop_default_constraint ").append(tableName).append(", ").append(columnName);
     } else {
       sb.append("alter table ").append(tableName);
       sb.append(" add default ").append(convertDefaultValue(defaultValue)).append(" for ").append(columnName);
