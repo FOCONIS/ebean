@@ -33,16 +33,8 @@ IF OBJECT_ID('migtest_e_user_seq', 'SO') IS NOT NULL drop sequence migtest_e_use
 IF OBJECT_ID('migtest_mtm_c_migtest_mtm_m', 'U') IS NOT NULL drop table migtest_mtm_c_migtest_mtm_m;
 IF OBJECT_ID('migtest_mtm_m_migtest_mtm_c', 'U') IS NOT NULL drop table migtest_mtm_m_migtest_mtm_c;
 -- dropping history support for migtest_e_history;
-delimiter $$
-DECLARE @Tmp nvarchar(200);select @Tmp = t1.name  from sys.default_constraints t1
-  join sys.columns t2 on t1.object_id = t2.default_object_id
-  where t1.parent_object_id = OBJECT_ID('migtest_e_history') and t2.name = 'sys_periodFrom';
-if @Tmp is not null EXEC('alter table migtest_e_history drop constraint ' + @Tmp)$$;
-delimiter $$
-DECLARE @Tmp nvarchar(200);select @Tmp = t1.name  from sys.default_constraints t1
-  join sys.columns t2 on t1.object_id = t2.default_object_id
-  where t1.parent_object_id = OBJECT_ID('migtest_e_history') and t2.name = 'sys_periodTo';
-if @Tmp is not null EXEC('alter table migtest_e_history drop constraint ' + @Tmp)$$;
+EXEC usp_ebean_drop_default_constraint migtest_e_history, sys_periodFrom;
+EXEC usp_ebean_drop_default_constraint migtest_e_history, sys_periodTo;
 alter table migtest_e_history set (system_versioning = off);
 alter table migtest_e_history drop period for system_time;
 alter table migtest_e_history drop column sys_periodFrom;
