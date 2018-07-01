@@ -38,6 +38,16 @@ public class MySqlDdl extends PlatformDdl {
     return "alter table " + tableName + " drop foreign key " + maxConstraintName(fkName);
   }
 
+  /**
+   * It is rather complex to delete a column on MySql as there must not exist any foreign keys.
+   * That's why we call a user stored procedure here
+   */
+  @Override
+  public void alterTableDropColumn(DdlBuffer buffer, String tableName, String columnName) throws IOException {
+
+    buffer.append("CALL usp_ebean_drop_column('").append(tableName).append("', '").append(columnName).append("')").endOfStatement();
+  }
+
   @Override
   public String alterTableDropConstraint(String tableName, String constraintName) {
     // drop constraint not supported

@@ -139,13 +139,7 @@ public class SqlServerDdl extends PlatformDdl {
     // a rather complex statement.
     StringBuilder sb = new StringBuilder();
     if (DdlHelp.isDropDefault(defaultValue)) {
-      sb.append("delimiter $$\n");
-      sb.append("DECLARE @Tmp nvarchar(200);");
-      sb.append("select @Tmp = t1.name  from sys.default_constraints t1\n");
-      sb.append("  join sys.columns t2 on t1.object_id = t2.default_object_id\n");
-      sb.append("  where t1.parent_object_id = OBJECT_ID('").append(tableName)
-        .append("') and t2.name = '").append(columnName).append("';\n");
-      sb.append("if @Tmp is not null EXEC('alter table ").append(tableName).append(" drop constraint ' + @Tmp)$$");
+      sb.append("EXEC usp_ebean_drop_default_constraint ").append(tableName).append(", ").append(columnName);
     } else {
       sb.append("alter table ").append(tableName);
       sb.append(" add default ").append(convertDefaultValue(defaultValue)).append(" for ").append(columnName);
@@ -202,25 +196,12 @@ public class SqlServerDdl extends PlatformDdl {
 
   /**
    * It is rather complex to delete a column on SqlServer as there must not exist any references
-   * (constraints, default values, indices and foreign keys). The list is not yet complete, as
-   * indices over multiple columns will not yet deleted.
-   * (This may be changed to delete all refering objects by using the sys.* tables later)
+   * (constraints, default values, indices and foreign keys). That's why we call a user stored procedure here
    */
   @Override
   public void alterTableDropColumn(DdlBuffer buffer, String tableName, String columnName) throws IOException {
-    buffer.append("-- drop column ").append(tableName).append(".").append(columnName).endOfStatement();
 
-    buffer.append(alterTableDropUniqueConstraint(tableName, naming.uniqueConstraintName(tableName, columnName)));
-    buffer.endOfStatement();
-    buffer.append(alterColumnDefaultValue(tableName, columnName, DdlHelp.DROP_DEFAULT));
-    buffer.endOfStatement();
-    buffer.append(alterTableDropConstraint(tableName, naming.checkConstraintName(tableName, columnName)));
-    buffer.endOfStatement();
-    buffer.append(dropIndex(naming.indexName(tableName, columnName), tableName));
-    buffer.endOfStatement();
-    buffer.append(alterTableDropForeignKey(tableName, naming.foreignKeyConstraintName(tableName, columnName)));
-    buffer.endOfStatement();
-    super.alterTableDropColumn(buffer, tableName, columnName);
+    buffer.append("EXEC usp_ebean_drop_column ").append(tableName).append(", ").append(columnName).endOfStatement();
   }
 
   /**
@@ -246,7 +227,8 @@ public class SqlServerDdl extends PlatformDdl {
     String name = pos == -1 ? definition : definition.substring(0, pos);
 
     dropTVP(write.dropAll(), name);
-    createTVP(write.apply(), name, definition);
+    //TVPs are included in "I__create_procs.sql"
+    //createTVP(write.apply(), name, definition);
   }
 
   private void dropTVP(DdlBuffer ddl, String name) throws IOException {

@@ -7,6 +7,7 @@ import io.ebean.SqlUpdate;
 import io.ebean.Transaction;
 import io.ebean.annotation.IgnorePlatform;
 import io.ebean.annotation.Platform;
+import io.ebean.migration.MigrationConfig;
 import io.ebean.migration.ddl.DdlRunner;
 import io.ebeaninternal.dbmigration.ddlgeneration.Helper;
 
@@ -83,6 +84,9 @@ public class DbMigrationTest extends BaseTestCase {
         "migtest_oto_child",
         "migtest_oto_master");
 
+    if (isSqlServer() || isMySql()) {
+      runScript(false, "I__create_procs.sql");
+    }
 
     runScript(false, "1.0__initial.sql");
 
@@ -130,12 +134,7 @@ public class DbMigrationTest extends BaseTestCase {
     assertThat(row.getBoolean("new_boolean_field2")).isTrue();
     //assertThat(row.getTimestamp("some_date")).isCloseTo(new Date(), 60_000); // allow 1 minute delta
 
-    // Run migration & drops
-    if (isMySql()) {
-      return; // TODO: mysql cannot drop table (need stored procedure for drop column)
-    }
     runScript(false, "1.2__dropsFor_1.1.sql");
-
 
     // Oracle caches the statement and does not detect schema change. It fails with
     // an ORA-01007
