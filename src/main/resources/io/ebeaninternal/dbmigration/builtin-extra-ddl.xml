@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <extra-ddl xmlns="http://ebean-orm.github.io/xml/ns/extraddl">
 
-<ddl-script name="create procs" platforms="sqlserver" init="true">-- Inital script to create stored procedures etc for sqlserver
+<ddl-script name="create procs" platforms="sqlserver" init="true">-- Initial script to create stored procedures etc for sqlserver platform
 
 -- create table-value-parameters
 if not exists (select name  from sys.types where name = 'ebean_bigint_tvp') create type ebean_bigint_tvp as table (c1 bigint);
@@ -15,7 +15,7 @@ if not exists (select name  from sys.types where name = 'ebean_nvarchar_tvp') cr
 delimiter $$
 -----------------------------------------------------------
 -- PROCEDURE: usp_ebean_drop_indices TABLE, COLUMN
--- deletes all indices refering to TABLE.COLUMN
+-- deletes all indices referring to TABLE.COLUMN
 -----------------------------------------------------------
 CREATE OR ALTER PROCEDURE usp_ebean_drop_indices @tableName nvarchar(255), @columnName nvarchar(255)
 AS SET NOCOUNT ON
@@ -110,13 +110,13 @@ END
 $$
 </ddl-script>
 
-<ddl-script name="create procs" platforms="mysql" init="true">-- Inital script to create stored procedures etc for MySql
+<ddl-script name="create procs" platforms="mysql" init="true">-- Inital script to create stored procedures etc for mysql platform
 DROP PROCEDURE IF EXISTS usp_ebean_drop_foreign_keys;
 
 delimiter $$
 ------------------------------------------------------------------------------
 -- PROCEDURE: usp_ebean_drop_foreign_keys TABLE, COLUMN
--- deletes all constraints and foreign keys refering to TABLE.COLUMN
+-- deletes all constraints and foreign keys referring to TABLE.COLUMN
 ------------------------------------------------------------------------------
 CREATE PROCEDURE usp_ebean_drop_foreign_keys(IN p_table_name VARCHAR(255), IN p_column_name VARCHAR(255))
 BEGIN
@@ -148,7 +148,7 @@ DROP PROCEDURE IF EXISTS usp_ebean_drop_column;
 delimiter $$
 -------------------------------------------------------------------------------------
 -- PROCEDURE: usp_ebean_drop_column TABLE, COLUMN
--- deletes the column annd ensures that all indices and constraints are dropped first
+-- deletes the column and ensures that all indices and constraints are dropped first
 -------------------------------------------------------------------------------------
 CREATE PROCEDURE usp_ebean_drop_column(IN p_table_name VARCHAR(255), IN p_column_name VARCHAR(255))
 BEGIN
