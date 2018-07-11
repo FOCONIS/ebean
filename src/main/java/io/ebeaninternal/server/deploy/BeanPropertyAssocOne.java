@@ -130,7 +130,6 @@ public class BeanPropertyAssocOne<T> extends BeanPropertyAssoc<T> implements STr
   }
 
   /**
-<<<<<<< HEAD
    * Add table join with table alias based on prefix.
    */
   @Override
@@ -144,12 +143,13 @@ public class BeanPropertyAssocOne<T> extends BeanPropertyAssoc<T> implements STr
   @Override
   public SqlJoinType addJoin(SqlJoinType joinType, String a1, String a2, DbSqlContext ctx) {
     return tableJoin.addJoin(joinType, a1, a2, ctx, this.formula);
-=======
+  }
+
+  /**
    * Derive late in lifecycle cache notification on this relationship.
    */
   public void initialisePostTarget() {
     this.cacheNotifyRelationship = isCacheNotifyRelationship();
->>>>>>> test-eclipse-compiler
   }
 
   /**

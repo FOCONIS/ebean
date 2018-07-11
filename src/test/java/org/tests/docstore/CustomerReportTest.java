@@ -40,74 +40,36 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
 import io.ebean.BaseTestCase;
 import io.ebean.plugin.BeanType;
 import io.ebean.text.json.JsonReadOptions;
-import io.ebean.text.json.JsonReader;
-import io.ebean.text.json.JsonVersionMigrationContext;
+import io.ebean.text.json.JsonVersionMigrationHandler;
 import io.ebean.text.json.JsonWriteOptions;
 
 public class CustomerReportTest extends BaseTestCase {
 
-  private static class MigContext implements JsonVersionMigrationContext {
-
-    private JsonReader readJson;
-    private int version;
-    private ObjectNode objectNode;
-
-    public MigContext(JsonReader readJson, BeanType<?> bt) {
-      this.readJson = readJson;
-    }
+  private static class MigHandler implements JsonVersionMigrationHandler {
 
     @Override
-    public void parseVersion() throws IOException {
-      JsonParser parser = readJson.getParser();
+    public ObjectNode migrateRoot(ObjectNode node, ObjectMapper mapper, BeanType<?> rootBeanType) throws IOException {
 
-      assertThat(parser.nextToken()).isEqualTo(JsonToken.FIELD_NAME);
-      assertThat(parser.getCurrentName()).isEqualTo("_bv");
-      version = parser.nextIntValue(-1);
+      int version = node.get("_bv") == null ? 1 : node.get("_bv").asInt();
 
-    }
-
-    @Override
-    public void migrateRoot() throws IOException {
       if (version == 2) {
-        if ("CustomerReport".equals(getObjectNode().get("dtype").asText())) {
-          getObjectNode().put("dtype", "CR");
+        if ("CustomerReport".equals(node.get("dtype").asText())) {
+          node.put("dtype", "CR");
         }
         version = 3;
       }
+      node.put("_bv", version);
+
+      return node;
     }
 
     @Override
-    public void migrate(BeanType<?> beanType) throws IOException {
-
-    }
-
-    /**
-     * Returns the content as object node.
-     */
-    ObjectNode getObjectNode() throws JsonProcessingException, IOException {
-      if (objectNode == null) {
-        if (readJson.getParser().nextToken() != JsonToken.FIELD_NAME) {
-          throw new IllegalStateException("Expected to read FIELD_NAME");
-        }
-        objectNode = readJson.getObjectMapper().readTree(readJson.getParser());
-      }
-      return objectNode;
-    }
-
-    @Override
-    public JsonReader getJsonReader() throws IOException {
-      if (objectNode != null) {
-        JsonParser newParser = objectNode.traverse();
-        if (newParser.nextToken() != JsonToken.START_OBJECT) {
-          throw new IllegalStateException("Could not read START_OBJECT from " + objectNode);
-        }
-        readJson = readJson.forJson(newParser, false);
-        objectNode = null;
-      }
-      return readJson;
+    public ObjectNode migrate(ObjectNode node, ObjectMapper mapper, BeanType<?> beanType) throws IOException {
+      return node;
     }
 
   }
+
   @Test
   public void testToJson() throws Exception {
     ResetBasicData.reset();
@@ -131,7 +93,7 @@ public class CustomerReportTest extends BaseTestCase {
   public void testMigration() {
     String json = "{\"_bv\":2,\"dtype\":\"CustomerReport\",\"friends\":[{\"_bv\":0,\"id\":2},{\"_bv\":0,\"id\":3}],\"customer\":{\"_bv\":0,\"id\":1}}";
     JsonReadOptions readOpts = new JsonReadOptions();
-    readOpts.setVersionMigrationHandler(MigContext::new);
+    readOpts.setVersionMigrationHandler(new MigHandler());
     Report report = server().json().toBean(Report.class, json, readOpts);
     assertThat(report).isInstanceOf(CustomerReport.class);
   }

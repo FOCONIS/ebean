@@ -9,18 +9,12 @@ public class Db2SqlLimiter implements SqlLimiter {
   @Override
   public SqlLimitResponse limit(SqlLimitRequest request) {
 
-    String dbSql = request.getDbSql();
-    StringBuilder sb = new StringBuilder(50 + dbSql.length());
+    StringBuilder sb = new StringBuilder(512);
     sb.append("select ");
     if (request.isDistinct()) {
       sb.append("distinct ");
     }
-    sb.append(dbSql);
-
-    int firstRow = request.getFirstRow();
-    if (firstRow > 1) {
-      sb.append(" ").append(NEW_LINE).append("OFFSET ").append(firstRow).append(" ROWS ");
-    }
+    sb.append(request.getDbSql());
 
     int maxRows = request.getMaxRows();
     if (maxRows > 0) {

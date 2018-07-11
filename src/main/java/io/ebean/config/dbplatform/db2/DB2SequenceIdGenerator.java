@@ -1,32 +1,35 @@
 package io.ebean.config.dbplatform.db2;
 
-import javax.sql.DataSource;
-
 import io.ebean.BackgroundExecutor;
 import io.ebean.config.dbplatform.SequenceBatchIdGenerator;
+
+import javax.sql.DataSource;
 
 /**
  * DB2 specific sequence Id Generator.
  */
 public class DB2SequenceIdGenerator extends SequenceBatchIdGenerator {
 
-  private final String sql1;
-  private final String sql2;
+  private final String baseSql;
+  private final String unionBaseSql;
 
   /**
    * Construct given a dataSource and sql to return the next sequence value.
    */
   public DB2SequenceIdGenerator(BackgroundExecutor be, DataSource ds, String seqName, int batchSize) {
     super(be, ds, seqName, batchSize);
-    this.sql1 = "WITH SEQLOOP_ (I) AS (SELECT 1 FROM SYSIBM.SYSDUMMY1 UNION ALL SELECT I + 1 FROM SEQLOOP_ WHERE I < ";
-    this.sql2 = ") SELECT NEXTVAL FOR " + seqName +" FROM SEQLOOP_";
-
+    this.baseSql = "values nextval for " + seqName;
+    this.unionBaseSql = " union " + baseSql;
   }
 
   @Override
   public String getSql(int batchSize) {
-    StringBuilder sb = new StringBuilder(sql1).append(batchSize).append(sql2);
+
+    StringBuilder sb = new StringBuilder();
+    sb.append(baseSql);
+    for (int i = 1; i < batchSize; i++) {
+      sb.append(unionBaseSql);
+    }
     return sb.toString();
   }
-
 }

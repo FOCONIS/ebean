@@ -1,6 +1,13 @@
 package io.ebean.text.json;
 
 
+import java.io.IOException;
+
+import javax.annotation.Nonnull;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
 import io.ebean.plugin.BeanType;
 
 /**
@@ -8,12 +15,19 @@ import io.ebean.plugin.BeanType;
  *
  * @author Roland Praml, FOCONIS AG
  */
-@FunctionalInterface
 public interface JsonVersionMigrationHandler {
 
   /**
-   * Creates a context to migrate a bean.
+   * Migrates a root bean of an inheritance tree. <code>beanType</code> is the root of the inheritance tree.
+   * This method is only for beans, that have an inheritance.
    */
-  JsonVersionMigrationContext createContext(JsonReader readJson, BeanType<?> beanType);
+  @Nonnull
+  ObjectNode migrateRoot(@Nonnull ObjectNode node, @Nonnull ObjectMapper mapper, @Nonnull BeanType<?> rootBeanType) throws IOException;
+
+  /**
+   * Migrates a concrete bean of <code>beanType</code>.
+   */
+  @Nonnull
+  ObjectNode migrate(@Nonnull ObjectNode node, @Nonnull ObjectMapper mapper, @Nonnull BeanType<?> beanType) throws IOException;
 
 }
