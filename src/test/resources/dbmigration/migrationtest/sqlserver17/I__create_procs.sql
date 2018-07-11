@@ -1,4 +1,4 @@
--- Inital script to create stored procedures etc for sqlserver
+-- Initial script to create stored procedures etc for sqlserver platform
 
 -- create table-value-parameters
 if not exists (select name  from sys.types where name = 'ebean_bigint_tvp') create type ebean_bigint_tvp as table (c1 bigint);
@@ -12,7 +12,7 @@ if not exists (select name  from sys.types where name = 'ebean_nvarchar_tvp') cr
 delimiter $$
 -----------------------------------------------------------
 -- PROCEDURE: usp_ebean_drop_indices TABLE, COLUMN
--- deletes all indices refering to TABLE.COLUMN
+-- deletes all indices referring to TABLE.COLUMN
 -----------------------------------------------------------
 CREATE OR ALTER PROCEDURE usp_ebean_drop_indices @tableName nvarchar(255), @columnName nvarchar(255)
 AS SET NOCOUNT ON

@@ -41,15 +41,7 @@ create unique nonclustered index uq_migtest_e_basic_indextest2 on migtest_e_basi
 create unique nonclustered index uq_migtest_e_basic_indextest6 on migtest_e_basic(indextest6) where indextest6 is not null;
 IF (OBJECT_ID('ck_migtest_e_enum_test_status', 'C') IS NOT NULL) alter table migtest_e_enum drop constraint ck_migtest_e_enum_test_status;
 alter table migtest_e_enum add constraint ck_migtest_e_enum_test_status check ( test_status in ('N','A','I'));
-<<<<<<< HEAD
 EXEC usp_ebean_drop_default_constraint migtest_e_history2, test_string;
-=======
-delimiter $$
-DECLARE @Tmp nvarchar(200);select @Tmp = t1.name  from sys.default_constraints t1
-  join sys.columns t2 on t1.object_id = t2.default_object_id
-  where t1.parent_object_id = OBJECT_ID('migtest_e_history2') and t2.name = 'test_string';
-if @Tmp is not null EXEC('alter table migtest_e_history2 drop constraint ' + @Tmp)$$;
->>>>>>> test-eclipse-compiler
 alter table migtest_e_history2 add obsolete_string1 nvarchar(255);
 alter table migtest_e_history2 add obsolete_string2 nvarchar(255);
 

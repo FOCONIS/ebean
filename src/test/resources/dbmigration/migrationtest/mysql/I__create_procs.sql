@@ -1,10 +1,10 @@
--- Inital script to create stored procedures etc for MySql
+-- Inital script to create stored procedures etc for mysql platform
 DROP PROCEDURE IF EXISTS usp_ebean_drop_foreign_keys;
 
 delimiter $$
 ------------------------------------------------------------------------------
 -- PROCEDURE: usp_ebean_drop_foreign_keys TABLE, COLUMN
--- deletes all constraints and foreign keys refering to TABLE.COLUMN
+-- deletes all constraints and foreign keys referring to TABLE.COLUMN
 ------------------------------------------------------------------------------
 CREATE PROCEDURE usp_ebean_drop_foreign_keys(IN p_table_name VARCHAR(255), IN p_column_name VARCHAR(255))
 BEGIN
@@ -36,7 +36,7 @@ DROP PROCEDURE IF EXISTS usp_ebean_drop_column;
 delimiter $$
 -------------------------------------------------------------------------------------
 -- PROCEDURE: usp_ebean_drop_column TABLE, COLUMN
--- deletes the column annd ensures that all indices and constraints are dropped first
+-- deletes the column and ensures that all indices and constraints are dropped first
 -------------------------------------------------------------------------------------
 CREATE PROCEDURE usp_ebean_drop_column(IN p_table_name VARCHAR(255), IN p_column_name VARCHAR(255))
 BEGIN
