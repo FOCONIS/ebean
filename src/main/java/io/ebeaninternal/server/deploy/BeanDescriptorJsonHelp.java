@@ -99,15 +99,21 @@ class BeanDescriptorJsonHelp<T> {
         if (node.isNull()) {
           return null;
         }
+        // Here we perform the migration for non inherited beans
         node = migrationHandler.migrate(node, jsonRead.getObjectMapper(), desc);
         JsonParser newParser = node.traverse();
         SpiJsonReader newReader = jsonRead.forJson(newParser, false);
+        JsonToken nextToken = newParser.nextToken();
+        if (nextToken != JsonToken.START_OBJECT) {
+          throw new JsonParseException(parser, "Unexpected token " + nextToken + " - expecting start_object", newParser.getCurrentLocation());
+        }
         return jsonReadObject(newReader, path);
       } else {
         return jsonReadObject(jsonRead, path);
       }
     }
 
+    // here we go, if we process beans that have inheritance.
     ObjectNode node = jsonRead.getObjectMapper().readTree(parser);
     if (node.isNull()) {
       return null;
@@ -122,23 +128,18 @@ class BeanDescriptorJsonHelp<T> {
     // check for the discriminator value to determine the correct sub type
     String discColumn = inheritInfo.getRoot().getDiscriminatorColumn();
     JsonNode discNode = node.get(discColumn);
+    BeanDescriptor<?> newDesc = desc;
     if (discNode == null || discNode.isNull()) {
-      if (!desc.isAbstractType()) {
-        if (migrationHandler != null) {
-          // we have no discriminator key, so perform concrete migration
-          node = migrationHandler.migrate(node, jsonRead.getObjectMapper(), desc);
-          newParser = node.traverse();
-          newReader = jsonRead.forJson(newParser, false);
-        }
-        return desc.jsonReadObject(newReader, path);
+      if (desc.isAbstractType()) {
+        String msg = "Error reading inheritance discriminator - expected [" + discColumn + "] but no json key?";
+        throw new JsonParseException(newParser, msg, parser.getCurrentLocation());
       }
-      String msg = "Error reading inheritance discriminator - expected [" + discColumn + "] but no json key?";
-      throw new JsonParseException(newParser, msg, parser.getCurrentLocation());
+    } else {
+      newDesc = inheritInfo.readType(discNode.asText()).desc();
     }
 
-    BeanDescriptor<?> newDesc = inheritInfo.readType(discNode.asText()).desc();
     if (migrationHandler != null) {
-      node = migrationHandler.migrate(node, jsonRead.getObjectMapper(), desc);
+      node = migrationHandler.migrate(node, jsonRead.getObjectMapper(), newDesc);
       newParser = node.traverse();
       newReader = jsonRead.forJson(newParser, false);
     }

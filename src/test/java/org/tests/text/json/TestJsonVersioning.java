@@ -26,9 +26,7 @@ import org.junit.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -147,7 +145,7 @@ public class TestJsonVersioning extends BaseTestCase {
         }
       }
 
-      throw new IllegalStateException("No migration path from " + beanType.getName() + "(v=" + version+")");
+      throw new JsonIOException("No migration path from " + beanType.getName() + "(v=" + version+")");
     }
 
   }
