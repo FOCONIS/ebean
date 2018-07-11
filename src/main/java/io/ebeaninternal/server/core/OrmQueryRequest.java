@@ -118,6 +118,11 @@ public final class OrmQueryRequest<T> extends BeanRequest implements SpiOrmQuery
   }
 
   @Override
+  public boolean isDeleteByStatement() {
+    return beanDescriptor.isDeleteByStatement();
+  }
+
+  @Override
   public IsSupported isMultiValueIdSupported() {
     return beanDescriptor.isMultiValueIdSupported();
   }
@@ -385,8 +390,8 @@ public final class OrmQueryRequest<T> extends BeanRequest implements SpiOrmQuery
   }
 
   private int notifyCache(int rows, boolean update) {
-    if (rows > 0 && beanDescriptor.isCaching()) {
-      transaction.getEvent().add(beanDescriptor.getBaseTable(), false, update, !update);
+    if (rows > 0) {
+      beanDescriptor.cacheUpdateQuery(update, transaction);
     }
     return rows;
   }

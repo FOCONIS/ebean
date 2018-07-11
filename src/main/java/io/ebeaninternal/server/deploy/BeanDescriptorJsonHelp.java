@@ -3,6 +3,8 @@ package io.ebeaninternal.server.deploy;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.ebean.bean.EntityBean;
 import io.ebean.text.json.EJson;
 import io.ebean.text.json.JsonReader;
@@ -15,18 +17,18 @@ import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class BeanDescriptorJsonHelp<T> {
+class BeanDescriptorJsonHelp<T> {
 
   private final BeanDescriptor<T> desc;
 
   private final InheritInfo inheritInfo;
 
-  public BeanDescriptorJsonHelp(BeanDescriptor<T> desc) {
+  BeanDescriptorJsonHelp(BeanDescriptor<T> desc) {
     this.desc = desc;
     this.inheritInfo = desc.inheritInfo;
   }
 
-  public void jsonWrite(SpiJsonWriter writeJson, EntityBean bean, String key) throws IOException {
+  void jsonWrite(SpiJsonWriter writeJson, EntityBean bean, String key) throws IOException {
 
     writeJson.writeStartObject(key);
 
@@ -48,13 +50,11 @@ public class BeanDescriptorJsonHelp<T> {
     writeJson.writeEndObject();
   }
 
-  protected void jsonWriteProperties(SpiJsonWriter writeJson, EntityBean bean) throws IOException {
-
+  void jsonWriteProperties(SpiJsonWriter writeJson, EntityBean bean) {
     writeJson.writeBean(desc, bean);
   }
 
-  public void jsonWriteDirty(SpiJsonWriter writeJson, EntityBean bean, boolean[] dirtyProps) throws IOException {
-
+  void jsonWriteDirty(SpiJsonWriter writeJson, EntityBean bean, boolean[] dirtyProps) throws IOException {
     if (inheritInfo == null) {
       jsonWriteDirtyProperties(writeJson, bean, dirtyProps);
     } else {
@@ -62,7 +62,7 @@ public class BeanDescriptorJsonHelp<T> {
     }
   }
 
-  protected void jsonWriteDirtyProperties(SpiJsonWriter writeJson, EntityBean bean, boolean[] dirtyProps) throws IOException {
+  void jsonWriteDirtyProperties(SpiJsonWriter writeJson, EntityBean bean, boolean[] dirtyProps) throws IOException {
 
     writeJson.writeStartObject(null);
     // render the dirty properties
@@ -76,7 +76,7 @@ public class BeanDescriptorJsonHelp<T> {
   }
 
   @SuppressWarnings("unchecked")
-  public T jsonRead(JsonReader jsonRead, String path) throws IOException {
+  T jsonRead(SpiJsonReader jsonRead, String path, boolean withInheritance) throws IOException {
 
     JsonParser parser = jsonRead.getParser();
     //noinspection StatementWithEmptyBody
@@ -96,54 +96,79 @@ public class BeanDescriptorJsonHelp<T> {
     JsonVersionMigrationContext context = jsonRead.createContext(desc);
     context.parseVersion();
 
-    if (desc.inheritInfo == null) {
-      context.migrate(desc);
-      jsonRead = context.getJsonReader();
-      return jsonReadObject((SpiJsonReader) jsonRead, path);
+//<<<<<<< HEAD
+//    if (desc.inheritInfo == null) {
+//      context.migrate(desc);
+//      jsonRead = context.getJsonReader();
+//      return jsonReadObject((SpiJsonReader) jsonRead, path);
+//    }
+//
+//    context.migrateRoot();
+//    jsonRead = context.getJsonReader(); // may obtain a new reader
+//    parser = jsonRead.getParser();
+//
+//    // check for the discriminator value to determine the correct sub type
+//    String discColumn = inheritInfo.getRoot().getDiscriminatorColumn();
+//
+//    if (parser.nextToken() != JsonToken.FIELD_NAME) {
+//      String msg = "Error reading inheritance discriminator - expected [" + discColumn + "] but no json key?";
+//      throw new JsonParseException(parser, msg, parser.getCurrentLocation());
+//=======
+    if (desc.inheritInfo == null || !withInheritance) {
+      return jsonReadObject(jsonRead, path);
     }
 
-    context.migrateRoot();
-    jsonRead = context.getJsonReader(); // may obtain a new reader
-    parser = jsonRead.getParser();
+    ObjectNode node = jsonRead.getObjectMapper().readTree(parser);
+    if (node.isNull()) {
+      return null;
+//>>>>>>> test-eclipse-compiler
+    }
+    JsonParser newParser = node.traverse();
+    SpiJsonReader newReader = jsonRead.forJson(newParser, false);
 
+//<<<<<<< HEAD
+//    String propName = parser.getCurrentName();
+//    if (!propName.equalsIgnoreCase(discColumn)) {
+//      // just try to assume this is the correct bean type in the inheritance
+//      BeanProperty property = desc.getBeanProperty(propName);
+//      if (property != null) {
+//        EntityBean bean = desc.createEntityBean();
+//        property.jsonRead((SpiJsonReader) jsonRead, bean);
+//        return jsonReadProperties((SpiJsonReader) jsonRead, bean, path);
+//=======
     // check for the discriminator value to determine the correct sub type
     String discColumn = inheritInfo.getRoot().getDiscriminatorColumn();
-
-    if (parser.nextToken() != JsonToken.FIELD_NAME) {
-      String msg = "Error reading inheritance discriminator - expected [" + discColumn + "] but no json key?";
-      throw new JsonParseException(parser, msg, parser.getCurrentLocation());
-    }
-
-    String propName = parser.getCurrentName();
-    if (!propName.equalsIgnoreCase(discColumn)) {
-      // just try to assume this is the correct bean type in the inheritance
-      BeanProperty property = desc.getBeanProperty(propName);
-      if (property != null) {
-        EntityBean bean = desc.createEntityBean();
-        property.jsonRead((SpiJsonReader) jsonRead, bean);
-        return jsonReadProperties((SpiJsonReader) jsonRead, bean, path);
+    JsonNode discNode = node.get(discColumn);
+    if (discNode == null || discNode.isNull()) {
+      if (!desc.isAbstractType()) {
+        return desc.jsonReadObject(newReader, path);
+//>>>>>>> test-eclipse-compiler
       }
-      String msg = "Error reading inheritance discriminator, expected property [" + discColumn + "] but got [" + propName + "] ?";
-      throw new JsonParseException(parser, msg, parser.getCurrentLocation());
+      String msg = "Error reading inheritance discriminator - expected [" + discColumn + "] but no json key?";
+      throw new JsonParseException(newParser, msg, parser.getCurrentLocation());
     }
 
-    String discValue = parser.nextTextValue();
-    BeanDescriptor<?> childDesc = inheritInfo.readType(discValue).desc();
-
-    context.migrate(childDesc);
-    jsonRead = context.getJsonReader(); // may obtain a new reader
-
-    return (T) childDesc.jsonReadObject((SpiJsonReader) jsonRead, path);
+//<<<<<<< HEAD
+//    String discValue = parser.nextTextValue();
+//    BeanDescriptor<?> childDesc = inheritInfo.readType(discValue).desc();
+//
+//    context.migrate(childDesc);
+//    jsonRead = context.getJsonReader(); // may obtain a new reader
+//
+//    return (T) childDesc.jsonReadObject((SpiJsonReader) jsonRead, path);
+//=======
+    return (T) inheritInfo.readType(discNode.asText()).desc().jsonReadObject(newReader, path);
+//>>>>>>> test-eclipse-compiler
   }
 
-  protected T jsonReadObject(SpiJsonReader readJson, String path) throws IOException {
+  private T jsonReadObject(SpiJsonReader readJson, String path) throws IOException {
 
     EntityBean bean = desc.createEntityBeanForJson();
     return jsonReadProperties(readJson, bean, path);
   }
 
   @SuppressWarnings("unchecked")
-  protected T jsonReadProperties(SpiJsonReader readJson, EntityBean bean, String path) throws IOException {
+  private T jsonReadProperties(SpiJsonReader readJson, EntityBean bean, String path) throws IOException {
 
     if (path != null) {
       readJson.pushPath(path);

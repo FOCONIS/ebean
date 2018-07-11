@@ -40,6 +40,7 @@ import io.ebeaninternal.api.ConcurrencyMode;
 import io.ebeaninternal.api.LoadContext;
 import io.ebeaninternal.api.SpiEbeanServer;
 import io.ebeaninternal.api.SpiQuery;
+import io.ebeaninternal.api.SpiTransaction;
 import io.ebeaninternal.api.SpiUpdatePlan;
 import io.ebeaninternal.api.TransactionEventTable.TableIUD;
 import io.ebeaninternal.api.json.SpiJsonReader;
@@ -291,6 +292,8 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
    * Inheritance information. Server side only.
    */
   protected final InheritInfo inheritInfo;
+
+  private final boolean abstractType;
 
   /**
    * Derived list of properties that make up the unique id.
@@ -546,7 +549,8 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
     this.whenCreatedProperty = findWhenCreatedProperty();
 
     // derive the index position of the Id and Version properties
-    if (Modifier.isAbstract(beanType.getModifiers())) {
+    this.abstractType = Modifier.isAbstract(beanType.getModifiers());
+    if (abstractType) {
       this.idPropertyIndex = -1;
       this.versionPropertyIndex = -1;
       this.unloadProperties = new int[0];
@@ -651,6 +655,13 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
    */
   public SpiEbeanServer getEbeanServer() {
     return ebeanServer;
+  }
+
+  /**
+   * Return true if this is an abstract type.
+   */
+  public boolean isAbstractType() {
+    return abstractType;
   }
 
   /**
@@ -829,8 +840,11 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
    */
   @SuppressWarnings("unchecked")
   public void initialiseDocMapping() {
-    for (BeanPropertyAssocMany<?> aPropertiesMany : propertiesMany) {
-      aPropertiesMany.initialisePostTarget();
+    for (BeanPropertyAssocMany<?> many : propertiesMany) {
+      many.initialisePostTarget();
+    }
+    for (BeanPropertyAssocOne<?> one : propertiesOne) {
+      one.initialisePostTarget();
     }
     if (inheritInfo != null && !inheritInfo.isRoot()) {
       docStoreAdapter = (DocStoreBeanAdapter<T>) inheritInfo.getRoot().desc().docStoreAdapter();
@@ -1369,13 +1383,6 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
   }
 
   /**
-   * Add a query cache clear into the changeSet.
-   */
-  public void queryCacheClear(CacheChangeSet changeSet) {
-    cacheHelp.queryCacheClear(changeSet);
-  }
-
-  /**
    * Try to load the beanCollection from cache return true if successful.
    */
   public boolean cacheManyPropLoad(BeanPropertyAssocMany<?> many, BeanCollection<?> bc, Object parentId, Boolean readOnly) {
@@ -1472,13 +1479,6 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
   }
 
   /**
-   * Remove a bean from the cache given its Id.
-   */
-  public void cacheHandleDeleteByIds(Collection<Object> ids, CacheChangeSet changeSet) {
-    cacheHelp.handleDeleteIds(ids, changeSet);
-  }
-
-  /**
    * Remove a collection of beans from the cache given the ids.
    */
   public void cacheApplyInvalidate(Collection<Object> ids) {
@@ -1513,37 +1513,51 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
   }
 
   /**
+   * Check if bulk update or delete query has a cache impact.
+   */
+  public void cacheUpdateQuery(boolean update, SpiTransaction transaction) {
+    cacheHelp.cacheUpdateQuery(update, transaction);
+  }
+
+  /**
    * Invalidate parts of cache due to SqlUpdate or external modification etc.
    */
-  public void cacheHandleBulkUpdate(TableIUD tableIUD) {
-    cacheHelp.handleBulkUpdate(tableIUD);
+  public void cachePersistTableIUD(TableIUD tableIUD, CacheChangeSet changeSet) {
+    cacheHelp.persistTableIUD(tableIUD, changeSet);
   }
 
   /**
    * Remove a bean from the cache given its Id.
    */
-  public void cacheHandleDelete(Object id, PersistRequestBean<T> deleteRequest, CacheChangeSet changeSet) {
-    cacheHelp.handleDelete(id, deleteRequest, changeSet);
+  public void cachePersistDeleteByIds(Collection<Object> ids, CacheChangeSet changeSet) {
+    cacheHelp.persistDeleteIds(ids, changeSet);
+  }
+
+  /**
+   * Remove a bean from the cache given its Id.
+   */
+  public void cachePersistDelete(Object id, PersistRequestBean<T> deleteRequest, CacheChangeSet changeSet) {
+    cacheHelp.persistDelete(id, deleteRequest, changeSet);
   }
 
   /**
    * Add the insert changes to the changeSet.
    */
-  public void cacheHandleInsert(PersistRequestBean<T> insertRequest, CacheChangeSet changeSet) {
-    cacheHelp.handleInsert(insertRequest, changeSet);
+  public void cachePersistInsert(PersistRequestBean<T> insertRequest, CacheChangeSet changeSet) {
+    cacheHelp.persistInsert(insertRequest, changeSet);
   }
 
   /**
    * Add the update to the changeSet.
    */
-  public void cacheHandleUpdate(Object id, PersistRequestBean<T> updateRequest, CacheChangeSet changeSet) {
-    cacheHelp.handleUpdate(id, updateRequest, changeSet);
+  public void cachePersistUpdate(Object id, PersistRequestBean<T> updateRequest, CacheChangeSet changeSet) {
+    cacheHelp.persistUpdate(id, updateRequest, changeSet);
   }
 
   /**
    * Apply the update to the cache.
    */
-  public void cacheBeanUpdate(Object id, Map<String, Object> changes, boolean updateNaturalKey, long version) {
+  public void cacheApplyBeanUpdate(Object id, Map<String, Object> changes, boolean updateNaturalKey, long version) {
     cacheHelp.cacheBeanUpdate(id, changes, updateNaturalKey, version);
   }
 
@@ -3460,11 +3474,11 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
   }
 
   public T jsonRead(SpiJsonReader jsonRead, String path) throws IOException {
-    return jsonHelp.jsonRead(jsonRead, path);
+    return jsonHelp.jsonRead(jsonRead, path, true);
   }
 
-  protected T jsonReadObject(SpiJsonReader jsonRead, String path) throws IOException {
-    return jsonHelp.jsonReadObject(jsonRead, path);
+  public T jsonReadObject(SpiJsonReader jsonRead, String path) throws IOException {
+    return jsonHelp.jsonRead(jsonRead, path, false);
   }
 
   public List<BeanProperty[]> getUniqueProps() {

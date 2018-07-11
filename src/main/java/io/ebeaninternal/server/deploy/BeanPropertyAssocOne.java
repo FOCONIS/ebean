@@ -57,6 +57,7 @@ public class BeanPropertyAssocOne<T> extends BeanPropertyAssoc<T> implements STr
   private String deleteByParentIdInSql;
 
   private BeanPropertyAssocMany<?> relationshipProperty;
+  private boolean cacheNotifyRelationship;
 
   /**
    * Create based on deploy information of an EmbeddedId.
@@ -129,6 +130,7 @@ public class BeanPropertyAssocOne<T> extends BeanPropertyAssoc<T> implements STr
   }
 
   /**
+<<<<<<< HEAD
    * Add table join with table alias based on prefix.
    */
   @Override
@@ -142,6 +144,12 @@ public class BeanPropertyAssocOne<T> extends BeanPropertyAssoc<T> implements STr
   @Override
   public SqlJoinType addJoin(SqlJoinType joinType, String a1, String a2, DbSqlContext ctx) {
     return tableJoin.addJoin(joinType, a1, a2, ctx, this.formula);
+=======
+   * Derive late in lifecycle cache notification on this relationship.
+   */
+  public void initialisePostTarget() {
+    this.cacheNotifyRelationship = isCacheNotifyRelationship();
+>>>>>>> test-eclipse-compiler
   }
 
   /**
@@ -158,16 +166,22 @@ public class BeanPropertyAssocOne<T> extends BeanPropertyAssoc<T> implements STr
   /**
    * Return true if this relationship needs to maintain/update L2 cache.
    */
-  boolean isCacheNotify() {
-    return targetDescriptor.isBeanCaching() && relationshipProperty != null;
+  boolean isCacheNotifyRelationship() {
+    return relationshipProperty != null && targetDescriptor.isBeanCaching();
   }
 
   /**
    * Clear the L2 relationship cache for this property.
    */
   void cacheClear() {
-    if (isCacheNotify()) {
+    if (cacheNotifyRelationship) {
       targetDescriptor.cacheManyPropClear(relationshipProperty.getName());
+    }
+  }
+
+  void cacheClear(CacheChangeSet changeSet) {
+    if (cacheNotifyRelationship) {
+      changeSet.addManyClear(targetDescriptor, relationshipProperty.getName());
     }
   }
 
@@ -176,7 +190,7 @@ public class BeanPropertyAssocOne<T> extends BeanPropertyAssoc<T> implements STr
    */
   void cacheDelete(boolean clear, EntityBean bean, CacheChangeSet changeSet) {
 
-    if (isCacheNotify()) {
+    if (cacheNotifyRelationship) {
       if (clear) {
         changeSet.addManyClear(targetDescriptor, relationshipProperty.getName());
       } else {
