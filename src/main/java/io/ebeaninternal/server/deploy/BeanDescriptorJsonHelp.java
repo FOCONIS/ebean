@@ -95,15 +95,16 @@ class BeanDescriptorJsonHelp<T> {
 
     if (desc.inheritInfo == null || !withInheritance) {
       if (migrationHandler != null) {
+        // Here we perform the migration for non inherited beans
         ObjectNode node = jsonRead.getObjectMapper().readTree(parser);
         if (node.isNull()) {
           return null;
         }
-        // Here we perform the migration for non inherited beans
         node = migrationHandler.migrate(node, jsonRead.getObjectMapper(), desc);
         JsonParser newParser = node.traverse();
         SpiJsonReader newReader = jsonRead.forJson(newParser, false);
         JsonToken nextToken = newParser.nextToken();
+        // we must assert that we start with START_OBJECT
         if (nextToken != JsonToken.START_OBJECT) {
           throw new JsonParseException(parser, "Unexpected token " + nextToken + " - expecting start_object", newParser.getCurrentLocation());
         }
@@ -119,11 +120,9 @@ class BeanDescriptorJsonHelp<T> {
       return null;
     }
     if (migrationHandler != null) {
-      // this migration step may fix wrong set discriminator values and so on
+      // Step one on "inherited beans". This migration step may fix a wrong set discriminator value
       node = migrationHandler.migrateRoot(node, jsonRead.getObjectMapper(), desc);
     }
-    JsonParser newParser = node.traverse();
-    SpiJsonReader newReader = jsonRead.forJson(newParser, false);
 
     // check for the discriminator value to determine the correct sub type
     String discColumn = inheritInfo.getRoot().getDiscriminatorColumn();
@@ -132,17 +131,20 @@ class BeanDescriptorJsonHelp<T> {
     if (discNode == null || discNode.isNull()) {
       if (desc.isAbstractType()) {
         String msg = "Error reading inheritance discriminator - expected [" + discColumn + "] but no json key?";
-        throw new JsonParseException(newParser, msg, parser.getCurrentLocation());
+        throw new JsonParseException(parser, msg, parser.getCurrentLocation());
       }
     } else {
       newDesc = inheritInfo.readType(discNode.asText()).desc();
     }
 
     if (migrationHandler != null) {
+      // Step two on "inherited beans". Migrate the concrete subtype
       node = migrationHandler.migrate(node, jsonRead.getObjectMapper(), newDesc);
-      newParser = node.traverse();
-      newReader = jsonRead.forJson(newParser, false);
     }
+
+    JsonParser newParser = node.traverse();
+    SpiJsonReader newReader = jsonRead.forJson(newParser, false);
+
     return (T) newDesc.jsonReadObject(newReader, path);
   }
 

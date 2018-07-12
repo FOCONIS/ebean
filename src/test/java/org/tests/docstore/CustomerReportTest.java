@@ -78,7 +78,7 @@ public class CustomerReportTest extends BaseTestCase {
     assertThat(json).isEqualTo("{\"dtype\":\"CR\",\"friends\":[{\"id\":2},{\"id\":3}],\"customer\":{\"id\":1}}");
 
     JsonWriteOptions opts = new JsonWriteOptions();
-    opts.setVersionWrite((writer, desc) -> {
+    opts.setVersionWriter((writer, desc) -> {
       int version = 0;
       if (Report.class.isAssignableFrom(desc.getBeanType())) {
         version = 3;
@@ -112,6 +112,7 @@ public class CustomerReportTest extends BaseTestCase {
     assertThat(report.getFriends().get(0).getName()).isEqualTo("Cust NoAddress");
     assertThat(report.getFriends().get(1).getName()).isEqualTo("Fiona");
   }
+
 
   @Test
   public void testEmbeddedDocs() throws Exception {
@@ -283,7 +284,7 @@ public class CustomerReportTest extends BaseTestCase {
     CustomerReport report = new CustomerReport();
 
     report.setCustomer(customer);
-    report.getFriends().addAll(Arrays.asList(friend1, friend2));
+    report.setFriends(Arrays.asList(friend1, friend2));
     return report;
   }
 

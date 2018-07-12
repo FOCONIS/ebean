@@ -144,7 +144,7 @@ public class JsonWriteOptions {
   /**
    * Sets the {@link JsonVersionWriter}.
    */
-  public void setVersionWrite(JsonVersionWriter versionWriter) {
+  public void setVersionWriter(JsonVersionWriter versionWriter) {
     this.versionWriter = versionWriter;
   }
 }
