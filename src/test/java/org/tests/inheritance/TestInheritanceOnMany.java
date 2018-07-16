@@ -156,7 +156,7 @@ public class TestInheritanceOnMany extends BaseTestCase {
 
     sql = LoggedSqlCollector.stop();
     assertThat(sql).hasSize(1);
-    assertThat(trimSql(sql.get(0), 2)).contains("select t0.species, t0.id, t0.species, t0.version, t0.shelter_id, t0.name, t0.registration_number, t0.date_of_birth, t0.dog_size from animal t0 where t0.id = ?");
+    assertThat(trimSql(sql.get(0), 2)).contains("select t0.species, t0.id, t0.species, t0.version, t0.shelter_id, t0.name, t0.species, t0.registration_number, t0.date_of_birth, t0.dog_size from animal t0 where t0.id = ?");
     assertNotNull(animal);
 
     // not longer lazy loading
