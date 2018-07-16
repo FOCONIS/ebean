@@ -4,7 +4,9 @@ import io.ebean.BaseTestCase;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
 import io.ebean.Transaction;
+import io.ebean.annotation.IgnorePlatform;
 import io.ebean.annotation.PersistBatch;
+import io.ebean.annotation.Platform;
 import io.ebean.annotation.Transactional;
 import io.ebean.meta.BasicMetricVisitor;
 import io.ebean.meta.MetaTimedMetric;
@@ -119,11 +121,12 @@ public class TestBatchInsertFlush extends BaseTestCase {
 
   @Test
   @Transactional(batch = PersistBatch.ALL)
+  @IgnorePlatform(Platform.SQLSERVER) // has generated IDs
   public void transactional_flushOnGetId() {
 
     EbeanServer server = Ebean.getDefaultServer();
     LoggedSqlCollector.start();
-    
+
     EBasicVer b1 = new EBasicVer("b1");
     server.save(b1);
 
@@ -135,12 +138,13 @@ public class TestBatchInsertFlush extends BaseTestCase {
     Integer id = b1.getId();
     assertNotNull(id);
     assertThat(LoggedSqlCollector.current()).hasSize(2);
-    
+
     EBasicVer b3 = new EBasicVer("b3");
     server.save(b3);
   }
 
   @Test
+  @IgnorePlatform(Platform.SQLSERVER) // has generated IDs
   public void testFlushOnGetId() {
 
     EbeanServer server = Ebean.getDefaultServer();
@@ -170,13 +174,13 @@ public class TestBatchInsertFlush extends BaseTestCase {
       txn.end();
     }
   }
-  
+
   @Test
   @Transactional(batch = PersistBatch.ALL)
   public void transactional_noflushWhenIdIsLoaded() {
 
     EbeanServer server = Ebean.getDefaultServer();
-      
+
     LoggedSqlCollector.start();
 
     EBasicVer b1 = new EBasicVer("b1");
@@ -192,10 +196,10 @@ public class TestBatchInsertFlush extends BaseTestCase {
     Integer id = b1.getId();
     assertNotNull(id);
     assertThat(LoggedSqlCollector.current()).isEmpty();
-    
+
     EBasicVer b3 = new EBasicVer("b3");
     server.save(b3);
-    
+
   }
 
   @Test

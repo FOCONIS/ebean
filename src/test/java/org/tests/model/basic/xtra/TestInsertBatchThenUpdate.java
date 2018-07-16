@@ -3,7 +3,10 @@ package org.tests.model.basic.xtra;
 import io.ebean.BaseTestCase;
 import io.ebean.Ebean;
 import io.ebean.Transaction;
+import io.ebean.annotation.IgnorePlatform;
 import io.ebean.annotation.PersistBatch;
+import io.ebean.annotation.Platform;
+
 import org.ebeantest.LoggedSqlCollector;
 import org.junit.Test;
 
@@ -16,6 +19,7 @@ import static org.junit.Assert.assertEquals;
 public class TestInsertBatchThenUpdate extends BaseTestCase {
 
   @Test
+  @IgnorePlatform(Platform.SQLSERVER) // has generated IDs
   public void test() {
 
     LoggedSqlCollector.start();
@@ -48,7 +52,7 @@ public class TestInsertBatchThenUpdate extends BaseTestCase {
 
       // insert statements for EdExtendedParent
       List<String> loggedSql = LoggedSqlCollector.stop();
-      assertEquals(3, loggedSql.size());
+      assertThat(loggedSql).hasSize(3);
       assertThat(loggedSql.get(0)).contains("insert into td_parent");
       assertThat(loggedSql.get(1)).contains("insert into td_child ");
       assertThat(loggedSql.get(2)).contains("update td_parent set parent_name=? where parent_id=?");
