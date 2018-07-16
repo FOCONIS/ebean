@@ -133,8 +133,7 @@ public class VisitAllUsing {
     InheritInfo inheritInfo = descriptor.getInheritInfo();
     if (inheritInfo != null && inheritInfo.isRoot()) {
       // add all properties on the children objects
-      InheritChildVisitor childVisitor = new InheritChildVisitor(this, pv);
-      inheritInfo.visitChildren(childVisitor);
+      inheritInfo.visitChildren(new InheritChildVisitor(this, pv));
     }
   }
 
@@ -155,10 +154,9 @@ public class VisitAllUsing {
 
     @Override
     public void visit(InheritInfo inheritInfo) {
-      BeanProperty[] propertiesLocal = inheritInfo.desc().propertiesLocal();
-      for (BeanProperty aPropertiesLocal : propertiesLocal) {
-        if (aPropertiesLocal.isDDLColumn()) {
-          owner.visit(pv, aPropertiesLocal);
+      for (BeanProperty beanProperty : inheritInfo.desc().propertiesLocal()) {
+        if (beanProperty.isDDLColumn()) {
+          owner.visit(pv, beanProperty);
         }
       }
     }
