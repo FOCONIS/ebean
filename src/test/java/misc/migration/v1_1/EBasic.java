@@ -110,7 +110,6 @@ public class EBasic {
   @DbDefault("42")
   int newInteger;
 
-  @NotNull
   @ManyToOne
   @DbMigration(preAlter= "insert into migtest_e_user (id) select distinct user_id from migtest_e_basic") // ensure all users exist
   EUser user;

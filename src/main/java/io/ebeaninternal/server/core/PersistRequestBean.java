@@ -1205,7 +1205,7 @@ public final class PersistRequestBean<T> extends PersistRequest implements BeanP
   /**
    * Set the value of the Version property on the bean.
    */
-  public void setVersionValue(Object versionValue) {
+  private void setVersionValue(Object versionValue) {
     version = beanDescriptor.setVersion(entityBean, versionValue);
   }
 
