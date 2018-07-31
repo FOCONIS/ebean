@@ -14,8 +14,8 @@ public class CkeClient {
   private CkeClientKey clientPK;
 
   @JoinColumns({
-    @JoinColumn(name = "username", referencedColumnName = "username"),
-    @JoinColumn(name = "cod_cpny", referencedColumnName = "cod_cpny", insertable = false, updatable = false)
+    @JoinColumn(name = "cod_cpny", referencedColumnName = "cod_cpny", insertable = false, updatable = false),
+    @JoinColumn(name = "username", referencedColumnName = "username")
     })
   @ManyToOne(optional = false, fetch = FetchType.LAZY)
   private CkeUser user;

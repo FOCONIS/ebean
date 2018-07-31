@@ -3,6 +3,8 @@ package org.tests.model.composite;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
+import javax.validation.constraints.Size;
+
 import java.util.Objects;
 
 @Embeddable
@@ -14,6 +16,7 @@ public class CkeUserKey {
 
   @Basic(optional = false)
   @Column(name = "username")
+  @Size(max=100)
   private String username;
 
   public CkeUserKey(int codCompany, String username) {
