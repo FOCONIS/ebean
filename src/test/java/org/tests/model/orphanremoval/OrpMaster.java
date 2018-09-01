@@ -5,12 +5,15 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Version;
+import javax.validation.constraints.Size;
+
 import java.util.List;
 
 @Entity
 public class OrpMaster {
 
   @Id
+  @Size(max = 100)
   String id;
 
   String name;
