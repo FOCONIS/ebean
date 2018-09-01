@@ -43,7 +43,7 @@ public class UpdateQueryTest extends BaseTestCase {
   }
 
   @Test
-  @IgnorePlatform(Platform.SQLSERVER)
+  @IgnorePlatform(Platform.SQLSERVER) // Table alias does not work on SqlServer
   public void withTableAlias() {
 
     EbeanServer server = server();
