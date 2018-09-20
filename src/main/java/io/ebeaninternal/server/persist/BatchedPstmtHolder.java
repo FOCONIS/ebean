@@ -6,8 +6,6 @@ import org.slf4j.LoggerFactory;
 import javax.persistence.PersistenceException;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.LinkedHashMap;
 
 /**
@@ -112,11 +110,14 @@ public class BatchedPstmtHolder {
     // but still need to close PreparedStatements.
     boolean isError = false;
 
-    Collection<BatchedPstmt> values = new ArrayList<>(stmtMap.values());
-
-    // clear the batch cache
+    // if there are Listeners/Controllers that interact with the database,
+    // the flush may get called recursively in executeBatch/postExecute.
+    // which leads that we process stmtMap.values() twice in the loop.
+    // So we copy the values, that we want to flush and clear it immediately.
+    BatchedPstmt[] values = stmtMap.values().toArray(new BatchedPstmt[stmtMap.values().size()]);
     clear();
 
+    // this loop
     for (BatchedPstmt bs : values) {
       try {
         if (!isError) {
