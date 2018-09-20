@@ -6,6 +6,8 @@ import org.slf4j.LoggerFactory;
 import javax.persistence.PersistenceException;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 
 /**
@@ -110,7 +112,12 @@ public class BatchedPstmtHolder {
     // but still need to close PreparedStatements.
     boolean isError = false;
 
-    for (BatchedPstmt bs : stmtMap.values()) {
+    Collection<BatchedPstmt> values = new ArrayList<>(stmtMap.values());
+
+    // clear the batch cache
+    clear();
+
+    for (BatchedPstmt bs : values) {
       try {
         if (!isError) {
           bs.executeBatch(getGeneratedKeys);
@@ -139,8 +146,6 @@ public class BatchedPstmtHolder {
       }
     }
 
-    // clear the batch cache
-    clear();
 
     if (firstError != null) {
       String msg = "Error when batch flush on sql: " + errorSql;
