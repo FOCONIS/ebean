@@ -1,6 +1,8 @@
 package io.ebeaninternal.server.query;
 
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
+import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +23,8 @@ public abstract class QueryPlanLogger {
 
   public abstract void logQueryPlan(Connection conn, CQueryPlan plan, CQueryPredicates predicates);
 
+  public static final String BASE_PATH = System.getProperty("io.ebean.queryplan.dir");
+
   private static QueryPlanLogger explainLogger = new QueryPlanLoggerExplain();
   private static QueryPlanLogger sqlserverLogger = new QueryPlanLoggerSqlServer();
   private static QueryPlanLogger oracleLogger = new QueryPlanLoggerOracle();
@@ -30,6 +34,14 @@ public abstract class QueryPlanLogger {
       // do nothing
     }
   };
+
+  protected String getFilePrefix(String sql) {
+    sql = sql.replaceAll("[^\\w .-]+","_");
+    if (sql.length() >100) {
+      sql = sql.substring(0, 100);
+    }
+    return sql + UUID.nameUUIDFromBytes(sql.getBytes(StandardCharsets.UTF_8));
+  }
 
   /**
    * Returns the logger to log queries.

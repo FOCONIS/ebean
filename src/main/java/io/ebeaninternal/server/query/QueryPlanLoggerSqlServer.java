@@ -1,10 +1,17 @@
 package io.ebeaninternal.server.query;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.UUID;
 
 import io.ebeaninternal.server.type.DataBind;
 
@@ -34,13 +41,19 @@ public class QueryPlanLoggerSqlServer extends QueryPlanLogger {
         if (explainStmt.getMoreResults()) {
           try (ResultSet rset = explainStmt.getResultSet()) {
             while (rset.next()) {
-              sb.append("XML: ").append(rset.getString(1));
+              if (BASE_PATH == null || BASE_PATH.isEmpty()) {
+                sb.append("XML: ").append(rset.getString(1));
+              } else {
+                try (OutputStream os = new FileOutputStream(getFilePrefix(plan.getSql()) + ".sqlplan")) {
+                  os.write(rset.getString(1).getBytes(StandardCharsets.UTF_8));
+                }
+              }
             }
           }
         }
-        queryplanLog.debug(sb.toString());
+        queryplanLog.trace(sb.toString());
 
-      } catch (SQLException e) {
+      } catch (SQLException | IOException e) {
         queryplanLog.error("Could not log query plan", e);
       } finally {
         stmt.execute("SET STATISTICS XML OFF");
