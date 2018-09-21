@@ -40,7 +40,7 @@ public abstract class QueryPlanLogger {
     if (sql.length() >100) {
       sql = sql.substring(0, 100);
     }
-    return sql + UUID.nameUUIDFromBytes(sql.getBytes(StandardCharsets.UTF_8));
+    return BASE_PATH + "/" + sql + UUID.nameUUIDFromBytes(sql.getBytes(StandardCharsets.UTF_8));
   }
 
   /**
