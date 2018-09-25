@@ -191,6 +191,7 @@ public class TestOrderByParse extends BaseTestCase {
     assertTrue(o1.getProperties().get(1).isAscending());
     assertEquals("id COLLATE latin_1 desc, name COLLATE latin_2", o1.toStringFormat());
 
+    // functional (DB2) syntax
     o1 = new OrderBy<>();
     o1.desc("id", "COLLATION_KEY(${}, 'latin_1')");
     assertTrue(o1.getProperties().size() == 1);

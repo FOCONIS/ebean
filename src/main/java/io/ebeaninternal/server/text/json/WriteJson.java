@@ -474,8 +474,8 @@ public class WriteJson implements SpiJsonWriter {
     final JsonWriteBeanVisitor visitor;
 
     WriteBean(BeanDescriptor<?> desc, EntityBean currentBean, JsonWriteBeanVisitor<?> visitor,
-        JsonVersionWriter writeVersion, boolean preferReference) {
-      this(desc, false, null, currentBean, visitor, writeVersion, preferReference);
+        JsonVersionWriter writeVersion, boolean forceReference) {
+      this(desc, false, null, currentBean, visitor, writeVersion, forceReference);
     }
 
     WriteBean(BeanDescriptor<?> desc, boolean explicitAllProps, Set<String> currentIncludeProps, EntityBean currentBean,
