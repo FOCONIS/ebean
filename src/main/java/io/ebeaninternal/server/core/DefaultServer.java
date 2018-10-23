@@ -2046,6 +2046,11 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
   }
 
   @Override
+  public int executeNow(SpiSqlUpdate sqlUpdate) {
+    return persister.executeSqlUpdateNow(sqlUpdate, null);
+  }
+
+  @Override
   public void addBatch(SpiSqlUpdate sqlUpdate, SpiTransaction transaction) {
     persister.addBatch(sqlUpdate, transaction);
   }

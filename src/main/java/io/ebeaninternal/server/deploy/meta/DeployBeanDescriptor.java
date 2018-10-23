@@ -127,6 +127,7 @@ public class DeployBeanDescriptor<T> implements DeployBeanDescriptorMeta {
    * Used with Identity columns but no getGeneratedKeys support.
    */
   private String selectLastInsertedId;
+  private String selectLastInsertedIdDraft;
 
   /**
    * The concurrency mode for beans of this type.
@@ -842,11 +843,16 @@ public class DeployBeanDescriptor<T> implements DeployBeanDescriptorMeta {
     return selectLastInsertedId;
   }
 
+  public String getSelectLastInsertedIdDraft() {
+    return selectLastInsertedIdDraft;
+  }
+
   /**
    * Set the SQL used to return the last inserted Id.
    */
-  public void setSelectLastInsertedId(String selectLastInsertedId) {
+  public void setSelectLastInsertedId(String selectLastInsertedId, String selectLastInsertedIdDraft) {
     this.selectLastInsertedId = selectLastInsertedId;
+    this.selectLastInsertedIdDraft = selectLastInsertedIdDraft;
   }
 
   /**

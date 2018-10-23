@@ -7,6 +7,7 @@ import io.ebean.meta.MetaOrmQueryMetric;
 import org.junit.Test;
 import org.tests.model.basic.Country;
 import org.tests.model.basic.Customer;
+import org.tests.model.basic.EBasicWithUniqueCon;
 
 import java.sql.Timestamp;
 import java.util.List;
@@ -43,7 +44,32 @@ public class UpdateQueryTest extends BaseTestCase {
   }
 
   @Test
-  @IgnorePlatform(Platform.SQLSERVER) // Table alias does not work on SqlServer
+  public void update_withTransactionBatch() {
+
+    EbeanServer server = server();
+
+    try (Transaction transaction = server.beginTransaction()) {
+      transaction.setBatchMode(true);
+
+      UpdateQuery<Customer> update = server.update(Customer.class);
+
+      Query<Customer> query = update
+        .set("status", Customer.Status.ACTIVE)
+        .set("updtime", new Timestamp(System.currentTimeMillis()))
+        .where()
+        .eq("status", Customer.Status.NEW)
+        .gt("id", 99999)
+        .query();
+
+      // update executes now regardless of transaction batch mode
+      int rows = query.update();
+      assertThat(rows).isEqualTo(0);
+
+      transaction.commit();
+    }
+  }
+
+  @Test
   public void withTableAlias() {
 
     EbeanServer server = server();
@@ -198,5 +224,28 @@ public class UpdateQueryTest extends BaseTestCase {
       .update();
 
     assertThat(rows).isEqualTo(0);
+  }
+
+  @Test(expected = DuplicateKeyException.class)
+  public void exceptionTranslation() {
+
+    newEbasicWithUnique("o1","other1_a");
+    Integer id = newEbasicWithUnique("o2", "other1_b");
+
+    Ebean.update(EBasicWithUniqueCon.class)
+      .set("other", "other1_a")
+      .set("otherOne", "other1_a")
+      .where().idEq(id)
+      .update();
+  }
+
+  private Integer newEbasicWithUnique(String name, String other) {
+    EBasicWithUniqueCon b0 = new EBasicWithUniqueCon();
+    b0.setName(name);
+    b0.setOther(other);
+    b0.setOtherOne(other);
+    Ebean.save(b0);
+
+    return b0.getId();
   }
 }
