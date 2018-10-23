@@ -75,26 +75,26 @@ public final class EntityBeanIntercept implements Serializable {
   /**
    * Used when a bean is partially filled.
    */
-  private static final int FLAG_LOADED_PROP = 1;
+  private static final byte FLAG_LOADED_PROP = 1;
 
   /**
    * Set of changed properties.
    */
-  private static final int FLAG_CHANGED_PROP = 2;
+  private static final byte FLAG_CHANGED_PROP = 2;
 
   /**
    * Flags indicating if a property is a dirty embedded bean. Used to distingush
    * between an embedded bean being completely overwritten and one of its
    * embedded properties being made dirty.
    */
-  private static final int FLAG_EMBEDDED_DIRTY = 4;
+  private static final byte FLAG_EMBEDDED_DIRTY = 4;
 
   /**
    * Flags indicating if a property is a dirty embedded bean. Used to distingush
    * between an embedded bean being completely overwritten and one of its
    * embedded properties being made dirty.
    */
-  private static final int FLAG_ORIG_VALUE_SET = 8;
+  private static final byte FLAG_ORIG_VALUE_SET = 8;
 
   private final byte[] flags;
 
@@ -717,7 +717,9 @@ public final class EntityBeanIntercept implements Serializable {
         // the property has been changed on this bean
         Object newVal = owner._ebean_getField(i);
         Object oldVal = getOrigValue(i);
-        visitor.visit(i, newVal, oldVal);
+        if (!areEqual(oldVal, newVal)) {
+          visitor.visit(i, newVal, oldVal);
+        }
 
       } else if ((flags[i] & FLAG_EMBEDDED_DIRTY) != 0) {
         // an embedded property has been changed - recurse
