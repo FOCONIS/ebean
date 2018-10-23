@@ -65,7 +65,7 @@ import java.util.List;
  */
 public class DefaultDbMigration implements DbMigration {
 
-  protected static final Logger logger = LoggerFactory.getLogger(DefaultDbMigration.class);
+  protected static final Logger logger = LoggerFactory.getLogger("io.ebean.GenerateMigration");
 
   private static final String initialVersion = "1.0";
 
@@ -304,6 +304,23 @@ public class DefaultDbMigration implements DbMigration {
   }
 
   /**
+   * Return the versions containing pending drops.
+   */
+  public List<String> getPendingDrops() {
+    if (!online) {
+      DbOffline.setGenerateMigration();
+    }
+    setDefaults();
+    try {
+      return createRequest().getPendingDrops();
+    } finally {
+      if (!online) {
+        DbOffline.reset();
+      }
+    }
+  }
+
+  /**
    * Load the configuration for each of the target platforms.
    */
   private void configurePlatforms() {
@@ -494,6 +511,9 @@ public class DefaultDbMigration implements DbMigration {
     if (nextDrop != null) {
       return nextDrop;
     }
+    if (generatePendingDrop != null) {
+      return generatePendingDrop;
+    }
     return migrationConfig.getGeneratePendingDrop();
   }
 
@@ -594,9 +614,6 @@ public class DefaultDbMigration implements DbMigration {
       }
       if (name != null) {
         migrationConfig.setName(name);
-      }
-      if (generatePendingDrop != null) {
-        migrationConfig.setGeneratePendingDrop(generatePendingDrop);
       }
     }
   }
