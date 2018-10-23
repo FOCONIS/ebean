@@ -773,8 +773,8 @@ public class BeanProperty implements ElPropertyValue, Property, STreeProperty {
         // NOP
 
       } else if (value instanceof Collection) {
+        int i = 0;
         for (Object entry : (Collection<?>) value) {
-          int i = 0;
           if (entry instanceof OwnerBeanAware) {
             ((OwnerBeanAware) entry).setOwnerBeanInfo(bean, getName(), i);
           }

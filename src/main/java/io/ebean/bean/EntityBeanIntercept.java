@@ -974,8 +974,8 @@ public final class EntityBeanIntercept implements Serializable {
     if (newValue instanceof OwnerBeanAware) {
       ((OwnerBeanAware) newValue).setOwnerBeanInfo(owner, getProperty(propertyIndex), null);
     } else if (newValue instanceof Collection) {
+      int i = 0;
       for (Object entry : (Collection<?>) newValue) {
-        int i = 0;
         if (entry instanceof OwnerBeanAware) {
           ((OwnerBeanAware) entry).setOwnerBeanInfo(owner, getProperty(propertyIndex), i);
         }
