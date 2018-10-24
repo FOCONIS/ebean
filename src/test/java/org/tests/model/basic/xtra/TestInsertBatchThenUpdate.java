@@ -19,7 +19,7 @@ import static org.junit.Assert.assertEquals;
 public class TestInsertBatchThenUpdate extends BaseTestCase {
 
   @Test
-  @IgnorePlatform(Platform.SQLSERVER) // has generated IDs
+  @IgnorePlatform({Platform.SQLSERVER, Platform.HANA}) // has generated IDs
   public void test() {
 
     LoggedSqlCollector.start();
@@ -64,6 +64,7 @@ public class TestInsertBatchThenUpdate extends BaseTestCase {
 
 
   @Test
+  @IgnorePlatform(Platform.HANA)
   public void test_noFlushOn_getterOfNonGeneratedProperty() {
 
     LoggedSqlCollector.start();

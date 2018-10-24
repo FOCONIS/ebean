@@ -121,7 +121,7 @@ public class TestBatchInsertFlush extends BaseTestCase {
 
   @Test
   @Transactional(batch = PersistBatch.ALL)
-  @IgnorePlatform(Platform.SQLSERVER) // has generated IDs
+  @IgnorePlatform({Platform.SQLSERVER, Platform.HANA}) // has generated IDs
   public void transactional_flushOnGetId() {
 
     EbeanServer server = Ebean.getDefaultServer();
@@ -144,7 +144,7 @@ public class TestBatchInsertFlush extends BaseTestCase {
   }
 
   @Test
-  @IgnorePlatform(Platform.SQLSERVER) // has generated IDs
+  @IgnorePlatform({Platform.SQLSERVER, Platform.HANA})
   public void testFlushOnGetId() {
 
     EbeanServer server = Ebean.getDefaultServer();
