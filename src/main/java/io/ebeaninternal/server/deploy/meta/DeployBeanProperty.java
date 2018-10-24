@@ -1132,4 +1132,18 @@ public class DeployBeanProperty implements DeployBeanPropertyMeta {
   public void setElementProperty() {
     this.elementProperty = true;
   }
+
+  /**
+   * Returns the jackson annotated field, if jackson is present.
+   */
+  public Object /*AnnotatedField*/ getJacksonField() {
+    com.fasterxml.jackson.databind.introspect.AnnotatedClass jac =
+        (com.fasterxml.jackson.databind.introspect.AnnotatedClass) getDesc().getJacksonAnnotatedClass();
+    for (com.fasterxml.jackson.databind.introspect.AnnotatedField candidate : jac.fields()) {
+      if (candidate.getName().equals(getName())) {
+        return candidate;
+      }
+    }
+    return null;
+  }
 }

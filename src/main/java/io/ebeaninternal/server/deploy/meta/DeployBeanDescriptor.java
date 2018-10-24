@@ -224,6 +224,8 @@ public class DeployBeanDescriptor<T> implements DeployBeanDescriptorMeta {
 
   private short profileId;
 
+  private Object jacksonAnnotatedClass;
+
   /**
    * Construct the BeanDescriptor.
    */
@@ -1265,5 +1267,18 @@ public class DeployBeanDescriptor<T> implements DeployBeanDescriptorMeta {
   @Override
   public DeployBeanDescriptorMeta getDeployBeanDescriptorMeta(Class<?> propertyType) {
     return getDeploy(propertyType).getDescriptor();
+  }
+
+  /**
+   * Returns the jackson annotated class, if jackson is present.
+   */
+  public Object /*AnnotatedClass*/ getJacksonAnnotatedClass() {
+    if (jacksonAnnotatedClass == null) {
+      com.fasterxml.jackson.databind.ObjectMapper objectMapper = (com.fasterxml.jackson.databind.ObjectMapper) serverConfig.getObjectMapper();
+      com.fasterxml.jackson.databind.JavaType javaType = objectMapper.getTypeFactory().constructType(beanType);
+      jacksonAnnotatedClass = com.fasterxml.jackson.databind.introspect.AnnotatedClassResolver
+        .resolve(objectMapper.getDeserializationConfig(), javaType, objectMapper.getDeserializationConfig());
+    }
+    return jacksonAnnotatedClass;
   }
 }
