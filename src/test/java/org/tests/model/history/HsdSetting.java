@@ -4,6 +4,7 @@ import io.ebean.annotation.History;
 import io.ebean.annotation.SoftDelete;
 import org.tests.model.draftable.BaseDomain;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.OneToOne;
 
@@ -11,6 +12,7 @@ import javax.persistence.OneToOne;
 @Entity
 public class HsdSetting extends BaseDomain {
 
+  @Column(name = "hsd_key")
   String key;
   String val;
 
