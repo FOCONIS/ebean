@@ -70,6 +70,7 @@ public class UpdateQueryTest extends BaseTestCase {
   }
 
   @Test
+  @IgnorePlatform(Platform.SQLSERVER)
   public void withTableAlias() {
 
     EbeanServer server = server();

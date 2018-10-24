@@ -3,6 +3,9 @@ package org.tests.query.orderby;
 import io.ebean.BaseTestCase;
 import io.ebean.Ebean;
 import io.ebean.Query;
+import io.ebean.annotation.IgnorePlatform;
+import io.ebean.annotation.Platform;
+
 import org.tests.model.basic.Customer;
 import org.tests.model.basic.MRole;
 import org.tests.model.basic.MUser;
@@ -38,6 +41,7 @@ public class TestOrderByWithDistinct extends BaseTestCase {
   }
 
   @Test
+  @IgnorePlatform({Platform.MYSQL, Platform.SQLSERVER}) // do not support nulls first/last
   public void testDistinctOn() {
 
     MRole role = Ebean.getReference(MRole.class, 1);
