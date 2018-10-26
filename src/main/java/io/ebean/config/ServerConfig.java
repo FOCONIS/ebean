@@ -32,12 +32,13 @@ import io.ebean.migration.MigrationRunner;
 import io.ebean.plugin.CustomDeployParser;
 import io.ebean.plugin.LoadErrorHandler;
 import io.ebean.util.StringHelper;
-import org.avaje.datasource.DataSourceConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.ebean.datasource.DataSourceConfig;
 
 import javax.persistence.PersistenceException;
 import javax.sql.DataSource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Clock;
 import java.util.ArrayList;

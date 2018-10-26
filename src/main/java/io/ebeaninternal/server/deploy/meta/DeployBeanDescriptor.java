@@ -3,7 +3,6 @@ package io.ebeaninternal.server.deploy.meta;
 import io.ebean.annotation.Cache;
 import io.ebean.annotation.DocStore;
 import io.ebean.annotation.DocStoreMode;
-import io.ebean.annotation.PartitionMode;
 import io.ebean.config.ServerConfig;
 import io.ebean.config.TableName;
 import io.ebean.config.dbplatform.IdType;
@@ -1028,6 +1027,7 @@ public class DeployBeanDescriptor<T> implements DeployBeanDescriptorMeta {
   /**
    * Return the BeanProperty that is the Id.
    */
+  @Override
   public DeployBeanProperty idProperty() {
     if (idProperty != null) {
       return idProperty;
@@ -1274,10 +1274,7 @@ public class DeployBeanDescriptor<T> implements DeployBeanDescriptorMeta {
    */
   public Object /*AnnotatedClass*/ getJacksonAnnotatedClass() {
     if (jacksonAnnotatedClass == null) {
-      com.fasterxml.jackson.databind.ObjectMapper objectMapper = (com.fasterxml.jackson.databind.ObjectMapper) serverConfig.getObjectMapper();
-      com.fasterxml.jackson.databind.JavaType javaType = objectMapper.getTypeFactory().constructType(beanType);
-      jacksonAnnotatedClass = com.fasterxml.jackson.databind.introspect.AnnotatedClassResolver
-        .resolve(objectMapper.getDeserializationConfig(), javaType, objectMapper.getDeserializationConfig());
+      jacksonAnnotatedClass = new DeployBeanObtainJackson<>(serverConfig, beanType).obtain();
     }
     return jacksonAnnotatedClass;
   }
