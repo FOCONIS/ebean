@@ -31,35 +31,27 @@ public class LoadBeanRequest extends LoadRequest {
   private final boolean loadCache;
 
   /**
-   * if <code>true</code>, lazy load will fail if the refering bean does not exist in the database.
-   * If you use custom joins with &#64;Formula, it may happen that the refering bean is optional.
-   * In this case we must not fail, instead we return a bean where only ID is propagated.
-   */
-  private final boolean failOnLazyLoad;
-
-  /**
    * Construct for lazy load request.
    */
-  public LoadBeanRequest(LoadBeanBuffer LoadBuffer, String lazyLoadProperty, boolean loadCache, boolean failOnLazyLoad) {
-    this(LoadBuffer, null, true, lazyLoadProperty, loadCache, failOnLazyLoad);
+  public LoadBeanRequest(LoadBeanBuffer LoadBuffer, String lazyLoadProperty, boolean loadCache) {
+    this(LoadBuffer, null, true, lazyLoadProperty, loadCache);
   }
 
   /**
    * Construct for secondary query.
    */
   public LoadBeanRequest(LoadBeanBuffer LoadBuffer, OrmQueryRequest<?> parentRequest) {
-    this(LoadBuffer, parentRequest, false, null, false, true);
+    this(LoadBuffer, parentRequest, false, null, false);
   }
 
   private LoadBeanRequest(LoadBeanBuffer loadBuffer, OrmQueryRequest<?> parentRequest, boolean lazy,
-                          String lazyLoadProperty, boolean loadCache, boolean failOnLazyLoad) {
+                          String lazyLoadProperty, boolean loadCache) {
 
     super(parentRequest, lazy);
     this.loadBuffer = loadBuffer;
     this.batch = loadBuffer.getBatch();
     this.lazyLoadProperty = lazyLoadProperty;
     this.loadCache = loadCache;
-    this.failOnLazyLoad = failOnLazyLoad;
   }
 
   @Override
@@ -181,13 +173,8 @@ public class LoadBeanRequest extends LoadRequest {
         // necessary but allow processing to continue until it is accessed by client code
         Object id = desc.getId(ebi.getOwner());
         if (!loadedIds.contains(id)) {
-          if (desc.isSoftDelete()) {
-            // assume this is logically deleted (hence not found)
-            desc.setSoftDeleteValue(ebi.getOwner());
-          } else if (failOnLazyLoad) {
-            logger.info("Lazy loading unsuccessful for type:" + desc.getName() + " id:" + id + " - expecting when bean has been deleted");
-            ebi.setLazyLoadFailure(id);
-          }
+          // assume this is logically deleted (hence not found)
+          desc.markAsDeleted(ebi.getOwner());
         }
       }
     }

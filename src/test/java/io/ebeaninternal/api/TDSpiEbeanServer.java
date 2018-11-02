@@ -980,6 +980,10 @@ public class TDSpiEbeanServer implements SpiEbeanServer {
   }
 
   @Override
+  public void executeDdlGenerator(boolean online) {
+  }
+
+  @Override
   public Set<Property> checkUniqueness(Object bean) {
     return Collections.emptySet();
   }
@@ -987,10 +991,5 @@ public class TDSpiEbeanServer implements SpiEbeanServer {
   @Override
   public Set<Property> checkUniqueness(Object bean, Transaction transaction) {
     return Collections.emptySet();
-  }
-
-  @Override
-  public void executeDdlGenerator(boolean online) {
-    
   }
 }
