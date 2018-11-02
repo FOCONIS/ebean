@@ -1326,7 +1326,7 @@ public class BeanProperty implements ElPropertyValue, Property, STreeProperty {
    * Return true if this is a ManyToMany with history support (on the intersection table).
    */
   public boolean isManyToManyWithHistory() {
-    return !excludedFromHistory && descriptor.isHistorySupport();
+    return false;
   }
 
   /**

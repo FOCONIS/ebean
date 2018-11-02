@@ -9,7 +9,11 @@
 
   <groupId>io.ebean</groupId>
   <artifactId>ebean</artifactId>
+<<<<<<< HEAD
   <version>11.24.1-FOC1-SNAPSHOT</version>
+=======
+  <version>11.24.2-SNAPSHOT</version>
+>>>>>>> ignore-fk-constraints
   <packaging>jar</packaging>
 
   <name>ebean</name>
@@ -229,7 +233,11 @@
     <dependency>
       <groupId>io.ebean</groupId>
       <artifactId>ebean-agent</artifactId>
+<<<<<<< HEAD
       <version>11.11.2-FOC1</version>
+=======
+      <version>11.24.1</version>
+>>>>>>> ignore-fk-constraints
       <scope>test</scope>
     </dependency>
 
@@ -325,7 +333,11 @@
       <plugin>
         <groupId>io.ebean</groupId>
         <artifactId>ebean-maven-plugin</artifactId>
+<<<<<<< HEAD
         <version>11.11.2-FOC1</version>
+=======
+        <version>11.24.1</version>
+>>>>>>> ignore-fk-constraints
         <executions>
           <execution>
             <id>test</id>
