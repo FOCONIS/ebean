@@ -118,6 +118,9 @@ import javax.persistence.NonUniqueResultException;
 import javax.persistence.OptimisticLockException;
 import javax.persistence.PersistenceException;
 import javax.sql.DataSource;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.time.Clock;
 import java.util.Collection;
 import java.util.Collections;
@@ -1540,6 +1543,11 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
     return findList(query, t, false);
   }
 
+  public static boolean pause;
+  public static int ok;
+  public static int fail;
+  public static int total;
+
   @SuppressWarnings("unchecked")
   private <T> List<T> findList(Query<T> query, Transaction t, boolean findOne) {
 
@@ -1559,8 +1567,47 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
 
     try {
       request.initTransIfRequired();
-      return request.findList();
 
+      List<T> ret = request.findList();
+
+      if (false && ret != null
+          && !pause
+          && EntityBean.class.isAssignableFrom(query.getBeanType())
+          && !query.getBeanType().getName().contains("DMachine")) {
+        pause = true;
+        try {
+          total++;
+          ElFilter<T> filter = (ElFilter<T>) query.filter();
+          System.err.println(filter);
+          System.err.println(query);
+          List<T> all = find(query.getBeanType())
+              .setDisableReadAuditing().findList();
+
+          List<T> ref = filter.filter(all);
+          if (!ref.equals(ret)) {
+            fail++;
+            ref = filter.filter(all);
+            if (!ref.containsAll(ret) || !ret.containsAll(ref)) {
+              assertThat(ref).isEqualTo(ret);
+            }
+          }
+          ok++;
+//          if (ref.equals(ret)) {
+//
+//          } else {
+//
+//          }
+        } catch (PersistenceException pe) {
+          System.err.println("PE: " +pe.getMessage());
+        } catch (UnsupportedOperationException use) {
+          System.err.println("UOE:" + use.getMessage());
+        } finally {
+          pause = false;
+        }
+        System.err.println("Total: " + total + ", OK: " + ok + ", Fail: " + fail);
+      }
+
+      return ret;
     } finally {
       request.endTransIfRequired();
     }
