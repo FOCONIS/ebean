@@ -519,6 +519,7 @@ public class DefaultExpressionList<T> implements SpiExpressionList<T> {
     return query.setUseQueryCache(useCache);
   }
 
+  @Override
   public Query<T> setCountDistinct(CountDistinctOrder orderBy) {
     return query.setCountDistinct(orderBy);
   }

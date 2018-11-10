@@ -4,8 +4,6 @@ import io.ebean.Ebean;
 import io.ebean.EbeanServer;
 import org.tests.model.basic.Order.Status;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.sql.Date;
 import java.time.LocalDate;
 import java.util.ArrayList;
