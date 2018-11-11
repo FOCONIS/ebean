@@ -122,7 +122,7 @@ public class TestIn extends BaseTestCase {
     values[1] = Date.valueOf("2018-06-01");
     values[2] = Date.valueOf("2018-07-02");
     values[3] = Date.valueOf("2018-07-04");
-    Query<Order> query = Ebean.find(Order.class).where().in("order_date", values).le("id",4).query();
+    Query<Order> query = Ebean.find(Order.class).where().in("orderDate", values).le("id",4).query();
 
     List<Order> list = query.findList();
     assertEquals(4, list.size());

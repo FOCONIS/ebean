@@ -4,10 +4,10 @@ import io.ebean.Filter;
 import io.ebean.Junction;
 import io.ebean.Pairs;
 import io.ebean.Query;
-import io.ebean.Junction.Type;
-import io.ebeaninternal.api.SpiExpression;
+import io.ebean.QueryDsl;
 import io.ebeaninternal.api.filter.Expression3VL;
 import io.ebeaninternal.api.filter.FilterContext;
+import io.ebeaninternal.server.el.ElMatchBuilder.BitAnd.Type;
 import io.ebeaninternal.server.filter.DefaultFilterContext;
 
 import java.util.ArrayList;
@@ -87,6 +87,46 @@ class ElFilterNode<T> implements Filter<T>, ElMatcher<T> {
       matches.get(i).toString(sb);
     }
     sb.append(")");
+  }
+
+  @Override
+  public <F extends QueryDsl<T, F>> void visitDsl(QueryDsl<T, F> target) {
+    switch (type) {
+    case AND:
+      target = target.and();
+      for (ElMatcher<T> matcher : matches) {
+        matcher.visitDsl(target);
+      }
+      target.endAnd();
+      break;
+
+    case OR:
+      target = target.or();
+      for (ElMatcher<T> matcher : matches) {
+        matcher.visitDsl(target);
+      }
+      target.endOr();
+      break;
+
+    case NOT:
+      target = target.not();
+      for (ElMatcher<T> matcher : matches) {
+        matcher.visitDsl(target);
+      }
+      target.endNot();
+      break;
+
+    default:
+      throw new IllegalArgumentException("Unknown type " + type);
+    }
+  }
+
+  @Override
+  public <F2 extends QueryDsl<T, F2>> Filter<T> applyTo(QueryDsl<T, F2> target) {
+    for (ElMatcher<T> matcher : matches) {
+      matcher.visitDsl(target);
+    }
+    return this;
   }
 
   protected boolean isMatchAnyPermuation(T bean, DefaultFilterContext ctx) {
@@ -176,21 +216,19 @@ class ElFilterNode<T> implements Filter<T>, ElMatcher<T> {
 
   @Override
   public Filter<T> inPairs(Pairs pairs) {
-
     if (pairs.getEntries().isEmpty()) {
-      matches.add(new ElMatchBuilder.False<>());
+      matches.add(new ElMatchBuilder.InPairs<>(pairs, null));
     } else {
-      if (type != Junction.Type.OR) {
-        return or().inPairs(pairs).endOr();
-      } else {
-        for (Pairs.Entry entry : pairs.getEntries()) {
-          and() // emulate inPairs
-          .eq(pairs.getProperty0(), entry.getA()) //
-          .eq(pairs.getProperty1(), entry.getB()) //
-          .endAnd();
-        }
+      ElFilterNode<T> convertedPairs = new ElFilterNode<>(elFilter, null, Junction.Type.OR);
+      for (Pairs.Entry entry : pairs.getEntries()) {
+        convertedPairs.and() // emulate inPairs
+            .eq(pairs.getProperty0(), entry.getA()) //
+            .eq(pairs.getProperty1(), entry.getB()) //
+            .endAnd();
       }
+      matches.add(new ElMatchBuilder.InPairs<>(pairs, convertedPairs));
     }
+
     return this;
   }
 
@@ -360,7 +398,7 @@ class ElFilterNode<T> implements Filter<T>, ElMatcher<T> {
   public Filter<T> contains(String propertyName, String value) {
 
     ElPropertyValue elGetValue = getElGetValue(propertyName);
-    matches.add(ElMatchBuilder.RegularExpr.contains(elGetValue, value, 0));
+    matches.add(new ElMatchBuilder.Contains<>(elGetValue, value));
     return this;
   }
 
@@ -368,7 +406,7 @@ class ElFilterNode<T> implements Filter<T>, ElMatcher<T> {
   public Filter<T> icontains(String propertyName, String value) {
 
     ElPropertyValue elGetValue = getElGetValue(propertyName);
-    matches.add(ElMatchBuilder.RegularExpr.contains(elGetValue, value, Pattern.CASE_INSENSITIVE));
+    matches.add(new ElMatchBuilder.IContains<>(elGetValue, value));
     return this;
   }
 
@@ -376,7 +414,7 @@ class ElFilterNode<T> implements Filter<T>, ElMatcher<T> {
   public Filter<T> like(String propertyName, String value) {
 
     ElPropertyValue elGetValue = getElGetValue(propertyName);
-    matches.add(ElMatchBuilder.RegularExpr.like(elGetValue, value, 0));
+    matches.add(new ElMatchBuilder.Like<>(elGetValue, value, false));
     return this;
   }
 
@@ -384,7 +422,7 @@ class ElFilterNode<T> implements Filter<T>, ElMatcher<T> {
   public Filter<T> ilike(String propertyName, String value) {
 
     ElPropertyValue elGetValue = getElGetValue(propertyName);
-    matches.add(ElMatchBuilder.RegularExpr.like(elGetValue, value, Pattern.CASE_INSENSITIVE));
+    matches.add(new ElMatchBuilder.Like<>(elGetValue, value, true));
     return this;
   }
 
@@ -435,28 +473,28 @@ class ElFilterNode<T> implements Filter<T>, ElMatcher<T> {
   @Override
   public Filter<T> bitwiseAll(String propertyName, long flags) {
     ElPropertyValue elGetValue = getElGetValue(propertyName);
-    matches.add(new ElMatchBuilder.BitAnd<>(elGetValue, flags, true, flags));
+    matches.add(new ElMatchBuilder.BitAnd<>(elGetValue, flags, true, flags, Type.ALL));
     return this;
   }
 
   @Override
   public Filter<T> bitwiseAny(String propertyName, long flags) {
     ElPropertyValue elGetValue = getElGetValue(propertyName);
-    matches.add(new ElMatchBuilder.BitAnd<>(elGetValue, flags, false, 0));
+    matches.add(new ElMatchBuilder.BitAnd<>(elGetValue, flags, false, 0, Type.ANY));
     return this;
   }
 
   @Override
   public Filter<T> bitwiseNot(String propertyName, long flags) {
     ElPropertyValue elGetValue = getElGetValue(propertyName);
-    matches.add(new ElMatchBuilder.BitAnd<>(elGetValue, flags, true, 0));
+    matches.add(new ElMatchBuilder.BitAnd<>(elGetValue, flags, true, 0, Type.NOT));
     return this;
   }
 
   @Override
   public Filter<T> bitwiseAnd(String propertyName, long flags, long match) {
     ElPropertyValue elGetValue = getElGetValue(propertyName);
-    matches.add(new ElMatchBuilder.BitAnd<>(elGetValue, flags, true, match));
+    matches.add(new ElMatchBuilder.BitAnd<>(elGetValue, flags, true, match, Type.AND));
     return this;
   }
 

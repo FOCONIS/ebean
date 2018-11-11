@@ -4,6 +4,7 @@ import io.ebean.Filter;
 import io.ebean.Junction;
 import io.ebean.Pairs;
 import io.ebean.Query;
+import io.ebean.QueryDsl;
 import io.ebeaninternal.api.filter.Expression3VL;
 import io.ebeaninternal.api.filter.FilterContext;
 import io.ebeaninternal.server.deploy.BeanDescriptor;
@@ -137,7 +138,10 @@ public final class ElFilter<T> implements Filter<T> {
     return sb.toString();
   }
 
-
+  @Override
+  public <F2 extends QueryDsl<T, F2>> Filter<T> applyTo(QueryDsl<T, F2> target) {
+    return root.applyTo(target);
+  }
 
   // ======= DELEGATE METHODS =========
 

@@ -3,6 +3,8 @@ package io.ebean;
 import java.util.Collection;
 import java.util.Map;
 
+import io.ebeaninternal.server.deploy.BeanDescriptor;
+
 /**
  * Common interface for DSL specific objects like {@link ExpressionList} (executed by the DB)
  * and {@link Filter} (done in memory).
@@ -427,5 +429,10 @@ public interface QueryDsl<T, F extends QueryDsl<T, F>> {
    * End a NOT junction.
    */
   F endNot();
+
+  /**
+   * Applies the given object to an other QueryDsl object.
+   */
+  <F2 extends QueryDsl<T, F2>> F applyTo(QueryDsl<T, F2> target);
 
 }

@@ -1049,10 +1049,4 @@ public interface ExpressionList<T> extends QueryDsl<T, ExpressionList<T>> {
    */
   ExpressionList<T> endJunction();
 
-  /**
-   * Applies given list to an other QueryDsl. This is useful for in memory filtering.
-   * You can apply a given where() query to a filter and vice versa.
-   */
-  <F extends QueryDsl<T,F>> ExpressionList<T> applyTo(QueryDsl<T,F> target);
-
 }

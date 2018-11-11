@@ -1,5 +1,6 @@
 package io.ebeaninternal.server.el;
 
+import io.ebean.QueryDsl;
 import io.ebeaninternal.api.filter.Expression3VL;
 import io.ebeaninternal.api.filter.FilterContext;
 
@@ -17,4 +18,6 @@ public interface ElMatcher<T> {
    * Converts the matcher to a human readable string representation.
    */
   void toString(StringBuilder sb);
+
+  <F extends QueryDsl<T, F>> void visitDsl(QueryDsl<T, F> target);
 }

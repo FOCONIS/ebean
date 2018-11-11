@@ -6,6 +6,7 @@ import io.ebean.BeanState;
 import io.ebean.CallableSql;
 import io.ebean.DocumentStore;
 import io.ebean.DtoQuery;
+import io.ebean.Ebean;
 import io.ebean.ExpressionFactory;
 import io.ebean.ExpressionList;
 import io.ebean.ExtendedServer;
@@ -1570,7 +1571,7 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
 
       List<T> ret = request.findList();
 
-      if (false && ret != null
+      if (ret != null
           && !pause
           && EntityBean.class.isAssignableFrom(query.getBeanType())
           && !query.getBeanType().getName().contains("DMachine")) {
@@ -1578,19 +1579,25 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
         try {
           total++;
           ElFilter<T> filter = (ElFilter<T>) query.filter();
+          Filter<T> filter2 = Ebean.filter(query.getBeanType());
+          filter.applyTo(filter2);
+          filter2.sort(filter.getSort());
+          filter2.maxRows(filter.getMaxRows());
+          filter2.firstRow(filter.getFirstRow());
+          assertThat(filter.toString()).isEqualTo(filter2.toString());
           System.err.println(filter);
           System.err.println(query);
-          List<T> all = find(query.getBeanType())
-              .setDisableReadAuditing().findList();
-
-          List<T> ref = filter.filter(all);
-          if (!ref.equals(ret)) {
-            fail++;
-            ref = filter.filter(all);
-            if (!ref.containsAll(ret) || !ret.containsAll(ref)) {
-              assertThat(ref).isEqualTo(ret);
-            }
-          }
+//          List<T> all = find(query.getBeanType())
+//              .setDisableReadAuditing().findList();
+//
+//          List<T> ref = filter.filter(all);
+//          if (!ref.equals(ret)) {
+//            fail++;
+//            ref = filter.filter(all);
+//            if (!ref.containsAll(ret) || !ret.containsAll(ref)) {
+//              assertThat(ref).isEqualTo(ret);
+//            }
+//          }
           ok++;
 //          if (ref.equals(ret)) {
 //
