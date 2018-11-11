@@ -110,7 +110,7 @@ public final class ElFilter<T> implements Filter<T> {
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("filter ").append(beanDescriptor.getBaseTable());
+    sb.append("filter ").append(beanDescriptor);
     if (!root.matches.isEmpty()) {
       sb.append(" where ");
       root.toString(sb);

@@ -1,7 +1,6 @@
 package io.ebeantest;
 
 import io.ebeaninternal.api.SpiLogger;
-import io.ebeaninternal.server.core.DefaultServer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,8 +32,7 @@ class CaptureLogger implements SpiLogger {
 
   @Override
   public void debug(String msg) {
-
-    if (active && !DefaultServer.pause) {
+    if (active) {
       messages.add(msg);
     }
     wrapped.debug(msg);
@@ -42,7 +40,7 @@ class CaptureLogger implements SpiLogger {
 
   @Override
   public void trace(String msg) {
-    if (active && !DefaultServer.pause) {
+    if (active) {
       messages.add(msg);
     }
     wrapped.trace(msg);
