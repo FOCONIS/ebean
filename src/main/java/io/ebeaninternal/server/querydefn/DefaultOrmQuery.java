@@ -32,7 +32,6 @@ import io.ebean.bean.PersistenceContext;
 import io.ebean.event.BeanQueryRequest;
 import io.ebean.event.readaudit.ReadEvent;
 import io.ebean.plugin.BeanType;
-import io.ebean.plugin.LoadErrorHandler;
 import io.ebeaninternal.api.BindParams;
 import io.ebeaninternal.api.CQueryPlanKey;
 import io.ebeaninternal.api.HashQuery;

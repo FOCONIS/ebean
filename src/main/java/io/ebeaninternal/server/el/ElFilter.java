@@ -12,17 +12,8 @@ import io.ebeaninternal.server.filter.DefaultFilterContext;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.function.Predicate;
-import java.util.regex.Pattern;
-
-import javax.lang.model.util.ElementFilter;
-
-import org.hamcrest.Matcher;
 
 /**
  * Default implementation of the Filter interface.
@@ -38,8 +29,6 @@ public final class ElFilter<T> implements Filter<T> {
   private String sortByClause;
 
   private final ElFilterNode<T> root = new ElFilterNode<T>(this, this, Junction.Type.AND);
-
-  private boolean simplified;
 
   public ElFilter(BeanDescriptor<T> beanDescriptor) {
     this.beanDescriptor = beanDescriptor;

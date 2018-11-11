@@ -20,9 +20,6 @@ import org.tests.model.docstore.Report;
 import org.tests.model.docstore.ReportComment;
 import org.tests.model.docstore.ReportEntity;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonSerializer;

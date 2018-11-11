@@ -6,8 +6,6 @@ import io.ebeaninternal.api.SpiQuery.Mode;
 import io.ebeaninternal.server.deploy.BeanProperty;
 import io.ebeaninternal.server.deploy.DbReadContext;
 
-import javax.persistence.PersistenceException;
-
 /**
  * Controls the loading of property data into a bean.
  * <p>

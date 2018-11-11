@@ -3,8 +3,6 @@ package io.ebeaninternal.server.deploy;
 import io.ebeaninternal.server.query.SqlBeanLoad;
 import io.ebeaninternal.server.type.ScalarType;
 
-import javax.persistence.PersistenceException;
-
 /**
  * Dynamic property based on aggregation (max, min, avg, count).
  */

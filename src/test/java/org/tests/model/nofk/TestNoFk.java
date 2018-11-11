@@ -5,8 +5,6 @@ import io.ebean.Ebean;
 import io.ebean.SqlRow;
 import io.ebean.bean.EntityBean;
 import io.ebean.bean.EntityBeanIntercept;
-import io.ebean.plugin.BeanType;
-import io.ebean.plugin.Property;
 
 import org.junit.Before;
 import org.junit.Ignore;

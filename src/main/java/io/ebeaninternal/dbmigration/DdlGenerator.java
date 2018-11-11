@@ -3,7 +3,6 @@ package io.ebeaninternal.dbmigration;
 import io.ebean.config.DbMigrationConfig;
 import io.ebean.config.ServerConfig;
 import io.ebean.config.dbplatform.DatabasePlatform;
-import io.ebean.migration.MigrationConfig;
 import io.ebean.migration.ddl.DdlRunner;
 import io.ebean.util.JdbcClose;
 import io.ebeaninternal.api.SpiEbeanServer;

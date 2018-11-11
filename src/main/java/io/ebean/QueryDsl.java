@@ -3,7 +3,6 @@ package io.ebean;
 import java.util.Collection;
 import java.util.Map;
 
-import io.ebeaninternal.server.deploy.BeanDescriptor;
 
 /**
  * Common interface for DSL specific objects like {@link ExpressionList} (executed by the DB)
