@@ -117,6 +117,11 @@ public class TestIn extends BaseTestCase {
     for (int i = 0; i < values.length; i++) {
       values[i] = new Date(System.currentTimeMillis() + i * 86400000);
     }
+
+    values[0] = Date.valueOf("2018-07-01");
+    values[1] = Date.valueOf("2018-06-01");
+    values[2] = Date.valueOf("2018-07-02");
+    values[3] = Date.valueOf("2018-07-04");
     Query<Order> query = Ebean.find(Order.class).where().in("order_date", values).le("id",4).query();
 
     List<Order> list = query.findList();
