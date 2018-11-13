@@ -1,6 +1,7 @@
 package io.ebeaninternal.server.el;
 
 import io.ebean.bean.EntityBean;
+import io.ebean.plugin.Property;
 import io.ebean.text.StringParser;
 import io.ebean.util.StringHelper;
 import io.ebeaninternal.api.SpiExpressionRequest;
@@ -346,5 +347,10 @@ public class ElPropertyChain implements ElPropertyValue {
     } else {
       return test.test(bean);
     }
+  }
+
+  @Override
+  public Property getProperty() {
+    return lastBeanProperty;
   }
 }

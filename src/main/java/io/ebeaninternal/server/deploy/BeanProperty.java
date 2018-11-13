@@ -274,6 +274,8 @@ public class BeanProperty implements ElPropertyValue, Property, STreeProperty {
 
   final String softDeleteDbPredicate;
 
+  Object customObject;
+
   public BeanProperty(DeployBeanProperty deploy) {
     this(null, deploy);
   }
@@ -688,6 +690,11 @@ public class BeanProperty implements ElPropertyValue, Property, STreeProperty {
 
   @Override
   public BeanProperty getBeanProperty() {
+    return this;
+  }
+
+  @Override
+  public Property getProperty() {
     return this;
   }
 
@@ -1600,5 +1607,15 @@ public class BeanProperty implements ElPropertyValue, Property, STreeProperty {
     } else if (dbColumn != null) {
       desc.registerColumn(dbColumn, path);
     }
+  }
+
+  @Override
+  public Object getCustomObject() {
+    return customObject;
+  }
+
+  @Override
+  public void setCustomObject(Object customObject) {
+    this.customObject = customObject;
   }
 }
