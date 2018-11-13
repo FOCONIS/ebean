@@ -4,6 +4,7 @@ import io.ebean.config.DbMigrationConfig;
 import io.ebean.config.ServerConfig;
 import io.ebean.config.dbplatform.DatabasePlatform;
 import io.ebean.migration.ddl.DdlRunner;
+import io.ebean.migration.runner.ScriptTransform;
 import io.ebean.util.JdbcClose;
 import io.ebeaninternal.api.SpiEbeanServer;
 import io.ebeaninternal.dbmigration.model.CurrentModel;
@@ -130,7 +131,9 @@ public class DdlGenerator {
 
   private void createSchemaIfRequired(Connection connection) {
     try {
-      server.getDatabasePlatform().createSchemaIfNotExists(dbSchema, connection);
+      for (String schema : dbSchema.split(",")) {
+        server.getDatabasePlatform().createSchemaIfNotExists(schema, connection);
+      }
     } catch (SQLException e) {
       throw new PersistenceException("Failed to create DB Schema", e);
     }
@@ -355,8 +358,7 @@ public class DdlGenerator {
    */
   private ScriptTransform createScriptTransform(DbMigrationConfig config) {
 
-    Map<String, String> map = PlaceholderBuilder.build(config.getRunPlaceholders(), config.getRunPlaceholderMap());
-    return new ScriptTransform(map);
+    return ScriptTransform.build(config.getRunPlaceholders(), config.getRunPlaceholderMap());
   }
 
 }

@@ -7,6 +7,7 @@ import io.ebean.SqlUpdate;
 import io.ebean.Transaction;
 import io.ebean.ValuePair;
 import io.ebean.annotation.DocStoreMode;
+import io.ebean.annotation.Formula;
 import io.ebean.bean.BeanCollection;
 import io.ebean.bean.EntityBean;
 import io.ebean.bean.EntityBeanIntercept;
@@ -495,7 +496,7 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
     DeployBeanPropertyLists listHelper = new DeployBeanPropertyLists(owner, this, deploy);
 
     this.softDeleteProperty = listHelper.getSoftDeleteProperty();
-    // if formula is set, the property is virtual only (there is no coulumn in db) the formula must evaluate to true,
+    // if formula is set, the property is virtual only (there is no column in db) the formula must evaluate to true,
     // if there is a join to a deleted bean. Example: '@Formula(select = "${ta}.user_id is null")'
     // this is required to support markAsDelete on beans that may have no FK constraint.
     this.softDelete = (softDeleteProperty != null && !softDeleteProperty.isFormula());

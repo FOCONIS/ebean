@@ -52,8 +52,8 @@ class InExpression extends AbstractExpression {
 
   @Override
   public boolean naturalKey(NaturalKeyQueryData<?> data) {
-    // can't use naturalKey cache for NOT IN or if multi values are used
-    if (not || (multiValueSupported != IsSupported.NO)) {
+    // can't use naturalKey cache for NOT IN
+    if (not) {
       return false;
     }
     List<Object> copy = data.matchIn(propName, bindValues);
