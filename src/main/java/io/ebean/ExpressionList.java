@@ -1049,4 +1049,100 @@ public interface ExpressionList<T> extends QueryDsl<T, ExpressionList<T>> {
    */
   ExpressionList<T> endJunction();
 
+  @Override
+  ExpressionList<T> eq(String propertyName, Object value);
+
+  @Override
+  ExpressionList<T> ne(String propertyName, Object value);
+
+  @Override
+  ExpressionList<T> ieq(String propertyName, String value);
+
+  @Override
+  ExpressionList<T> between(String propertyName, Object value1, Object value2);
+
+  @Override
+  ExpressionList<T> gt(String propertyName, Object value);
+
+  @Override
+  ExpressionList<T> ge(String propertyName, Object value);
+
+  @Override
+  ExpressionList<T> lt(String propertyName, Object value);
+
+  @Override
+  ExpressionList<T> le(String propertyName, Object value);
+
+  @Override
+  ExpressionList<T> isNull(String propertyName);
+
+  @Override
+  ExpressionList<T> isNotNull(String propertyName);
+
+  @Override
+  ExpressionList<T> startsWith(String propertyName, String value);
+
+  @Override
+  ExpressionList<T> istartsWith(String propertyName, String value);
+
+  @Override
+  ExpressionList<T> endsWith(String propertyName, String value);
+
+  @Override
+  ExpressionList<T> iendsWith(String propertyName, String value);
+
+  @Override
+  ExpressionList<T> contains(String propertyName, String value);
+
+  @Override
+  ExpressionList<T> icontains(String propertyName, String value);
+
+  @Override
+  ExpressionList<T> like(String propertyName, String value);
+
+  @Override
+  ExpressionList<T> ilike(String propertyName, String value);
+
+  @Override
+  ExpressionList<T> in(String propertyName, Query<?> subQuery);
+
+  @Override
+  ExpressionList<T> in(String propertyName, Object... values);
+
+  @Override
+  ExpressionList<T> in(String propertyName, Collection<?> values);
+
+  @Override
+  ExpressionList<T> inPairs(Pairs pairs);
+
+  @Override
+  ExpressionList<T> notIn(String propertyName, Object... values);
+
+  @Override
+  ExpressionList<T> notIn(String propertyName, Collection<?> values);
+
+  @Override
+  ExpressionList<T> notIn(String propertyName, Query<?> subQuery);
+
+  @Override
+  ExpressionList<T> bitwiseAny(String propertyName, long flags);
+
+  @Override
+  ExpressionList<T> bitwiseAll(String propertyName, long flags);
+
+  @Override
+  ExpressionList<T> bitwiseNot(String propertyName, long flags);
+
+  @Override
+  ExpressionList<T> bitwiseAnd(String propertyName, long flags, long match);
+
+  @Override
+  ExpressionList<T> endAnd();
+
+  @Override
+  ExpressionList<T> endOr();
+
+  @Override
+  ExpressionList<T> endNot();
+
 }
