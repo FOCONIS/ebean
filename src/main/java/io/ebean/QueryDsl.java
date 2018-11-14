@@ -32,6 +32,12 @@ public interface QueryDsl<T, F extends QueryDsl<T, F>> {
   F ieq(String propertyName, String value);
 
   /**
+   * Case Insensitive Not Equal To - property not equal to the given value (typically
+   * using a lower() function to make it case insensitive).
+   */
+  F ine(String propertyName, String value);
+
+  /**
    * Between - property between the two given values.
    */
   F between(String propertyName, Object value1, Object value2);

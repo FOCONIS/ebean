@@ -240,6 +240,11 @@ public final class ElFilter<T> implements Filter<T> {
   }
 
   @Override
+  public Filter<T> ine(String propertyName, String value) {
+    return root.ine(propertyName, value);
+  }
+
+  @Override
   public Filter<T> isNotNull(String propertyName) {
     return root.isNotNull(propertyName);
   }

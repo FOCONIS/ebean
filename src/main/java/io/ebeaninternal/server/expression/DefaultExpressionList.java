@@ -762,6 +762,12 @@ public class DefaultExpressionList<T> implements SpiExpressionList<T> {
   }
 
   @Override
+  public ExpressionList<T> ine(String propertyName, String value) {
+    add(expr.ine(propertyName, value));
+    return this;
+  }
+
+  @Override
   public ExpressionList<T> ne(String propertyName, Object value) {
     add(expr.ne(propertyName, value));
     return this;

@@ -363,6 +363,16 @@ class ElFilterNode<T> implements Filter<T>, ElMatcher<T> {
   }
 
   @Override
+  public Filter<T> ine(String propertyName, String value) {
+
+    ElPropertyValue elGetValue = getElGetValue(propertyName);
+
+    matches.add(new ElMatchBuilder.Ine<>(elGetValue, value));
+    return this;
+  }
+
+
+  @Override
   public Filter<T> isNotNull(String propertyName) {
 
     ElPropertyValue elGetValue = getElGetValue(propertyName);

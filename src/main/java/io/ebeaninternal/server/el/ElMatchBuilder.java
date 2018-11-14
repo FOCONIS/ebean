@@ -247,6 +247,28 @@ class ElMatchBuilder {
     }
   }
 
+  static class Ine<T> extends BaseValue<T, String> {
+    Ine(ElPropertyValue elGetValue, String value) {
+      super(elGetValue, value);
+    }
+
+    @Override
+    public boolean match(String v) {
+      return !v.equalsIgnoreCase(testValue);
+    }
+
+    @Override
+    String getLiteral() {
+      return "!=~";
+    }
+
+    @Override
+    public <F extends QueryDsl<T, F>> void visitDsl(QueryDsl<T, F> target) {
+      target.ine(elGetValue.getElName(), testValue);
+    }
+  }
+
+
   /**
    * Case insensitive starts with matcher.
    */

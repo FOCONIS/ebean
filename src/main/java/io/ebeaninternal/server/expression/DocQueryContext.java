@@ -49,6 +49,11 @@ public interface DocQueryContext {
   void writeIEqualTo(String propName, String value) throws IOException;
 
   /**
+   * Write a case insensitive notEqualTo expression.
+   */
+  void writeINotEqualTo(String propName, String value) throws IOException;
+
+  /**
    * Write a range operation with one value.
    */
   void writeRange(String propertyName, String rangeType, Object value) throws IOException;
