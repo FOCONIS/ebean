@@ -238,7 +238,7 @@ class ElMatchBuilder {
 
     @Override
     String getLiteral() {
-      return "!=~";
+      return "=~";
     }
 
     @Override

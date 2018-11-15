@@ -1194,11 +1194,9 @@ public class DefaultExpressionList<T> implements SpiExpressionList<T> {
   @Override
   public <F extends QueryDsl<T, F>> ExpressionList<T> applyTo(QueryDsl<T, F> target) {
     if (!list.isEmpty()) {
-      target = target.and();
       // some of the expressions require the bean descriptor.
       BeanDescriptor<T> desc = query instanceof SpiQuery ? ((SpiQuery<T>)query).getBeanDescriptor() : null;
       visitDsl(desc, target);
-      target.endAnd();
     }
     return this;
   }
