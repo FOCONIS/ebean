@@ -300,12 +300,4 @@ public class CQueryPlan {
   public TimedMetric createTimedMetric() {
     return MetricFactory.get().createTimedMetric(MetricType.ORM, label);
   }
-
-  /**
-   * if the queryplanlogger has at least debug, it will log the query plan.
-   */
-  public void logQueryPlan(Connection conn, CQueryPredicates predicates)  {
-    QueryPlanLogger.getLogger(server.getDatabasePlatform().getPlatform()).logQueryPlan(conn, this, predicates);
-  }
-
 }

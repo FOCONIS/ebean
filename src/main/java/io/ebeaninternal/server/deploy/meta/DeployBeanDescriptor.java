@@ -1027,6 +1027,7 @@ public class DeployBeanDescriptor<T> implements DeployBeanDescriptorMeta {
   /**
    * Return the BeanProperty that is the Id.
    */
+  @Override
   public DeployBeanProperty idProperty() {
     if (idProperty != null) {
       return idProperty;
@@ -1258,16 +1259,6 @@ public class DeployBeanDescriptor<T> implements DeployBeanDescriptorMeta {
     return (property == null) ? null : "${ta}." + property.getDbColumn();
   }
 
-  /**
-   * Returns the jackson annotated class, if jackson is present.
-   */
-  public Object /*AnnotatedClass*/ getJacksonAnnotatedClass() {
-    if (jacksonAnnotatedClass == null) {
-      jacksonAnnotatedClass = new DeployBeanObtainJackson(serverConfig, beanType).obtain();
-    }
-    return jacksonAnnotatedClass;
-  }
-
   @Override
   public String getDiscriminatorColumn() {
     return inheritInfo == null ? null : inheritInfo.getDiscriminatorColumn();
@@ -1276,5 +1267,15 @@ public class DeployBeanDescriptor<T> implements DeployBeanDescriptorMeta {
   @Override
   public DeployBeanDescriptorMeta getDeployBeanDescriptorMeta(Class<?> propertyType) {
     return getDeploy(propertyType).getDescriptor();
+  }
+
+  /**
+   * Returns the jackson annotated class, if jackson is present.
+   */
+  public Object /*AnnotatedClass*/ getJacksonAnnotatedClass() {
+    if (jacksonAnnotatedClass == null) {
+      jacksonAnnotatedClass = new DeployBeanObtainJackson(serverConfig, beanType).obtain();
+    }
+    return jacksonAnnotatedClass;
   }
 }

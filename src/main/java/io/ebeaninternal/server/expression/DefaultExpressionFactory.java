@@ -210,7 +210,7 @@ public class DefaultExpressionFactory implements SpiExpressionFactory {
    */
   @Override
   public Expression ineObject(String propertyName, Object value) {
-    return new CaseInsensitiveEqualExpression(propertyName, value, false);
+    return new CaseInsensitiveEqualExpression(propertyName, value, true);
   }
 
   /**

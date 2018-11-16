@@ -226,13 +226,13 @@ public final class BeanFkeyProperty implements ElPropertyValue {
   }
 
   @Override
-  public Expression3VL pathTest(Object bean, FilterContext ctx, ExpressionTest test) {
+  public Object pathGetNested(Object bean) {
     throw new RuntimeException("ElPropertyDeploy only - not implemented");
   }
 
   @Override
-  public Object pathGetNested(Object bean) {
-    throw new RuntimeException("ElPropertyDeploy only - not implemented");
+  public Expression3VL pathTest(Object bean, FilterContext ctx, ExpressionTest test) {
+   throw new RuntimeException("ElPropertyDeploy only - not implemented");
   }
 
   @Override

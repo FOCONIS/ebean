@@ -1,6 +1,8 @@
 package io.ebean;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Provides support for filtering and sorting lists of entities without going
@@ -110,6 +112,61 @@ public interface Filter<T> extends QueryDsl<T,Filter<T>> {
    * Specify the maximum number of rows/elements to return.
    */
   Filter<T> maxRows(int maxRows);
+
+  @Override
+  Filter<T> eq(String prop, Object value);
+
+  @Override
+  Filter<T> ne(String propertyName, Object value);
+
+  @Override
+  Filter<T> ieq(String propertyName, String value);
+
+  @Override
+  Filter<T> between(String propertyName, Object value1, Object value2);
+
+  @Override
+  Filter<T> gt(String propertyName, Object value);
+
+  @Override
+  Filter<T> ge(String propertyName, Object value);
+
+  @Override
+  Filter<T> lt(String propertyName, Object value);
+
+  @Override
+  Filter<T> le(String propertyName, Object value);
+
+  @Override
+  Filter<T> isNull(String propertyName);
+
+  @Override
+  Filter<T> isNotNull(String propertyName);
+
+  @Override
+  Filter<T> startsWith(String propertyName, String value);
+
+  @Override
+  Filter<T> istartsWith(String propertyName, String value);
+
+  @Override
+  Filter<T> endsWith(String propertyName, String value);
+
+  @Override
+  Filter<T> iendsWith(String propertyName, String value);
+
+  @Override
+  Filter<T> contains(String propertyName, String value);
+
+  @Override
+  Filter<T> icontains(String propertyName, String value);
+
+  /**
+   * In - property has a value contained in the set of values.
+   */
+  default Filter<T> in(String propertyName, Set<?> values) {
+    return in(propertyName, (Collection<?>)values);
+  }
 
   /**
    * Apply the filter to the list returning a new list of the matching elements

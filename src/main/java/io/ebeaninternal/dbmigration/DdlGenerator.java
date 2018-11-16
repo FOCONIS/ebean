@@ -25,7 +25,6 @@ import java.io.LineNumberReader;
 import java.io.Reader;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Map;
 
 /**
  * Controls the generation and execution of "Create All" and "Drop All" DDL scripts.

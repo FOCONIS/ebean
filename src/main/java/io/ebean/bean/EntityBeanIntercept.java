@@ -109,6 +109,11 @@ public final class EntityBeanIntercept implements Serializable {
   private int sortOrder;
 
   /**
+   * Custom object, to attach any object to a bean.
+   */
+  private Object customObject;
+
+  /**
    * Create a intercept with a given entity.
    * <p>
    * Refer to agent ProxyConstructor.
@@ -1155,5 +1160,19 @@ public final class EntityBeanIntercept implements Serializable {
    */
   public Exception[] getLoadErrors() {
     return loadErrors;
+  }
+
+  /**
+   * Returns the custom object. The custom object is not used by ebean.
+   */
+  Object getCustomObject() {
+    return customObject;
+  }
+
+  /**
+   * Sets the custom object.
+   */
+  void setCustomObject(Object object) {
+    customObject = object;
   }
 }

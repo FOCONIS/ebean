@@ -6,7 +6,6 @@ import io.ebean.BeanState;
 import io.ebean.CallableSql;
 import io.ebean.DocumentStore;
 import io.ebean.DtoQuery;
-import io.ebean.Ebean;
 import io.ebean.ExpressionFactory;
 import io.ebean.ExpressionList;
 import io.ebean.ExtendedServer;

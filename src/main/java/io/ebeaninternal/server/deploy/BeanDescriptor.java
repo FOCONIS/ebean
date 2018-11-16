@@ -7,7 +7,6 @@ import io.ebean.SqlUpdate;
 import io.ebean.Transaction;
 import io.ebean.ValuePair;
 import io.ebean.annotation.DocStoreMode;
-import io.ebean.annotation.Formula;
 import io.ebean.bean.BeanCollection;
 import io.ebean.bean.EntityBean;
 import io.ebean.bean.EntityBeanIntercept;
@@ -139,6 +138,10 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
   private final short profileBeanId;
   private final ProfileLocation locationById;
   private final ProfileLocation locationAll;
+
+
+  // customObject, not used by ebean
+  private Object customObject;
 
   public enum EntityType {
     ORM, EMBEDDED, VIEW, SQL, DOC
@@ -3496,6 +3499,16 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
    */
   public BeanProperty[] propertiesGenUpdate() {
     return propertiesGenUpdate;
+  }
+
+  @Override
+  public Object getCustomObject() {
+      return customObject;
+  }
+
+  @Override
+  public void setCustomObject(Object object) {
+    customObject = object;
   }
 
   public void jsonWriteDirty(SpiJsonWriter writeJson, EntityBean bean, boolean[] dirtyProps) throws IOException {

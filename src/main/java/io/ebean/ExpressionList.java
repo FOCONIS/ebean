@@ -733,10 +733,46 @@ public interface ExpressionList<T> extends QueryDsl<T, ExpressionList<T>> {
    */
   ExpressionList<T> addAll(ExpressionList<T> exprList);
 
+
+  @Override
+  ExpressionList<T> eq(String propertyName, Object value);
+
+  @Override
+  ExpressionList<T> ne(String propertyName, Object value);
+
+  @Override
+  ExpressionList<T> ieq(String propertyName, String value);
+
+  @Override
+  ExpressionList<T> ine(String propertyName, String value);
+
+
+  @Override
+  ExpressionList<T> between(String propertyName, Object value1, Object value2);
+
   /**
    * Between - value between the two properties.
    */
   ExpressionList<T> betweenProperties(String lowProperty, String highProperty, Object value);
+
+
+  @Override
+  ExpressionList<T> gt(String propertyName, Object value);
+
+  @Override
+  ExpressionList<T> ge(String propertyName, Object value);
+
+  @Override
+  ExpressionList<T> lt(String propertyName, Object value);
+
+  @Override
+  ExpressionList<T> le(String propertyName, Object value);
+
+  @Override
+  ExpressionList<T> isNull(String propertyName);
+
+  @Override
+  ExpressionList<T> isNotNull(String propertyName);
 
   /**
    * A "Query By Example" type of expression.
@@ -790,6 +826,66 @@ public interface ExpressionList<T> extends QueryDsl<T, ExpressionList<T>> {
    * Case insensitive version of {@link #exampleLike(Object)}
    */
   ExpressionList<T> iexampleLike(Object example);
+
+  @Override
+  ExpressionList<T> like(String propertyName, String value);
+
+  @Override
+  ExpressionList<T> ilike(String propertyName, String value);
+
+  @Override
+  ExpressionList<T> startsWith(String propertyName, String value);
+
+  @Override
+  ExpressionList<T> istartsWith(String propertyName, String value);
+
+  @Override
+  ExpressionList<T> endsWith(String propertyName, String value);
+
+  @Override
+  ExpressionList<T> iendsWith(String propertyName, String value);
+
+  @Override
+  ExpressionList<T> contains(String propertyName, String value);
+
+  @Override
+  ExpressionList<T> icontains(String propertyName, String value);
+
+  @Override
+  ExpressionList<T> inPairs(Pairs pairs);
+
+  @Override
+  ExpressionList<T> in(String propertyName, Query<?> subQuery);
+
+  @Override
+  ExpressionList<T> in(String propertyName, Object... values);
+
+  @Override
+  ExpressionList<T> in(String propertyName, Collection<?> values);
+
+  @Override
+  default ExpressionList<T> isIn(String propertyName, Query<?> subQuery) {
+    return in(propertyName, subQuery);
+  }
+
+  @Override
+  default ExpressionList<T> isIn(String propertyName, Object... values) {
+    return in(propertyName, values);
+  }
+
+  @Override
+  default ExpressionList<T> isIn(String propertyName, Collection<?> values) {
+    return in(propertyName, values);
+  }
+
+  @Override
+  ExpressionList<T> notIn(String propertyName, Object... values);
+
+  @Override
+  ExpressionList<T> notIn(String propertyName, Collection<?> values);
+
+  @Override
+  ExpressionList<T> notIn(String propertyName, Query<?> subQuery);
 
   /**
    * Is empty expression for collection properties.
@@ -866,6 +962,71 @@ public interface ExpressionList<T> extends QueryDsl<T, ExpressionList<T>> {
    * </p>
    */
   ExpressionList<T> arrayIsNotEmpty(String propertyName);
+
+  /**
+   * Add expression for ANY of the given bit flags to be set.
+   * <pre>{@code
+   *
+   * where().bitwiseAny("flags", BwFlags.HAS_BULK + BwFlags.HAS_COLOUR)
+   *
+   * }</pre>
+   *
+   * @param propertyName The property that holds the flags value
+   * @param flags        The flags we are looking for
+   */
+  @Override
+  ExpressionList<T> bitwiseAny(String propertyName, long flags);
+
+  /**
+   * Add expression for ALL of the given bit flags to be set.
+   * <p>
+   * <pre>{@code
+   *
+   * where().bitwiseAll("flags", BwFlags.HAS_BULK + BwFlags.HAS_COLOUR)
+   *
+   * }</pre>
+   *
+   * @param propertyName The property that holds the flags value
+   * @param flags        The flags we are looking for
+   */
+  @Override
+  ExpressionList<T> bitwiseAll(String propertyName, long flags);
+
+  /**
+   * Add expression for the given bit flags to be NOT set.
+   * <p>
+   * <pre>{@code
+   *
+   * where().bitwiseNot("flags", BwFlags.HAS_COLOUR)
+   *
+   * }</pre>
+   *
+   * @param propertyName The property that holds the flags value
+   * @param flags        The flags we are looking for
+   */
+  @Override
+  ExpressionList<T> bitwiseNot(String propertyName, long flags);
+
+  /**
+   * Add bitwise AND expression of the given bit flags to compare with the match/mask.
+   * <p>
+   * <pre>{@code
+   *
+   * // Flags Bulk + Size = Size
+   * // ... meaning Bulk is not set and Size is set
+   *
+   * long selectedFlags = BwFlags.HAS_BULK + BwFlags.HAS_SIZE;
+   * long mask = BwFlags.HAS_SIZE; // Only Size flag set
+   *
+   * where().bitwiseAnd("flags", selectedFlags, mask)
+   *
+   * }</pre>
+   *
+   * @param propertyName The property that holds the flags value
+   * @param flags        The flags we are looking for
+   */
+  @Override
+  ExpressionList<T> bitwiseAnd(String propertyName, long flags, long match);
 
   /**
    * Add raw expression with a single parameter.
@@ -975,13 +1136,109 @@ public interface ExpressionList<T> extends QueryDsl<T, ExpressionList<T>> {
    */
   ExpressionList<T> not(Expression exp);
 
-  // overridden to return a junction (for API compatibility!)
+  /**
+   * Start a list of expressions that will be joined by AND's
+   * returning the expression list the expressions are added to.
+   * <p>
+   * This is exactly the same as conjunction();
+   * </p>
+   * <p>
+   * Use endAnd() or endJunction() to end the AND junction.
+   * </p>
+   * <p>
+   * Note that a where() clause defaults to an AND junction so
+   * typically you only explicitly need to use the and() junction
+   * when it is nested inside an or() or not() junction.
+   * </p>
+   * <p>
+   * <pre>{@code
+   *
+   *  // Example: Nested and()
+   *
+   *  Ebean.find(Customer.class)
+   *    .where()
+   *    .or()
+   *      .and() // nested and
+   *        .startsWith("name", "r")
+   *        .eq("anniversary", onAfter)
+   *        .endAnd()
+   *      .and()
+   *        .eq("status", Customer.Status.ACTIVE)
+   *        .gt("id", 0)
+   *        .endAnd()
+   *      .orderBy().asc("name")
+   *      .findList();
+   * }</pre>
+   */
   @Override
   Junction<T> and();
 
+  /**
+   * Return a list of expressions that will be joined by OR's.
+   * This is exactly the same as disjunction();
+   * <p>
+   * <p>
+   * Use endOr() or endJunction() to end the OR junction.
+   * </p>
+   * <p>
+   * <pre>{@code
+   *
+   *  // Example: Use or() to join
+   *  // two nested and() expressions
+   *
+   *  Ebean.find(Customer.class)
+   *    .where()
+   *    .or()
+   *      .and()
+   *        .startsWith("name", "r")
+   *        .eq("anniversary", onAfter)
+   *        .endAnd()
+   *      .and()
+   *        .eq("status", Customer.Status.ACTIVE)
+   *        .gt("id", 0)
+   *        .endAnd()
+   *      .orderBy().asc("name")
+   *      .findList();
+   *
+   * }</pre>
+   */
   @Override
   Junction<T> or();
 
+  /**
+   * Return a list of expressions that will be wrapped by NOT.
+   * <p>
+   * Use endNot() or endJunction() to end expressions being added to the
+   * NOT expression list.
+   * </p>
+   * <p>
+   * <pre>@{code
+   *
+   *    .where()
+   *      .not()
+   *        .gt("id", 1)
+   *        .eq("anniversary", onAfter)
+   *        .endNot()
+   *
+   * }</pre>
+   * <p>
+   * <pre>@{code
+   *
+   * // Example: nested not()
+   *
+   * Ebean.find(Customer.class)
+   *   .where()
+   *     .eq("status", Customer.Status.ACTIVE)
+   *     .not()
+   *       .gt("id", 1)
+   *       .eq("anniversary", onAfter)
+   *       .endNot()
+   *     .orderBy()
+   *       .asc("name")
+   *     .findList();
+   *
+   * }</pre>
+   */
   @Override
   Junction<T> not();
 
@@ -1049,92 +1306,6 @@ public interface ExpressionList<T> extends QueryDsl<T, ExpressionList<T>> {
    */
   ExpressionList<T> endJunction();
 
-  @Override
-  ExpressionList<T> eq(String propertyName, Object value);
-
-  @Override
-  ExpressionList<T> ne(String propertyName, Object value);
-
-  @Override
-  ExpressionList<T> ieq(String propertyName, String value);
-
-  @Override
-  ExpressionList<T> between(String propertyName, Object value1, Object value2);
-
-  @Override
-  ExpressionList<T> gt(String propertyName, Object value);
-
-  @Override
-  ExpressionList<T> ge(String propertyName, Object value);
-
-  @Override
-  ExpressionList<T> lt(String propertyName, Object value);
-
-  @Override
-  ExpressionList<T> le(String propertyName, Object value);
-
-  @Override
-  ExpressionList<T> isNull(String propertyName);
-
-  @Override
-  ExpressionList<T> isNotNull(String propertyName);
-
-  @Override
-  ExpressionList<T> startsWith(String propertyName, String value);
-
-  @Override
-  ExpressionList<T> istartsWith(String propertyName, String value);
-
-  @Override
-  ExpressionList<T> endsWith(String propertyName, String value);
-
-  @Override
-  ExpressionList<T> iendsWith(String propertyName, String value);
-
-  @Override
-  ExpressionList<T> contains(String propertyName, String value);
-
-  @Override
-  ExpressionList<T> icontains(String propertyName, String value);
-
-  @Override
-  ExpressionList<T> like(String propertyName, String value);
-
-  @Override
-  ExpressionList<T> ilike(String propertyName, String value);
-
-  @Override
-  ExpressionList<T> in(String propertyName, Query<?> subQuery);
-
-  @Override
-  ExpressionList<T> in(String propertyName, Object... values);
-
-  @Override
-  ExpressionList<T> in(String propertyName, Collection<?> values);
-
-  @Override
-  ExpressionList<T> inPairs(Pairs pairs);
-
-  @Override
-  ExpressionList<T> notIn(String propertyName, Object... values);
-
-  @Override
-  ExpressionList<T> notIn(String propertyName, Collection<?> values);
-
-  @Override
-  ExpressionList<T> notIn(String propertyName, Query<?> subQuery);
-
-  @Override
-  ExpressionList<T> bitwiseAny(String propertyName, long flags);
-
-  @Override
-  ExpressionList<T> bitwiseAll(String propertyName, long flags);
-
-  @Override
-  ExpressionList<T> bitwiseNot(String propertyName, long flags);
-
-  @Override
-  ExpressionList<T> bitwiseAnd(String propertyName, long flags, long match);
 
   @Override
   ExpressionList<T> endAnd();

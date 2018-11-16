@@ -219,6 +219,11 @@ public class ElPropertyChain implements ElPropertyValue {
   }
 
   @Override
+  public Property getProperty() {
+    return lastBeanProperty;
+  }
+
+  @Override
   public boolean isAssocId() {
     return assocId;
   }
@@ -349,8 +354,4 @@ public class ElPropertyChain implements ElPropertyValue {
     }
   }
 
-  @Override
-  public Property getProperty() {
-    return lastBeanProperty;
-  }
 }

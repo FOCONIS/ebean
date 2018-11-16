@@ -51,7 +51,9 @@ public interface DocQueryContext {
   /**
    * Write a case insensitive notEqualTo expression.
    */
-  void writeINotEqualTo(String propName, String value) throws IOException;
+  default void writeINotEqualTo(String propName, String value) throws IOException {
+    throw new AbstractMethodError("writeINotEqualTo not implemented");
+  }
 
   /**
    * Write a range operation with one value.
