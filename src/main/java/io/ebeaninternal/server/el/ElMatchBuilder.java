@@ -5,9 +5,11 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import io.ebean.Ebean;
 import io.ebean.Pairs;
 import io.ebean.Query;
 import io.ebean.QueryDsl;
+import io.ebean.bean.EntityBean;
 import io.ebeaninternal.api.filter.Expression3VL;
 import io.ebeaninternal.api.filter.ExpressionTest;
 import io.ebeaninternal.api.filter.FilterContext;
@@ -559,6 +561,9 @@ class ElMatchBuilder {
       final Set<V> set = new HashSet<>(query.findSingleAttributeList());
       @Override
       public Expression3VL test(Object value) {
+        if (elGetValue.isAssocId()) {
+          value = elGetValue.getAssocIdValues((EntityBean) value)[0];
+        }
         return set.contains(value) ? Expression3VL.TRUE : Expression3VL.FALSE;
       }
     }
