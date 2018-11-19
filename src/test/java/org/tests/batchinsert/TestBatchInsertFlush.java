@@ -37,7 +37,7 @@ public class TestBatchInsertFlush extends BaseTestCase {
     try {
       transaction.setPersistCascade(false);
       transaction.setBatchSize(10);
-      transaction.setBatch(PersistBatch.ALL);
+      transaction.setBatchMode(true);
       transaction.setLabel("TestBatchInsertFlush.no_cascade");
 
       LoggedSqlCollector.start();
@@ -242,7 +242,7 @@ public class TestBatchInsertFlush extends BaseTestCase {
     EbeanServer server = Ebean.getDefaultServer();
     Transaction txn = server.beginTransaction();
     try {
-      txn.setBatch(PersistBatch.ALL);
+      txn.setBatchMode(true);
 
       EBasicVer b1 = new EBasicVer("b1");
       server.save(b1, txn);
@@ -270,7 +270,7 @@ public class TestBatchInsertFlush extends BaseTestCase {
     EbeanServer server = Ebean.getDefaultServer();
     Transaction txn = server.beginTransaction();
     try {
-      txn.setBatch(PersistBatch.ALL);
+      txn.setBatchMode(true);
 
       EBasicVer b1 = new EBasicVer("b1");
       server.save(b1, txn);

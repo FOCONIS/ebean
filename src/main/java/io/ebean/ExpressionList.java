@@ -743,10 +743,16 @@ public interface ExpressionList<T> extends QueryDsl<T, ExpressionList<T>> {
   @Override
   ExpressionList<T> ieq(String propertyName, String value);
 
+  /**
+   * Case Insensitive Not Equal To - property not equal to the given value (typically
+   * using a lower() function to make it case insensitive).
+   */
   @Override
   ExpressionList<T> ine(String propertyName, String value);
 
-
+  /**
+   * Between - property between the two given values.
+   */
   @Override
   ExpressionList<T> between(String propertyName, Object value1, Object value2);
 

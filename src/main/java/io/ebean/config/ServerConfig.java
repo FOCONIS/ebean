@@ -14,6 +14,7 @@ import io.ebean.config.dbplatform.DbEncrypt;
 import io.ebean.config.dbplatform.DbType;
 import io.ebean.config.dbplatform.IdType;
 import io.ebean.config.properties.PropertiesLoader;
+import io.ebean.datasource.DataSourceConfig;
 import io.ebean.event.BeanFindController;
 import io.ebean.event.BeanPersistController;
 import io.ebean.event.BeanPersistListener;
@@ -32,7 +33,6 @@ import io.ebean.migration.MigrationRunner;
 import io.ebean.plugin.CustomDeployParser;
 import io.ebean.plugin.LoadErrorHandler;
 import io.ebean.util.StringHelper;
-import io.ebean.datasource.DataSourceConfig;
 
 import javax.persistence.PersistenceException;
 import javax.sql.DataSource;
@@ -235,6 +235,8 @@ public class ServerConfig {
   private PersistBatch persistBatchOnCascade = PersistBatch.INHERIT;
 
   private int persistBatchSize = 20;
+
+  private boolean disableLazyLoading;
 
   /**
    * The default batch size for lazy loading
@@ -943,6 +945,22 @@ public class ServerConfig {
    */
   public void setQueryBatchSize(int queryBatchSize) {
     this.queryBatchSize = queryBatchSize;
+  }
+
+  /**
+   * Return true if lazy loading is disabled on queries by default.
+   */
+  public boolean isDisableLazyLoading() {
+    return disableLazyLoading;
+  }
+
+  /**
+   * Set to true to disable lazy loading by default.
+   * <p>
+   * It can be turned on per query via {@link Query#setDisableLazyLoading(boolean)}.
+   */
+  public void setDisableLazyLoading(boolean disableLazyLoading) {
+    this.disableLazyLoading = disableLazyLoading;
   }
 
   /**
@@ -2936,6 +2954,7 @@ public class ServerConfig {
     localTimeWithNanos = p.getBoolean("localTimeWithNanos", localTimeWithNanos);
     jodaLocalTimeMode = p.get("jodaLocalTimeMode", jodaLocalTimeMode);
 
+    disableLazyLoading = p.getBoolean("disableLazyLoading", disableLazyLoading);
     lazyLoadBatchSize = p.getInt("lazyLoadBatchSize", lazyLoadBatchSize);
     queryBatchSize = p.getInt("queryBatchSize", queryBatchSize);
 

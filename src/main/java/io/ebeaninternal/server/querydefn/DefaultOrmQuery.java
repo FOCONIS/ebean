@@ -289,6 +289,7 @@ public class DefaultOrmQuery<T> implements SpiQuery<T> {
     this.beanType = desc.getBeanType();
     this.server = server;
     this.orderById = server.getServerConfig().isDefaultOrderById();
+    this.disableLazyLoading = server.getServerConfig().isDisableLazyLoading();
     this.expressionFactory = expressionFactory;
     this.detail = new OrmQueryDetail();
   }
@@ -913,13 +914,6 @@ public class DefaultOrmQuery<T> implements SpiQuery<T> {
   @Override
   public DefaultOrmQuery<T> setAutoTune(boolean autoTune) {
     this.autoTune = autoTune;
-    return this;
-  }
-
-  @Override
-  public DefaultOrmQuery<T> setForUpdate(boolean forUpdate) {
-    this.forUpdate = (forUpdate) ? ForUpdate.BASE : null;
-    this.useBeanCache = CacheMode.OFF;
     return this;
   }
 
