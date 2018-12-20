@@ -503,6 +503,11 @@ public class ServerConfig {
   private boolean notifyL2CacheInForeground;
 
   /**
+   * Set to true to support query plan capture.
+   */
+  private boolean collectQueryPlans;
+
+  /**
    * The time in millis used to determine when a query is alerted for being slow.
    */
   private long slowQueryMillis;
@@ -627,6 +632,47 @@ public class ServerConfig {
    */
   public Object getServiceObject(String key) {
     return serviceObject.get(key);
+  }
+
+  /**
+   * Put a service object into configuration such that it can be passed to a plugin.
+   *
+   * <pre>{@code
+   *
+   *   JedisPool jedisPool = ..
+   *
+   *   serverConfig.putServiceObject(jedisPool);
+   *
+   * }</pre>
+   */
+  public void putServiceObject(Object configObject) {
+    String key = serviceObjectKey(configObject);
+    serviceObject.put(key, configObject);
+  }
+
+  private String serviceObjectKey(Object configObject) {
+    return serviceObjectKey(configObject.getClass());
+  }
+
+  private String serviceObjectKey(Class<?> cls) {
+    String simpleName = cls.getSimpleName();
+    return Character.toLowerCase(simpleName.charAt(0)) + simpleName.substring(1);
+  }
+
+  /**
+   * Used by plugins to obtain service objects.
+   *
+   * <pre>{@code
+   *
+   *   JedisPool jedisPool = serverConfig.getServiceObject(JedisPool.class);
+   *
+   * }</pre>
+   *
+   * @param cls The type of the service object to obtain
+   * @return The service object given the class type
+   */
+  public <P> P getServiceObject(Class<P> cls) {
+    return (P) serviceObject.get(serviceObjectKey(cls));
   }
 
   /**
@@ -2819,20 +2865,6 @@ public class ServerConfig {
   }
 
   /**
-   * Deprecated - this does nothing now, we always try to read test configuration.
-   * <p>
-   * Load settings from test-ebean.properties and do nothing if the properties is not found.
-   * <p>
-   * This is typically used when test-ebean.properties is put into the test class path and used
-   * to configure Ebean for running tests.
-   * </p>
-   */
-  @Deprecated
-  public void loadTestProperties() {
-    // do nothing now ... as we always try to read test configuration and that should only
-  }
-
-  /**
    * Return the properties that we used for configuration and were set via a call to loadFromProperties().
    */
   public Properties getProperties() {
@@ -2901,6 +2933,7 @@ public class ServerConfig {
 
     queryPlanTTLSeconds = p.getInt("queryPlanTTLSeconds", queryPlanTTLSeconds);
     slowQueryMillis = p.getLong("slowQueryMillis", slowQueryMillis);
+    collectQueryPlans = p.getBoolean("collectQueryPlans", collectQueryPlans);
     docStoreOnly = p.getBoolean("docStoreOnly", docStoreOnly);
     disableL2Cache = p.getBoolean("disableL2Cache", disableL2Cache);
     notifyL2CacheInForeground = p.getBoolean("notifyL2CacheInForeground", notifyL2CacheInForeground);
@@ -3287,6 +3320,20 @@ public class ServerConfig {
    */
   public void setLoadErrorHandler(LoadErrorHandler loadErrorHandler) {
     this.loadErrorHandler = loadErrorHandler;
+  }
+
+  /**
+   * Return true if query plan capture is enabled.
+   */
+  public boolean isCollectQueryPlans() {
+    return collectQueryPlans;
+  }
+
+  /**
+   * Set to true to enable query plan capture.
+   */
+  public void setCollectQueryPlans(boolean collectQueryPlans) {
+    this.collectQueryPlans = collectQueryPlans;
   }
 
   public enum UuidVersion {

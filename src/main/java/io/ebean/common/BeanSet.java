@@ -125,7 +125,7 @@ public final class BeanSet<E> extends AbstractBeanCollection<E> implements Set<E
   private void initClear() {
     synchronized (this) {
       if (set == null) {
-        if (modifyListening) {
+        if (!disableLazyLoad && modifyListening) {
           lazyLoadCollection(true);
         } else {
           set = new LinkedHashSet<>();
@@ -137,7 +137,11 @@ public final class BeanSet<E> extends AbstractBeanCollection<E> implements Set<E
   private void init() {
     synchronized (this) {
       if (set == null) {
-        lazyLoadCollection(true);
+        if (disableLazyLoad) {
+          set = new LinkedHashSet<>();
+        } else {
+          lazyLoadCollection(true);
+        }
       }
     }
   }
@@ -390,7 +394,7 @@ public final class BeanSet<E> extends AbstractBeanCollection<E> implements Set<E
       throw new IllegalStateException("This collection is in ReadOnly mode");
     }
   }
-  
+
   @Override
   public BeanCollection<E> getShallowCopy() {
     BeanSet<E> copy = new BeanSet<>(new LinkedHashSet<>(set));

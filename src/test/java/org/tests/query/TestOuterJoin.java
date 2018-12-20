@@ -4,15 +4,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 
+import io.ebean.BaseTestCase;
+import io.ebean.Ebean;
+import io.ebeantest.LoggedSql;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.tests.model.basic.Customer;
 import org.tests.model.basic.Order;
 import org.tests.model.basic.ResetBasicData;
-
-import io.ebean.BaseTestCase;
-import io.ebean.Ebean;
-import io.ebeantest.LoggedSql;
 
 /**
  * Tests if outer joins are correctly used.
