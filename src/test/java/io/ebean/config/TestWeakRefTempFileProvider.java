@@ -8,6 +8,7 @@ import java.io.FileOutputStream;
 import java.nio.channels.FileLock;
 
 import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -143,6 +144,7 @@ public class TestWeakRefTempFileProvider {
   }
 
   @Test
+  @Ignore("Runs on Windows only")
   public void testFileLocked() throws Exception {
     File tempFile = prov.createTempFile();
     String fileName = tempFile.getAbsolutePath();

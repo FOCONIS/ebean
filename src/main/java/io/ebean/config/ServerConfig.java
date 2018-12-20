@@ -2060,7 +2060,6 @@ public class ServerConfig {
     this.uuidVersion = uuidVersion;
   }
 
-
   /**
    * Return the UUID state file.
    */
