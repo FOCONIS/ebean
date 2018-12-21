@@ -153,12 +153,6 @@ public class DefaultOrmQuery<T> implements SpiQuery<T> {
   private boolean distinct;
 
   /**
-   * Set to true internally by Ebean when it needs the DISTINCT keyword added to the query (id
-   * property still expected).
-   */
-  private boolean sqlDistinct;
-
-  /**
    * Set to true if this is a future fetch using background threads.
    */
   private boolean futureFetch;
@@ -779,7 +773,6 @@ public class DefaultOrmQuery<T> implements SpiQuery<T> {
 
     copy.rootTableAlias = rootTableAlias;
     copy.distinct = distinct;
-    copy.sqlDistinct = sqlDistinct;
     copy.timeout = timeout;
     copy.mapKey = mapKey;
     copy.id = id;
@@ -1092,9 +1085,6 @@ public class DefaultOrmQuery<T> implements SpiQuery<T> {
     }
     if (distinct) {
       sb.append(",dist:");
-    }
-    if (sqlDistinct) {
-      sb.append(",sqlD:");
     }
     if (disableLazyLoading) {
       sb.append(",disLazy:");
@@ -1640,28 +1630,6 @@ public class DefaultOrmQuery<T> implements SpiQuery<T> {
   @Override
   public boolean isCountDistinct() {
     return countDistinctOrder != null;
-  }
-
-  /**
-   * Return true if this query uses SQL DISTINCT either explicitly by the user or internally defined
-   * by ebean.
-   */
-  @Override
-  public boolean isDistinctQuery() {
-    return distinct || sqlDistinct;
-  }
-
-  @Override
-  public boolean isSqlDistinct() {
-    return sqlDistinct;
-  }
-
-  /**
-   * Internally set to use SQL DISTINCT on the query but still have id property included.
-   */
-  @Override
-  public void setSqlDistinct(boolean sqlDistinct) {
-    this.sqlDistinct = sqlDistinct;
   }
 
   @Override
