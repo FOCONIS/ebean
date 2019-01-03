@@ -950,6 +950,9 @@ public final class PersistRequestBean<T> extends PersistRequest implements BeanP
       postInsert();
     }
 
+    // after postInsert, all properties are loaded, so copy them.
+    beanDescriptor.setMutableOrigValues(intercept);
+
     addPostCommitListeners();
     notifyCacheOnPostExecute();
 

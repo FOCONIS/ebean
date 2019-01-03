@@ -10,6 +10,7 @@ import java.math.BigDecimal;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Calendar;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -442,6 +443,13 @@ public final class EntityBeanIntercept implements Serializable {
   }
 
   /**
+   * Return true, if there is a origValue set (which can also be null)
+   */
+  public boolean hasOrigValueSet(int propertyIndex) {
+    return (flags[propertyIndex] & FLAG_ORIG_VALUE_SET) != 0;
+  }
+
+  /**
    * Return the original value that was changed via an update.
    */
   public Object getOrigValue(int propertyIndex) {
@@ -562,24 +570,14 @@ public final class EntityBeanIntercept implements Serializable {
     flags[propertyIndex] |= FLAG_EMBEDDED_DIRTY;
   }
 
-  private void setOriginalValue(int propertyIndex, Object value) {
+  public void setOriginalValue(int propertyIndex, Object value, boolean force) {
     if (origValues == null) {
       origValues = new Object[owner._ebean_getPropertyNames().length];
     }
-    if ((flags[propertyIndex] & FLAG_ORIG_VALUE_SET) == 0) {
+    if ((flags[propertyIndex] & FLAG_ORIG_VALUE_SET) == 0 || force) {
       flags[propertyIndex] |= FLAG_ORIG_VALUE_SET;
       origValues[propertyIndex] = value;
     }
-  }
-
-  /**
-   * Set old value but force it to be set regardless if it already has a value.
-   */
-  private void setOriginalValueForce(int propertyIndex, Object value) {
-    if (origValues == null) {
-      origValues = new Object[owner._ebean_getPropertyNames().length];
-    }
-    origValues[propertyIndex] = value;
   }
 
   /**
@@ -870,21 +868,28 @@ public final class EntityBeanIntercept implements Serializable {
     if (obj1 == obj2) {
       return true;
     }
-    if (obj1 instanceof BigDecimal) {
-      // Use comparable for BigDecimal as equals
-      // uses scale in comparison...
-      if (obj2 instanceof BigDecimal) {
-        Comparable com1 = (Comparable) obj1;
-        return (com1.compareTo(obj2) == 0);
 
-      } else {
-        return false;
-      }
+    // Use comparable for BigDecimal and Calendar as equals
+    if (  (obj1 instanceof BigDecimal && obj2 instanceof BigDecimal)
+       || (obj1 instanceof Calendar && obj2 instanceof Calendar)) {
+
+       Comparable com1 = (Comparable) obj1;
+       return (com1.compareTo(obj2) == 0);
     }
+
     if (obj1 instanceof URL) {
       // use the string format to determine if dirty
       return obj1.toString().equals(obj2.toString());
     }
+
+    if (obj1 instanceof byte[] && obj2 instanceof byte[]) {
+      return Arrays.equals((byte[]) obj1, (byte[]) obj2);
+    }
+
+    if (obj1 instanceof char[] && obj2 instanceof char[]) {
+      return Arrays.equals((char[]) obj1, (char[]) obj2);
+    }
+
     return obj1.equals(obj2);
   }
 
@@ -945,7 +950,8 @@ public final class EntityBeanIntercept implements Serializable {
     setChangedProperty(propertyIndex);
 
     if (setDirtyState) {
-      setOriginalValue(propertyIndex, origValue);
+      // important, we have to ensure, that origValue is already set, if it is mutable.
+      setOriginalValue(propertyIndex, origValue, false);
       setDirtyStatus();
     }
   }
@@ -1120,7 +1126,7 @@ public final class EntityBeanIntercept implements Serializable {
    */
   public void setOldValue(int propertyIndex, Object oldValue) {
     setChangedProperty(propertyIndex);
-    setOriginalValueForce(propertyIndex, oldValue);
+    setOriginalValue(propertyIndex, oldValue, true);
     setDirtyStatus();
   }
 

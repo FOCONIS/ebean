@@ -39,7 +39,6 @@ import io.ebeaninternal.server.type.ScalarType;
 import io.ebeaninternal.server.type.ScalarTypeBoolean;
 import io.ebeaninternal.server.type.ScalarTypeEnum;
 import io.ebeaninternal.server.type.ScalarTypeLogicalType;
-import io.ebeaninternal.util.ValueUtil;
 import io.ebeanservice.docstore.api.mapping.DocMappingBuilder;
 import io.ebeanservice.docstore.api.mapping.DocPropertyMapping;
 import io.ebeanservice.docstore.api.mapping.DocPropertyOptions;
@@ -906,6 +905,20 @@ public class BeanProperty implements ElPropertyValue, Property, STreeProperty {
     }
   }
 
+  /**
+   * if the underlying scalarType is mutable, this returns a copy of that value, so that it is decoupled
+   * from the current value and can safely stored in originalValues. For non mutable types, it is safe
+   * to return the current valeu.
+   */
+  @SuppressWarnings("unchecked")
+  public Object getMutableSafeValue(EntityBean bean) {
+    Object value = getValue(bean);
+    if (value != null && scalarType.isMutable()) {
+      value = scalarType.deepCopy(value);
+    }
+    return value;
+  }
+
   @Override
   public Object convert(Object value) {
     if (value == null) {
@@ -1054,11 +1067,17 @@ public class BeanProperty implements ElPropertyValue, Property, STreeProperty {
   }
 
   /**
-   * Return true if the mutable value is considered dirty.
-   * This is only used for 'mutable' scalar types like hstore etc.
+   * Check if the two values are equal from a scalarType perspective.
    */
-  public boolean isDirtyValue(Object value) {
-    return scalarType.isDirty(value);
+  @SuppressWarnings("unchecked")
+  public boolean isModified(Object oldValue, Object value) {
+    if (oldValue == null && value == null) {
+      return false;
+    } else if (oldValue == null || value == null) {
+      return true;
+    } else {
+      return scalarType.isModified(oldValue, value);
+    }
   }
 
   /**
@@ -1573,7 +1592,7 @@ public class BeanProperty implements ElPropertyValue, Property, STreeProperty {
    * Populate diff map comparing the property values.
    */
   public void diffVal(String prefix, Map<String, ValuePair> map, Object newVal, Object oldVal) {
-    if (!ValueUtil.areEqual(newVal, oldVal)) {
+    if (isModified(newVal, oldVal)) {
       String propName = (prefix == null) ? name : prefix + "." + name;
       map.put(propName, new ValuePair(newVal, oldVal));
     }
