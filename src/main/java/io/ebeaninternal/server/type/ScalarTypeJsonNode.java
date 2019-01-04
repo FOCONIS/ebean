@@ -20,7 +20,7 @@ import java.sql.Types;
 /**
  * Type which maps Jackson's JsonNode to various DB types (Clob, Varchar, Blob) in JSON format.
  */
-public abstract class ScalarTypeJsonNode extends ScalarTypeBase<JsonNode> {
+public abstract class ScalarTypeJsonNode extends ScalarTypeBaseMutable<JsonNode> {
 
   /**
    * Clob storage based implementation.
@@ -96,15 +96,6 @@ public abstract class ScalarTypeJsonNode extends ScalarTypeBase<JsonNode> {
     super(JsonNode.class, false, jdbcType);
     this.objectMapper = objectMapper;
   }
-
-  /**
-   * Map is a mutable type. Use the isDirty() method to check for dirty state.
-   */
-  @Override
-  public boolean isMutable() {
-    return true;
-  }
-
 
   @Override
   public JsonNode read(DataReader dataReader) throws SQLException {

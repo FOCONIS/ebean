@@ -1576,12 +1576,12 @@ public interface Query<T> {
   Class<T> getBeanType();
 
   /**
-   * Sets the inherit type.
+   * Sets the inherit type. Must be a subtype of getBeanType
    */
-  void setInheritType(Class<? extends T> type);
+  Query<T> setInheritType(Class<? extends T> type);
 
   /**
-   * Returns the inherit type. This is normally the same as getBeanType() returns.
+   * Returns the inherit type. This is normally the same as getBeanType() returns as long as no other type is set.
    */
   Class<? extends T> getInheritType();
 

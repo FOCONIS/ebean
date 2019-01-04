@@ -22,7 +22,7 @@ import java.util.Map;
  * Type which maps Map<String,Object> to various DB types (Clob, Varchar, Blob) in JSON format.
  */
 @SuppressWarnings("rawtypes")
-public abstract class ScalarTypeJsonMap extends ScalarTypeBase<Map> {
+public abstract class ScalarTypeJsonMap extends ScalarTypeBaseMutable<Map> {
 
   private static final ScalarTypeJsonMap CLOB = new ScalarTypeJsonMap.Clob();
   private static final ScalarTypeJsonMap BLOB = new ScalarTypeJsonMap.Blob();
@@ -110,14 +110,6 @@ public abstract class ScalarTypeJsonMap extends ScalarTypeBase<Map> {
 
   public ScalarTypeJsonMap(int jdbcType) {
     super(Map.class, false, jdbcType);
-  }
-
-  /**
-   * Map is a mutable type. Use the isDirty() method to check for dirty state.
-   */
-  @Override
-  public boolean isMutable() {
-    return true;
   }
 
   @Override

@@ -64,8 +64,8 @@ public class ScalarTypeWrapper<B, S> implements ScalarType<B> {
   }
 
   @Override
-  public boolean isDirty(Object oldValue, Object value) {
-    return scalarType.isDirty(oldValue, value);
+  public boolean isModified(B originalValue, B currentValue) {
+    return scalarType.isModified(converter.unwrapValue(originalValue), converter.unwrapValue(currentValue));
   }
 
   @Override

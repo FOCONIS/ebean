@@ -4,11 +4,8 @@ import io.ebean.BeanState;
 import io.ebean.ValuePair;
 import io.ebean.bean.EntityBean;
 import io.ebean.bean.EntityBeanIntercept;
-import io.ebean.plugin.Property;
 import io.ebeaninternal.server.deploy.BeanDescriptor;
-import io.ebeaninternal.server.deploy.BeanProperty;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -21,9 +18,10 @@ public class DefaultBeanState implements BeanState {
 
   private final BeanDescriptor<?> descriptor;
 
-  public DefaultBeanState(EntityBean entityBean, BeanDescriptor<?> descriptor) {
+
+  public DefaultBeanState(EntityBean entityBean, BeanDescriptor<?> beanType) {
     this.intercept = entityBean._ebean_getIntercept();
-    this.descriptor = descriptor;
+    this.descriptor = beanType;
   }
 
   @Override
@@ -43,13 +41,17 @@ public class DefaultBeanState implements BeanState {
 
   @Override
   public boolean isNewOrDirty() {
-    descriptor.checkMutableProperties(intercept);
+    if (!intercept.isNew()) {
+      descriptor.checkMutableProperties(intercept);
+    }
     return intercept.isNewOrDirty();
   }
 
   @Override
   public boolean isDirty() {
-    descriptor.checkMutableProperties(intercept);
+    if (!intercept.isNew()) {
+      descriptor.checkMutableProperties(intercept);
+    }
     return intercept.isDirty();
   }
 
@@ -65,6 +67,9 @@ public class DefaultBeanState implements BeanState {
 
   @Override
   public Map<String, ValuePair> getDirtyValues() {
+    if (!intercept.isNew()) {
+      descriptor.checkMutableProperties(intercept);
+    }
     return intercept.getDirtyValues();
   }
 
@@ -81,6 +86,7 @@ public class DefaultBeanState implements BeanState {
   @Override
   public void setLoaded() {
     intercept.setLoaded();
+    descriptor.setMutableOrigValues(intercept);
   }
 
   @Override
@@ -99,18 +105,8 @@ public class DefaultBeanState implements BeanState {
   }
 
   @Override
-  public Map<Property, Exception> getLoadErrors() {
-    Exception[] loadErros = intercept.getLoadErrors();
-    if (loadErros == null) {
-      return null;
-    }
-    Map<Property, Exception> ret = new HashMap<>();
-    for (BeanProperty prop: descriptor.propertiesAll()) {
-      if (loadErros[prop.getPropertyIndex()] != null) {
-        ret.put(prop, loadErros[prop.getPropertyIndex()]);
-      }
-    }
-    return ret;
+  public Map<String, Exception> getLoadErrors() {
+    return intercept.getLoadErrors();
   }
 
 }

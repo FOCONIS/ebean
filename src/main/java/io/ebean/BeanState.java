@@ -5,8 +5,6 @@ import java.util.Set;
 
 import javax.annotation.Nullable;
 
-import io.ebean.plugin.Property;
-
 /**
  * Provides access to the internal state of an entity bean.
  */
@@ -120,5 +118,5 @@ public interface BeanState {
    * Returns a map with load erros.
    */
   @Nullable
-  Map<Property, Exception> getLoadErrors();
+  Map<String, Exception> getLoadErrors();
 }

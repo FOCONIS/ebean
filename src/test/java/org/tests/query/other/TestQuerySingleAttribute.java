@@ -188,11 +188,8 @@ public class TestQuerySingleAttribute extends BaseTestCase {
     if (isSqlServer()) {
       assertThat(sqlOf(query)).contains("select distinct top 100 t0.id from o_customer t0");
     } else if (isOracle()) {
-      assertThat(query.getGeneratedSql()).startsWith("select * from ( select /*+ FIRST_ROWS(100) */ rownum rn_,");
-      assertThat(query.getGeneratedSql()).contains("select distinct t0.id c0 from o_customer t0");
-    } else if (isDb2()) {
-      assertThat(query.getGeneratedSql()).contains("select distinct t0.id c0 from o_customer t0");
-      assertThat(query.getGeneratedSql()).endsWith("FETCH FIRST 100 ROWS ONLY");
+      assertThat(sqlOf(query)).contains("from ( select distinct t0.id from o_customer t0");
+      assertThat(sqlOf(query)).contains("where rownum <= 100");
     } else {
       assertThat(sqlOf(query)).contains("select distinct t0.id from o_customer t0 limit 100");
     }
@@ -269,11 +266,7 @@ public class TestQuerySingleAttribute extends BaseTestCase {
     if (isSqlServer()) {
       assertThat(sqlOf(query)).contains("select top 100 t0.id from o_customer t0 order by t0.id");
     } else if (isOracle()) {
-      assertThat(query.getGeneratedSql()).startsWith("select * from ( select /*+ FIRST_ROWS(100) */ rownum rn_,");
-      assertThat(query.getGeneratedSql()).contains("select t0.id c0 from o_customer t0");
-    } else if (isDb2()) {
-      assertThat(query.getGeneratedSql()).contains("select t0.id from o_customer t0");
-      assertThat(query.getGeneratedSql()).endsWith("FETCH FIRST 100 ROWS ONLY");
+      assertThat(sqlOf(query)).contains("where rownum <= 100");
     } else {
       assertThat(sqlOf(query)).contains("select t0.id from o_customer t0 order by t0.id limit 100");
     }
@@ -611,5 +604,4 @@ public class TestQuerySingleAttribute extends BaseTestCase {
       System.out.println(" count:" + entry.getCount()+" orderStatus:" + entry.getValue() );
     }
   }
-
 }

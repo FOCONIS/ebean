@@ -6,7 +6,7 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
-abstract class ScalarTypeJsonCollection<T> extends ScalarTypeBase<T> implements ScalarTypeArray {
+abstract class ScalarTypeJsonCollection<T> extends ScalarTypeBaseMutable<T> implements ScalarTypeArray {
 
   protected DocPropertyType docPropertyType;
 
@@ -30,14 +30,6 @@ abstract class ScalarTypeJsonCollection<T> extends ScalarTypeBase<T> implements 
         return "decimal[]";
     }
     return "varchar[]";
-  }
-
-  /**
-   * Consider as a mutable type. Use the isDirty() method to check for dirty state.
-   */
-  @Override
-  public boolean isMutable() {
-    return true;
   }
 
   @Override

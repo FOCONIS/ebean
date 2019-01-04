@@ -9,6 +9,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -34,12 +35,26 @@ public class ScalarTypePostgresHstoreTest {
   @Test
   public void testIsDirty() throws Exception {
     Map<String, Object> emptyMap = new HashMap<>();
-    assertTrue(hstore.isDirty(null, emptyMap));
+    assertFalse(hstore.isModified(Collections.emptyMap(), emptyMap));
 
     ModifyAwareMap<String, Object> modAware = new ModifyAwareMap<>(emptyMap);
-    assertTrue(hstore.isDirty(null, modAware));
+    assertFalse(hstore.isModified(Collections.emptyMap(), modAware));
+
     modAware.put("foo", "Rob");
-    assertTrue(hstore.isDirty(null, modAware));
+    assertTrue(hstore.isModified(Collections.emptyMap(), modAware));
+
+  }
+
+  @Test
+  public void testIsDirtyDiffTypes() throws Exception {
+    Map<String, Object> map1 = new HashMap<>();
+    Map<String, Object> map2 = new HashMap<>();
+    map1.put("bar", 3L);
+    map2.put("bar", 3);
+    assertFalse(map1.equals(map2)); // int vs long
+    assertFalse(hstore.isModified(map1, map2)); // not modified
+    map2.put("bar", 3.1);
+    assertTrue(hstore.isModified(map1, map2)); // not modified
   }
 
   @Test

@@ -1643,9 +1643,9 @@ public class DefaultOrmQuery<T> implements SpiQuery<T> {
   }
 
   @Override
-  public void setInheritType(Class<? extends T> type) {
+  public Query<T> setInheritType(Class<? extends T> type) {
     if (type == beanType) {
-      return;
+      return this;
     }
     InheritInfo inheritInfo = rootBeanDescriptor.getInheritInfo();
     inheritInfo = inheritInfo == null ? null : inheritInfo.readType(type);
@@ -1653,7 +1653,7 @@ public class DefaultOrmQuery<T> implements SpiQuery<T> {
       throw new IllegalArgumentException("Given type " + type + " is not a subtype of " + beanType);
     }
     beanDescriptor = (BeanDescriptor<T>) rootBeanDescriptor.getBeanDescriptor(type);
-
+    return this;
   }
 
   @Override
@@ -1951,6 +1951,11 @@ public class DefaultOrmQuery<T> implements SpiQuery<T> {
   }
 
   @Override
+  public void handleLoadError(EntityBean bean, BeanProperty prop, String fullName, Exception e) {
+    server.getServerConfig().getLoadErrorHandler().handleLoadError(bean, prop, fullName, e);
+  }
+
+  @Override
   public Query<T> orderById(boolean orderById) {
     this.orderById = orderById;
     return this;
@@ -1958,11 +1963,6 @@ public class DefaultOrmQuery<T> implements SpiQuery<T> {
 
   public boolean isOrderById() {
     return orderById;
-  }
-
-  @Override
-  public void handleLoadError(EntityBean bean, BeanProperty prop, String fullName, Exception e) {
-    server.getServerConfig().getLoadErrorHandler().handleLoadError(bean, prop, fullName, e);
   }
 
   @Override

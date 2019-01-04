@@ -50,8 +50,8 @@ public class ScalarTypeEncryptedWrapper<T> implements ScalarType<T>, LocalEncryp
   }
 
   @Override
-  public boolean isDirty(Object oldValue, Object value) {
-    return wrapped.isDirty(oldValue, value);
+  public boolean isModified(T originalValue, T currentValue) {
+    return wrapped.isModified(originalValue, currentValue);
   }
 
   @Override

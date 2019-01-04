@@ -41,12 +41,25 @@ public interface BackgroundExecutor {
   void executePeriodically(Runnable r, long delay, TimeUnit unit);
 
   /**
+<<<<<<< HEAD
    * Schedules an execution for a certain time.
+=======
+   * Schedules a Runnable for one-shot action that becomes enabled after the given delay.
+   *
+   * @return a ScheduledFuture representing pending completion of the task and
+   *         whose get() method will return null upon completion
+>>>>>>> origin/tmp3
    */
   ScheduledFuture<?> schedule(Runnable r, long delay, TimeUnit unit);
 
   /**
+<<<<<<< HEAD
    * Schedules an execution for a certain time.
+=======
+   * Schedules a Callable for one-shot action that becomes enabled after the given delay.
+   *
+   * @return a ScheduledFuture that can be used to extract result or cancel
+>>>>>>> origin/tmp3
    */
   <V> ScheduledFuture<V> schedule(Callable<V> c, long delay, TimeUnit unit);
 

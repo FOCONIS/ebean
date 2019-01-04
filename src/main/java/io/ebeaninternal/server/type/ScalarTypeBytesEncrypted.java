@@ -37,7 +37,7 @@ public class ScalarTypeBytesEncrypted implements ScalarType<byte[]> {
 
   @Override
   public boolean isMutable() {
-    return false;
+    return true;
   }
 
   @Override
@@ -46,8 +46,8 @@ public class ScalarTypeBytesEncrypted implements ScalarType<byte[]> {
   }
 
   @Override
-  public boolean isDirty(Object oldValue, Object value) {
-    return Arrays.equals((byte[]) oldValue, (byte[]) value);
+  public boolean isModified(byte[] originalValue, byte[] currentValue) {
+    return !Arrays.equals(originalValue, currentValue);
   }
 
   @Override
@@ -88,7 +88,7 @@ public class ScalarTypeBytesEncrypted implements ScalarType<byte[]> {
 
   @Override
   public void jsonWrite(JsonGenerator writer, byte[] value) throws IOException {
-    writer.writeBinary(value);
+    writer.writeBinary(value); // FIXME: JsonRead & JsonWrite does not encrypt the value
   }
 
   @Override

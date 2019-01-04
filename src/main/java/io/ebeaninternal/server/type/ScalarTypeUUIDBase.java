@@ -26,11 +26,6 @@ public abstract class ScalarTypeUUIDBase extends ScalarTypeBase<UUID> implements
   }
 
   @Override
-  public boolean isMutable() {
-    return false;
-  }
-
-  @Override
   public String formatValue(UUID value) {
     return value.toString();
   }

@@ -154,7 +154,6 @@ public class TestFileType extends BaseTestCase {
       .findOne();
 
     assertEquals("afile", bean1.getName());
-    File f = bean1.getContent();
     assertNotNull(bean1.getContent());
     assertEquals(file.length(), bean1.getContent().length());
 
@@ -162,15 +161,6 @@ public class TestFileType extends BaseTestCase {
     bean1.setContent(file2);
     // update to file2
     Ebean.save(bean1);
-    bean1 = null;
-    f = null;
-    System.gc();
-    try {
-      Thread.sleep(1000);
-    } catch (InterruptedException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
 
 
     SomeFileBean bean2 = Ebean.find(SomeFileBean.class)
@@ -179,7 +169,7 @@ public class TestFileType extends BaseTestCase {
       .findOne();
 
     assertEquals(file2.length(), bean2.getContent().length());
-System.out.println(f);
+
     // update to null
     bean2.setContent(null);
     bean2.setName("setNull");

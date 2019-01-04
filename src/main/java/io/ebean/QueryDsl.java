@@ -3,7 +3,6 @@ package io.ebean;
 import java.util.Collection;
 import java.util.Map;
 
-
 /**
  * Common interface for DSL specific objects like {@link ExpressionList} (executed by the DB)
  * and {@link Filter} (done in memory).

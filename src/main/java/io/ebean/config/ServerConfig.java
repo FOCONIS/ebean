@@ -259,6 +259,8 @@ public class ServerConfig {
 
   private boolean ddlRun;
 
+  private boolean ddlExtra = true;
+
   private boolean ddlCreateOnly;
 
   private String ddlInitSql;
@@ -361,11 +363,6 @@ public class ServerConfig {
    * Default behaviour for updates when cascade save on a O2M or M2M to delete any missing children.
    */
   private boolean updatesDeleteMissingChildren = true;
-
-  /**
-   * Should the server start all
-   */
-  private boolean autostart = true;
 
   /**
    * Database platform configuration.
@@ -558,7 +555,6 @@ public class ServerConfig {
   public void setClock(final Clock clock) {
     this.clock = clock;
   }
-
   /**
    * Get the tempFileProvider to handle file attachments.
    */
@@ -2151,6 +2147,16 @@ public class ServerConfig {
   }
 
   /**
+   * Set to false if you not want to run the extra-ddl.xml scripts. (default = true)
+   * <p>
+   * Typically we want this on when we are running tests.
+   */
+  public void setDdlExtra(boolean ddlExtra) {
+    this.ddlExtra = ddlExtra;
+  }
+
+
+  /**
    * Return true if the "drop all ddl" should be skipped.
    * <p>
    * Typically we want to do this when using H2 (in memory) as our test database and the drop statements
@@ -2218,6 +2224,13 @@ public class ServerConfig {
    */
   public boolean isDdlRun() {
     return ddlRun;
+  }
+
+  /**
+   * Return true, if extra-ddl.xml should be executed.
+   */
+  public boolean isDdlExtra() {
+    return ddlExtra;
   }
 
   /**
@@ -2438,14 +2451,6 @@ public class ServerConfig {
    */
   public void setUpdatesDeleteMissingChildren(boolean updatesDeleteMissingChildren) {
     this.updatesDeleteMissingChildren = updatesDeleteMissingChildren;
-  }
-
-  public boolean isAutostart() {
-    return autostart;
-  }
-
-  public void setAutostart(boolean autostart) {
-    this.autostart = autostart;
   }
 
   /**
@@ -2968,8 +2973,6 @@ public class ServerConfig {
     boolean defaultDeleteMissingChildren = p.getBoolean("defaultDeleteMissingChildren", updatesDeleteMissingChildren);
     updatesDeleteMissingChildren = p.getBoolean("updatesDeleteMissingChildren", defaultDeleteMissingChildren);
 
-    autostart = p.getBoolean("autostart", autostart);
-
     if (p.get("batch.mode") != null || p.get("persistBatching") != null) {
       throw new IllegalArgumentException("Property 'batch.mode' or 'persistBatching' is being set but no longer used. Please change to use 'persistBatchMode'");
     }
@@ -3017,6 +3020,7 @@ public class ServerConfig {
 
     ddlGenerate = p.getBoolean("ddl.generate", ddlGenerate);
     ddlRun = p.getBoolean("ddl.run", ddlRun);
+    ddlExtra = p.getBoolean("ddl.extra", ddlExtra);
     ddlCreateOnly = p.getBoolean("ddl.createOnly", ddlCreateOnly);
     ddlInitSql = p.get("ddl.initSql", ddlInitSql);
     ddlSeedSql = p.get("ddl.seedSql", ddlSeedSql);
@@ -3340,6 +3344,4 @@ public class ServerConfig {
     VERSION1,
     VERSION1RND
   }
-
-
 }

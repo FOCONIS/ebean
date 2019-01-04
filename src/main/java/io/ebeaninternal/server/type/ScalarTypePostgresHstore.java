@@ -18,15 +18,10 @@ import java.util.Map;
  * Postgres Hstore type which maps Map<String,String> to a single 'HStore column' in the DB.
  */
 @SuppressWarnings("rawtypes")
-public class ScalarTypePostgresHstore extends ScalarTypeBase<Map> {
+public class ScalarTypePostgresHstore extends ScalarTypeBaseMutable<Map> {
 
   public ScalarTypePostgresHstore() {
     super(Map.class, false, DbPlatformType.HSTORE);
-  }
-
-  @Override
-  public boolean isMutable() {
-    return true;
   }
 
   @SuppressWarnings("unchecked")

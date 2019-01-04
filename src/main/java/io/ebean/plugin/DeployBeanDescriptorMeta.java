@@ -27,16 +27,14 @@ public interface DeployBeanDescriptorMeta {
   /**
    * Return the BeanProperty that make up the unique id.
    */
-  public DeployBeanPropertyMeta idProperty();
+  DeployBeanPropertyMeta idProperty();
 
   /**
    * Returns the discriminator column, if any.
+   * @return
    */
   public String getDiscriminatorColumn();
 
-  /**
-   * Returns the base table name.
-   */
   public String getBaseTable();
 
 }

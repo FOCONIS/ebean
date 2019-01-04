@@ -140,10 +140,6 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
   private final ProfileLocation locationById;
   private final ProfileLocation locationAll;
 
-
-  // customObject, not used by ebean
-  private Object customObject;
-
   public enum EntityType {
     ORM, EMBEDDED, VIEW, SQL, DOC
   }
@@ -2431,6 +2427,7 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
       BeanPropertyAssocMany<?> manyProp = (BeanPropertyAssocMany<?>) lazyLoadBeanProp;
       manyProp.createReference(ebi.getOwner());
       ebi.setLoadedLazy();
+      setMutableOrigValues(ebi);
       return true;
     }
     return false;
@@ -2971,6 +2968,7 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
       setSoftDeleteValue(bean);
       bean._ebean_getIntercept().setLoaded();
       setAllLoaded(bean);
+      setMutableOrigValues(bean._ebean_getIntercept());
     }
   }
 
@@ -3298,11 +3296,11 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
   public void setMutableOrigValues(EntityBeanIntercept ebi) {
     for (BeanProperty beanProperty : propertiesMutable) {
       int propertyIndex = beanProperty.getPropertyIndex();
-      if (ebi.isLoadedProperty(propertyIndex) && ebi.getOrigValue(propertyIndex) == null) {
-        Object currentValue = beanProperty.getValue(ebi.getOwner());
-        @SuppressWarnings("unchecked")
-        Object copy = beanProperty.scalarType.deepCopy(currentValue);
-        ebi.setOriginalValue(propertyIndex, copy);
+      if (ebi.isLoadedProperty(propertyIndex)
+          && !ebi.hasOrigValueSet(propertyIndex)) {
+
+        Object copy = beanProperty.getMutableSafeValue(ebi.getOwner());
+        ebi.setOriginalValue(propertyIndex, copy, true);
       }
     }
   }
@@ -3316,7 +3314,7 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
       if (!ebi.isDirtyProperty(propertyIndex) && ebi.isLoadedProperty(propertyIndex)) {
         Object oldValue = ebi.getOrigValue(propertyIndex);
         Object value = beanProperty.getValue(ebi.getOwner());
-        if (beanProperty.isDirty(oldValue, value)) {
+        if (beanProperty.isModified(oldValue, value)) {
           // mutable scalar value which is considered dirty so mark
           // it as such so that it is included in an update
           ebi.markPropertyAsChanged(propertyIndex);
@@ -3526,16 +3524,6 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
    */
   public BeanProperty[] propertiesGenUpdate() {
     return propertiesGenUpdate;
-  }
-
-  @Override
-  public Object getCustomObject() {
-      return customObject;
-  }
-
-  @Override
-  public void setCustomObject(Object object) {
-    customObject = object;
   }
 
   public void jsonWriteDirty(SpiJsonWriter writeJson, EntityBean bean, boolean[] dirtyProps) throws IOException {

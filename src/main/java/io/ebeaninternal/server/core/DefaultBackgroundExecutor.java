@@ -66,10 +66,6 @@ public class DefaultBackgroundExecutor implements SpiBackgroundExecutor {
     }
   }
 
-  /**
-   * Execute a Runnable using a background thread.
-   * @return
-   */
   @Override
   public ScheduledFuture<?> schedule(Runnable r, long delay, TimeUnit unit) {
     final Map<String, String> map = MDC.getCopyOfContextMap();
@@ -88,10 +84,6 @@ public class DefaultBackgroundExecutor implements SpiBackgroundExecutor {
     }
   }
 
-  /**
-   * Execute a Runnable using a background thread.
-   * @return
-   */
   @Override
   public <V> ScheduledFuture<V> schedule(Callable<V> c, long delay, TimeUnit unit) {
     final Map<String, String> map = MDC.getCopyOfContextMap();

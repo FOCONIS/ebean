@@ -20,18 +20,18 @@ import org.tests.model.docstore.Report;
 import org.tests.model.docstore.ReportComment;
 import org.tests.model.docstore.ReportEntity;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.KeyDeserializer;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationConfig;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
 import io.ebean.BaseTestCase;
@@ -71,7 +71,11 @@ public class CustomerReportTest extends BaseTestCase {
   public void testToJson() throws Exception {
     ResetBasicData.reset();
 
+
+
     String json = server().json().toJson(getCustomerReport());
+
+
     assertThat(json).isEqualTo("{\"dtype\":\"CR\",\"friends\":[{\"id\":2},{\"id\":3}],\"customer\":{\"id\":1}}");
 
     JsonWriteOptions opts = new JsonWriteOptions();
@@ -132,6 +136,7 @@ public class CustomerReportTest extends BaseTestCase {
     assertThat(ar.getTitle()).isEqualTo("This is a good product");
     assertThat(ar.getProduct().getName()).isEqualTo("Chair");
   }
+
 
   @Test
   public void testEntity() throws Exception {

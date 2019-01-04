@@ -40,7 +40,6 @@ public class DataBindCapture extends DataBind {
 
   public void bindMultiValues(Collection<?> values, ScalarType<?> type, String arrayType, AbstractMultiValueBind multiValueBind) {
     captureStatement.bindMultiValues(++pos, values, type, arrayType, multiValueBind);
-
   }
 
 }

@@ -4,7 +4,6 @@ import io.ebean.BaseTestCase;
 import io.ebean.Ebean;
 import io.ebean.annotation.ForPlatform;
 import io.ebean.annotation.Platform;
-import io.ebean.plugin.Property;
 import io.ebean.text.TextException;
 
 import org.tests.model.json.EBasicJsonList;
@@ -192,8 +191,9 @@ public class TestDbJson_List extends BaseTestCase {
 
 
     bean = Ebean.find(EBasicJsonList.class, bean.getId());
-    Map<Property, Exception> errors = server().getBeanState(bean).getLoadErrors();
+    Map<String, Exception> errors = server().getBeanState(bean).getLoadErrors();
 
+    assertThat(errors).containsKey("beanMap").hasSize(1);
     assertThat(errors.values().iterator().next())
       .isInstanceOf(TextException.class)
       .hasMessageContaining("blabla");

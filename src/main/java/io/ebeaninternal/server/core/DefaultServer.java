@@ -224,6 +224,14 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
   private boolean shutdown;
 
   /**
+   * Flag set when the server has started.
+   */
+  private boolean started;
+
+  // lock to synchronize start
+  private Object[] startLock = new Object[0];
+
+  /**
    * The default batch size for lazy loading beans or collections.
    */
   private final int lazyLoadBatchSize;
@@ -330,12 +338,13 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
     }
   }
 
+
   @Override
-  public void executeDdlGenerator(boolean online) {
-    if (!serverConfig.isDocStoreOnly()) {
-      ddlGenerator.execute(online);
-    }
+  public void runDbMigration() {
+    ddlGenerator.runDdl(); // normally either DDL or migration should be configured.
+    serverConfig.runDbMigration(serverConfig.getDataSource());
   }
+
   /**
    * Execute all the plugins with an online flag indicating the DB is up or not.
    */
@@ -449,6 +458,8 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
    * Run any initialisation required before registering with the ClusterManager.
    */
   public void initialise() {
+    ddlGenerator.generateDdl();
+
     if (encryptKeyManager != null) {
       encryptKeyManager.initialise();
     }
@@ -457,10 +468,25 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
   /**
    * Start any services after registering with the ClusterManager.
    */
+  @Override
   public void start() {
-    if (TenantMode.DB != serverConfig.getTenantMode()) {
-      serverConfig.runDbMigration(serverConfig.getDataSource());
+    if (shutdown) {
+      throw new IllegalStateException("Cannot start again. Server " + getName() + " already shutdown.");
     }
+
+    synchronized (startLock) { // we cannot use synchronized(this) here!
+      if (!started) {
+        if (serverConfig.getTenantMode().isDdlEnabled()) {
+          runDbMigration();
+        }
+        started = true;
+      }
+    }
+  }
+
+  @Override
+  public boolean isStarted() {
+    return started;
   }
 
   /**
@@ -505,6 +531,7 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
 
     tempFileProvider.shutdown();
     shutdown = true;
+    started = false;
     if (shutdownDataSource) {
       // deregister the DataSource in case ServerConfig is re-used
       serverConfig.setDataSource(null);
@@ -548,8 +575,7 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
   @Override
   public BeanState getBeanState(Object bean) {
     if (bean instanceof EntityBean) {
-      BeanDescriptor<? extends Object> descriptor = getBeanDescriptor(bean.getClass());
-      return new DefaultBeanState((EntityBean) bean, descriptor);
+      return new DefaultBeanState((EntityBean) bean, getBeanDescriptor(bean.getClass()));
     }
     // Not an entity bean
     return null;
