@@ -39,3 +39,4 @@ the following branches were merged
 -   *custom-object-support* NOT YET MERGED!
 - *feature/restrict-query-subtype* https://github.com/ebean-orm/ebean/pull/1602
 - *feature/foconis-other* NO PR!
+- *feature/alternative-isconcrete-impl* NO PR!
