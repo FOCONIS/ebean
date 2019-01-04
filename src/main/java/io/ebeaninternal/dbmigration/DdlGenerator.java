@@ -40,6 +40,7 @@ public class DdlGenerator {
 
   private final boolean generateDdl;
   private final boolean runDdl;
+  private final boolean extraDdl;
   private final boolean createOnly;
   private final boolean jaxbPresent;
   private final boolean ddlCommitOnCreateIndex;
@@ -54,6 +55,7 @@ public class DdlGenerator {
     this.server = server;
     this.jaxbPresent = serverConfig.getClassLoadConfig().isJavaxJAXBPresent();
     this.generateDdl = serverConfig.isDdlGenerate();
+    this.extraDdl = serverConfig.isDdlExtra();
     this.createOnly = serverConfig.isDdlCreateOnly();
     this.dbSchema = serverConfig.getDbSchema();
     if (!serverConfig.getTenantMode().isDdlEnabled() && serverConfig.isDdlRun()) {
@@ -68,20 +70,9 @@ public class DdlGenerator {
   }
 
   /**
-   * Generate the DDL and then run the DDL based on property settings
-   * (ebean.ddl.generate and ebean.ddl.run etc).
-   */
-  public void execute(boolean online) {
-    generateDdl();
-    if (online) {
-      runDdl();
-    }
-  }
-
-  /**
    * Generate the DDL drop and create scripts if the properties have been set.
    */
-  protected void generateDdl() {
+  public void generateDdl() {
     if (generateDdl) {
       if (!createOnly) {
         writeDrop(getDropFileName());
@@ -93,7 +84,7 @@ public class DdlGenerator {
   /**
    * Run the DDL drop and DDL create scripts if properties have been set.
    */
-  protected void runDdl() {
+  public void runDdl() {
     if (runDdl) {
       Connection connection = null;
       try {
@@ -166,8 +157,7 @@ public class DdlGenerator {
 
   protected void runDropSql(Connection connection) throws IOException {
     if (!createOnly) {
-      String ignoreExtraDdl = System.getProperty("ebean.ignoreExtraDdl");
-      if (!"true".equalsIgnoreCase(ignoreExtraDdl) && jaxbPresent) {
+      if (extraDdl && jaxbPresent) {
         String extraApply = ExtraDdlXmlReader.buildExtra(server.getDatabasePlatform().getName(), true);
         if (extraApply != null) {
           runScript(connection, false, extraApply, "extra-ddl");
@@ -187,8 +177,7 @@ public class DdlGenerator {
     }
     runScript(connection, false, createAllContent, getCreateFileName());
 
-    String ignoreExtraDdl = System.getProperty("ebean.ignoreExtraDdl");
-    if (!"true".equalsIgnoreCase(ignoreExtraDdl) && jaxbPresent) {
+    if (extraDdl && jaxbPresent) {
       if (currentModel.isTablePartitioning()) {
         String extraPartitioning = ExtraDdlXmlReader.buildPartitioning(server.getDatabasePlatform().getName());
         if (extraPartitioning != null && !extraPartitioning.isEmpty()) {

@@ -986,6 +986,21 @@ public class TDSpiEbeanServer implements SpiEbeanServer {
   }
 
   @Override
+  public boolean isStarted() {
+    return false;
+  }
+
+  @Override
+  public void start() {
+
+  }
+
+  @Override
+  public void runDbMigration() {
+
+  }
+
+  @Override
   public Set<Property> checkUniqueness(Object bean) {
     return Collections.emptySet();
   }
