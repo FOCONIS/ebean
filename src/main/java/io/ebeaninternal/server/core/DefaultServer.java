@@ -195,6 +195,8 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
 
   private final ScriptRunner scriptRunner;
 
+  private final boolean initDatabase;
+
   private final ExpressionFactory expressionFactory;
 
   private final SpiBackgroundExecutor backgroundExecutor;
@@ -222,14 +224,6 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
    * Flag set when the server has shutdown.
    */
   private boolean shutdown;
-
-  /**
-   * Flag set when the server has started.
-   */
-  private boolean started;
-
-  // lock to synchronize start
-  private Object[] startLock = new Object[0];
 
   /**
    * The default batch size for lazy loading beans or collections.
@@ -311,6 +305,7 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
     this.tempFileProvider = config.getTempFileProvider();
     this.ddlGenerator = new DdlGenerator(this, serverConfig);
     this.scriptRunner = new DScriptRunner(this);
+    this.initDatabase = serverConfig.isInitDatabase();
 
     configureServerPlugins();
 
@@ -340,7 +335,7 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
 
 
   @Override
-  public void runDbMigration() {
+  public void initDatabase() {
     ddlGenerator.runDdl(); // normally either DDL or migration should be configured.
     serverConfig.runDbMigration(serverConfig.getDataSource());
   }
@@ -468,25 +463,10 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
   /**
    * Start any services after registering with the ClusterManager.
    */
-  @Override
   public void start() {
-    if (shutdown) {
-      throw new IllegalStateException("Cannot start again. Server " + getName() + " already shutdown.");
+    if (initDatabase && TenantMode.DB != serverConfig.getTenantMode()) {
+      initDatabase();
     }
-
-    synchronized (startLock) { // we cannot use synchronized(this) here!
-      if (!started) {
-        if (serverConfig.getTenantMode().isDdlEnabled()) {
-          runDbMigration();
-        }
-        started = true;
-      }
-    }
-  }
-
-  @Override
-  public boolean isStarted() {
-    return started;
   }
 
   /**
@@ -531,7 +511,6 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
 
     tempFileProvider.shutdown();
     shutdown = true;
-    started = false;
     if (shutdownDataSource) {
       // deregister the DataSource in case ServerConfig is re-used
       serverConfig.setDataSource(null);
