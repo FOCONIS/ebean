@@ -680,6 +680,13 @@ public class DefaultOrmQuery<T> implements SpiQuery<T> {
     setSelectId();
   }
 
+  @Override
+  public CQueryPlanKey setDeleteByIdsPlan() {
+    // re-build plan for cascading via delete by ids
+    queryPlanKey = queryPlanKey.withDeleteByIds();
+    return queryPlanKey;
+  }
+
   /**
    * Set the select clause to select the Id property.
    */
@@ -1063,9 +1070,9 @@ public class DefaultOrmQuery<T> implements SpiQuery<T> {
    * Calculate the query hash for either AutoTune query tuning or Query Plan caching.
    */
   CQueryPlanKey createQueryPlanKey() {
-
     if (isNativeSql()) {
-      queryPlanKey = new NativeSqlQueryPlanKey(type.ordinal() + nativeSql + "-" + firstRow + "-" + maxRows);
+      String bindHash = (bindParams == null) ? "" : bindParams.calcQueryPlanHash();
+      queryPlanKey = new NativeSqlQueryPlanKey(type.ordinal() + nativeSql + "-" + firstRow + "-" + maxRows + "-" + bindHash);
     } else {
       queryPlanKey = new OrmQueryPlanKey(planDescription(), maxRows, firstRow, rawSql);
     }

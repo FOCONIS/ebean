@@ -267,8 +267,8 @@ public final class BatchControl {
       if (transaction.isLogSummary()) {
         transaction.logSummary("BatchControl flush " + Arrays.toString(bsArray));
       }
-      for (BatchedBeanHolder aBsArray : bsArray) {
-        aBsArray.executeNow();
+      for (BatchedBeanHolder beanHolder : bsArray) {
+        beanHolder.executeNow();
       }
 
       if (resetTop) {
@@ -327,14 +327,16 @@ public final class BatchControl {
       return maxDepth + 1;
     }
 
+    int parentMaxDepth = -1;
+
     for (BeanPropertyAssocOne<?> parent : imported) {
       BatchedBeanHolder parentBatch = beanHoldMap.get(parent.getTargetDescriptor().rootName());
       if (parentBatch != null) {
         // deeper that the parent
-        return parentBatch.getOrder() + 1;
+        parentMaxDepth = Math.max(parentMaxDepth, parentBatch.getOrder() + 1);
       }
     }
-    return -1;
+    return parentMaxDepth;
   }
 
   /**

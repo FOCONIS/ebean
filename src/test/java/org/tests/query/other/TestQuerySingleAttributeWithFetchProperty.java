@@ -68,7 +68,7 @@ public class TestQuerySingleAttributeWithFetchProperty extends BaseTestCase {
         .orderBy().asc("name");
 
     query.findSingleAttributeList();
-    assertThat(sqlOf(query)).contains("select distinct t0.name from o_customer t0 where t0.status = ?  order by t0.name");
+    assertThat(sqlOf(query)).contains("select distinct t0.name from o_customer t0 where t0.status = ? order by t0.name");
   }
 
   @Test
@@ -97,7 +97,7 @@ public class TestQuerySingleAttributeWithFetchProperty extends BaseTestCase {
 
     List<String> names = query.findSingleAttributeList();
 
-    assertThat(sqlOf(query)).contains("select distinct t0.name from o_customer t0 where t0.status = ? ");
+    assertThat(sqlOf(query)).contains("select distinct t0.name from o_customer t0 where t0.status = ?");
     assertThat(names).isNotNull();
   }
 
@@ -115,7 +115,7 @@ public class TestQuerySingleAttributeWithFetchProperty extends BaseTestCase {
 
     List<String> names = query.findSingleAttributeList();
 
-    assertThat(sqlOf(query)).contains("select distinct t0.name from o_customer t0 left join o_address t1 on t1.id = t0.billing_address_id  where t0.status = ?  and lower(t1.city) like ");
+    assertThat(sqlOf(query)).contains("select distinct t0.name from o_customer t0 left join o_address t1 on t1.id = t0.billing_address_id  where t0.status = ? and lower(t1.city) like ");
     assertThat(names).isNotNull();
   }
 
@@ -389,7 +389,7 @@ public class TestQuerySingleAttributeWithFetchProperty extends BaseTestCase {
     assertThat(sqlOf(query)).contains("select distinct t1.billing_address_id from contact t0 "
         + "join o_customer t1 on t1.id = t0.customer_id  "  // two spaces!
         + "left join o_address t2 on t2.id = t1.billing_address_id  "
-        + "where t2.city = ?  "
+        + "where t2.city = ? "
         + "order by t1.billing_address_id desc");
   }
 
@@ -410,7 +410,7 @@ public class TestQuerySingleAttributeWithFetchProperty extends BaseTestCase {
     assertThat(sqlOf(query)).contains("select distinct t1.billing_address_id from contact t0 "
         + "join o_customer t1 on t1.id = t0.customer_id  "
          + "left join o_address t2 on t2.id = t1.billing_address_id  "
-         + "where t2.city = ?  "
+         + "where t2.city = ? "
          + "order by t1.billing_address_id desc");
   }
 
@@ -431,7 +431,7 @@ public class TestQuerySingleAttributeWithFetchProperty extends BaseTestCase {
     assertThat(sqlOf(query)).contains("select distinct t1.billing_address_id from contact t0 "
         + "join o_customer t1 on t1.id = t0.customer_id  "
          + "left join o_address t2 on t2.id = t1.billing_address_id  "
-         + "where t2.city = ?  "
+         + "where t2.city = ? "
          + "order by t1.billing_address");
   }
 
@@ -452,7 +452,7 @@ public class TestQuerySingleAttributeWithFetchProperty extends BaseTestCase {
     assertThat(sqlOf(query)).contains("select distinct t1.billing_address_id from contact t0 "
         + "join o_customer t1 on t1.id = t0.customer_id  "
         + "left join o_address t2 on t2.id = t1.shipping_address_id  "
-        + "where t2.city = ?  "
+        + "where t2.city = ? "
         + "order by t1.billing_address_id desc");
 
   }

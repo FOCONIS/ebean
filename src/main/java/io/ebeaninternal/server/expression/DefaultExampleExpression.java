@@ -213,7 +213,7 @@ public class DefaultExampleExpression implements SpiExpression, ExampleExpressio
         }
         item.addSql(request);
       }
-      request.append(") ");
+      request.append(")");
     }
   }
 
