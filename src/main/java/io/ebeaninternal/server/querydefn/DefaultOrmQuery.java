@@ -26,7 +26,6 @@ import io.ebean.Transaction;
 import io.ebean.UpdateQuery;
 import io.ebean.Version;
 import io.ebean.bean.CallStack;
-import io.ebean.bean.EntityBean;
 import io.ebean.bean.ObjectGraphNode;
 import io.ebean.bean.ObjectGraphOrigin;
 import io.ebean.bean.PersistenceContext;
@@ -48,7 +47,6 @@ import io.ebeaninternal.api.SpiQuerySecondary;
 import io.ebeaninternal.server.autotune.ProfilingListener;
 import io.ebeaninternal.server.core.SpiOrmQueryRequest;
 import io.ebeaninternal.server.deploy.BeanDescriptor;
-import io.ebeaninternal.server.deploy.BeanProperty;
 import io.ebeaninternal.server.deploy.BeanPropertyAssocMany;
 import io.ebeaninternal.server.deploy.InheritInfo;
 import io.ebeaninternal.server.deploy.TableJoin;
@@ -58,6 +56,7 @@ import io.ebeaninternal.server.query.CancelableQuery;
 import io.ebeaninternal.server.query.NativeSqlQueryPlanKey;
 import io.ebeaninternal.server.rawsql.SpiRawSql;
 
+import javax.persistence.PersistenceException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -141,6 +140,8 @@ public class DefaultOrmQuery<T> implements SpiQuery<T> {
   private String lazyLoadProperty;
 
   private String lazyLoadManyPath;
+
+  private boolean allowLoadErrors;
 
   /**
    * Flag set for report/DTO beans when we may choose to explicitly include the Id property.
@@ -241,6 +242,8 @@ public class DefaultOrmQuery<T> implements SpiQuery<T> {
    */
   private String rootTableAlias;
 
+  private String baseTable;
+
   /**
    * The node of the bean or collection that fired lazy loading. Not null if profiling is on and
    * this query is for lazy loading. Used to hook back a lazy loading query to the "original" query
@@ -328,8 +331,10 @@ public class DefaultOrmQuery<T> implements SpiQuery<T> {
   @Override
   public String profileEventId() {
     switch (mode) {
-      case LAZYLOAD_BEAN: return FIND_ONE_LAZY;
-      case LAZYLOAD_MANY: return FIND_MANY_LAZY;
+      case LAZYLOAD_BEAN:
+        return FIND_ONE_LAZY;
+      case LAZYLOAD_MANY:
+        return FIND_MANY_LAZY;
       default:
         return type.profileEventId();
     }
@@ -342,7 +347,7 @@ public class DefaultOrmQuery<T> implements SpiQuery<T> {
 
   @Override
   public Query<T> setProfileId(int profileId) {
-    this.profileId = (short)profileId;
+    this.profileId = (short) profileId;
     return this;
   }
 
@@ -409,6 +414,12 @@ public class DefaultOrmQuery<T> implements SpiQuery<T> {
   }
 
   @Override
+  public DefaultOrmQuery<T> setAllowLoadErrors() {
+    this.allowLoadErrors = true;
+    return this;
+  }
+
+  @Override
   public void incrementAsOfTableCount() {
     asOfTableCount++;
   }
@@ -462,7 +473,7 @@ public class DefaultOrmQuery<T> implements SpiQuery<T> {
 
   @Override
   public DefaultOrmQuery<T> setRawSql(RawSql rawSql) {
-    this.rawSql = (SpiRawSql)rawSql;
+    this.rawSql = (SpiRawSql) rawSql;
     return this;
   }
 
@@ -771,8 +782,10 @@ public class DefaultOrmQuery<T> implements SpiQuery<T> {
     copy.profilingListener = profilingListener;
     copy.profileLocation = profileLocation;
 
+    copy.baseTable = baseTable;
     copy.rootTableAlias = rootTableAlias;
     copy.distinct = distinct;
+    copy.allowLoadErrors = allowLoadErrors;
     copy.timeout = timeout;
     copy.mapKey = mapKey;
     copy.id = id;
@@ -1086,8 +1099,14 @@ public class DefaultOrmQuery<T> implements SpiQuery<T> {
     if (distinct) {
       sb.append(",dist:");
     }
+    if (allowLoadErrors) {
+      sb.append(",allowLoadErrors:");
+    }
     if (disableLazyLoading) {
       sb.append(",disLazy:");
+    }
+    if (baseTable != null) {
+      sb.append(",baseTable:").append(baseTable);
     }
     if (rootTableAlias != null) {
       sb.append(",root:").append(rootTableAlias);
@@ -1189,6 +1208,7 @@ public class DefaultOrmQuery<T> implements SpiQuery<T> {
       beanDescriptor.appendOrderById(this);
     }
   }
+
   /**
    * Calculate a hash based on the bind values used in the query.
    * <p>
@@ -1273,7 +1293,7 @@ public class DefaultOrmQuery<T> implements SpiQuery<T> {
 
   @Override
   public boolean isBeanCacheGet() {
-    return useBeanCache.isGet() && beanDescriptor.isBeanCaching() ;
+    return useBeanCache.isGet() && beanDescriptor.isBeanCaching();
   }
 
   @Override
@@ -1332,7 +1352,7 @@ public class DefaultOrmQuery<T> implements SpiQuery<T> {
 
   @Override
   public DefaultOrmQuery<T> select(FetchGroup fetchGroup) {
-    this.detail = ((SpiFetchGroup)fetchGroup).detail();
+    this.detail = ((SpiFetchGroup) fetchGroup).detail();
     return this;
   }
 
@@ -1403,6 +1423,11 @@ public class DefaultOrmQuery<T> implements SpiQuery<T> {
     // as the query needs to modified (so we modify
     // the copy rather than this query instance)
     return server.findIds(this, null);
+  }
+
+  @Override
+  public boolean exists() {
+    return server.exists(this, null);
   }
 
   @Override
@@ -1883,6 +1908,17 @@ public class DefaultOrmQuery<T> implements SpiQuery<T> {
   }
 
   @Override
+  public Query<T> setBaseTable(String baseTable) {
+    this.baseTable = baseTable;
+    return this;
+  }
+
+  @Override
+  public String getBaseTable() {
+    return baseTable;
+  }
+
+  @Override
   public DefaultOrmQuery<T> alias(String alias) {
     this.rootTableAlias = alias;
     return this;
@@ -1951,8 +1987,10 @@ public class DefaultOrmQuery<T> implements SpiQuery<T> {
   }
 
   @Override
-  public void handleLoadError(EntityBean bean, BeanProperty prop, String fullName, Exception e) {
-    server.getServerConfig().getLoadErrorHandler().handleLoadError(bean, prop, fullName, e);
+  public void handleLoadError(String fullName, Exception e) {
+    if (!allowLoadErrors) {
+      throw new PersistenceException("Error loading on " + fullName, e);
+    }
   }
 
   @Override

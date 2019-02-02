@@ -722,16 +722,9 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
       inheritInfo.setDescriptor(this);
     }
 
-    if (isEmbedded()) {
-      // initialise all the properties
-      for (BeanProperty prop : propertiesAll()) {
-        prop.initialise(initContext);
-      }
-    } else {
-      // initialise just the Id properties
-      if (idProperty != null) {
-        idProperty.initialise(initContext);
-      }
+    // initialise just the Id property only
+    if (idProperty != null) {
+      idProperty.initialise(initContext);
     }
   }
 
@@ -757,14 +750,12 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
       }
     }
 
-    if (!isEmbedded()) {
-      // initialise all the non-id properties
-      for (BeanProperty prop : propertiesAll()) {
-        if (!prop.isId()) {
-          prop.initialise(initContext);
-        }
-        prop.registerColumn(this, null);
+    // initialise all the non-id properties
+    for (BeanProperty prop : propertiesAll()) {
+      if (!prop.isId()) {
+        prop.initialise(initContext);
       }
+      prop.registerColumn(this, null);
     }
 
     if (unidirectional != null) {

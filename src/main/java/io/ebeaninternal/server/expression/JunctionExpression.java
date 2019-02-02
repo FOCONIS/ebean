@@ -378,6 +378,11 @@ class JunctionExpression<T> implements SpiJunction<T>, SpiExpression, Expression
   }
 
   @Override
+  public boolean exists() {
+    return exprList.exists();
+  }
+
+  @Override
   public FutureIds<T> findFutureIds() {
     return exprList.findFutureIds();
   }

@@ -5,8 +5,12 @@ package io.ebeaninternal.server.deploy;
  */
 class AssocOneHelpRefSimple extends AssocOneHelp {
 
-  AssocOneHelpRefSimple(BeanPropertyAssocOne<?> property) {
+  public AssocOneHelpRefSimple(BeanPropertyAssocOne<?> property) {
     super(property);
+  }
+
+  AssocOneHelpRefSimple(BeanPropertyAssocOne<?> property, String embeddedPrefix) {
+    super(property, embeddedPrefix);
   }
 
   /**
