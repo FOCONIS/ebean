@@ -681,7 +681,7 @@ class ElMatchBuilder {
   }
 
   /**
-   * Between.
+   * In Range (half open).
    */
   static class InRange<T,V> extends Base<T,V> {
 
