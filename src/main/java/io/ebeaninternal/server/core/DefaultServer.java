@@ -337,7 +337,7 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
   @Override
   public void initDatabase() {
     ddlGenerator.runDdl(); // normally either DDL or migration should be configured.
-    serverConfig.runDbMigration(serverConfig.getDataSource());
+    serverConfig.runDbMigration(getDataSource());
   }
 
   /**
