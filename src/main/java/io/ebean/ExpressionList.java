@@ -784,6 +784,14 @@ public interface ExpressionList<T> extends QueryDsl<T, ExpressionList<T>> {
   @Override
   ExpressionList<T> eq(String propertyName, Object value);
 
+  /**
+   * Equal To or Null - property is equal to a given value or null.
+   */
+  ExpressionList<T> eqOrNull(String propertyName, Object value);
+
+  /**
+   * Not Equal To - property not equal to the given value.
+   */
   @Override
   ExpressionList<T> ne(String propertyName, Object value);
 
@@ -796,6 +804,25 @@ public interface ExpressionList<T> extends QueryDsl<T, ExpressionList<T>> {
    */
   @Override
   ExpressionList<T> ine(String propertyName, String value);
+
+  /**
+   * Value in Range between 2 properties.
+   *
+   * <pre>{@code
+   *
+   *    .startDate.inRangeWith(endDate, now)
+   *
+   *    // which equates to
+   *    startDate <= now and (endDate > now or endDate is null)
+   *
+   * }</pre>
+   *
+   * <p>
+   * This is a convenience expression combining a number of simple expressions.
+   * The most common use of this could be called "effective dating" where 2 date or
+   * timestamp columns represent the date range in which
+   */
+  ExpressionList<T> inRangeWith(String lowProperty, String highProperty, Object value);
 
   /**
    * In Range - property >= value1 and property < value2.
@@ -821,12 +848,29 @@ public interface ExpressionList<T> extends QueryDsl<T, ExpressionList<T>> {
   @Override
   ExpressionList<T> gt(String propertyName, Object value);
 
+  /**
+   * Greater Than or Null - property greater than the given value or null.
+   */
+  ExpressionList<T> gtOrNull(String propertyName, Object value);
+
+  /**
+   * Greater Than or Equal to - property greater than or equal to the given
+   * value.
+   */
   @Override
   ExpressionList<T> ge(String propertyName, Object value);
 
   @Override
   ExpressionList<T> lt(String propertyName, Object value);
 
+  /**
+   * Less Than or Null - property less than the given value or null.
+   */
+  ExpressionList<T> ltOrNull(String propertyName, Object value);
+
+  /**
+   * Less Than or Equal to - property less than or equal to the given value.
+   */
   @Override
   ExpressionList<T> le(String propertyName, Object value);
 

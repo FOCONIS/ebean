@@ -767,6 +767,12 @@ public class DefaultExpressionList<T> implements SpiExpressionList<T> {
   }
 
   @Override
+  public ExpressionList<T> eqOrNull(String propertyName, Object value) {
+    add(expr.eqOrNull(propertyName, value));
+    return this;
+  }
+
+  @Override
   public ExpressionList<T> ieq(String propertyName, String value) {
     add(expr.ieq(propertyName, value));
     return this;
@@ -793,6 +799,12 @@ public class DefaultExpressionList<T> implements SpiExpressionList<T> {
   @Override
   public ExpressionList<T> and(Expression expOne, Expression expTwo) {
     add(expr.and(expOne, expTwo));
+    return this;
+  }
+
+  @Override
+  public ExpressionList<T> inRangeWith(String lowProperty, String highProperty, Object value) {
+    add(expr.inRangeWith(lowProperty, highProperty, value));
     return this;
   }
 
@@ -835,6 +847,12 @@ public class DefaultExpressionList<T> implements SpiExpressionList<T> {
   @Override
   public ExpressionList<T> gt(String propertyName, Object value) {
     add(expr.gt(propertyName, value));
+    return this;
+  }
+
+  @Override
+  public ExpressionList<T> gtOrNull(String propertyName, Object value) {
+    add(expr.gtOrNull(propertyName, value));
     return this;
   }
 
@@ -989,6 +1007,12 @@ public class DefaultExpressionList<T> implements SpiExpressionList<T> {
   @Override
   public ExpressionList<T> lt(String propertyName, Object value) {
     add(expr.lt(propertyName, value));
+    return this;
+  }
+
+  @Override
+  public ExpressionList<T> ltOrNull(String propertyName, Object value) {
+    add(expr.ltOrNull(propertyName, value));
     return this;
   }
 
