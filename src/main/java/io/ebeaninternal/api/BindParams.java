@@ -10,6 +10,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 /**
  * Parameters used for binding to a statement.
@@ -255,6 +256,13 @@ public class BindParams implements Serializable {
     return getParam(name);
   }
 
+  /**
+   * Returns all parameter names.
+   */
+  public Set<String> getParameterNames() {
+    return namedParameters.keySet();
+  }
+  
   /**
    * Return the values of ordered parameters.
    */
