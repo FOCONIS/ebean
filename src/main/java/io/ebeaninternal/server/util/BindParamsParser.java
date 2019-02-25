@@ -148,6 +148,19 @@ public class BindParamsParser {
           throw new PersistenceException(msg);
         }
 
+        // here we check for cast. this means, that the named parameter
+        // is surrounded by a "cast( :param as Integer)"
+        String placeHolder = "?";
+        int castStart = findStartOfCast(sql, nameParamStart);
+        if (castStart != -1) {
+          int castEnd = findEndOfCast(sql, endOfParam);
+          String castStatement = sql.substring(castStart,nameParamStart); // "cast ("
+          String asStatement = sql.substring(endOfParam, castEnd);        // "as Decimal(30))"
+          param.setCastDataType(extractCastDataType(asStatement));
+          placeHolder =  castStatement + "?" + asStatement;
+          nameParamStart = castStart;
+          endOfParam = castEnd;
+        }
         String sub = sql.substring(startPos, nameParamStart);
         orderedList.appendSql(sub);
 
@@ -162,7 +175,7 @@ public class BindParamsParser {
             if (++c > 1) {
               orderedList.appendSql(",");
             }
-            orderedList.appendSql("?");
+            orderedList.appendSql(placeHolder);
             BindParams.Param elParam = new BindParams.Param();
             elParam.setInValue(elVal);
             orderedList.add(elParam);
@@ -171,12 +184,61 @@ public class BindParamsParser {
         } else {
           // its a normal scalar value parameter...
           orderedList.add(param);
-          orderedList.appendSql("?");
+          orderedList.appendSql(placeHolder);
         }
 
         // continue on after the end of the parameter
         parseNamedParams(endOfParam, orderedList);
       }
+    }
+  }
+
+
+  /**
+   * Performs a backtracking on <code>sql</code>, if it ends with "cast(". Ignores whitespace.
+   */
+  private int findStartOfCast(String sql, int pos) {
+    int state = 0;
+    while (state <= 4 && pos-- > 0) {
+      char ch = sql.charAt(pos);
+      if (Character.isWhitespace(ch)) continue;
+      if (state == 4 && ch != 'c' && ch != 'C') return -1;
+      if (state == 3 && ch != 'a' && ch != 'A') return -1;
+      if (state == 2 && ch != 's' && ch != 'S') return -1;
+      if (state == 1 && ch != 't' && ch != 'T') return -1;
+      if (state == 0 && ch != '(') return -1;
+      state++;
+    }
+    return  pos;
+  }
+
+  /**
+   * Parses the end of the cast statement
+   */
+  private int findEndOfCast(String sql, int pos) {
+    int openBrackets = 1; // we have on open bracket
+    while (openBrackets > 0 && pos < sql.length()) {
+      char ch = sql.charAt(pos++);
+      if (ch == '(') openBrackets++;
+      if (ch == ')') openBrackets--;
+    }
+    return pos;
+  }
+
+  /**
+   * parses a cast statement like "as varchar(32))" Statement and returns "varchar(32)" for further analysis.
+   */
+  private String extractCastDataType(String sql) {
+    int pos = 0;
+    // remove all leading whitespace
+    while (pos < sql.length() && Character.isWhitespace(sql.charAt(pos))) {
+      pos++;
+    }
+    pos += 3; // remove "as "
+    if (pos < sql.length() - 1) {
+      return sql.substring(pos, sql.length() - 1).trim();
+    } else {
+      return null;
     }
   }
 

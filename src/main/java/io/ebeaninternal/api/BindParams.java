@@ -262,7 +262,7 @@ public class BindParams implements Serializable {
   public Set<String> getParameterNames() {
     return namedParameters.keySet();
   }
-  
+
   /**
    * Return the values of ordered parameters.
    */
@@ -377,6 +377,8 @@ public class BindParams implements Serializable {
 
     private int type;
 
+    private String castDataType;
+
     private Object inValue;
 
     private Object outValue;
@@ -463,6 +465,20 @@ public class BindParams implements Serializable {
     public void setInValue(Object in) {
       this.inValue = in;
       this.isInParam = true;
+    }
+
+    /**
+     * Sets the cast dataType.
+     */
+    public void setCastDataType(String castDataType) {
+      this.castDataType = castDataType;
+    }
+
+    /**
+     * Returns the cast dataType.
+     */
+    public String getCastDataType() {
+      return castDataType;
     }
 
     /**
