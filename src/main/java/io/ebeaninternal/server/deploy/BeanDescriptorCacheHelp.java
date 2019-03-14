@@ -207,6 +207,7 @@ final class BeanDescriptorCacheHelp<T> {
    * Add query cache clear to the changeSet.
    */
   void queryCacheClear(CacheChangeSet changeSet) {
+    changeSet.addInvalidate(desc);
     if (queryCache != null) {
       changeSet.addClearQuery(desc);
     }
