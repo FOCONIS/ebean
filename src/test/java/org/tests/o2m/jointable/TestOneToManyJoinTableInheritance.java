@@ -2,6 +2,9 @@ package org.tests.o2m.jointable;
 
 import io.ebean.BaseTestCase;
 import io.ebean.Ebean;
+import io.ebean.annotation.IgnorePlatform;
+import io.ebean.annotation.Platform;
+
 import org.ebeantest.LoggedSqlCollector;
 import org.junit.Test;
 import org.tests.o2m.jointable.inheritance.ClassA;
@@ -22,6 +25,7 @@ public class TestOneToManyJoinTableInheritance extends BaseTestCase {
   private ClassB classB = new ClassB();
 
   @Test
+  @IgnorePlatform(Platform.SQLSERVER) // has different bind output
   public void testSave() {
 
     classA.getMonkeys().add(m0);
