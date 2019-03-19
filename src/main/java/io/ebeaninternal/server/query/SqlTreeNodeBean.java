@@ -271,7 +271,7 @@ class SqlTreeNodeBean implements SqlTreeNode {
         if (parentBean != null && nodeBeanProp instanceof STreePropertyAssocOne) {
           contextBean = ((STreePropertyAssocOne)nodeBeanProp).getValueAsEntityBean(parentBean);
           if (contextBean != null) {
-            desc.markAsDeleted(contextBean);
+            localDesc.markAsDeleted(contextBean);
           }
         }
       } else if (!temporalVersions) {
@@ -351,7 +351,7 @@ class SqlTreeNodeBean implements SqlTreeNode {
         // normal bean loading, keep mutable originals
         ebi.setLoaded();
       }
-      desc.setMutableOrigValues(ebi);
+      localDesc.setMutableOrigValues(ebi);
 
       if (disableLazyLoad) {
         // bean does not have an Id or is SqlSelect based
