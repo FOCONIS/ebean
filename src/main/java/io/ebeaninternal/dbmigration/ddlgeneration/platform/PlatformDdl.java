@@ -204,10 +204,22 @@ public class PlatformDdl {
    */
   public void writeTableColumns(DdlBuffer apply, List<Column> columns, boolean useIdentity) throws IOException {
     for (int i = 0; i < columns.size(); i++) {
+      if (i > 0) {
+        apply.append(",");
+      }
       apply.newLine();
       writeColumnDefinition(apply, columns.get(i), useIdentity);
-      if (i < columns.size() - 1) {
-        apply.append(",");
+    }
+
+    for (Column column : columns) {
+      String checkConstraint = column.getCheckConstraint();
+      if (hasValue(checkConstraint)) {
+        checkConstraint = createCheckConstraint(maxConstraintName(column.getCheckConstraintName()),
+            checkConstraint);
+        if (hasValue(checkConstraint)) {
+          apply.append(",").newLine();
+          apply.append(checkConstraint);
+        }
       }
     }
   }
@@ -235,6 +247,13 @@ public class PlatformDdl {
 
     // add check constraints later as we really want to give them a nice name
     // so that the database can potentially provide a nice SQL error
+  }
+
+  /**
+   * Returns the check constraint.
+   */
+  public String createCheckConstraint(String ckName, String checkConstraint) throws IOException {
+    return "  constraint " + ckName + " " + checkConstraint;
   }
 
   /**
@@ -474,7 +493,9 @@ public class PlatformDdl {
       if (!StringHelper.isNull(column.getCheckConstraint())) {
         String ddl = alterTableAddCheckConstraint(tableName, column.getCheckConstraintName(),
             column.getCheckConstraint());
-        buffer.append(ddl).endOfStatement();
+        if (hasValue(ddl)) {
+          buffer.append(ddl).endOfStatement();
+        }
       }
     } else {
       buffer.append(addColumnSuffix);
@@ -560,7 +581,7 @@ public class PlatformDdl {
   }
 
   protected void appendWithSpace(String content, StringBuilder buffer) {
-    if (content != null && !content.isEmpty()) {
+    if (hasValue(content)) {
       buffer.append(" ").append(content);
     }
   }
@@ -591,6 +612,13 @@ public class PlatformDdl {
 
   public String getUpdateNullWithDefault() {
     return updateNullWithDefault;
+  }
+
+  /**
+   * Return true if null or trimmed string is empty.
+   */
+  protected boolean hasValue(String value) {
+    return value != null && !value.trim().isEmpty();
   }
 
   /**
