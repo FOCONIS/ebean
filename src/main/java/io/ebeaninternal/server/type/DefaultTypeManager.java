@@ -14,6 +14,8 @@ import io.ebean.config.ScalarTypeConverter;
 import io.ebean.config.ServerConfig;
 import io.ebean.config.dbplatform.DatabasePlatform;
 import io.ebean.config.dbplatform.DbPlatformType;
+import io.ebean.types.Cdir;
+import io.ebean.types.Inet;
 import io.ebean.util.AnnotationUtil;
 import io.ebeaninternal.api.ExtraTypeFactory;
 import io.ebeaninternal.dbmigration.DbOffline;
@@ -37,6 +39,8 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.net.Inet4Address;
+import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.URL;
@@ -128,7 +132,6 @@ public final class DefaultTypeManager implements TypeManager {
 
   private final ScalarType<?> dateType = new ScalarTypeDate();
 
-  private final ScalarType<?> inetAddressType = new ScalarTypeInetAddress();
   private final ScalarType<?> urlType = new ScalarTypeURL();
   private final ScalarType<?> uriType = new ScalarTypeURI();
   private final ScalarType<?> localeType = new ScalarTypeLocale();
@@ -150,6 +153,8 @@ public final class DefaultTypeManager implements TypeManager {
   private final boolean postgres;
 
   private final boolean offlineMigrationGeneration;
+
+  private final EnumType defaultEnumType;
 
   // OPTIONAL ScalarTypes registered if Jackson/JsonNode is in the classpath
 
@@ -198,6 +203,8 @@ public final class DefaultTypeManager implements TypeManager {
 
     this.offlineMigrationGeneration = DbOffline.isGenerateMigration();
     this.fileType = new ScalarTypeFile(config.getTempFileProvider());
+
+    this.defaultEnumType = config.getDefaultEnumType();
 
     initialiseStandard(jsonDateTime, config);
     initialiseJavaTimeTypes(jsonDateTime, config);
@@ -643,8 +650,13 @@ public final class DefaultTypeManager implements TypeManager {
 
   private ScalarTypeEnum<?> createEnumScalarTypePerSpec(Class<?> enumType, EnumType type) {
     if (type == null) {
-      // default as per spec is ORDINAL
-      return new ScalarTypeEnumStandard.OrdinalEnum(enumType);
+
+      if(defaultEnumType == EnumType.ORDINAL) {
+        return new ScalarTypeEnumStandard.OrdinalEnum(enumType);
+
+      } else {
+        return new ScalarTypeEnumStandard.StringEnum(enumType);
+      }
 
     } else if (type == EnumType.ORDINAL) {
       return new ScalarTypeEnumStandard.OrdinalEnum(enumType);
@@ -661,10 +673,9 @@ public final class DefaultTypeManager implements TypeManager {
       DbEnumValue dbValue = AnnotationUtil.findAnnotation(method, DbEnumValue.class);
       if (dbValue != null) {
         boolean integerValues = DbEnumType.INTEGER == dbValue.storage();
-        return createEnumScalarTypeDbValue(enumType, method, integerValues);
+        return createEnumScalarTypeDbValue(enumType, method, integerValues, dbValue.length());
       }
     }
-
 
     // look for EnumValue annotations instead
     return createEnumScalarType2(enumType);
@@ -676,7 +687,7 @@ public final class DefaultTypeManager implements TypeManager {
    * Return null if the EnumValue annotations are not present/used.
    * </p>
    */
-  private ScalarTypeEnum<?> createEnumScalarTypeDbValue(Class<? extends Enum<?>> enumType, Method method, boolean integerType) {
+  private ScalarTypeEnum<?> createEnumScalarTypeDbValue(Class<? extends Enum<?>> enumType, Method method, boolean integerType, int length) {
 
     Map<String, String> nameValueMap = new LinkedHashMap<>();
 
@@ -694,7 +705,7 @@ public final class DefaultTypeManager implements TypeManager {
       return null;
     }
 
-    return createEnumScalarType(enumType, nameValueMap, integerType, 0);
+    return createEnumScalarType(enumType, nameValueMap, integerType, length);
   }
 
   /**
@@ -976,8 +987,21 @@ public final class DefaultTypeManager implements TypeManager {
       addType(UUID.class, uuidType);
     }
 
+    if (offlineMigrationGeneration || (postgres && !config.getPlatformConfig().isDatabaseInetAddressVarchar())) {
+      addInetAddressType(new ScalarTypeInetAddressPostgres());
+    } else {
+      addInetAddressType(new ScalarTypeInetAddress());
+    }
+
+    if (offlineMigrationGeneration || postgres) {
+      addType(Cdir.class, new ScalarTypeCdir.Postgres());
+      addType(Inet.class, new ScalarTypeInet.Postgres());
+    } else {
+      addType(Cdir.class, new ScalarTypeCdir.Varchar());
+      addType(Inet.class, new ScalarTypeInet.Varchar());
+    }
+
     addType(File.class, fileType);
-    addType(InetAddress.class, inetAddressType);
     addType(Locale.class, localeType);
     addType(Currency.class, currencyType);
     addType(TimeZone.class, timeZoneType);
@@ -1062,6 +1086,12 @@ public final class DefaultTypeManager implements TypeManager {
     ScalarType<?> timestampType = new ScalarTypeTimestamp(mode);
     addType(Timestamp.class, timestampType);
     nativeMap.put(Types.TIMESTAMP, timestampType);
+  }
+
+  private void addInetAddressType(ScalarType scalarType) {
+    addType(InetAddress.class, scalarType);
+    addType(Inet4Address.class, scalarType);
+    addType(Inet6Address.class, scalarType);
   }
 
 }

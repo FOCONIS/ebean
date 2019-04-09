@@ -1,9 +1,8 @@
 package io.ebean;
 
+import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.Set;
-
-import javax.annotation.Nullable;
 
 /**
  * Provides access to the internal state of an entity bean.
@@ -58,7 +57,7 @@ public interface BeanState {
    *
    *   // set loaded state on the email property to false so that
    *   // the email property is not included in a stateless update
-   *   Ebean.getBeanState(user).setPropertyLoaded("email", false);
+   *   DB.getBeanState(user).setPropertyLoaded("email", false);
    *
    *   user.update();
    *
@@ -103,7 +102,7 @@ public interface BeanState {
   /**
    * Advanced - Used to programmatically build a partially or fully loaded
    * entity bean. First create an entity bean via
-   * {@link EbeanServer#createEntityBean(Class)}, then populate its properties
+   * {@link Database#createEntityBean(Class)}, then populate its properties
    * and then call this method specifying which properties where loaded or null
    * for a fully loaded entity bean.
    */

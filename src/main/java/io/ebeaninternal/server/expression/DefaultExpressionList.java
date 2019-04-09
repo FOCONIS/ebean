@@ -915,6 +915,14 @@ public class DefaultExpressionList<T> implements SpiExpressionList<T> {
   }
 
   @Override
+  public ExpressionList<T> inOrEmpty(String propertyName, Collection<?> values) {
+    if (notEmpty(values)) {
+      add(expr.in(propertyName, values));
+    }
+    return this;
+  }
+
+  @Override
   public ExpressionList<T> in(String propertyName, Object... values) {
     add(expr.in(propertyName, values));
     return this;
@@ -1068,6 +1076,18 @@ public class DefaultExpressionList<T> implements SpiExpressionList<T> {
   public ExpressionList<T> raw(String raw) {
     add(expr.raw(raw));
     return this;
+  }
+
+  @Override
+  public ExpressionList<T> rawOrEmpty(String raw, Collection<?> values) {
+    if (notEmpty(values)) {
+      add(expr.raw(raw, values));
+    }
+    return this;
+  }
+
+  private boolean notEmpty(Collection<?> values) {
+    return values != null && !values.isEmpty();
   }
 
   @Override

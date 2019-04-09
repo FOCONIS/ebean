@@ -53,7 +53,7 @@ public class MySqlDdl extends PlatformDdl {
   }
 
   @Override
-  public String createCheckConstraint(String ckName, String checkConstraint) throws IOException {
+  public String createCheckConstraint(String ckName, String checkConstraint) {
     if (USE_CHECK_CONSTRAINT) {
       return super.createCheckConstraint(ckName, checkConstraint);
     } else {
@@ -139,7 +139,6 @@ public class MySqlDdl extends PlatformDdl {
       }
       buffer.append(String.format(" comment '%s'", comment));
     }
-
   }
 
   @Override

@@ -7,6 +7,7 @@ import io.ebean.annotation.ForPlatform;
 import io.ebean.annotation.Platform;
 import io.ebean.datasource.DataSourceAlert;
 import io.ebean.datasource.DataSourceInitialiseException;
+import misc.migration.v1_0.EBasic;
 
 import org.junit.Test;
 import org.tests.model.basic.EBasicVer;
@@ -105,25 +106,24 @@ public class TestServerOffline {
         .isInstanceOf(PersistenceException.class)
         .hasMessageContaining("Failed to obtain connection to run DDL");
 
+      assertThatThrownBy(() -> h2Offline.find(EBasicVer.class).findCount()).isInstanceOf(PersistenceException.class);
+
       // so - reset the password so that the server can reconnect
       try (Statement stmt = bootup.createStatement()) {
         stmt.execute("alter user sa set password 'sa'");
       }
-      // wait up to 10 seconds until the DataSourcePool detects, that DS is up now...
-      int i = 0;
-      System.out.println("Waiting for DB-reconnect");
-      while (!alert.initialized && i++ < 100) {
-        Thread.sleep(100);
-      }
+
+      assertThat(alert.initialized).isFalse();
+      // next access to ebean should bring DS online
+      h2Offline.find(EBasicVer.class).findCount();
       assertThat(alert.initialized).isTrue();
 
-      // check if server is working (i.e. ddl did run)
+
+      // check if server is working (ie ddl was run)
       EBasicVer bean = new EBasicVer("foo");
       h2Offline.save(bean);
       assertThat(h2Offline.find(EBasicVer.class).findCount()).isEqualTo(1);
       h2Offline.delete(bean);
-
-      System.out.println("Done");
     }
   }
 

@@ -321,7 +321,7 @@ public interface ExpressionList<T> extends QueryDsl<T, ExpressionList<T>> {
    * <pre>{@code
    *
    *  List<String> names =
-   *    Ebean.find(Customer.class)
+   *    DB.find(Customer.class)
    *      .select("name")
    *      .orderBy().asc("name")
    *      .findSingleAttributeList();
@@ -332,7 +332,7 @@ public interface ExpressionList<T> extends QueryDsl<T, ExpressionList<T>> {
    * <pre>{@code
    *
    *  List<String> names =
-   *    Ebean.find(Customer.class)
+   *    DB.find(Customer.class)
    *      .setDistinct(true)
    *      .select("name")
    *      .where().eq("status", Customer.Status.NEW)
@@ -352,7 +352,7 @@ public interface ExpressionList<T> extends QueryDsl<T, ExpressionList<T>> {
    * <pre>{@code
    *
    *  String name =
-   *    Ebean.find(Customer.class)
+   *    DB.find(Customer.class)
    *      .select("name")
    *      .where().eq("id", 42)
    *      .findSingleAttribute();
@@ -435,7 +435,7 @@ public interface ExpressionList<T> extends QueryDsl<T, ExpressionList<T>> {
    * </p>
    * <pre>{@code
    *
-   *  PagedList<Order> pagedList = Ebean.find(Order.class)
+   *  PagedList<Order> pagedList = DB.find(Order.class)
    *       .setFirstRow(50)
    *       .setMaxRows(20)
    *       .findPagedList();
@@ -502,7 +502,7 @@ public interface ExpressionList<T> extends QueryDsl<T, ExpressionList<T>> {
    * <pre>{@code
    *
    *   List<Customer> customers =
-   *       Ebean.find(Customer.class)
+   *       DB.find(Customer.class)
    *          .setDistinct(true)
    *          .select("name")     // only select the customer name
    *          .findList();
@@ -575,7 +575,7 @@ public interface ExpressionList<T> extends QueryDsl<T, ExpressionList<T>> {
    *
    *  List<CountedValue<Order.Status>> orderStatusCount =
    *
-   *     Ebean.find(Order.class)
+   *     DB.find(Order.class)
    *      .select("status")
    *      .where()
    *      .gt("orderDate", LocalDate.now().minusMonths(3))
@@ -758,20 +758,6 @@ public interface ExpressionList<T> extends QueryDsl<T, ExpressionList<T>> {
 
   /**
    * Add an Expression to the list.
-   * <p>
-   * This returns the list so that add() can be chained.
-   * </p>
-   * <pre>{@code
-   *
-   * Query<Customer> query = Ebean.find(Customer.class);
-   * query.where()
-   *     .like("name","Rob%")
-   *     .eq("status", Customer.ACTIVE);
-   *
-   * List<Customer> list = query.findList();
-   * ...
-   *
-   * }</pre>
    */
   ExpressionList<T> add(Expression expr);
 
@@ -902,11 +888,10 @@ public interface ExpressionList<T> extends QueryDsl<T, ExpressionList<T>> {
    * example.setName("Rob%");
    * example.setNotes("%something%");
    *
-   * List<Customer> list = Ebean.find(Customer.class).where()
-   *     // pass the bean into the where() clause
-   *     .exampleLike(example)
-   *     // you can add other expressions to the same query
-   *     .gt("id", 2).findList();
+   * List<Customer> list =
+   *   DB.find(Customer.class)
+   *     .where().exampleLike(example)
+   *     .findList();
    *
    * }</pre>
    * <p>
@@ -921,7 +906,7 @@ public interface ExpressionList<T> extends QueryDsl<T, ExpressionList<T>> {
    * // create a ExampleExpression with more control
    * ExampleExpression qbe = new ExampleExpression(example, true, LikeType.EQUAL_TO).includeZeros();
    *
-   * List<Customer> list = Ebean.find(Customer.class).where().add(qbe).findList();
+   * List<Customer> list = DB.find(Customer.class).where().add(qbe).findList();
    *
    * }</pre>
    */
@@ -968,6 +953,47 @@ public interface ExpressionList<T> extends QueryDsl<T, ExpressionList<T>> {
   @Override
   ExpressionList<T> in(String propertyName, Collection<?> values);
 
+  /**
+   * In where null or empty values means that no predicate is added to the query.
+   * <p>
+   * That is, only add the IN predicate if the values are not null or empty.
+   * <p>
+   * Without this we typically need to code an <code>if</code> block to only add
+   * the IN predicate if the collection is not empty like:
+   * </p>
+   *
+   * <h3>Without inOrEmpty()</h3>
+   * <pre>{@code
+   *
+   *   query.where() // add some predicates
+   *     .eq("status", Status.NEW);
+   *
+   *   if (ids != null && !ids.isEmpty()) {
+   *     query.where().in("customer.id", ids);
+   *   }
+   *
+   *   query.findList();
+   *
+   * }</pre>
+   *
+   * <h3>Using inOrEmpty()</h3>
+   * <pre>{@code
+   *
+   *   query.where()
+   *     .eq("status", Status.NEW)
+   *     .inOrEmpty("customer.id", ids)
+   *     .findList();
+   *
+   * }</pre>
+   */
+  ExpressionList<T> inOrEmpty(String propertyName, Collection<?> values);
+
+  /**
+   * In - using a subQuery.
+   * <p>
+   * This is exactly the same as in() and provided due to "in" being a Kotlin keyword
+   * (and hence to avoid the slightly ugly escaping when using in() in Kotlin)
+   */
   @Override
   default ExpressionList<T> isIn(String propertyName, Query<?> subQuery) {
     return in(propertyName, subQuery);
@@ -1195,6 +1221,68 @@ public interface ExpressionList<T> extends QueryDsl<T, ExpressionList<T>> {
    * }</pre>
    */
   ExpressionList<T> raw(String raw);
+
+  /**
+   * Only add the raw expression if the values is not null or empty.
+   * <p>
+   * This is a pure convenience expression to make it nicer to deal with the pattern where we use
+   * raw() expression with a subquery and only want to add the subquery predicate when the collection
+   * of values is not empty.
+   * </p>
+   * <h3>Without inOrEmpty()</h3>
+   * <pre>{@code
+   *
+   *   query.where() // add some predicates
+   *     .eq("status", Status.NEW);
+   *
+   *   // common pattern - we can use rawOrEmpty() instead
+   *   if (orderIds != null && !orderIds.isEmpty()) {
+   *     query.where().raw("t0.customer_id in (select o.customer_id from orders o where o.id in (?1))", orderIds);
+   *   }
+   *
+   *   query.findList();
+   *
+   * }</pre>
+   *
+   * <h3>Using rawOrEmpty()</h3>
+   * Note that in the example below we use the <code>?1</code> bind parameter to get  "parameter expansion"
+   * for each element in the collection.
+   *
+   * <pre>{@code
+   *
+   *   query.where()
+   *     .eq("status", Status.NEW)
+   *     // only add the expression if orderIds is not empty
+   *     .rawOrEmpty("t0.customer_id in (select o.customer_id from orders o where o.id in (?1))", orderIds);
+   *     .findList();
+   *
+   * }</pre>
+   *
+   * <h3>Postgres ANY</h3>
+   * With Postgres we would often use the SQL <code>ANY</code> expression and array parameter binding
+   * rather than <code>IN</code>.
+   *
+   * <pre>{@code
+   *
+   *   query.where()
+   *     .eq("status", Status.NEW)
+   *     .rawOrEmpty("t0.customer_id in (select o.customer_id from orders o where o.id = any(?))", orderIds);
+   *     .findList();
+   *
+   * }</pre>
+   * <p>
+   *   Note that we need to cast the Postgres array for UUID types like:
+   * </p>
+   * <pre>{@code
+   *
+   *   " ... = any(?::uuid[])"
+   *
+   * }</pre>
+   *
+   * @param raw The raw expression that is typically a subquery
+   * @param values The values which is typically a list or set of id values.
+   */
+  ExpressionList<T> rawOrEmpty(String raw, Collection<?> values);
 
   /**
    * Add a match expression.

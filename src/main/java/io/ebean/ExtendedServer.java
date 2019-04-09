@@ -12,7 +12,7 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 /**
- * The extended API for EbeanServer.
+ * The extended API for Database.
  * <p>
  * This provides the finder methods that take an explicit transaction rather than obtaining
  * the transaction from the usual mechanism (which is ThreadLocal based).
@@ -23,7 +23,7 @@ import java.util.function.Predicate;
  * the transaction to use.
  * </p>
  * <p>
- * Note that in all cases the transaction supplied can be null and in this case the EbeanServer
+ * Note that in all cases the transaction supplied can be null and in this case the Database
  * will use the normal mechanism to obtain the transaction to use.
  * </p>
  */
@@ -118,7 +118,7 @@ public interface ExtendedServer {
    * <p>
    * <pre>{@code
    *
-   *     ebeanServer.find(Order.class)
+   *     DB.find(Order.class)
    *       .where().eq("status", Order.Status.NEW)
    *       .order().asc("id")
    *       .findEach((Order order) -> {
@@ -152,7 +152,7 @@ public interface ExtendedServer {
    * <p>
    * <pre>{@code
    *
-   *     ebeanServer.find(Order.class)
+   *     DB.find(Order.class)
    *       .where().eq("status", Order.Status.NEW)
    *       .order().asc("id")
    *       .findEachWhile((Order order) -> {
@@ -191,8 +191,7 @@ public interface ExtendedServer {
    * <p>
    * <pre>{@code
    *
-   * List<Customer> customers =
-   *     ebeanServer.find(Customer.class)
+   * List<Customer> customers = DB.find(Customer.class)
    *     .where().ilike("name", "rob%")
    *     .findList();
    *
@@ -269,7 +268,7 @@ public interface ExtendedServer {
    * <p>
    * <pre>{@code
    *
-   *  PagedList<Order> pagedList = Ebean.find(Order.class)
+   *  PagedList<Order> pagedList = DB.find(Order.class)
    *       .setFirstRow(50)
    *       .setMaxRows(20)
    *       .findPagedList();
@@ -298,8 +297,7 @@ public interface ExtendedServer {
    * <p>
    * <pre>{@code
    *
-   * Set<Customer> customers =
-   *     ebeanServer.find(Customer.class)
+   * Set<Customer> customers = DB.find(Customer.class)
    *     .where().ilike("name", "rob%")
    *     .findSet();
    *
@@ -338,7 +336,7 @@ public interface ExtendedServer {
    * <pre>{@code
    *
    *  List<String> names =
-   *    Ebean.find(Customer.class)
+   *    DB.find(Customer.class)
    *      .select("name")
    *      .orderBy().asc("name")
    *      .findSingleAttributeList();
@@ -348,7 +346,7 @@ public interface ExtendedServer {
    * <pre>{@code
    *
    *  List<String> names =
-   *    Ebean.find(Customer.class)
+   *    DB.find(Customer.class)
    *      .setDistinct(true)
    *      .select("name")
    *      .where().eq("status", Customer.Status.NEW)
@@ -410,7 +408,7 @@ public interface ExtendedServer {
   /**
    * Execute the update query returning the number of rows updated.
    * <p>
-   * The update query must be created using {@link EbeanServer#update(Class)}.
+   * The update query must be created using {@link Database#update(Class)}.
    * </p>
    *
    * @param query       the update query to execute

@@ -1,7 +1,7 @@
 package io.ebean.config;
 
 import com.fasterxml.jackson.core.JsonFactory;
-import io.ebean.EbeanServerFactory;
+import io.ebean.DatabaseFactory;
 import io.ebean.PersistenceContextScope;
 import io.ebean.Query;
 import io.ebean.Transaction;
@@ -34,6 +34,7 @@ import io.ebean.plugin.CustomDeployParser;
 import io.ebean.plugin.LoadErrorHandler;
 import io.ebean.util.StringHelper;
 
+import javax.persistence.EnumType;
 import javax.sql.DataSource;
 import java.time.Clock;
 import java.util.ArrayList;
@@ -46,30 +47,30 @@ import java.util.Properties;
 import java.util.ServiceLoader;
 
 /**
- * The configuration used for creating a EbeanServer.
+ * The configuration used for creating a Database.
  * <p>
- * Used to programmatically construct an EbeanServer and optionally register it
- * with the Ebean singleton.
+ * Used to programmatically construct a Database and optionally register it
+ * with the DB singleton.
  * </p>
  * <p>
- * If you just use Ebean without this programmatic configuration Ebean will read
- * the ebean.properties file and take the configuration from there. This usually
+ * If you just use DB without this programmatic configuration DB will read
+ * the application.properties file and take the configuration from there. This usually
  * includes searching the class path and automatically registering any entity
  * classes and listeners etc.
  * </p>
  * <pre>{@code
  *
- * ServerConfig c = new ServerConfig();
+ * ServerConfig config = new ServerConfig();
  *
  * // read the ebean.properties and load
  * // those settings into this serverConfig object
- * c.loadFromProperties();
+ * config.loadFromProperties();
  *
  * // explicitly register the entity beans to avoid classpath scanning
- * c.addClass(Customer.class);
- * c.addClass(User.class);
+ * config.addClass(Customer.class);
+ * config.addClass(User.class);
  *
- * EbeanServer server = EbeanServerFactory.create(c);
+ * Database database = DatabaseFactory.create(config);
  *
  * }</pre>
  *
@@ -80,12 +81,12 @@ import java.util.ServiceLoader;
  *
  * @author emcgreal
  * @author rbygrave
- * @see EbeanServerFactory
+ * @see DatabaseFactory
  */
 public class ServerConfig {
 
   /**
-   * The EbeanServer name.
+   * The Database name.
    */
   private String name = "db";
 
@@ -108,12 +109,12 @@ public class ServerConfig {
   private String resourceDirectory;
 
   /**
-   * Set to true to register this EbeanServer with the Ebean singleton.
+   * Set to true to register this Database with the DB singleton.
    */
   private boolean register = true;
 
   /**
-   * Set to true if this is the default/primary server.
+   * Set to true if this is the default/primary database.
    */
   private boolean defaultServer = true;
 
@@ -152,7 +153,7 @@ public class ServerConfig {
   private DocStoreConfig docStoreConfig = new DocStoreConfig();
 
   /**
-   * Set to true when the EbeanServer only uses Document store.
+   * Set to true when the Database only uses Document store.
    */
   private boolean docStoreOnly;
 
@@ -230,6 +231,8 @@ public class ServerConfig {
   private PersistBatch persistBatchOnCascade = PersistBatch.INHERIT;
 
   private int persistBatchSize = 20;
+
+  private EnumType defaultEnumType = EnumType.ORDINAL;
 
   private boolean disableLazyLoading;
 
@@ -354,7 +357,7 @@ public class ServerConfig {
   /**
    * Behaviour of updates in JDBC batch to by default include all properties.
    */
-  private boolean updateAllPropertiesInBatch = true;
+  private boolean updateAllPropertiesInBatch;
 
   /**
    * Default behaviour for updates when cascade save on a O2M or M2M to delete any missing children.
@@ -534,7 +537,7 @@ public class ServerConfig {
   private LoadErrorHandler loadErrorHandler;
 
   /**
-   * Construct a Server Configuration for programmatically creating an EbeanServer.
+   * Construct a Database Configuration for programmatically creating an Database.
    */
   public ServerConfig() {
 
@@ -719,14 +722,14 @@ public class ServerConfig {
   }
 
   /**
-   * Return the name of the EbeanServer.
+   * Return the name of the Database.
    */
   public String getName() {
     return name;
   }
 
   /**
-   * Set the name of the EbeanServer.
+   * Set the name of the Database.
    */
   public void setName(String name) {
     this.name = name;
@@ -735,8 +738,8 @@ public class ServerConfig {
   /**
    * Return the container / clustering configuration.
    * <p/>
-   * The container holds all the EbeanServer instances and provides clustering communication
-   * services to all the EbeanServer instances.
+   * The container holds all the Database instances and provides clustering communication
+   * services to all the Database instances.
    */
   public ContainerConfig getContainerConfig() {
     return containerConfig;
@@ -745,8 +748,8 @@ public class ServerConfig {
   /**
    * Set the container / clustering configuration.
    * <p/>
-   * The container holds all the EbeanServer instances and provides clustering communication
-   * services to all the EbeanServer instances.
+   * The container holds all the Database instances and provides clustering communication
+   * services to all the Database instances.
    */
   public void setContainerConfig(ContainerConfig containerConfig) {
     this.containerConfig = containerConfig;
@@ -786,8 +789,8 @@ public class ServerConfig {
   }
 
   /**
-   * Set false if you do not want this EbeanServer to be registered as the "default" server
-   * with the Ebean singleton.
+   * Set false if you do not want this Database to be registered as the "default" database
+   * with the DB singleton.
    * <p>
    * This is only used when {@link #setRegister(boolean)} is also true.
    * </p>
@@ -1002,6 +1005,14 @@ public class ServerConfig {
    */
   public void setQueryBatchSize(int queryBatchSize) {
     this.queryBatchSize = queryBatchSize;
+  }
+
+  public EnumType getDefaultEnumType() {
+    return defaultEnumType;
+  }
+
+  public void setDefaultEnumType(EnumType defaultEnumType) {
+    this.defaultEnumType = defaultEnumType;
   }
 
   /**
@@ -1573,14 +1584,14 @@ public class ServerConfig {
   }
 
   /**
-   * Return true if this EbeanServer is a Document store only instance (has no JDBC DB).
+   * Return true if this Database is a Document store only instance (has no JDBC DB).
    */
   public boolean isDocStoreOnly() {
     return docStoreOnly;
   }
 
   /**
-   * Set to true if this EbeanServer is Document store only instance (has no JDBC DB).
+   * Set to true if this Database is Document store only instance (has no JDBC DB).
    */
   public void setDocStoreOnly(boolean docStoreOnly) {
     this.docStoreOnly = docStoreOnly;
@@ -1980,16 +1991,16 @@ public class ServerConfig {
   }
 
   /**
-   * Return true if the EbeanServer instance should be created in offline mode.
+   * Return true if the Database instance should be created in offline mode.
    */
   public boolean isDbOffline() {
     return dbOffline;
   }
 
   /**
-   * Set to true if the EbeanServer instance should be created in offline mode.
+   * Set to true if the Database instance should be created in offline mode.
    * <p>
-   * Typically used to create an EbeanServer instance for DDL Migration generation
+   * Typically used to create an Database instance for DDL Migration generation
    * without requiring a real DataSource / Database to connect to.
    * </p>
    */
@@ -2254,7 +2265,7 @@ public class ServerConfig {
 
   /**
    * Set to true to disable the class path search even for the case where no entity bean classes
-   * have been registered. This can be used to start an EbeanServer instance just to use the
+   * have been registered. This can be used to start an Database instance just to use the
    * SQL functions such as SqlQuery, SqlUpdate etc.
    */
   public void setDisableClasspathSearch(boolean disableClasspathSearch) {
@@ -2368,8 +2379,7 @@ public class ServerConfig {
    *
    *   // assume Customer has L2 bean caching enabled ...
    *
-   *   Transaction transaction = Ebean.beginTransaction();
-   *   try {
+   *   try (Transaction transaction = DB.beginTransaction()) {
    *
    *     // this uses L2 bean cache as the transaction
    *     // ... is considered "query only" at this point
@@ -2377,7 +2387,7 @@ public class ServerConfig {
    *
    *     // transaction no longer "query only" once
    *     // ... a bean has been saved etc
-   *     Ebean.save(someBean);
+   *     DB.save(someBean);
    *
    *     // will NOT use L2 bean cache as the transaction
    *     // ... is no longer considered "query only"
@@ -2396,9 +2406,6 @@ public class ServerConfig {
    *     transaction.setSkipCache(true);
    *     Customer.find.byId(99); // skips l2 bean cache
    *
-   *
-   *   } finally {
-   *     transaction.end();
    *   }
    *
    * }</pre>
@@ -2466,7 +2473,7 @@ public class ServerConfig {
   }
 
   /**
-   * Return true if the ebeanServer should collection query statistics by ObjectGraphNode.
+   * Return true if query statistics should be collected by ObjectGraphNode.
    */
   public boolean isCollectQueryStatsByNode() {
     return collectQueryStatsByNode;
@@ -3018,6 +3025,7 @@ public class ServerConfig {
     localTimeWithNanos = p.getBoolean("localTimeWithNanos", localTimeWithNanos);
     jodaLocalTimeMode = p.get("jodaLocalTimeMode", jodaLocalTimeMode);
 
+    defaultEnumType = p.getEnum(EnumType.class, "defaultEnumType", defaultEnumType);
     disableLazyLoading = p.getBoolean("disableLazyLoading", disableLazyLoading);
     lazyLoadBatchSize = p.getInt("lazyLoadBatchSize", lazyLoadBatchSize);
     queryBatchSize = p.getInt("queryBatchSize", queryBatchSize);

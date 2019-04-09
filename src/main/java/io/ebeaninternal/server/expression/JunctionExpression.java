@@ -675,6 +675,11 @@ class JunctionExpression<T> implements SpiJunction<T>, SpiExpression, Expression
   }
 
   @Override
+  public ExpressionList<T> inOrEmpty(String propertyName, Collection<?> values) {
+    return exprList.inOrEmpty(propertyName, values);
+  }
+
+  @Override
   public ExpressionList<T> in(String propertyName, Object... values) {
     return exprList.in(propertyName, values);
   }
@@ -802,6 +807,11 @@ class JunctionExpression<T> implements SpiJunction<T>, SpiExpression, Expression
   @Override
   public ExpressionList<T> raw(String raw, Object... values) {
     return exprList.raw(raw, values);
+  }
+
+  @Override
+  public ExpressionList<T> rawOrEmpty(String raw, Collection<?> values) {
+    return exprList.rawOrEmpty(raw, values);
   }
 
   @Override

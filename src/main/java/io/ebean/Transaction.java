@@ -14,18 +14,17 @@ import java.sql.Connection;
 public interface Transaction extends AutoCloseable {
 
   /**
-   * Return the current transaction (of the default server) or null if there is
+   * Return the current transaction (of the default database) or null if there is
    * no current transaction in scope.
    * <p>
-   * This is the same as <code>Ebean.currentTransaction()</code>
+   * This is the same as <code>DB.currentTransaction()</code>
    * </p>
    * <p>
-   * This returns the current transaction for the 'default server'.  If you are using
-   * multiple EbeanServer's then use {@link EbeanServer#currentTransaction()}.
+   * This returns the current transaction for the default database.
    * </p>
    *
-   * @see Ebean#currentTransaction()
-   * @see EbeanServer#currentTransaction()
+   * @see DB#currentTransaction()
+   * @see Database#currentTransaction()
    */
   static Transaction current() {
     return Ebean.currentTransaction();
@@ -244,7 +243,7 @@ public interface Transaction extends AutoCloseable {
    *
    *   // assume Customer has L2 bean caching enabled ...
    *
-   *   try (Transaction transaction = ebeanServer.beginTransaction()) {
+   *   try (Transaction transaction = DB.beginTransaction()) {
    *
    *     // this uses L2 bean cache as the transaction
    *     // ... is considered "query only" at this point
@@ -366,13 +365,13 @@ public interface Transaction extends AutoCloseable {
    * // inserts into a table called sp_test
    * cs.addModification("sp_test", true, false, false);
    *
-   * try (Transaction txn = ebeanServer.beginTransaction()) {
+   * try (Transaction txn = DB.beginTransaction()) {
    *   txn.setBatchMode(true);
    *   txn.setBatchSize(10);
    *
    *   for (int i = 0; i < da.length;) {
    *     cs.setParameter(1, da[i]);
-   *     ebeanServer.execute(cs);
+   *     DB.execute(cs);
    *   }
    *
    *   // Note: commit implicitly flushes

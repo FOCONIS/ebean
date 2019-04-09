@@ -1,6 +1,29 @@
 [![Build Status](https://travis-ci.org/ebean-orm/ebean.svg?branch=master)](https://travis-ci.org/ebean-orm/ebean)
 [![Maven Central : ebean](https://maven-badges.herokuapp.com/maven-central/io.ebean/ebean/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.ebean/ebean)
 
+# Sponsors
+<table>
+  <tbody>
+    <tr>
+      <td align="center" valign="middle">
+        <a href="https://www.foconis.de/" target="_blank">
+          <img width="222px" src="https://www.foconis.de/templates/yootheme/cache/foconis_logo_322-709da1de.png">
+        </a>
+      </td>
+      <td align="center" valign="middle">
+        <a href="https://www.payintech.com/" target="_blank">
+          <img width="222px" src="https://www.payintech.com/wp-content/uploads/2015/10/PayinTech-logo-noir.png">
+        </a>
+      </td>
+      <td align="center" valign="middle">
+        <a href="https://www.premium-minds.com" target="_blank">
+          <img width="222px" src="https://ebean.io/images/logo-premium-minds.png">
+        </a>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
 # Need help?
 Post questions or issues to the Ebean google group - https://groups.google.com/forum/#!forum/ebean
 

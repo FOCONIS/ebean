@@ -21,7 +21,15 @@ import java.util.List;
 
 class InExpression extends AbstractExpression {
 
+  private static final String SQL_TRUE = "1=1";
+  private static final String SQL_FALSE = "1=0";
+
   private final boolean not;
+
+  /**
+   * Set to true when adding "1=1" predicate (due to null or empty sourceValues).
+   */
+  private final boolean empty;
 
   private final Collection<?> sourceValues;
 
@@ -30,18 +38,27 @@ class InExpression extends AbstractExpression {
   private IsSupported multiValueSupported;
 
   InExpression(String propertyName, Collection<?> sourceValues, boolean not) {
+    this(propertyName, sourceValues, not, false);
+  }
+
+  InExpression(String propertyName, Collection<?> sourceValues, boolean not, boolean orEmpty) {
     super(propertyName);
     this.sourceValues = sourceValues;
     this.not = not;
+    this.empty = orEmpty && (sourceValues == null || sourceValues.isEmpty());
   }
 
   InExpression(String propertyName, Object[] array, boolean not) {
     super(propertyName);
     this.sourceValues = Arrays.asList(array);
     this.not = not;
+    this.empty = false;
   }
 
   private List<Object> values() {
+    if (empty || sourceValues == null) {
+      return Collections.emptyList();
+    }
     List<Object> vals = new ArrayList<>(sourceValues.size());
     for (Object sourceValue : sourceValues) {
       assert sourceValue != null : "null is not allowed in in-queries";
@@ -52,8 +69,8 @@ class InExpression extends AbstractExpression {
 
   @Override
   public boolean naturalKey(NaturalKeyQueryData<?> data) {
-    // can't use naturalKey cache for NOT IN
-    if (not) {
+    // can't use naturalKey cache for NOT IN or when "empty"
+    if (not || empty) {
       return false;
     }
     List<Object> copy = data.matchIn(propName, bindValues);
@@ -76,11 +93,16 @@ class InExpression extends AbstractExpression {
 
   @Override
   public void writeDocQuery(DocQueryContext context) throws IOException {
-    context.writeIn(propName, values().toArray(), not);
+    if (!empty) {
+      context.writeIn(propName, values().toArray(), not);
+    }
   }
 
   @Override
   public void addBindValues(SpiExpressionRequest request) {
+    if (empty) {
+      return;
+    }
     for (Object value : bindValues) {
       if (value == null) {
         throw new NullPointerException("null values in 'in(...)' queries must be handled separately!");
@@ -114,10 +136,12 @@ class InExpression extends AbstractExpression {
 
   @Override
   public void addSql(SpiExpressionRequest request) {
-
+    if (empty) {
+      request.append(SQL_TRUE);
+      return;
+    }
     if (bindValues.isEmpty()) {
-      String expr = not ? "1=1" : "1=0";
-      request.append(expr);
+      request.append(not ? SQL_TRUE : SQL_FALSE);
       return;
     }
 
@@ -148,14 +172,16 @@ class InExpression extends AbstractExpression {
       builder.append("In[");
     }
     builder.append(propName);
-    builder.append(" ?");
-    // query plan specific to the number of parameters in the IN clause
-
-    if (multiValueSupported == IsSupported.NO) {
-      builder.append(bindValues.size());
-    } else if (multiValueSupported == IsSupported.ONLY_FOR_MANY_PARAMS) {
-      if (bindValues.size() <= MultiValueBind.MANY_PARAMS) {
+    if (empty) {
+      builder.append("empty");
+    } else {
+      builder.append(" ?");
+      if (multiValueSupported == IsSupported.NO) {
         builder.append(bindValues.size());
+      } else if (multiValueSupported == IsSupported.ONLY_FOR_MANY_PARAMS) {
+        if (bindValues.size() <= MultiValueBind.MANY_PARAMS) {
+          builder.append(bindValues.size());
+        }
       }
     }
     builder.append("]");

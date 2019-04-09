@@ -4,6 +4,7 @@ import io.ebean.annotation.ForPlatform;
 import io.ebean.annotation.Platform;
 import io.ebean.meta.BasicMetricVisitor;
 import io.ebean.meta.MetaQueryMetric;
+import io.ebean.meta.ServerMetrics;
 import org.ebeantest.LoggedSqlCollector;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -24,6 +25,7 @@ public class DtoQueryTest extends BaseTestCase {
   public void dto_findList_constructorMatch() {
 
     ResetBasicData.reset();
+    resetAllMetrics();
 
     DtoQuery<DCust> dtoQuery = server().findDto(DCust.class, "select id, name from o_customer");
 
@@ -31,6 +33,17 @@ public class DtoQueryTest extends BaseTestCase {
 
     log.info(list.toString());
     assertThat(list).isNotEmpty();
+
+    ServerMetrics metrics = collectMetrics();
+
+    List<MetaQueryMetric> stats = metrics.getDtoQueryMetrics();
+    for (MetaQueryMetric stat : stats) {
+      long meanMicros = stat.getMean();
+      assertThat(meanMicros).isLessThan(900_000);
+    }
+
+    assertThat(stats).hasSize(1);
+    assertThat(stats.get(0).getCount()).isEqualTo(1);
   }
 
   @Test
@@ -196,7 +209,7 @@ public class DtoQueryTest extends BaseTestCase {
       .setParameter("name", "rob")
       .findList();
 
-    BasicMetricVisitor metric2 = server().getMetaInfoManager().visitBasic();
+    ServerMetrics metric2 = server().getMetaInfoManager().collectMetrics();
 
     stats = metric2.getDtoQueryMetrics();
     assertThat(stats).hasSize(2);
