@@ -1,7 +1,6 @@
 package io.ebeaninternal.server.deploy;
 
 import io.ebean.PersistenceContextScope;
-import io.ebean.ProfileLocation;
 import io.ebean.Query;
 import io.ebean.SqlUpdate;
 import io.ebean.Transaction;
@@ -137,8 +136,6 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
   private final Map<String, String> namedQuery;
 
   private final short profileBeanId;
-  private final ProfileLocation locationById;
-  private final ProfileLocation locationAll;
 
   public enum EntityType {
     ORM, EMBEDDED, VIEW, SQL, DOC
@@ -446,8 +443,6 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
     this.name = InternString.intern(deploy.getName());
     this.baseTableAlias = "t0";
     this.fullName = InternString.intern(deploy.getFullName());
-    this.locationById = ProfileLocation.createAt(fullName + ".byId");
-    this.locationAll = ProfileLocation.createAt(fullName + ".all");
     this.profileBeanId = deploy.getProfileId();
     this.beanType = deploy.getBeanType();
     this.rootBeanType = PersistenceContextUtil.root(beanType);
@@ -578,20 +573,6 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
         propertiesIndex[i] = propMap.get(ebi.getProperty(i));
       }
     }
-  }
-
-  /**
-   * Return a location for "find by id".
-   */
-  public ProfileLocation profileLocationById() {
-    return locationById;
-  }
-
-  /**
-   * Return a location for "find all".
-   */
-  public ProfileLocation profileLocationAll() {
-    return locationAll;
   }
 
   /**
