@@ -670,6 +670,9 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
   @SuppressWarnings("unchecked")
   public <T> T createEntityBean(Class<T> type) {
     BeanDescriptor<T> desc = getBeanDescriptor(type);
+    if (desc == null) {
+      throw new NullPointerException("No bean type " + type.getName() + " registered");
+    }
     return (T) desc.createEntityBean(true);
   }
 
