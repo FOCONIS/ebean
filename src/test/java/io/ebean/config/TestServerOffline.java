@@ -7,7 +7,6 @@ import io.ebean.annotation.ForPlatform;
 import io.ebean.annotation.Platform;
 import io.ebean.datasource.DataSourceAlert;
 import io.ebean.datasource.DataSourceInitialiseException;
-import misc.migration.v1_0.EBasic;
 
 import org.junit.Test;
 import org.tests.model.basic.EBasicVer;
