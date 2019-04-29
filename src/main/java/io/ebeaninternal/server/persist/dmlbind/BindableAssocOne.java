@@ -48,7 +48,7 @@ class BindableAssocOne implements Bindable {
   @Override
   public void dmlBind(BindableRequest request, EntityBean bean) throws SQLException {
 
-    EntityBean assocBean = (EntityBean) assocOne.getValue(bean);
+    EntityBean assocBean = assocOne.getValueAsEntityBean(bean);
     registerDeferred(request, bean, assocBean);
   }
 

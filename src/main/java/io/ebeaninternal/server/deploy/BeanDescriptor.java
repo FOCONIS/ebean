@@ -93,9 +93,12 @@ import io.ebeanservice.docstore.api.mapping.DocumentMapping;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nonnull;
 import javax.persistence.PersistenceException;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.sql.SQLException;
 import java.sql.Types;
@@ -303,6 +306,8 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
    */
   protected final BeanProperty idProperty;
 
+  private final Method[] idGetters;
+
   private final int idPropertyIndex;
 
   /**
@@ -498,6 +503,7 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
     // this is required to support markAsDelete on beans that may have no FK constraint.
     this.softDelete = (softDeleteProperty != null && !softDeleteProperty.isFormula());
     this.idProperty = listHelper.getId();
+    this.idGetters = listHelper.getIdGetters();
     this.versionProperty = listHelper.getVersionProperty();
     this.unmappedJson = listHelper.getUnmappedJson();
     this.tenant = listHelper.getTenant();
@@ -2261,7 +2267,26 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
 
   @Override
   public Object beanId(Object bean) {
-    return getId((EntityBean) bean);
+    if (bean instanceof EntityBean) {
+      return getId((EntityBean) bean);
+    } else {
+      for (Method getter : idGetters) {
+        if (getter.getDeclaringClass().isAssignableFrom(bean.getClass())) {
+          try {
+            return getter.invoke(bean);
+          } catch (InvocationTargetException e) {
+            if (e.getTargetException() instanceof RuntimeException) {
+              throw (RuntimeException) e.getTargetException();
+            } else {
+              throw new RuntimeException(e.getTargetException());
+            }
+          } catch (@Nonnull IllegalAccessException e) {
+            throw new RuntimeException(e);
+          }
+        }
+      }
+      throw new IllegalArgumentException(bean.getClass() + " has no apropriate id getter");
+    }
   }
 
   @Override

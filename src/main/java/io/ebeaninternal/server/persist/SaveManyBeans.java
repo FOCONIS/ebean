@@ -159,34 +159,33 @@ public class SaveManyBeans extends SaveManyBase {
         detailBean = entry.getValue();
       }
 
-      if (detailBean instanceof EntityBean) {
-        EntityBean detail = (EntityBean) detailBean;
-        EntityBeanIntercept ebi = detail._ebean_getIntercept();
-        if (many.hasJoinTable()) {
-          skipSavingThisBean = targetDescriptor.isReference(ebi);
+
+      EntityBean detail = getAsBean(detailBean);
+      EntityBeanIntercept ebi = detail._ebean_getIntercept();
+      if (many.hasJoinTable()) {
+        skipSavingThisBean = targetDescriptor.isReference(ebi);
+      } else {
+        if (orderColumn != null) {
+          orderColumn.setValue(detail, sortOrder);
+          ebi.setDirty(true);
+        }
+        if (targetDescriptor.isReference(ebi)) {
+          // we can skip this one
+          skipSavingThisBean = true;
+
+        } else if (ebi.isNewOrDirty()) {
+          skipSavingThisBean = false;
+          // set the parent bean to detailBean
+          many.setJoinValuesToChild(parentBean, detail, mapKeyValue);
+
         } else {
-          if (orderColumn != null) {
-            orderColumn.setValue(detail, sortOrder);
-            ebi.setDirty(true);
-          }
-          if (targetDescriptor.isReference(ebi)) {
-            // we can skip this one
-            skipSavingThisBean = true;
-
-          } else if (ebi.isNewOrDirty()) {
-            skipSavingThisBean = false;
-            // set the parent bean to detailBean
-            many.setJoinValuesToChild(parentBean, detail, mapKeyValue);
-
-          } else {
-            // unmodified so skip depending on prop.isSaveRecurseSkippable();
-            skipSavingThisBean = saveRecurseSkippable;
-          }
+          // unmodified so skip depending on prop.isSaveRecurseSkippable();
+          skipSavingThisBean = saveRecurseSkippable;
         }
+      }
 
-        if (!skipSavingThisBean) {
-          persister.saveRecurse(detail, transaction, parentBean, request.getFlags());
-        }
+      if (!skipSavingThisBean) {
+        persister.saveRecurse(detail, transaction, parentBean, request.getFlags());
       }
     }
   }
@@ -260,6 +259,20 @@ public class SaveManyBeans extends SaveManyBase {
     saveAssocManyIntersection(deleteMissing, true);
   }
 
+  private EntityBean getAsBean(Object bean) {
+    if (bean == null) {
+      return null;
+    } else if (bean instanceof EntityBean) {
+      return (EntityBean) bean;
+    } else {
+      Object id = targetDescriptor.beanId(bean);
+      if (DmlUtil.isNullOrZero(id)) {
+        throw new IllegalArgumentException(bean.getClass() + " has no id set");
+      }
+      return (EntityBean) targetDescriptor.createReference(id, null);
+    }
+  }
+
   private void saveAssocManyIntersection(boolean deleteMissingChildren, boolean queue) {
 
     boolean vanillaCollection = !(value instanceof BeanCollection<?>);
@@ -303,7 +316,7 @@ public class SaveManyBeans extends SaveManyBase {
 
     if (additions != null && !additions.isEmpty()) {
       for (Object other : additions) {
-        EntityBean otherBean = (EntityBean) other;
+        EntityBean otherBean = getAsBean(other);
         // the object from the 'other' side of the ManyToMany
         if (deletions != null && deletions.remove(otherBean)) {
           String m = "Inserting and Deleting same object? " + otherBean;

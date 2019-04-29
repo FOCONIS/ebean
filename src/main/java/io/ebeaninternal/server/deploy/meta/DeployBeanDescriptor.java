@@ -231,7 +231,7 @@ public class DeployBeanDescriptor<T> implements DeployBeanDescriptorMeta {
 
   private Object jacksonAnnotatedClass;
 
-  private final Set<String> interfaces = new HashSet<>();
+  private final Set<Class<?>> interfaces = new HashSet<>();
 
   private Integer overridePriority;
 
@@ -1304,13 +1304,13 @@ public class DeployBeanDescriptor<T> implements DeployBeanDescriptorMeta {
     if (!iface.isAssignableFrom(beanType)) {
       throw new ClassCastException("Cannot cast " + iface.getName() + " to " + beanType.getName());
     }
-    interfaces.add(iface.getName());
+    interfaces.add(iface);
   }
 
   /**
    * Returns the interfaces.
    */
-  public Set<String> getInterfaces() {
+  public Set<Class<?>> getInterfaces() {
     return interfaces;
   }
 

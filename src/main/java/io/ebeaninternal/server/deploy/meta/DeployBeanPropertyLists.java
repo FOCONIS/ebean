@@ -17,9 +17,13 @@ import io.ebeaninternal.server.type.ScalarTypeString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Helper object to classify BeanProperties into appropriate lists.
@@ -45,6 +49,8 @@ public class DeployBeanPropertyLists {
   private final LinkedHashMap<String, BeanProperty> propertyMap;
 
   private BeanProperty id;
+
+  private final Map<Class<?>, Method> idGetters = new HashMap<>();
 
   private final List<BeanProperty> local = new ArrayList<>();
 
@@ -143,6 +149,21 @@ public class DeployBeanPropertyLists {
     tableJoins = new TableJoin[deployTableJoins.size()];
     for (int i = 0; i < deployTableJoins.size(); i++) {
       tableJoins[i] = new TableJoin(deployTableJoins.get(i));
+    }
+
+    if(id != null && !deploy.getInterfaces().isEmpty()) {
+      StringBuilder sb = new StringBuilder();
+      sb.append("get").append(id.getName());
+      sb.setCharAt(3, Character.toUpperCase(sb.charAt(3)));
+      String getterName = sb.toString();
+      for (Class<?> iface : deploy.getInterfaces()) {
+        try {
+          Method method = iface.getMethod(getterName);
+          idGetters.put(method.getDeclaringClass(), method);
+        } catch (NoSuchMethodException  e) {
+          // NOP
+        }
+      }
     }
   }
 
@@ -289,6 +310,11 @@ public class DeployBeanPropertyLists {
 
   public BeanProperty getId() {
     return id;
+  }
+
+  public Method[] getIdGetters() {
+    Collection<Method> values = idGetters.values();
+    return values.toArray(new Method[values.size()]);
   }
 
   public BeanProperty[] getNonTransients() {
@@ -443,7 +469,7 @@ public class DeployBeanPropertyLists {
       }
     }
 
-    return (BeanPropertyAssocOne[]) list.toArray(new BeanPropertyAssocOne[list.size()]);
+    return list.toArray(new BeanPropertyAssocOne[list.size()]);
   }
 
   private BeanPropertyAssocMany<?>[] getMany2Many() {
@@ -454,7 +480,7 @@ public class DeployBeanPropertyLists {
       }
     }
 
-    return (BeanPropertyAssocMany[]) list.toArray(new BeanPropertyAssocMany[list.size()]);
+    return list.toArray(new BeanPropertyAssocMany[list.size()]);
   }
 
   private BeanPropertyAssocMany<?>[] getMany(Mode mode) {
@@ -476,7 +502,7 @@ public class DeployBeanPropertyLists {
       }
     }
 
-    return (BeanPropertyAssocMany[]) list.toArray(new BeanPropertyAssocMany[list.size()]);
+    return list.toArray(new BeanPropertyAssocMany[list.size()]);
   }
 
   @SuppressWarnings({"unchecked", "rawtypes"})
