@@ -7,20 +7,24 @@ import io.ebean.Query;
 import io.ebean.Transaction;
 import io.ebean.annotation.ForPlatform;
 import io.ebean.annotation.Platform;
+import io.ebean.config.JsonConfig;
 import io.ebean.config.ServerConfig;
 import io.ebean.config.properties.PropertiesLoader;
 import io.ebean.datasource.DataSourceConfig;
 import io.ebean.datasource.DataSourcePool;
 import io.ebean.datasource.pool.ConnectionPool;
+import io.ebeaninternal.server.type.ScalarTypeLocalDate;
 import org.junit.Test;
 import org.tests.model.basic.UTDetail;
 import org.tests.model.basic.UTMaster;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Properties;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -55,8 +59,11 @@ public class TestExplicitTransactionMode extends BaseTestCase {
     config.setDdlGenerate(true);
     config.setDdlRun(true);
     config.setDdlExtra(false);
+    config.addClass(ScalarTypeLocalDateAsString.class);
 
     EbeanServer ebeanServer = EbeanServerFactory.create(config);
+
+    testJsonScalarType(ebeanServer);
 
     Query<UTMaster> query = ebeanServer.find(UTMaster.class);
     List<UTMaster> details = query.findList();
@@ -103,6 +110,23 @@ public class TestExplicitTransactionMode extends BaseTestCase {
       Query<UTMaster> query3 = ebeanServer.find(UTMaster.class);
       details = ebeanServer.extended().findList(query3, otherTxn);
       assertEquals(3, details.size());
+    }
+  }
+
+  private void testJsonScalarType(EbeanServer ebeanServer) {
+    UTMaster bean = new UTMaster("one1");
+    bean.setDate(LocalDate.of(2019, 04, 20));
+
+    String json = ebeanServer.json().toJson(bean);
+    assertThat(json).isEqualTo("{\"name\":\"one1\",\"date\":\"2019-04-20\"}");
+    UTMaster jsonMaster = ebeanServer.json().toBean(UTMaster.class, json);
+    assertThat(jsonMaster.getDate()).isEqualTo(LocalDate.of(2019, 4, 20));
+  }
+
+  public static class ScalarTypeLocalDateAsString extends ScalarTypeLocalDate {
+
+    public ScalarTypeLocalDateAsString() {
+      super(JsonConfig.Date.ISO8601);
     }
   }
 }

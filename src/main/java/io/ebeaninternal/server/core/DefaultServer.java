@@ -458,6 +458,7 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
     if (encryptKeyManager != null) {
       encryptKeyManager.initialise();
     }
+    serverCacheManager.setEnabledRegions(serverConfig.getEnabledL2Regions());
   }
 
   /**
@@ -496,7 +497,7 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
    */
   private void shutdownInternal(boolean shutdownDataSource, boolean deregisterDriver) {
 
-    logger.debug("Shutting down EbeanServer {}", serverName);
+    logger.debug("Shutting down instance:{}", serverName);
     if (shutdown) {
       // already shutdown
       return;
@@ -795,23 +796,11 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
     transactionManager.exitScopedTransaction(returnOrThrowable, opCode);
   }
 
-  /**
-   * Returns the current transaction (or null) from the scope.
-   */
   @Override
   public SpiTransaction currentServerTransaction() {
     return transactionManager.getActive();
   }
 
-  /**
-   * Start a transaction with 'REQUIRED' semantics.
-   * <p>
-   * If a transaction already exists that transaction will be used.
-   * </p>
-   * <p>
-   * Note that the transaction is stored in a ThreadLocal variable.
-   * </p>
-   */
   @Override
   public Transaction beginTransaction() {
     return beginTransaction(TxScope.required());
@@ -822,12 +811,6 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
     return transactionManager.beginScopedTransaction(txScope);
   }
 
-  /**
-   * Start a transaction with a specific Isolation Level.
-   * <p>
-   * Note that the transaction is stored in a ThreadLocal variable.
-   * </p>
-   */
   @Override
   public Transaction beginTransaction(TxIsolation isolation) {
     // start an explicit transaction
@@ -842,10 +825,6 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
     return t;
   }
 
-  /**
-   * Return the current transaction or null if there is not one currently in
-   * scope.
-   */
   @Override
   public Transaction currentTransaction() {
     return transactionManager.getActive();
@@ -856,50 +835,16 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
     currentTransaction().flush();
   }
 
-  /**
-   * Commit the current transaction.
-   */
   @Override
   public void commitTransaction() {
     currentTransaction().commit();
   }
 
-  /**
-   * Rollback the current transaction.
-   */
   @Override
   public void rollbackTransaction() {
     currentTransaction().rollback();
   }
 
-  /**
-   * If the current transaction has already been committed do nothing otherwise
-   * rollback the transaction.
-   * <p>
-   * Useful to put in a finally block to ensure the transaction is ended, rather
-   * than a rollbackTransaction() in each catch block.
-   * </p>
-   * <p>
-   * Code example:<br />
-   * <p>
-   * <pre>
-   * &lt;code&gt;
-   * Ebean.startTransaction();
-   * try {
-   * 	// do some fetching and or persisting
-   *
-   * 	// commit at the end
-   * 	Ebean.commitTransaction();
-   *
-   * } finally {
-   * 	// if commit didn't occur then rollback the transaction
-   * 	Ebean.endTransaction();
-   * }
-   * &lt;/code&gt;
-   * </pre>
-   * <p>
-   * </p>
-   */
   @Override
   public void endTransaction() {
     Transaction transaction = transactionManager.getInScope();
@@ -908,13 +853,6 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
     }
   }
 
-  /**
-   * return the next unique identity value.
-   * <p>
-   * Uses the BeanDescriptor deployment information to determine the sequence to
-   * use.
-   * </p>
-   */
   @Override
   public Object nextId(Class<?> beanType) {
     BeanDescriptor<?> desc = getBeanDescriptor(beanType);
@@ -1138,14 +1076,21 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
 
   <T> SpiOrmQueryRequest<T> createQueryRequest(Type type, Query<T> query, Transaction t) {
 
+    SpiOrmQueryRequest<T> request = buildQueryRequest(type, query, t);
+    request.prepareQuery();
+    return request;
+  }
+
+  <T> SpiOrmQueryRequest<T> buildQueryRequest(Type type, Query<T> query, Transaction t) {
+
     SpiQuery<T> spiQuery = (SpiQuery<T>) query;
     spiQuery.setType(type);
     spiQuery.checkNamedParameters();
 
-    return createQueryRequest(spiQuery, t);
+    return buildQueryRequest(spiQuery, t);
   }
 
-  private <T> SpiOrmQueryRequest<T> createQueryRequest(SpiQuery<T> query, Transaction t) {
+  private <T> SpiOrmQueryRequest<T> buildQueryRequest(SpiQuery<T> query, Transaction t) {
 
     if (t == null) {
       t = currentServerTransaction();
@@ -1168,10 +1113,7 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
       query.setOrigin(createCallStack());
     }
 
-    OrmQueryRequest<T> request = new OrmQueryRequest<>(this, queryEngine, query, (SpiTransaction) t);
-    request.prepareQuery();
-
-    return request;
+    return new OrmQueryRequest<>(this, queryEngine, query, (SpiTransaction) t);
   }
 
   /**
@@ -1242,7 +1184,8 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
       }
     }
 
-    SpiOrmQueryRequest<T> request = createQueryRequest(spiQuery, t);
+    SpiOrmQueryRequest<T> request = buildQueryRequest(spiQuery, t);
+    request.prepareQuery();
     if (request.isUseDocStore()) {
       return docStore().find(request);
     }
@@ -1595,14 +1538,17 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
   @SuppressWarnings("unchecked")
   private <T> List<T> findList(Query<T> query, Transaction t, boolean findOne) {
 
-    SpiOrmQueryRequest<T> request = createQueryRequest(Type.LIST, query, t);
+    SpiOrmQueryRequest<T> request = buildQueryRequest(Type.LIST, query, t);
     request.resetBeanCacheAutoMode(findOne);
+    if ((t == null || !t.isSkipCache()) && request.getFromBeanCache()) {
+      // hit bean cache and got all results from cache
+      return request.getBeanCacheHits();
+    }
+
+    request.prepareQuery();
     Object result = request.getFromQueryCache();
     if (result != null) {
       return (List<T>) result;
-    }
-    if ((t == null || !t.isSkipCache()) && request.getFromBeanCache()) {
-      return request.getBeanCacheHits();
     }
     if (request.isUseDocStore()) {
       return docStore().findList(request);
@@ -2447,6 +2393,9 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
     visitor.visitStart();
     if (visitor.isCollectTransactionMetrics()) {
       transactionManager.visitMetrics(visitor);
+    }
+    if (visitor.isCollectL2Metrics()) {
+      serverCacheManager.visitMetrics(visitor);
     }
     if (visitor.isCollectQueryMetrics()) {
       beanDescriptorManager.visitMetrics(visitor);

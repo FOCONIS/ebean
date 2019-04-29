@@ -1,6 +1,8 @@
 package io.ebeaninternal.server.type;
 
+import io.ebean.config.JsonConfig;
 import io.ebeaninternal.server.core.BasicTypeConverter;
+import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDate;
 
 import java.sql.Date;
@@ -11,8 +13,13 @@ import java.sql.Types;
  */
 public class ScalarTypeJodaLocalDate extends ScalarTypeBaseDate<LocalDate> {
 
-  public ScalarTypeJodaLocalDate() {
-    super(LocalDate.class, false, Types.DATE);
+  public ScalarTypeJodaLocalDate(JsonConfig.Date mode) {
+    super(mode, LocalDate.class, false, Types.DATE);
+  }
+
+  @Override
+  protected String toIsoFormat(LocalDate value) {
+    return value.toString();
   }
 
   @Override
@@ -22,7 +29,7 @@ public class ScalarTypeJodaLocalDate extends ScalarTypeBaseDate<LocalDate> {
 
   @Override
   public long convertToMillis(LocalDate value) {
-    return value.toDateTimeAtStartOfDay().getMillis();
+    return value.toDateTimeAtStartOfDay(DateTimeZone.UTC).getMillis();
   }
 
   @Override
