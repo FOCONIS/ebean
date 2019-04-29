@@ -9,7 +9,7 @@
 
   <groupId>io.ebean</groupId>
   <artifactId>ebean</artifactId>
-  <version>11.38.1-FOC1</version>
+  <version>11.38.1-FOC2-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>ebean</name>
@@ -22,7 +22,7 @@
 
   <scm>
     <developerConnection>scm:git:git@github.com:FOCONIS/ebean.git</developerConnection>
-    <tag>v11.38.1-FOC1</tag>
+    <tag>HEAD</tag>
   </scm>
 
   <profiles>
