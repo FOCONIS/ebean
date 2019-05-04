@@ -42,6 +42,7 @@ public class TestJsonVersioning extends BaseTestCase {
     String s = Ebean.json().toJson(o, jsonOpts);
 
     s = s.replaceAll("\\d{5,}", "XXXX"); // replaces all timestamps
+    s = s.replaceAll("\\\"20\\d\\d-[^\\\"]*\\\"", "XXXX"); // detect ISO timestamps: "20xx-...."
     assertThat(s).isEqualTo("{\"_v\":23,\"id\":1,\"status\":\"NEW\",\"orderDate\":XXXX,\"shipDate\":null,"
         + "\"customer\":{\"_v\":1,\"id\":1},\"customerName\":\"Rob\","
         + "\"shipments\":[{\"_v\":17,\"id\":1,\"shipTime\":XXXX,\"cretime\":XXXX,\"updtime\":XXXX,\"version\":1}],"

@@ -228,7 +228,7 @@ public class TestQuerySingleAttributeWithFetchProperty extends BaseTestCase {
     } else if (isDb2()) {
       assertThat(sqlOf(query)).contains("FETCH FIRST 100 ROWS ONLY");
     } else {
-      assertThat(sqlOf(query)).contains("select t0.id from o_customer t0 order by t0.id limit 100");
+      assertThat(sqlOf(query)).contains("select t0.id from o_customer t0 limit 100");
     }
     assertThat(ids).isNotEmpty();
   }
