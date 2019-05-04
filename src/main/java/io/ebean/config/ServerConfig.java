@@ -171,12 +171,12 @@ public class ServerConfig {
   /**
    * The JSON format used for DateTime types. Default to millis.
    */
-  private JsonConfig.DateTime jsonDateTime = JsonConfig.DateTime.MILLIS;
+  private JsonConfig.DateTime jsonDateTime = JsonConfig.DateTime.ISO8601;
 
   /**
    * The JSON format used for Date types. Default to millis.
    */
-  private JsonConfig.Date jsonDate = JsonConfig.Date.MILLIS;
+  private JsonConfig.Date jsonDate = JsonConfig.Date.ISO8601;
 
   /**
    * For writing JSON specify if null values or empty collections should be exluded.
@@ -525,7 +525,7 @@ public class ServerConfig {
   /**
    * Controls the default order by id setting of queries. See {@link Query#orderById(boolean)}
    */
-  private boolean defaultOrderById = false;
+  private boolean defaultOrderById;
 
   /**
    * The mappingLocations for searching xml mapping.
@@ -611,8 +611,9 @@ public class ServerConfig {
 
 
   /**
-   * Sets the default orderById setting for queries.
+   * Deprecated - look to have explicit order by. Sets the default orderById setting for queries.
    */
+  @Deprecated
   public void setDefaultOrderById(boolean defaultOrderById) {
     this.defaultOrderById = defaultOrderById;
   }

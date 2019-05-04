@@ -47,6 +47,7 @@ import io.ebeaninternal.api.SpiExpressionValidation;
 import io.ebeaninternal.api.SpiNamedParam;
 import io.ebeaninternal.api.SpiQuery;
 import io.ebeaninternal.api.SpiQuerySecondary;
+import io.ebeaninternal.api.SpiTransaction;
 import io.ebeaninternal.server.autotune.ProfilingListener;
 import io.ebeaninternal.server.core.SpiOrmQueryRequest;
 import io.ebeaninternal.server.deploy.BeanDescriptor;
@@ -60,11 +61,12 @@ import io.ebeaninternal.server.expression.SimpleExpression;
 import io.ebeaninternal.server.query.CancelableQuery;
 import io.ebeaninternal.server.query.NativeSqlQueryPlanKey;
 import io.ebeaninternal.server.rawsql.SpiRawSql;
+import io.ebeaninternal.server.transaction.ExternalJdbcTransaction;
 
 import javax.persistence.PersistenceException;
+import java.sql.Connection;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -94,6 +96,8 @@ public class DefaultOrmQuery<T> implements SpiQuery<T> {
   private final SpiEbeanServer server;
 
   private final ExpressionFactory expressionFactory;
+
+  private SpiTransaction transaction;
 
   /**
    * For lazy loading of ManyToMany we need to add a join to the intersection table. This is that
@@ -816,6 +820,7 @@ public class DefaultOrmQuery<T> implements SpiQuery<T> {
   @Override
   public DefaultOrmQuery<T> copy(SpiEbeanServer server) {
     DefaultOrmQuery<T> copy = new DefaultOrmQuery<>(beanDescriptor, server, expressionFactory);
+    copy.transaction = transaction;
     copy.m2mIncludeJoin = m2mIncludeJoin;
     copy.profilingListener = profilingListener;
     copy.profileLocation = profileLocation;
@@ -1436,8 +1441,20 @@ public class DefaultOrmQuery<T> implements SpiQuery<T> {
   }
 
   @Override
+  public Query<T> usingTransaction(Transaction transaction) {
+    this.transaction = (SpiTransaction)transaction;
+    return this;
+  }
+
+  @Override
+  public Query<T> usingConnection(Connection connection) {
+    this.transaction = new ExternalJdbcTransaction(connection);
+    return this;
+  }
+
+  @Override
   public int delete() {
-    return server.delete(this, null);
+    return server.delete(this, transaction);
   }
 
   @Override
@@ -1447,7 +1464,7 @@ public class DefaultOrmQuery<T> implements SpiQuery<T> {
 
   @Override
   public int update() {
-    return server.update(this, null);
+    return server.update(this, transaction);
   }
 
   @Override
@@ -1460,12 +1477,12 @@ public class DefaultOrmQuery<T> implements SpiQuery<T> {
     // a copy of this query is made in the server
     // as the query needs to modified (so we modify
     // the copy rather than this query instance)
-    return server.findIds(this, null);
+    return server.findIds(this, transaction);
   }
 
   @Override
   public boolean exists() {
-    return server.exists(this, null);
+    return server.exists(this, transaction);
   }
 
   @Override
@@ -1473,28 +1490,28 @@ public class DefaultOrmQuery<T> implements SpiQuery<T> {
     // a copy of this query is made in the server
     // as the query needs to modified (so we modify
     // the copy rather than this query instance)
-    return server.findCount(this, null);
+    return server.findCount(this, transaction);
   }
 
   @Override
   public void findEachWhile(Predicate<T> consumer) {
-    server.findEachWhile(this, consumer, null);
+    server.findEachWhile(this, consumer, transaction);
   }
 
   @Override
   public void findEach(Consumer<T> consumer) {
-    server.findEach(this, consumer, null);
+    server.findEach(this, consumer, transaction);
   }
 
   @Override
   public QueryIterator<T> findIterate() {
-    return server.findIterate(this, null);
+    return server.findIterate(this, transaction);
   }
 
   @Override
   public List<Version<T>> findVersions() {
     this.temporalMode = TemporalMode.VERSIONS;
-    return server.findVersions(this, null);
+    return server.findVersions(this, transaction);
   }
 
   @Override
@@ -1505,28 +1522,28 @@ public class DefaultOrmQuery<T> implements SpiQuery<T> {
     this.temporalMode = TemporalMode.VERSIONS;
     this.versionsStart = start;
     this.versionsEnd = end;
-    return server.findVersions(this, null);
+    return server.findVersions(this, transaction);
   }
 
   @Override
   public List<T> findList() {
-    return server.findList(this, null);
+    return server.findList(this, transaction);
   }
 
   @Override
   public Set<T> findSet() {
-    return server.findSet(this, null);
+    return server.findSet(this, transaction);
   }
 
   @Override
   public <K> Map<K, T> findMap() {
-    return server.findMap(this, null);
+    return server.findMap(this, transaction);
   }
 
   @Override
   @SuppressWarnings("unchecked")
   public <A> List<A> findSingleAttributeList() {
-    return (List<A>) server.findSingleAttributeList(this, null);
+    return (List<A>) server.findSingleAttributeList(this, transaction);
   }
 
   @Override
@@ -1537,32 +1554,32 @@ public class DefaultOrmQuery<T> implements SpiQuery<T> {
 
   @Override
   public T findOne() {
-    return server.findOne(this, null);
+    return server.findOne(this, transaction);
   }
 
   @Override
   public Optional<T> findOneOrEmpty() {
-    return server.findOneOrEmpty(this, null);
+    return server.findOneOrEmpty(this, transaction);
   }
 
   @Override
   public FutureIds<T> findFutureIds() {
-    return server.findFutureIds(this, null);
+    return server.findFutureIds(this, transaction);
   }
 
   @Override
   public FutureList<T> findFutureList() {
-    return server.findFutureList(this, null);
+    return server.findFutureList(this, transaction);
   }
 
   @Override
   public FutureRowCount<T> findFutureCount() {
-    return server.findFutureCount(this, null);
+    return server.findFutureCount(this, transaction);
   }
 
   @Override
   public PagedList<T> findPagedList() {
-    return server.findPagedList(this, null);
+    return server.findPagedList(this, transaction);
   }
 
   /**
@@ -1602,7 +1619,7 @@ public class DefaultOrmQuery<T> implements SpiQuery<T> {
 
   @Override
   public boolean checkPagingOrderBy() {
-    return !useDocStore && (maxRows > 1 || firstRow > 0) && !distinct && (orderByIsEmpty() || isOrderById());
+    return orderById && !useDocStore;
   }
 
   @Override

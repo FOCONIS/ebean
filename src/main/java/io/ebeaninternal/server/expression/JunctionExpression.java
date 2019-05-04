@@ -36,6 +36,7 @@ import io.ebeaninternal.api.SpiQuery;
 import io.ebeaninternal.server.deploy.BeanDescriptor;
 
 import java.io.IOException;
+import java.sql.Connection;
 import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.List;
@@ -330,6 +331,16 @@ class JunctionExpression<T> implements SpiJunction<T>, SpiExpression, Expression
   @Override
   public ExpressionList<T> filterMany(String prop) {
     throw new IllegalStateException("filterMany not allowed on Junction expression list");
+  }
+
+  @Override
+  public Query<T> usingTransaction(Transaction transaction) {
+    return exprList.usingTransaction(transaction);
+  }
+
+  @Override
+  public Query<T> usingConnection(Connection connection) {
+    return exprList.usingConnection(connection);
   }
 
   @Override
