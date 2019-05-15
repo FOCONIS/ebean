@@ -1,5 +1,8 @@
 package io.ebeaninternal.server.transaction;
 
+import javax.persistence.PersistenceException;
+
+import io.ebeaninternal.api.ScopedTransaction;
 import io.ebeaninternal.api.SpiTransaction;
 
 /**
@@ -7,9 +10,15 @@ import io.ebeaninternal.api.SpiTransaction;
  */
 public class DefaultTransactionScopeManager extends TransactionScopeManager {
 
+  // we must not use SpiTransaction[] here.
+  // adopted from here https://bugzilla.mozilla.org/show_bug.cgi?id=281067#c5
+  private ThreadLocal<Object[]> local = new ThreadLocal<>();
 
-  public DefaultTransactionScopeManager(String serverName) {
+  private final TransactionLeakDetector leakDetector;
+
+  public DefaultTransactionScopeManager(String serverName, TransactionLeakDetector leakDetector) {
     super(serverName);
+    this.leakDetector = leakDetector;
   }
 
   @Override
@@ -19,28 +28,78 @@ public class DefaultTransactionScopeManager extends TransactionScopeManager {
 
   @Override
   public SpiTransaction getInScope() {
-    return DefaultTransactionThreadLocal.get(serverName);
-  }
-
-  @Override
-  public SpiTransaction getActive() {
-    SpiTransaction t = DefaultTransactionThreadLocal.get(serverName);
-    if (t == null || !t.isActive()) {
+    Object[] obj = local.get();
+    if (obj == null || obj[0] == null) {
       return null;
     } else {
-      return t;
+      return (SpiTransaction) obj[0];
     }
   }
 
   @Override
+  public SpiTransaction getActive() {
+    SpiTransaction t = getInScope();
+    if (t == null) {
+      return null;
+    } else if (t.isActive()) {
+      return t;
+    } else if (t instanceof ScopedTransaction){
+      return null; // inactive scoped trans
+    } else {
+      removeInternal();
+      return null;
+    }
+  }
+
+
+
+
+  @Override
   public void replace(SpiTransaction trans) {
-    DefaultTransactionThreadLocal.replace(serverName, trans);
+    if (trans == null) {
+      removeInternal();
+    } else {
+      setInternal(trans);
+    }
   }
 
   @Override
   public void set(SpiTransaction trans) {
-    DefaultTransactionThreadLocal.set(serverName, trans);
+    SpiTransaction currentTrans = getInScope();
+    if (currentTrans == null && trans == null) {
+      return;
+    } else if (currentTrans == null || !currentTrans.isActive()) {
+      replace(trans);
+    } else if (trans != currentTrans) { // compare identity
+      throw new PersistenceException("The existing transaction is still active?");
+    }
   }
 
+  /**
+   * @param trans
+   */
+  private void setInternal(SpiTransaction trans) {
+    Object[] obj  = new Object[1];
+    obj[0] = trans;
+    if (leakDetector != null) {
+      leakDetector.set(local.get(), obj);
+    }
+    local.set(obj);
+  }
+
+  private void removeInternal() {
+    local.remove();
+    if (leakDetector != null) {
+      leakDetector.remove();
+    }
+  }
+
+  @Override
+  public void shutdown() {
+    local = null;
+    if (leakDetector != null) {
+      leakDetector.detectLeaks(serverName);
+    }
+  }
 
 }

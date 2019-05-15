@@ -49,7 +49,7 @@ public class ModifyAwareMap<K, V> implements Map<K, V>, ModifyAwareOwner {
 
   @Override
   public int hashCode() {
-    return Objects.hash(map);
+    return map.hashCode();
   }
 
   @Override

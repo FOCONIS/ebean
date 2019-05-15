@@ -5,6 +5,7 @@ import io.ebean.Ebean;
 import io.ebean.Transaction;
 import io.ebean.annotation.Transactional;
 import io.ebean.annotation.TxType;
+
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +41,9 @@ public class TestTransactionalSupports extends BaseTestCase {
     } finally {
       Ebean.endTransaction();
     }
+
+    Transaction txn = Transaction.current();
+    assertThat(txn).isNull();
   }
 
   @Test
@@ -47,6 +51,9 @@ public class TestTransactionalSupports extends BaseTestCase {
 
     int got = new SomeTransactionalWithSupportsAndSave().doStuff();
     assertThat(got).isEqualTo(42);
+
+    Transaction txn = Transaction.current();
+    assertThat(txn).isNull();
   }
 
   class SomeTransactionalWithSupports {
