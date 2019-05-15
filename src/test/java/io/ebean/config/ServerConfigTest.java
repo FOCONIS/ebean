@@ -70,6 +70,7 @@ public class ServerConfigTest {
     props.setProperty("namingConvention", "io.ebean.config.MatchingNamingConvention");
     props.setProperty("idGeneratorAutomatic", "true");
     props.setProperty("enabledL2Regions", "r0,users,orgs");
+    props.setProperty("caseSensitiveCollation", "false");
 
 
     serverConfig.loadFromProperties(props);
@@ -79,13 +80,13 @@ public class ServerConfigTest {
     assertTrue(serverConfig.isDbOffline());
     assertTrue(serverConfig.isAutoReadOnlyDataSource());
     assertTrue(serverConfig.isIdGeneratorAutomatic());
+    assertFalse(serverConfig.getPlatformConfig().isCaseSensitiveCollation());
 
     assertThat(serverConfig.getNamingConvention()).isInstanceOf(MatchingNamingConvention.class);
 
     assertEquals(IdType.SEQUENCE, serverConfig.getIdType());
     assertEquals(PersistBatch.ALL, serverConfig.getPersistBatch());
     assertEquals(PersistBatch.ALL, serverConfig.getPersistBatchOnCascade());
-
     assertEquals(PlatformConfig.DbUuid.BINARY, serverConfig.getPlatformConfig().getDbUuid());
     assertEquals(JsonConfig.DateTime.MILLIS, serverConfig.getJsonDateTime());
     assertEquals(JsonConfig.Date.MILLIS, serverConfig.getJsonDate());
@@ -132,6 +133,7 @@ public class ServerConfigTest {
     assertFalse(serverConfig.isIdGeneratorAutomatic());
     assertEquals(JsonConfig.DateTime.ISO8601, serverConfig.getJsonDateTime());
     assertEquals(JsonConfig.Date.ISO8601, serverConfig.getJsonDate());
+    assertTrue(serverConfig.getPlatformConfig().isCaseSensitiveCollation());
   }
 
   @Test

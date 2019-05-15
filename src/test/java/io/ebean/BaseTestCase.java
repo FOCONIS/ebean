@@ -2,6 +2,7 @@ package io.ebean;
 
 import io.ebean.annotation.PersistBatch;
 import io.ebean.annotation.Platform;
+import io.ebean.config.dbplatform.IdType;
 import io.ebean.meta.MetaTimedMetric;
 import io.ebean.meta.MetricType;
 import io.ebean.meta.ServerMetrics;
@@ -124,6 +125,14 @@ public abstract class BaseTestCase {
       sql = StringHelper.replaceString(sql, " c" + i + " ", " ");
     }
     return sql;
+  }
+
+  public boolean isPlatformCaseSensitive() {
+    return spiEbeanServer().getDatabasePlatform().isCaseSensitiveCollation();
+  }
+
+  public boolean hasSequence() {
+    return spiEbeanServer().getDatabasePlatform().getDbIdentity().getIdType() == IdType.SEQUENCE;
   }
 
   /**

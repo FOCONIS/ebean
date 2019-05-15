@@ -3,6 +3,9 @@ package org.tests.query.other;
 import io.ebean.BaseTestCase;
 import io.ebean.Ebean;
 import io.ebean.Query;
+import io.ebean.annotation.IgnorePlatform;
+import io.ebean.annotation.Platform;
+
 import org.junit.Test;
 import org.tests.model.basic.EBasic;
 
@@ -22,8 +25,12 @@ public class TestWhereLikeWithSlash extends BaseTestCase {
     List<EBasic> list = query.findList();
 
     assertEquals(1, list.size());
-
-    Query<EBasic> query1 = Ebean.find(EBasic.class).where().like("name", "slash\\mon%").query();
+    Query<EBasic> query1;
+    if (isMySql()) {
+      query1 = Ebean.find(EBasic.class).where().like("name", "slash\\\\mon%").query();
+    } else {
+      query1 = Ebean.find(EBasic.class).where().like("name", "slash\\mon%").query();
+    }
     List<EBasic> list1 = query1.findList();
 
     // This doesn't work in the latest version of H2 so disable for now.
