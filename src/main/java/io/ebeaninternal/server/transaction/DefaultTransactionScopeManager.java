@@ -12,7 +12,7 @@ public class DefaultTransactionScopeManager extends TransactionScopeManager {
 
   // we must not use SpiTransaction[] here.
   // adopted from here https://bugzilla.mozilla.org/show_bug.cgi?id=281067#c5
-  private ThreadLocal<Object[]> local = new ThreadLocal<>();
+  private final ThreadLocal<Object[]> local = new ThreadLocal<>();
 
   private final TransactionLeakDetector leakDetector;
 
@@ -50,9 +50,6 @@ public class DefaultTransactionScopeManager extends TransactionScopeManager {
       return null;
     }
   }
-
-
-
 
   @Override
   public void replace(SpiTransaction trans) {
@@ -96,7 +93,6 @@ public class DefaultTransactionScopeManager extends TransactionScopeManager {
 
   @Override
   public void shutdown() {
-    local = null;
     if (leakDetector != null) {
       leakDetector.detectLeaks(serverName);
     }

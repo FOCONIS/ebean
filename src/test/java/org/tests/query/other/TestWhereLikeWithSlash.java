@@ -3,8 +3,6 @@ package org.tests.query.other;
 import io.ebean.BaseTestCase;
 import io.ebean.Ebean;
 import io.ebean.Query;
-import io.ebean.annotation.IgnorePlatform;
-import io.ebean.annotation.Platform;
 
 import org.junit.Test;
 import org.tests.model.basic.EBasic;
