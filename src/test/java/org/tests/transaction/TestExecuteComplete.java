@@ -200,7 +200,7 @@ public class TestExecuteComplete extends BaseTestCase {
 
   @ForPlatform(Platform.H2)
   @Test
-  //@Ignore("disabled by default")
+  @Ignore("disabled by default")
   // If this test is enabled, and tests are executed with enabeld memory-leak detection,
   // (mvn verify -Debean.detectTransactionLeaks=true) a stacktrace should be printed on shutdown
   // identifying this code place
