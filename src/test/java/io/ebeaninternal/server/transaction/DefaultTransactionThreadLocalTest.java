@@ -6,8 +6,6 @@ import io.ebean.Transaction;
 import io.ebean.annotation.ForPlatform;
 import io.ebean.annotation.Platform;
 import io.ebeaninternal.api.SpiTransaction;
-import io.ebeaninternal.server.core.DefaultServer;
-
 import org.junit.Test;
 
 import static org.junit.Assert.assertNotNull;
@@ -16,21 +14,16 @@ import static org.junit.Assert.assertSame;
 
 public class DefaultTransactionThreadLocalTest extends BaseTestCase {
 
-  private SpiTransaction currentTransaction() {
-    DefaultServer srv = (DefaultServer) server();
-    return ((TransactionManager)(srv.getTransactionManager())).scope().getInScope();
-  }
-
   @ForPlatform({Platform.H2})
   @Test
   public void get() {
     Ebean.execute(() -> {
-      SpiTransaction txn = currentTransaction();
+      SpiTransaction txn = DefaultTransactionThreadLocal.get("h2");
       assertNotNull(txn);
     });
 
     // thread local should be set to null
-    assertNull(currentTransaction());
+    assertNull(DefaultTransactionThreadLocal.get("h2"));
   }
 
   @ForPlatform({Platform.H2})
@@ -39,19 +32,19 @@ public class DefaultTransactionThreadLocalTest extends BaseTestCase {
 
     try (Transaction transaction = Ebean.beginTransaction()) {
       assertNotNull(transaction);
-      SpiTransaction txn = currentTransaction();
+      SpiTransaction txn = DefaultTransactionThreadLocal.get("h2");
       assertSame(txn, transaction);
 
       try (Transaction nested = Ebean.beginTransaction()) {
         assertNotNull(nested);
-        Transaction txnNested = currentTransaction();
+        SpiTransaction txnNested = DefaultTransactionThreadLocal.get("h2");
         assertSame(txnNested, nested);
       }
 
-      assertNotNull(currentTransaction());
+      assertNotNull(DefaultTransactionThreadLocal.get("h2"));
     }
 
-    assertNull(currentTransaction());
+    assertNull(DefaultTransactionThreadLocal.get("h2"));
   }
 
   @ForPlatform({Platform.H2})
@@ -60,9 +53,9 @@ public class DefaultTransactionThreadLocalTest extends BaseTestCase {
 
     try (Transaction transaction = Ebean.beginTransaction()) {
       transaction.commit();
-      assertNull(currentTransaction());
+      assertNull(DefaultTransactionThreadLocal.get("h2"));
     }
-    assertNull(currentTransaction());
+    assertNull(DefaultTransactionThreadLocal.get("h2"));
   }
 
   @ForPlatform({Platform.H2})
@@ -72,9 +65,9 @@ public class DefaultTransactionThreadLocalTest extends BaseTestCase {
     try (Transaction transaction = Ebean.beginTransaction()) {
 
       transaction.rollback();
-      assertNull(currentTransaction());
+      assertNull(DefaultTransactionThreadLocal.get("h2"));
     }
-    assertNull(currentTransaction());
+    assertNull(DefaultTransactionThreadLocal.get("h2"));
   }
 
   @ForPlatform({Platform.H2})

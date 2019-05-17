@@ -336,8 +336,10 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
 
   @Override
   public void initDatabase() {
-    ddlGenerator.runDdl(); // normally either DDL or migration should be configured.
-    serverConfig.runDbMigration(getDataSource());
+    if (!serverConfig.isDocStoreOnly()) { // CHECKME: Should we double check doc-store mode here?
+      ddlGenerator.runDdl(); // normally either ddlRun or migration should be configured (or docstore?)
+      serverConfig.runDbMigration(getDataSource());
+    }
   }
 
   /**
@@ -453,7 +455,9 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
    * Run any initialisation required before registering with the ClusterManager.
    */
   public void initialise() {
-    ddlGenerator.generateDdl();
+    if (!serverConfig.isDocStoreOnly()) {
+      ddlGenerator.generateDdl();
+    }
 
     if (encryptKeyManager != null) {
       encryptKeyManager.initialise();

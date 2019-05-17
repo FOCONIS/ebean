@@ -102,7 +102,7 @@ public class JtaTransactionManager implements ExternalTransactionManager {
     }
 
     // check current Ebean transaction
-    SpiTransaction currentEbeanTransaction = transactionManager.getInScope();
+    SpiTransaction currentEbeanTransaction = DefaultTransactionThreadLocal.get(serverName);
     if (currentEbeanTransaction != null) {
       // NOT expecting this so log WARNING
       String msg = "JTA Transaction - no current txn BUT using current Ebean one " + currentEbeanTransaction.getId();
@@ -133,7 +133,7 @@ public class JtaTransactionManager implements ExternalTransactionManager {
     syncRegistry.registerInterposedSynchronization(txnListener);
 
     // also put in Ebean ThreadLocal
-    transactionManager.set(newTrans);
+    DefaultTransactionThreadLocal.set(serverName, newTrans);
     return newTrans;
   }
 
@@ -193,9 +193,12 @@ public class JtaTransactionManager implements ExternalTransactionManager {
 
     private final SpiTransaction transaction;
 
+    private final String serverName;
+
     private JtaTxnListener(TransactionManager transactionManager, SpiTransaction t) {
       this.transactionManager = transactionManager;
       this.transaction = t;
+      this.serverName = transactionManager.getServerName();
     }
 
     @Override

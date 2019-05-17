@@ -250,7 +250,6 @@ public class TransactionManager implements SpiTransactionManager {
     if (shutdownDataSource) {
       dataSourceSupplier.shutdown(deregisterDriver);
     }
-    scopeManager.shutdown();
   }
 
   public boolean isDocStoreActive() {
@@ -390,7 +389,9 @@ public class TransactionManager implements SpiTransactionManager {
 
   public void notifyOfDeactivate(SpiTransaction transaction) {
     if (scopeManager.getInScope() == transaction) {
-      scopeManager.replace(null);
+      // if this transaction is the one in the threadLocal, clear it,
+      // so no inactive transactions will cause memory leaks
+      scopeManager.set(null);
     }
   }
 
@@ -606,7 +607,7 @@ public class TransactionManager implements SpiTransactionManager {
    */
   @Override
   public ScopedTransaction externalBeginTransaction(SpiTransaction transaction, TxScope txScope) {
-    ScopedTransaction scopedTxn = createScopedTransaction();
+    ScopedTransaction scopedTxn = new ScopedTransaction(scopeManager);
     scopedTxn.push(new ScopeTrans(rollbackOnChecked, false, transaction, txScope));
     scopeManager.set(scopedTxn);
     return scopedTxn;
@@ -660,7 +661,7 @@ public class TransactionManager implements SpiTransactionManager {
 
     txnContainer.push(new ScopeTrans(rollbackOnChecked, createTransaction, transaction, txScope));
     if (setToScope) {
-      scopeManager.set(txnContainer);
+      set(txnContainer);
     }
     return txnContainer;
   }

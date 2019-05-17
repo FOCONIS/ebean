@@ -380,11 +380,6 @@ public class ServerConfig {
   private UuidVersion uuidVersion = UuidVersion.VERSION4;
 
   /**
-   * The Transaction leak detection.
-   */
-  private TransactionLeakDetection transactionLeakDetection = TransactionLeakDetection.COUNTER;
-
-  /**
    * The UUID state file (for Version 1 UUIDs). By default, the file is created in
    * ${HOME}/.ebean/${servername}-uuid.state
    */
@@ -2095,21 +2090,6 @@ public class ServerConfig {
     this.uuidVersion = uuidVersion;
   }
 
-
-  /**
-   * Returns the transaction leak detection.
-   */
-  public TransactionLeakDetection getTransactionLeakDetection() {
-    return transactionLeakDetection;
-  }
-
-  /**
-   * Sets the transaction leak detection.
-   */
-  public void setTransactionLeakDetection(TransactionLeakDetection transactionLeakDetection) {
-    this.transactionLeakDetection = transactionLeakDetection;
-  }
-
   /**
    * Return the UUID state file.
    */
@@ -3070,8 +3050,6 @@ public class ServerConfig {
     uuidVersion = p.getEnum(UuidVersion.class, "uuidVersion", uuidVersion);
     uuidStateFile = p.get("uuidStateFile", uuidStateFile);
 
-    transactionLeakDetection = p.getEnum(TransactionLeakDetection.class, "transactionLeakDetection", transactionLeakDetection);
-
     localTimeWithNanos = p.getBoolean("localTimeWithNanos", localTimeWithNanos);
     jodaLocalTimeMode = p.get("jodaLocalTimeMode", jodaLocalTimeMode);
 
@@ -3456,25 +3434,4 @@ public class ServerConfig {
     VERSION1RND
   }
 
-  /**
-   * Controls the method how transaction leaks are detected.
-   */
-  public enum TransactionLeakDetection {
-    /** Transaction leak detection is off */
-    OFF,
-
-    /**
-     * Transaction leak detection is maintained by a counter. The number of created
-     * transactions must be equal to the number of deactivated transactions.
-     * Counter has low update contention, as it uses a long adder.
-     */
-    COUNTER,
-
-    /**
-     * Transaction leak detection records a stack trace, where leak occurs. Here a
-     * concurrent hash map is used, so synchronization may ouccur on generation and
-     * deactivation of transactions.
-     */
-    DETAIL
-  }
 }

@@ -131,10 +131,6 @@ public abstract class BaseTestCase {
     return spiEbeanServer().getDatabasePlatform().isCaseSensitiveCollation();
   }
 
-  public boolean hasSequence() {
-    return spiEbeanServer().getDatabasePlatform().getDbIdentity().getIdType() == IdType.SEQUENCE;
-  }
-
   /**
    * MS SQL Server does not allow setting explicit values on identity columns
    * so tests that do this need to be skipped for SQL Server.
@@ -200,6 +196,10 @@ public abstract class BaseTestCase {
 
   protected Platform platform() {
     return spiEbeanServer().getDatabasePlatform().getPlatform();
+  }
+
+  protected IdType idType() {
+    return spiEbeanServer().getDatabasePlatform().getDbIdentity().getIdType();
   }
 
   protected SpiEbeanServer spiEbeanServer() {
