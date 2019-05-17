@@ -17,30 +17,6 @@ import org.junit.Test;
 
 public class TestManyOneInterface extends BaseTestCase {
 
-  private static class MyAddress implements IAddress {
-
-    private long oid;
-    private String street;
-
-     MyAddress(long oid) {
-      this.oid = oid;
-    }
-
-    @Override
-    public long getOid() {
-      return oid;
-    }
-
-    @Override
-    public String getStreet() {
-      return street;
-    }
-
-    @Override
-    public void setStreet(String street) {
-      this.street = street;
-    }
-  }
   @Test
   public void test() {
 
@@ -83,16 +59,5 @@ public class TestManyOneInterface extends BaseTestCase {
     assertThat(pe1).isInstanceOf(ExtPerson1and2.class);
     assertThat(pe2).isInstanceOf(ExtPerson1and2.class);
 
-
-
-    IPerson p3 = Ebean.getDefaultServer().getPluginApi().createEntityBean(Person.class);
-    IAddress a3 = new MyAddress(a.getOid());
-    p3.setDefaultAddress(a3);
-
-    ea1 = new MyAddress(ea1.getOid());
-    ea2 = new MyAddress(ea2.getOid());
-    p3.getAddressLinks().add(ea1);
-    p3.getAddressLinks().add(ea2);
-    Ebean.save(p3);
   }
 }
