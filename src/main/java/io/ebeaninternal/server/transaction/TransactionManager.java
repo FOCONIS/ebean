@@ -387,14 +387,6 @@ public class TransactionManager implements SpiTransactionManager {
     }
   }
 
-  public void notifyOfDeactivate(SpiTransaction transaction) {
-    if (scopeManager.getInScope() == transaction) {
-      // if this transaction is the one in the threadLocal, clear it,
-      // so no inactive transactions will cause memory leaks
-      scopeManager.set(null);
-    }
-  }
-
   /**
    * Query only transaction in read committed isolation.
    */

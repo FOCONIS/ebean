@@ -177,18 +177,8 @@ public class BeanPropertyAssocOne<T> extends BeanPropertyAssoc<T> implements STr
   /**
    * Return the property value as an entity bean.
    */
-  @Override
   public EntityBean getValueAsEntityBean(EntityBean owner) {
-    Object bean = getValue(owner);
-    if (bean == null) {
-      return null;
-    } else if (bean instanceof EntityBean) {
-      return (EntityBean) bean;
-    } else {
-      BeanDescriptor<?> other = descriptor.getBeanDescriptor(bean.getClass());
-      Object id = other.beanId(bean);
-      return (EntityBean) other.createReference(id, null);
-    }
+    return (EntityBean) getValue(owner);
   }
 
   void setRelationshipProperty(BeanPropertyAssocMany<?> relationshipProperty) {
@@ -382,7 +372,6 @@ public class BeanPropertyAssocOne<T> extends BeanPropertyAssoc<T> implements STr
     }
   }
 
-  @Override
   public boolean hasForeignKey() {
     return foreignKey == null || !foreignKey.isNoConstraint();
   }

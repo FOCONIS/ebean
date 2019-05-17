@@ -116,7 +116,6 @@ public class JtaTransactionManager implements ExternalTransactionManager {
       if (logger.isDebugEnabled()) {
         logger.debug("JTA Transaction - no current txn");
       }
-      transactionManager.set(null);
       return null;
     }
 
@@ -216,6 +215,8 @@ public class JtaTransactionManager implements ExternalTransactionManager {
             logger.debug("Jta Txn [" + transaction.getId() + "] committed");
           }
           transactionManager.notifyOfCommit(transaction);
+          // Remove this transaction object as it is completed
+          DefaultTransactionThreadLocal.replace(serverName, null);
           break;
 
         case Status.STATUS_ROLLEDBACK:
@@ -223,6 +224,8 @@ public class JtaTransactionManager implements ExternalTransactionManager {
             logger.debug("Jta Txn [" + transaction.getId() + "] rollback");
           }
           transactionManager.notifyOfRollback(transaction, null);
+          // Remove this transaction object as it is completed
+          DefaultTransactionThreadLocal.replace(serverName, null);
           break;
 
         default:
@@ -233,8 +236,6 @@ public class JtaTransactionManager implements ExternalTransactionManager {
 
       // No matter the completion status of the transaction, we release the connection we got from the pool.
       JdbcClose.close(transaction.getInternalConnection());
-      // And we remove this transaction object as it is completed
-      transactionManager.notifyOfDeactivate(transaction);
     }
   }
 

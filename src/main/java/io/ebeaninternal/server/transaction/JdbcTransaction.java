@@ -317,7 +317,7 @@ public class JdbcTransaction implements SpiTransaction, TxnProfileEventCodes {
     if (active) {
       return logPrefix;
     } else {
-      return logPrefix + "#inactive";
+      return logPrefix + "(inactive)";
     }
   }
 
@@ -925,7 +925,7 @@ public class JdbcTransaction implements SpiTransaction, TxnProfileEventCodes {
     connection = null;
     active = false;
     if (manager != null) {
-      manager.notifyOfDeactivate(this);;
+      manager.scope().clear(this);
     }
     profileEnd();
   }
