@@ -2244,6 +2244,8 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
     } catch (RuntimeException e) {
       wrap.endIfCreated();
       throw e;
+    } finally {
+      wrap.clearIfCreated();
     }
   }
 
@@ -2261,6 +2263,11 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
     }
     trans = beginServerTransaction();
     return new ObtainedTransactionImplicit(trans, this);
+  }
+
+  @Override
+  public void clearServerTransaction() {
+    transactionManager.clearServerTransaction();
   }
 
   @Override

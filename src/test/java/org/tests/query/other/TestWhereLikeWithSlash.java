@@ -31,10 +31,11 @@ public class TestWhereLikeWithSlash extends BaseTestCase {
     }
     List<EBasic> list1 = query1.findList();
 
-    // This doesn't work in the latest version of H2 so disable for now.
-    // Still good on Postgres which was the original issue
-    assertEquals(1, list1.size());
-
+    if (!isMySql()) {
+      // For mysql this assert depends on no_backslash_escapes setting so we won't assert here
+      // Still good on Postgres which was the original issue
+      assertEquals(1, list1.size());
+    }
   }
 
   @Test
