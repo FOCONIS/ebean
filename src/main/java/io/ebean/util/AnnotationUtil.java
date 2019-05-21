@@ -219,7 +219,7 @@ public class AnnotationUtil {
     }
   }
 
-  private static final ConcurrentMap<Annotation, Method> valueMethods = new ConcurrentHashMap<>();
+  private static final ConcurrentMap<Class<? extends Annotation>, Method> valueMethods = new ConcurrentHashMap<>();
   // only a non-null-marker the valueMethods - Cache
   private static final Method nullMethod = getNullMethod();
 
@@ -231,18 +231,8 @@ public class AnnotationUtil {
   private static <A extends Annotation> Method getRepeatableValueMethod(
     Annotation containerAnnotation, Class<A> containingType) {
 
-    Method method = valueMethods.get(containerAnnotation);
-    if (method == null) {
-      try {
-        method = containerAnnotation.annotationType().getMethod("value");
-      } catch (NoSuchMethodException e) {
-        method = nullMethod;
-      } catch (Exception e) {
-        throw new RuntimeException(e);
-      }
-      Method prev = valueMethods.putIfAbsent(containerAnnotation, method);
-      method = prev == null ? method : prev;
-    }
+    Class<? extends Annotation> annType = containerAnnotation.annotationType();
+    Method method = valueMethods.computeIfAbsent(annType, AnnotationUtil::getValueMethod);
     if (method != nullMethod) {
       Class<?> retType = method.getReturnType();
       if (retType.isArray() && retType.getComponentType() == containingType) {
@@ -252,6 +242,15 @@ public class AnnotationUtil {
     return null;
   }
 
+  private static Method getValueMethod( Class<? extends Annotation> annType) {
+    try {
+      return annType.getMethod("value");
+    } catch (NoSuchMethodException e) {
+      return nullMethod;
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
 
   /**
    * Finds a suitable annotation from <code>Set<T> anns</code> for this platform.
