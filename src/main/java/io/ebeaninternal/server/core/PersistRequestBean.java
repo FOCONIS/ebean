@@ -224,6 +224,12 @@ public final class PersistRequestBean<T> extends PersistRequest implements BeanP
       beanDescriptor.setDraftDirty(entityBean, true);
     }
     this.dirty = intercept.isDirty();
+  }
+
+  /**
+   * Init generated properties for soft delete (as it's an update).
+   */
+  public void initForSoftDelete() {
     initGeneratedProperties();
   }
 
@@ -1374,6 +1380,7 @@ public final class PersistRequestBean<T> extends PersistRequest implements BeanP
    * Set the request flags indicating this is an insert.
    */
   public void flagInsert() {
+    initGeneratedProperties();
     if (intercept.isNew()) {
       flags = Flags.setInsertNormal(flags);
     } else {
@@ -1385,6 +1392,7 @@ public final class PersistRequestBean<T> extends PersistRequest implements BeanP
    * Unset the request insert flag indicating this is an update.
    */
   public void flagUpdate() {
+    initGeneratedProperties();
     if (intercept.isLoaded()) {
       flags = Flags.setUpdateNormal(flags);
     } else {

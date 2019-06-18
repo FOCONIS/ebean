@@ -9,7 +9,7 @@
 
   <groupId>io.ebean</groupId>
   <artifactId>ebean</artifactId>
-  <version>11.38.2-FOC6-SNAPSHOT</version>
+  <version>11.39.4-FOC1-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>ebean</name>
@@ -141,7 +141,7 @@
     <dependency>
       <groupId>io.ebean</groupId>
       <artifactId>ebean-migration</artifactId>
-      <version>11.15.1</version>
+      <version>11.16.2</version>
     </dependency>
 
     <dependency>
@@ -250,7 +250,7 @@
     <dependency>
       <groupId>io.ebean</groupId>
       <artifactId>ebean-agent</artifactId>
-      <version>11.37.2-FOC1</version>
+      <version>11.39.1-FOC1</version>
       <scope>test</scope>
     </dependency>
 
@@ -346,7 +346,7 @@
       <plugin>
         <groupId>io.ebean</groupId>
         <artifactId>ebean-maven-plugin</artifactId>
-        <version>11.37.2-FOC1</version>
+        <version>11.39.1-FOC1</version>
         <executions>
           <execution>
             <id>test</id>
