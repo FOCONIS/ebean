@@ -1,15 +1,16 @@
 package org.tests.basic;
 
-import io.ebean.BaseTestCase;
 import io.ebean.DB;
 import io.ebean.Ebean;
+import io.ebean.TransactionalTestCase;
+
 import org.junit.Test;
 import org.tests.model.basic.EDefaultProp;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-public class TestCreateEntityBean extends BaseTestCase {
+public class TestCreateEntityBean extends TransactionalTestCase {
 
   @Test
   public void testDefaultRelation() {
