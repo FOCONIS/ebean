@@ -250,7 +250,7 @@ public class DeployBeanProperty implements DeployBeanPropertyMeta {
   /**
    * Wrap the ScalarType using a ScalarTypeConverter.
    */
-  @SuppressWarnings({"unchecked", "rawtypes"})
+  @SuppressWarnings({"unchecked"})
   private ScalarType<?> wrapScalarType(Class<?> propertyType, ScalarType<?> scalarType, ScalarTypeConverter<?, ?> typeConverter) {
     if (typeConverter == null) {
       return scalarType;

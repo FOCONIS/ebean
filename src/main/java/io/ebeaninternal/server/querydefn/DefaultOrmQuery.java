@@ -1722,6 +1722,7 @@ public class DefaultOrmQuery<T> implements SpiQuery<T> {
     return beanDescriptor.getBeanType();
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public Query<T> setInheritType(Class<? extends T> type) {
     if (type == beanType) {
@@ -1901,8 +1902,7 @@ public class DefaultOrmQuery<T> implements SpiQuery<T> {
       namedParams = new HashMap<>();
     }
 
-    ONamedParam param = namedParams.computeIfAbsent(name, ONamedParam::new);
-    return param;
+    return namedParams.computeIfAbsent(name, ONamedParam::new);
   }
 
   @Override

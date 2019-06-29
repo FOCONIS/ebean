@@ -234,7 +234,7 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
   /**
    * Map of BeanProperty Linked so as to preserve order.
    */
-  protected final LinkedHashMap<String, BeanProperty> propMap;
+  private final LinkedHashMap<String, BeanProperty> propMap;
 
   /**
    * Map of DB column to property path (for nativeSql mapping).
@@ -251,7 +251,7 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
    */
   final Class<T> beanType;
 
-  protected final Class<?> rootBeanType;
+  final Class<?> rootBeanType;
 
   /**
    * This is not sent to a remote client.
@@ -285,11 +285,6 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
    * Used for fine grain filtering for the change log.
    */
   private final ChangeLogFilter changeLogFilter;
-
-  /**
-   * The table joins for this bean.
-   */
-  private final TableJoin[] derivedTableJoins;
 
   /**
    * Inheritance information. Server side only.
@@ -373,7 +368,7 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
    * All non transient properties excluding the id properties.
    */
   private final BeanProperty[] propertiesNonTransient;
-  protected final BeanProperty[] propertiesIndex;
+  final BeanProperty[] propertiesIndex;
   private final BeanProperty[] propertiesGenInsert;
   private final BeanProperty[] propertiesGenUpdate;
   private final List<BeanProperty[]> propertiesUnique = new ArrayList<>();
@@ -422,7 +417,7 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
 
   private final BeanDescriptorDraftHelp<T> draftHelp;
   private final BeanDescriptorCacheHelp<T> cacheHelp;
-  final BeanDescriptorJsonHelp<T> jsonHelp;
+  private final BeanDescriptorJsonHelp<T> jsonHelp;
   private DocStoreBeanAdapter<T> docStoreAdapter;
   private DocumentMapping docMapping;
   private boolean docStoreEmbeddedInvalidation;
@@ -526,8 +521,6 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
     this.propertiesManyToMany = listHelper.getManyToMany();
     this.propertiesGenInsert = listHelper.getGeneratedInsert();
     this.propertiesGenUpdate = listHelper.getGeneratedUpdate();
-
-    this.derivedTableJoins = listHelper.getTableJoin();
 
     boolean noRelationships = propertiesOne.length + propertiesMany.length == 0;
 
@@ -653,7 +646,7 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
   /**
    * Return true if this is an abstract type.
    */
-  public boolean isAbstractType() {
+  boolean isAbstractType() {
     return abstractType;
   }
 
@@ -687,7 +680,7 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
    * as they are used to get the imported and exported properties.
    * </p>
    */
-  public void initialiseId(BeanDescriptorInitContext initContext) {
+  void initialiseId(BeanDescriptorInitContext initContext) {
 
     if (logger.isTraceEnabled()) {
       logger.trace("BeanDescriptor initialise " + fullName);
@@ -781,7 +774,7 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
   /**
    * Perform last initialisation for the descriptor.
    */
-  public void initLast() {
+  void initLast() {
 
     for (BeanProperty prop : propertiesNonTransient) {
       if (prop.isUnique()) {
@@ -823,7 +816,7 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
    * Initialise the document mapping.
    */
   @SuppressWarnings("unchecked")
-  public void initialiseDocMapping() {
+  void initialiseDocMapping() {
     for (BeanPropertyAssocMany<?> many : propertiesMany) {
       many.initialisePostTarget();
     }
@@ -838,7 +831,7 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
     cacheHelp.deriveNotifyFlags();
   }
 
-  public void initInheritInfo() {
+  void initInheritInfo() {
     if (inheritInfo != null) {
       // need to check every BeanDescriptor in the inheritance hierarchy
       if (saveRecurseSkippable) {
@@ -892,7 +885,7 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
   /**
    * Return the ReadAuditPrepare for preparing read audit events prior to logging.
    */
-  public ReadAuditPrepare getReadAuditPrepare() {
+  private ReadAuditPrepare getReadAuditPrepare() {
     return ebeanServer.getReadAuditPrepare();
   }
 
@@ -978,7 +971,7 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
   /**
    * Populate the diff for inserts with flattened non-null property values.
    */
-  protected void jsonWriteForInsert(SpiJsonWriter jsonWriter, EntityBean newBean) throws IOException {
+  void jsonWriteForInsert(SpiJsonWriter jsonWriter, EntityBean newBean) throws IOException {
     jsonWriter.writeStartObject();
     for (BeanProperty prop : propertiesBaseScalar) {
       prop.jsonWriteForInsert(jsonWriter, newBean);
@@ -1055,7 +1048,7 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
     elDeployCache.put(fkey.getName(), fkey);
   }
 
-  public void initialiseFkeys() {
+  void initialiseFkeys() {
     for (BeanPropertyAssocOne<?> aPropertiesOneImported : propertiesOneImported) {
       if (!aPropertiesOneImported.isFormula()) {
         aPropertiesOneImported.addFkey();
@@ -2575,7 +2568,7 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
    */
   private STreeProperty findSqlTreeFormula(String formula, String path) {
     String key = formula + "-" + path;
-    return dynamicProperty.computeIfAbsent(key, (fullKey) -> new FormulaPropertyPath(this, formula, path).build());
+    return dynamicProperty.computeIfAbsent(key, (fullKey) -> FormulaPropertyPath.create(this, formula, path));
   }
 
   /**

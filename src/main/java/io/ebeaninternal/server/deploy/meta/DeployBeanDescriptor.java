@@ -570,7 +570,7 @@ public class DeployBeanDescriptor<T> implements DeployBeanDescriptorMeta {
     if (indexDefinitions == null) {
       return null;
     } else {
-      return indexDefinitions.toArray(new IndexDefinition[indexDefinitions.size()]);
+      return indexDefinitions.toArray(new IndexDefinition[0]);
     }
   }
 
@@ -1290,6 +1290,7 @@ public class DeployBeanDescriptor<T> implements DeployBeanDescriptorMeta {
   /**
    * Returns the jackson annotated class, if jackson is present.
    */
+  @SuppressWarnings("unchecked")
   public Object /*AnnotatedClass*/ getJacksonAnnotatedClass() {
     if (jacksonAnnotatedClass == null) {
       jacksonAnnotatedClass = new DeployBeanObtainJackson(serverConfig, beanType).obtain();

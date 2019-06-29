@@ -220,7 +220,6 @@ abstract class AbstractBeanCollection<E> implements BeanCollection<E> {
 
   /**
    * Copies all relevant properties for a clone. See {@link #getShallowCopy()}
-   * @param other
    */
   protected void setFromOriginal(AbstractBeanCollection<E> other) {
     this.disableLazyLoad = other.disableLazyLoad;

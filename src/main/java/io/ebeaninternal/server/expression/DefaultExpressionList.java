@@ -62,7 +62,7 @@ public class DefaultExpressionList<T> implements SpiExpressionList<T> {
 
   private final ExpressionList<T> parentExprList;
 
-  protected ExpressionFactory expr;
+  protected final ExpressionFactory expr;
 
   String allDocNestedPath;
 
@@ -497,7 +497,7 @@ public class DefaultExpressionList<T> implements SpiExpressionList<T> {
   }
 
   @Override
-  public Query<T> select(FetchGroup fetchGroup) {
+  public Query<T> select(FetchGroup<T> fetchGroup) {
     return query.select(fetchGroup);
   }
 

@@ -24,6 +24,7 @@ import io.ebeaninternal.server.query.SqlBeanLoad;
 import io.ebeaninternal.server.query.SqlJoinType;
 import io.ebeaninternal.server.type.DataReader;
 import io.ebeaninternal.server.type.ScalarDataReader;
+import io.ebeaninternal.server.type.ScalarType;
 
 import javax.persistence.PersistenceException;
 import java.io.IOException;
@@ -482,6 +483,10 @@ public class BeanPropertyAssocOne<T> extends BeanPropertyAssoc<T> implements STr
     return targetDescriptor.getIdProperty();
   }
 
+  public ScalarType getIdScalarType() {
+    return targetDescriptor.getIdProperty().scalarType;
+  }
+
   /**
    * Return the Id values from the given bean.
    */
@@ -594,7 +599,7 @@ public class BeanPropertyAssocOne<T> extends BeanPropertyAssoc<T> implements STr
       }
     }
 
-    return list.toArray(new ExportedProperty[list.size()]);
+    return list.toArray(new ExportedProperty[0]);
   }
 
   /**
@@ -788,10 +793,7 @@ public class BeanPropertyAssocOne<T> extends BeanPropertyAssoc<T> implements STr
       writeJson.writeNullField(name);
 
     } else {
-      if (writeJson.isParentBean(value)) {
-        // bi-directional and already rendered parent
-
-      } else {
+      if (!writeJson.isParentBean(value)) {
         // Hmmm, not writing complex non-entity bean
         if (value instanceof EntityBean) {
           writeJson.beginAssocOne(name, bean);
