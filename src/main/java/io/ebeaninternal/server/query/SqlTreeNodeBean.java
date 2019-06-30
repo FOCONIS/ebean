@@ -546,10 +546,9 @@ class SqlTreeNodeBean implements SqlTreeNode {
     }
 
     if (readId) {
-      if (!subQuery && inheritInfo != null && !inheritInfo.isConcrete()) {
+      if (!subQuery && inheritInfo != null && inheritInfo.hasChildren()) {
         ctx.appendColumn(inheritInfo.getDiscriminatorColumn());
       }
-
       appendSelectId(ctx, idBinder.getBeanProperty());
     }
     appendSelect(ctx, subQuery, properties);
