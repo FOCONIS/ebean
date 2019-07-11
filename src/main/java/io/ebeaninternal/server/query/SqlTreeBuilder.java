@@ -35,8 +35,6 @@ public final class SqlTreeBuilder {
 
   private final OrmQueryDetail queryDetail;
 
-  private final StringBuilder summary = new StringBuilder();
-
   private final CQueryPredicates predicates;
 
   private final boolean subQuery;
@@ -75,7 +73,7 @@ public final class SqlTreeBuilder {
   /**
    * Construct for RawSql query.
    */
-  public SqlTreeBuilder(OrmQueryRequest<?> request, CQueryPredicates predicates, OrmQueryDetail queryDetail, boolean rawNoId) {
+  SqlTreeBuilder(OrmQueryRequest<?> request, CQueryPredicates predicates, OrmQueryDetail queryDetail, boolean rawNoId) {
 
     this.rawSql = true;
     this.desc = request.getBeanDescriptor();
@@ -98,7 +96,7 @@ public final class SqlTreeBuilder {
    * support the where and/or order by clause. If so these extra joins are added
    * to the root node.
    */
-  public SqlTreeBuilder(CQueryBuilder builder, OrmQueryRequest<?> request, CQueryPredicates predicates) {
+  SqlTreeBuilder(CQueryBuilder builder, OrmQueryRequest<?> request, CQueryPredicates predicates) {
 
     this.rawSql = false;
     this.rawNoId = false;
@@ -126,8 +124,6 @@ public final class SqlTreeBuilder {
    */
   public SqlTree build() {
 
-    summary.append(desc.getName());
-
     // build the appropriate chain of SelectAdapter's
     buildRoot(desc);
 
@@ -148,9 +144,7 @@ public final class SqlTreeBuilder {
     }
 
     boolean includeJoins = alias != null && alias.isIncludeJoins();
-
-    return new SqlTree(summary.toString(), rootNode, distinctOn, selectSql, fromSql, groupBy, inheritanceWhereSql, encryptedProps,
-      manyProperty, queryDetail.getFetchPaths(), includeJoins);
+    return new SqlTree(rootNode, distinctOn, selectSql, fromSql, groupBy, inheritanceWhereSql, encryptedProps, manyProperty, includeJoins);
   }
 
   private String buildSelectClause() {
@@ -467,8 +461,6 @@ public final class SqlTreeBuilder {
   private SqlTreeProperties getBaseSelectPartial(STreeType desc, OrmQueryProperties queryProps) {
 
     SqlTreeProperties selectProps = new SqlTreeProperties();
-    selectProps.setReadOnly(queryProps.isReadOnly());
-
     // add properties in the order in which they appear
     // in the query. Gives predictable sql/properties for
     // use with SqlSelect type queries.
@@ -553,7 +545,6 @@ public final class SqlTreeBuilder {
       }
 
       manyProperty = manyProp;
-      summary.append(" +many:").append(propName);
       return true;
     }
     return false;
@@ -571,7 +562,6 @@ public final class SqlTreeBuilder {
 
     if (queryDetail.includesPath(prefix)) {
       // explicitly included
-      summary.append(", ").append(prefix);
       String[] splitNames = SplitName.split(prefix);
       queryDetail.includeBeanJoin(splitNames[0], splitNames[1]);
       return true;

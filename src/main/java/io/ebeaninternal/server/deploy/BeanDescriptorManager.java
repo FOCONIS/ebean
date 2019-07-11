@@ -671,13 +671,13 @@ public class BeanDescriptorManager implements BeanDescriptorMap {
     return (BeanManager<T>) getBeanManager(resolveAlias(entityType.getName()));
   }
 
-  public BeanManager<?> getBeanManager(String beanClassName) {
-    return beanManagerMap.get(resolveAlias(beanClassName));
-  }
-
   private String resolveAlias(String name) {
     String altName = descAliases.get(name);
     return altName == null ? name : altName;
+  }
+
+  private BeanManager<?> getBeanManager(String beanClassName) {
+    return beanManagerMap.get(beanClassName);
   }
 
   /**

@@ -13,11 +13,6 @@ import java.util.List;
 public class SqlTreeProperties {
 
   /**
-   * True if this node of the tree should have read only entity beans.
-   */
-  private boolean readOnly;
-
-  /**
    * The bean properties in order.
    */
   private final List<STreeProperty> propsList = new ArrayList<>();
@@ -66,14 +61,6 @@ public class SqlTreeProperties {
 
   boolean isPartialObject() {
     return !allProperties;
-  }
-
-  public boolean isReadOnly() {
-    return readOnly;
-  }
-
-  public void setReadOnly(boolean readOnly) {
-    this.readOnly = readOnly;
   }
 
   void setAllProperties() {

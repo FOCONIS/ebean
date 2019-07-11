@@ -45,7 +45,7 @@ public class InsertHandler extends DmlHandler {
    * Create to handle the insert execution.
    */
   public InsertHandler(PersistRequestBean<?> persist, InsertMeta meta) {
-    super(persist, meta.isEmptyStringToNull());
+    super(persist);
     this.meta = meta;
     this.concatinatedKey = meta.isConcatenatedKey();
   }
@@ -106,7 +106,7 @@ public class InsertHandler extends DmlHandler {
    * Check with useGeneratedKeys to get appropriate PreparedStatement.
    */
   @Override
-  protected PreparedStatement getPstmt(SpiTransaction t, String sql, boolean useGeneratedKeys) throws SQLException {
+  PreparedStatement getPstmt(SpiTransaction t, String sql, boolean useGeneratedKeys) throws SQLException {
     Connection conn = t.getInternalConnection();
     if (useGeneratedKeys) {
       return conn.prepareStatement(sql, meta.getIdentityDbColumns());

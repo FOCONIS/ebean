@@ -40,7 +40,6 @@ import io.ebeaninternal.server.rawsql.SpiRawSql;
 
 import javax.persistence.Entity;
 import javax.persistence.MappedSuperclass;
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -187,11 +186,6 @@ public class DeployBeanDescriptor<T> implements DeployBeanDescriptorMeta {
   private BeanFindController beanFinder;
 
   /**
-   * The table joins for this bean. Server side only.
-   */
-  private final ArrayList<DeployTableJoin> tableJoinList = new ArrayList<>(2);
-
-  /**
    * Inheritance information. Server side only.
    */
   private InheritInfo inheritInfo;
@@ -254,7 +248,7 @@ public class DeployBeanDescriptor<T> implements DeployBeanDescriptorMeta {
   /**
    * Return true if there is a IdClass set.
    */
-  public boolean isIdClass() {
+  boolean isIdClass() {
     return idClass != null;
   }
 
@@ -277,13 +271,6 @@ public class DeployBeanDescriptor<T> implements DeployBeanDescriptorMeta {
    */
   public DeployBeanInfo<?> getDeploy(Class<?> cls) {
     return manager.getDeploy(cls);
-  }
-
-  /**
-   * Return true if this beanType is an abstract class.
-   */
-  public boolean isAbstract() {
-    return Modifier.isAbstract(beanType.getModifiers());
   }
 
   public void setStorageEngine(String storageEngine) {
@@ -511,7 +498,7 @@ public class DeployBeanDescriptor<T> implements DeployBeanDescriptorMeta {
     return cacheOptions;
   }
 
-  public DeployBeanPropertyAssocOne<?> getIdClassProperty() {
+  DeployBeanPropertyAssocOne<?> getIdClassProperty() {
     return idClassProperty;
   }
 
@@ -527,7 +514,7 @@ public class DeployBeanDescriptor<T> implements DeployBeanDescriptorMeta {
     this.orderColumn = orderColumn;
   }
 
-  public DeployBeanProperty getOrderColumn() {
+  DeployBeanProperty getOrderColumn() {
     return orderColumn;
   }
 
@@ -961,17 +948,6 @@ public class DeployBeanDescriptor<T> implements DeployBeanDescriptorMeta {
   }
 
   /**
-   * Add a TableJoin to this type of bean. For Secondary table properties.
-   */
-  public void addTableJoin(DeployTableJoin join) {
-    tableJoinList.add(join);
-  }
-
-  List<DeployTableJoin> getTableJoins() {
-    return tableJoinList;
-  }
-
-  /**
    * Return a collection of all BeanProperty deployment information.
    */
   @Override
@@ -1291,7 +1267,7 @@ public class DeployBeanDescriptor<T> implements DeployBeanDescriptorMeta {
    * Returns the jackson annotated class, if jackson is present.
    */
   @SuppressWarnings("unchecked")
-  public Object /*AnnotatedClass*/ getJacksonAnnotatedClass() {
+  Object /*AnnotatedClass*/ getJacksonAnnotatedClass() {
     if (jacksonAnnotatedClass == null) {
       jacksonAnnotatedClass = new DeployBeanObtainJackson(serverConfig, beanType).obtain();
     }

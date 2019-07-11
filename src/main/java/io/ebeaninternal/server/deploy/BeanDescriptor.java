@@ -93,6 +93,7 @@ import io.ebeanservice.docstore.api.mapping.DocumentMapping;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nonnull;
 import javax.persistence.PersistenceException;
 import java.io.IOException;
 import java.io.StringWriter;
@@ -140,11 +141,6 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
   public enum EntityType {
     ORM, EMBEDDED, VIEW, SQL, DOC
   }
-
-  /**
-   * The EbeanServer name. Same as the plugin name.
-   */
-  private final String serverName;
 
   /**
    * The nature/type of this bean.
@@ -289,14 +285,14 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
   /**
    * Inheritance information. Server side only.
    */
-  protected final InheritInfo inheritInfo;
+  final InheritInfo inheritInfo;
 
   private final boolean abstractType;
 
   /**
    * Derived list of properties that make up the unique id.
    */
-  protected final BeanProperty idProperty;
+  private final BeanProperty idProperty;
 
   private final int idPropertyIndex;
 
@@ -432,7 +428,6 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
   public BeanDescriptor(BeanDescriptorMap owner, DeployBeanDescriptor<T> deploy) {
 
     this.owner = owner;
-    this.serverName = owner.getServerName();
     this.entityType = deploy.getEntityType();
     this.properties = deploy.getProperties();
     this.name = InternString.intern(deploy.getName());
@@ -607,7 +602,7 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
   /**
    * Create an entity bean that is used as a prototype/factory to create new instances.
    */
-  protected EntityBean createPrototypeEntityBean(Class<T> beanType) {
+  EntityBean createPrototypeEntityBean(Class<T> beanType) {
     if (Modifier.isAbstract(beanType.getModifiers())) {
       return null;
     }
@@ -665,7 +660,7 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
     return entityType;
   }
 
-  public String[] getProperties() {
+  private String[] getProperties() {
     return properties;
   }
 
@@ -1288,13 +1283,6 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
   }
 
   /**
-   * Return true if there is bean or query caching for this type.
-   */
-  public boolean isCaching() {
-    return cacheHelp.isCaching();
-  }
-
-  /**
    * Return true if there is currently bean caching for this type of bean.
    */
   @Override
@@ -1506,7 +1494,7 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
   /**
    * Invalidate parts of cache due to SqlUpdate or external modification etc.
    */
-  public void cachePersistTableIUD(TableIUD tableIUD, CacheChangeSet changeSet) {
+  void cachePersistTableIUD(TableIUD tableIUD, CacheChangeSet changeSet) {
     cacheHelp.persistTableIUD(tableIUD, changeSet);
   }
 
@@ -1624,7 +1612,7 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
     return new DeployUpdateParser(this).parse(ormUpdateStatement);
   }
 
-  public void collectQueryPlans(QueryPlanRequest request) {
+  void collectQueryPlans(QueryPlanRequest request) {
     for (CQueryPlan queryPlan : queryPlanCache.values()) {
       if (request.includeLabel(queryPlan.getLabel())) {
         queryPlan.collectQueryPlan(request);
@@ -1655,7 +1643,7 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
   /**
    * Trim query plans not used since the passed in epoch time.
    */
-  public List<CQueryPlan> trimQueryPlans(long unusedSince) {
+  List<CQueryPlan> trimQueryPlans(long unusedSince) {
 
     List<CQueryPlan> list = new ArrayList<>();
 
@@ -1721,7 +1709,7 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
    * Return true if save does not recurse to other beans. That is return true if
    * there are no assoc one or assoc many beans that cascade save.
    */
-  public boolean isSaveRecurseSkippable() {
+  boolean isSaveRecurseSkippable() {
     return saveRecurseSkippable;
   }
 
@@ -1729,7 +1717,7 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
    * Return true if delete does not recurse to other beans. That is return true
    * if there are no assoc one or assoc many beans that cascade delete.
    */
-  public boolean isDeleteRecurseSkippable() {
+  boolean isDeleteRecurseSkippable() {
     return deleteRecurseSkippable;
   }
 
@@ -1811,7 +1799,7 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
   /**
    * Return a raw expression for 'where parent id in ...' clause.
    */
-  public String getParentIdInExpr(int parentIdSize, String rawWhere) {
+  String getParentIdInExpr(int parentIdSize, String rawWhere) {
     String inClause = idBinder.getIdInValueExpr(false, parentIdSize);
     return idBinder.isIdInExpandedForm() ? inClause : rawWhere + inClause;
   }
@@ -1827,7 +1815,7 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
   /**
    * Return true if this bean type has a simple single Id property.
    */
-  public boolean isSimpleId() {
+  boolean isSimpleId() {
     return idBinder instanceof IdBinderSimple;
   }
 
@@ -1895,7 +1883,7 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
    * a reference (then {@link BeanPostLoad#postLoad(Object)} will be invoked
    * on first access (lazy load) or immediately (eager load)
    */
-  public EntityBean createEntityBean(boolean isNew) {
+  private EntityBean createEntityBean(boolean isNew) {
     if (prototypeEntityBean == null) {
       throw new UnsupportedOperationException("cannot create entity bean for abstract entity " + getName());
     }
@@ -2116,13 +2104,6 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
   }
 
   /**
-   * Get a property value from a bean of this type.
-   */
-  public Object getValue(EntityBean bean, String property) {
-    return getBeanProperty(property).getValue(bean);
-  }
-
-  /**
    * Return true if this bean type should use IdGeneration.
    * <p>
    * If this is false and the Id is null it is assumed that a database auto
@@ -2144,6 +2125,7 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
    * Return the class type this BeanDescriptor describes.
    */
   @Override
+  @Nonnull
   public Class<T> getBeanType() {
     return beanType;
   }
@@ -2156,6 +2138,7 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
    * </p>
    */
   @Override
+  @Nonnull
   public String getFullName() {
     return fullName;
   }
@@ -2164,6 +2147,7 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
    * Return the short name of the entity bean.
    */
   @Override
+  @Nonnull
   public String getName() {
     return name;
   }
@@ -2246,7 +2230,7 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
   /**
    * Return the cache key for the given bean (based on id value).
    */
-  public String cacheKeyForBean(EntityBean bean) {
+  String cacheKeyForBean(EntityBean bean) {
     return cacheKey(idProperty.getValue(bean));
   }
 
@@ -2283,7 +2267,7 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
    * The usage is to provide simple id types for JSON processing (for embeddedId's).
    * </p>
    */
-  public Object convertIdFromJson(Object idValue) {
+  Object convertIdFromJson(Object idValue) {
     return idBinder.convertIdFromJson(idValue);
   }
 
@@ -2509,7 +2493,7 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
     return elProp;
   }
 
-  protected ElPropertyValue buildElGetValue(String propName, ElPropertyChainBuilder chain, boolean propertyDeploy) {
+  ElPropertyValue buildElGetValue(String propName, ElPropertyChainBuilder chain, boolean propertyDeploy) {
 
     if (propertyDeploy && chain != null) {
       ElPropertyDeploy fk = elDeployCache.get(propName);
@@ -2626,13 +2610,6 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
   }
 
   /**
-   * Return the name of the server this BeanDescriptor belongs to.
-   */
-  public String getServerName() {
-    return serverName;
-  }
-
-  /**
    * Return true if this bean can cache sharable instances.
    * <p>
    * This means is has no relationships and has readOnly=true in its cache
@@ -2648,11 +2625,6 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
    */
   public boolean isAutoTunable() {
     return autoTunable;
-  }
-
-  @Override
-  public boolean isElementType() {
-    return false;
   }
 
   /**
@@ -2927,7 +2899,7 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
     softDeleteProperty.setSoftDeleteValue(bean);
   }
 
-  public String getSoftDeleteDbSet() {
+  String getSoftDeleteDbSet() {
     return softDeleteProperty.getSoftDeleteDbSet();
   }
 
@@ -2949,7 +2921,6 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
       setMutableOrigValues(bean._ebean_getIntercept());
     }
   }
-
 
   /**
    * Return true if this entity type is draftable.
@@ -3000,7 +2971,7 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
     }
   }
 
-  public void setUnmappedJson(EntityBean bean, Map<String, Object> unmappedProperties) {
+  void setUnmappedJson(EntityBean bean, Map<String, Object> unmappedProperties) {
     if (unmappedJson != null) {
       unmappedJson.setValueIntercept(bean, unmappedProperties);
     }
@@ -3141,6 +3112,7 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
   }
 
   @Override
+  @Nonnull
   public Collection<? extends Property> allProperties() {
     return propertiesAll();
   }
@@ -3229,7 +3201,7 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
     return ebi.isReference() || hasIdPropertyOnly(ebi);
   }
 
-  public boolean hasIdPropertyOnly(EntityBeanIntercept ebi) {
+  boolean hasIdPropertyOnly(EntityBeanIntercept ebi) {
     return ebi.hasIdOnly(idPropertyIndex);
   }
 
@@ -3237,11 +3209,11 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
     return ebi.isLoadedProperty(idPropertyIndex);
   }
 
-  public boolean hasIdValue(EntityBean bean) {
+  boolean hasIdValue(EntityBean bean) {
     return (idProperty != null && !DmlUtil.isNullOrZero(idProperty.getValue(bean)));
   }
 
-  public boolean hasVersionProperty(EntityBeanIntercept ebi) {
+  boolean hasVersionProperty(EntityBeanIntercept ebi) {
     return versionPropertyIndex > -1 && ebi.isLoadedProperty(versionPropertyIndex);
   }
 
@@ -3508,7 +3480,7 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
     jsonHelp.jsonWriteDirty(writeJson, bean, dirtyProps);
   }
 
-  protected void jsonWriteDirtyProperties(SpiJsonWriter writeJson, EntityBean bean, boolean[] dirtyProps) throws IOException {
+  void jsonWriteDirtyProperties(SpiJsonWriter writeJson, EntityBean bean, boolean[] dirtyProps) throws IOException {
     jsonHelp.jsonWriteDirtyProperties(writeJson, bean, dirtyProps);
   }
 
@@ -3532,7 +3504,7 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
     jsonHelp.jsonWrite(writeJson, bean, key);
   }
 
-  protected void jsonWriteProperties(SpiJsonWriter writeJson, EntityBean bean) throws IOException {
+  void jsonWriteProperties(SpiJsonWriter writeJson, EntityBean bean) {
     jsonHelp.jsonWriteProperties(writeJson, bean);
   }
 
@@ -3540,7 +3512,7 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
     return jsonHelp.jsonRead(jsonRead, path, true);
   }
 
-  public T jsonReadObject(SpiJsonReader jsonRead, String path) throws IOException {
+  T jsonReadObject(SpiJsonReader jsonRead, String path) throws IOException {
     return jsonHelp.jsonRead(jsonRead, path, false);
   }
 
@@ -3571,5 +3543,4 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
       getInheritInfo().visitChildren(info -> visitor.accept(info.desc()));
     }
   }
-
 }

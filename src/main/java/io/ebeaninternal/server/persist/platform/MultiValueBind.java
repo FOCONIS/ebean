@@ -18,7 +18,7 @@ public class MultiValueBind {
 
   public static final int MANY_PARAMS = 100;
 
-  protected Object[] toArray(Collection<?> values, ScalarType<?> type) {
+  Object[] toArray(Collection<?> values, ScalarType<?> type) {
     Object[] array = new Object[values.size()];
     int i = 0;
     for (Object value : values) {

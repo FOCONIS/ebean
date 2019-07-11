@@ -52,7 +52,7 @@ public class CQueryPlan {
 
   private static final Logger logger = LoggerFactory.getLogger(CQueryPlan.class);
 
-  public static final String RESULT_SET_BASED_RAW_SQL = "--ResultSetBasedRawSql";
+  static final String RESULT_SET_BASED_RAW_SQL = "--ResultSetBasedRawSql";
 
   private final SpiEbeanServer server;
 
@@ -88,7 +88,7 @@ public class CQueryPlan {
 
   private final Class<?> beanType;
 
-  protected final DataTimeZone dataTimeZone;
+  final DataTimeZone dataTimeZone;
 
   private final int asOfTableCount;
 
@@ -142,7 +142,7 @@ public class CQueryPlan {
     this.label = query.getPlanLabel();
     this.name = deriveName(label, query.getType());
     this.location = location();
-    this.planKey = buildPlanKey(sql, false, rowNumberIncluded, logWhereSql);
+    this.planKey = buildPlanKey(sql, rowNumberIncluded, logWhereSql);
     this.autoTuned = false;
     this.asOfTableCount = 0;
     this.sql = sql;
@@ -179,9 +179,8 @@ public class CQueryPlan {
     return (profileLocation == null) ? "" : profileLocation.shortDescription();
   }
 
-  private CQueryPlanKey buildPlanKey(String sql, boolean rawSql, boolean rowNumberIncluded, String logWhereSql) {
-
-    return new RawSqlQueryPlanKey(sql, rawSql, rowNumberIncluded, logWhereSql);
+  private CQueryPlanKey buildPlanKey(String sql, boolean rowNumberIncluded, String logWhereSql) {
+    return new RawSqlQueryPlanKey(sql, false, rowNumberIncluded, logWhereSql);
   }
 
   @Override
@@ -248,10 +247,6 @@ public class CQueryPlan {
     return autoTuned;
   }
 
-  CQueryPlanKey getPlanKey() {
-    return planKey;
-  }
-
   /**
    * Return a key used in audit logging to identify the query.
    */
@@ -280,7 +275,7 @@ public class CQueryPlan {
     }
   }
 
-  public String getSqlHash() {
+  String getSqlHash() {
     return sqlHash;
   }
 
@@ -350,7 +345,7 @@ public class CQueryPlan {
     return stats.isEmpty();
   }
 
-  public TimedMetric createTimedMetric() {
+  TimedMetric createTimedMetric() {
     return MetricFactory.get().createTimedMetric(MetricType.ORM, label);
   }
 

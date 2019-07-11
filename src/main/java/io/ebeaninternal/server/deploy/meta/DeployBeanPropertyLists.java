@@ -10,7 +10,6 @@ import io.ebeaninternal.server.deploy.BeanPropertyIdClass;
 import io.ebeaninternal.server.deploy.BeanPropertyOrderColumn;
 import io.ebeaninternal.server.deploy.BeanPropertySimpleCollection;
 import io.ebeaninternal.server.deploy.InheritInfo;
-import io.ebeaninternal.server.deploy.TableJoin;
 import io.ebeaninternal.server.deploy.generatedproperty.GeneratedProperty;
 import io.ebeaninternal.server.properties.BeanPropertySetter;
 import io.ebeaninternal.server.type.ScalarTypeString;
@@ -65,8 +64,6 @@ public class DeployBeanPropertyLists {
   private final List<BeanProperty> transients = new ArrayList<>();
 
   private final List<BeanProperty> nonTransients = new ArrayList<>();
-
-  private final TableJoin[] tableJoins;
 
   private final BeanPropertyAssocOne<?> unidirectional;
   private final BeanProperty orderColumn;
@@ -137,12 +134,6 @@ public class DeployBeanPropertyLists {
       // put the discriminator property into the property map only
       // (after the real properties have been organised into their lists)
       propertyMap.put(discProperty.getName(), discProperty);
-    }
-
-    List<DeployTableJoin> deployTableJoins = deploy.getTableJoins();
-    tableJoins = new TableJoin[deployTableJoins.size()];
-    for (int i = 0; i < deployTableJoins.size(); i++) {
-      tableJoins[i] = new TableJoin(deployTableJoins.get(i));
     }
   }
 
@@ -273,10 +264,6 @@ public class DeployBeanPropertyLists {
 
   public LinkedHashMap<String, BeanProperty> getPropertyMap() {
     return propertyMap;
-  }
-
-  public TableJoin[] getTableJoin() {
-    return tableJoins;
   }
 
   /**
@@ -443,7 +430,7 @@ public class DeployBeanPropertyLists {
       }
     }
 
-    return (BeanPropertyAssocOne[]) list.toArray(new BeanPropertyAssocOne[0]);
+    return list.toArray(new BeanPropertyAssocOne[0]);
   }
 
   private BeanPropertyAssocMany<?>[] getMany2Many() {
@@ -454,7 +441,7 @@ public class DeployBeanPropertyLists {
       }
     }
 
-    return (BeanPropertyAssocMany[]) list.toArray(new BeanPropertyAssocMany[0]);
+    return list.toArray(new BeanPropertyAssocMany[0]);
   }
 
   private BeanPropertyAssocMany<?>[] getMany(Mode mode) {
@@ -476,7 +463,7 @@ public class DeployBeanPropertyLists {
       }
     }
 
-    return (BeanPropertyAssocMany[]) list.toArray(new BeanPropertyAssocMany[0]);
+    return list.toArray(new BeanPropertyAssocMany[0]);
   }
 
   @SuppressWarnings({"unchecked", "rawtypes"})

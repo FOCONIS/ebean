@@ -50,11 +50,11 @@ public class BeanPropertyAssocOne<T> extends BeanPropertyAssoc<T> implements STr
 
   private AssocOneHelp localHelp;
 
-  protected final BeanProperty[] embeddedProps;
+  final BeanProperty[] embeddedProps;
 
   private final HashMap<String, BeanProperty> embeddedPropsMap;
 
-  protected ImportedId importedId;
+  ImportedId importedId;
 
   private String deleteByParentIdSql;
   private String deleteByParentIdInSql;
@@ -160,7 +160,7 @@ public class BeanPropertyAssocOne<T> extends BeanPropertyAssoc<T> implements STr
    */
   @Override
   public SqlJoinType addJoin(SqlJoinType joinType, String prefix, DbSqlContext ctx) {
-    return tableJoin.addJoin(joinType, prefix, ctx, this.formula);
+    return tableJoin.addJoin(joinType, prefix, ctx, this.isFormula());
   }
 
   /**
@@ -168,19 +168,20 @@ public class BeanPropertyAssocOne<T> extends BeanPropertyAssoc<T> implements STr
    */
   @Override
   public SqlJoinType addJoin(SqlJoinType joinType, String a1, String a2, DbSqlContext ctx) {
-    return tableJoin.addJoin(joinType, a1, a2, ctx, this.formula);
+    return tableJoin.addJoin(joinType, a1, a2, ctx, this.isFormula());
   }
 
   /**
    * Derive late in lifecycle cache notification on this relationship.
    */
-  public void initialisePostTarget() {
+  void initialisePostTarget() {
     this.cacheNotifyRelationship = isCacheNotifyRelationship();
   }
 
   /**
    * Return the property value as an entity bean.
    */
+  @Override
   public EntityBean getValueAsEntityBean(EntityBean owner) {
     return (EntityBean) getValue(owner);
   }
@@ -376,12 +377,9 @@ public class BeanPropertyAssocOne<T> extends BeanPropertyAssoc<T> implements STr
     }
   }
 
+  @Override
   public boolean hasForeignKey() {
     return foreignKey == null || primaryKeyJoin || !foreignKey.isNoConstraint();
-  }
-
-  public boolean hasForeignKeyIndex() {
-    return foreignKey == null || !foreignKey.isNoIndex();
   }
 
   /**
@@ -411,10 +409,11 @@ public class BeanPropertyAssocOne<T> extends BeanPropertyAssoc<T> implements STr
       return;
     }
 
+    String nextPrefix = (prefix == null) ? name : prefix + "." + name;
+
     if (embedded) {
-      prefix = (prefix == null) ? name : prefix + "." + name;
       BeanDescriptor<T> targetDescriptor = getTargetDescriptor();
-      targetDescriptor.diff(prefix, map, (EntityBean) newEmb, (EntityBean) oldEmb);
+      targetDescriptor.diff(nextPrefix, map, (EntityBean) newEmb, (EntityBean) oldEmb);
 
     } else {
       // we are only interested in the Id value
@@ -427,8 +426,7 @@ public class BeanPropertyAssocOne<T> extends BeanPropertyAssoc<T> implements STr
       Object newId = (newBean == null) ? null : idProperty.getValue(newBean);
       Object oldId = (oldBean == null) ? null : idProperty.getValue(oldBean);
       if (newId != null || oldId != null) {
-        prefix = (prefix == null) ? name : prefix + "." + name;
-        idProperty.diffVal(prefix, map, newId, oldId);
+        idProperty.diffVal(nextPrefix, map, newId, oldId);
       }
     }
   }
@@ -486,7 +484,7 @@ public class BeanPropertyAssocOne<T> extends BeanPropertyAssoc<T> implements STr
     return targetDescriptor.getIdProperty();
   }
 
-  public ScalarType getIdScalarType() {
+  ScalarType getIdScalarType() {
     return targetDescriptor.getIdProperty().scalarType;
   }
 
@@ -695,7 +693,7 @@ public class BeanPropertyAssocOne<T> extends BeanPropertyAssoc<T> implements STr
     }
   }
 
-  void setEmbeddedOwner(EntityBean bean, Object value) {
+  private void setEmbeddedOwner(EntityBean bean, Object value) {
     ((EntityBean) value)._ebean_getIntercept().setEmbeddedOwner(bean, propertyIndex);
   }
 

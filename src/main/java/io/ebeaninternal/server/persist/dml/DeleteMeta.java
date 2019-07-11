@@ -13,27 +13,15 @@ import java.sql.SQLException;
  * Meta data for delete handler. The meta data is for a particular bean type. It
  * is considered immutable and is thread safe.
  */
-public final class DeleteMeta {
+final class DeleteMeta extends BaseMeta {
 
   private final String sqlVersion;
   private final String sqlNone;
   private final String sqlDraftVersion;
   private final String sqlDraftNone;
 
-  private final BindableId id;
-  private final Bindable version;
-  private final Bindable tenantId;
-
-  private final String tableName;
-
-  private final boolean emptyStringAsNull;
-
-  DeleteMeta(boolean emptyStringAsNull, BeanDescriptor<?> desc, BindableId id, Bindable version, Bindable tenantId) {
-    this.emptyStringAsNull = emptyStringAsNull;
-    this.tableName = desc.getBaseTable();
-    this.id = id;
-    this.version = version;
-    this.tenantId = tenantId;
+  DeleteMeta(BeanDescriptor<?> desc, BindableId id, Bindable version, Bindable tenantId) {
+    super(id, version, tenantId);
 
     String tableName = desc.getBaseTable();
     this.sqlNone = genSql(ConcurrencyMode.NONE, tableName);
@@ -47,17 +35,6 @@ public final class DeleteMeta {
       this.sqlDraftNone = sqlNone;
       this.sqlDraftVersion = sqlVersion;
     }
-  }
-
-  boolean isEmptyStringAsNull() {
-    return emptyStringAsNull;
-  }
-
-  /**
-   * Return the table name.
-   */
-  public String getTableName() {
-    return tableName;
   }
 
   /**
@@ -104,20 +81,7 @@ public final class DeleteMeta {
     GenerateDmlRequest request = new GenerateDmlRequest();
     request.append("delete from ").append(table);
     request.append(" where ");
-
-    request.setWhereIdMode();
-    id.dmlAppend(request);
-    if (tenantId != null) {
-      tenantId.dmlAppend(request);
-    }
-
-    if (ConcurrencyMode.VERSION == conMode) {
-      if (version != null) {
-        version.dmlAppend(request);
-      }
-    }
-
-    return request.toString();
+    return appendWhere(request, conMode);
   }
 
 }

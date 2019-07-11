@@ -4,7 +4,6 @@ import io.ebean.bean.BeanCollection;
 import io.ebean.bean.EntityBean;
 import io.ebean.bean.EntityBeanIntercept;
 import io.ebeaninternal.api.SpiSqlUpdate;
-import io.ebeaninternal.server.core.PersistRequest;
 import io.ebeaninternal.server.core.PersistRequestBean;
 import io.ebeaninternal.server.deploy.BeanCollectionUtil;
 import io.ebeaninternal.server.deploy.BeanDescriptor;
@@ -356,7 +355,7 @@ public class SaveManyBeans extends SaveManyBase {
             EntityBean eb = (EntityBean) removedBean;
             if (!eb._ebean_getIntercept().isNew()) {
               // only delete if the bean was loaded meaning that it is known to exist in the DB
-              persister.deleteRequest(persister.createDeleteRemoved(removedBean, transaction, PersistRequest.Type.DELETE, request.getFlags()));
+              persister.deleteRequest(persister.createDeleteRemoved(removedBean, transaction, request.getFlags()));
             }
           }
         }

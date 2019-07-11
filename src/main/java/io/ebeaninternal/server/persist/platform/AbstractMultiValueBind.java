@@ -91,9 +91,9 @@ public abstract class AbstractMultiValueBind extends MultiValueBind {
   /**
    * Appends the 'in' expression to the request. Must add leading and trailing space! Overweite this method.
    */
-  protected abstract String getInExpression(boolean not, ScalarType<?> type, int size, String arrayType);
+  abstract String getInExpression(boolean not, ScalarType<?> type, int size, String arrayType);
 
-  protected String getArrayType(int dbType) {
+  String getArrayType(int dbType) {
     switch(dbType) {
       case TINYINT:
       case SMALLINT:

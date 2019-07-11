@@ -7,7 +7,6 @@ import io.ebeaninternal.server.deploy.parse.DeployInheritInfo;
 import io.ebeaninternal.server.query.SqlTreeProperties;
 
 import javax.persistence.PersistenceException;
-import java.lang.reflect.Modifier;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -109,13 +109,6 @@ public final class BatchControl {
   }
 
   /**
-   * Return the batchSize.
-   */
-  public int getBatchSize() {
-    return batchSize;
-  }
-
-  /**
    * Set the size of batch execution.
    * <p>
    * The user can set this via the Transaction.
@@ -191,7 +184,7 @@ public final class BatchControl {
   /**
    * Add the request to the batch and return true if we should flush.
    */
-  private boolean addToBatch(PersistRequestBean<?> request) throws BatchedSqlException {
+  private boolean addToBatch(PersistRequestBean<?> request) {
 
     Object alreadyInBatch = persistedBeans.put(request.getEntityBean(), DUMMY);
     if (alreadyInBatch != null) {

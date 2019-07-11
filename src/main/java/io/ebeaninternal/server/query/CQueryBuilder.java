@@ -1,6 +1,7 @@
 package io.ebeaninternal.server.query;
 
 import io.ebean.CountDistinctOrder;
+import io.ebean.OrderBy;
 import io.ebean.Query;
 import io.ebean.RawSql;
 import io.ebean.RawSqlBuilder;
@@ -113,7 +114,7 @@ class CQueryBuilder {
     if (queryPlan != null) {
       // skip building the SqlTree and Sql string
       predicates.prepare(false);
-      return new CQueryUpdate(type, request, predicates, queryPlan);
+      return new CQueryUpdate(request, predicates, queryPlan);
     }
 
     predicates.prepare(true);
@@ -130,13 +131,13 @@ class CQueryBuilder {
     // cache the query plan
     queryPlan = new CQueryPlan(request, sql, sqlTree, false, predicates.getLogWhereSql());
     request.putQueryPlan(queryPlan);
-    return new CQueryUpdate(type, request, predicates, queryPlan);
+    return new CQueryUpdate(request, predicates, queryPlan);
   }
 
   private <T> String buildDeleteSql(OrmQueryRequest<T> request, String rootTableAlias, CQueryPredicates predicates, SqlTree sqlTree) {
 
     String alias = alias(rootTableAlias);
-    if (!sqlTree.isIncludeJoins()) {
+    if (sqlTree.noJoins()) {
       if (dbPlatform.isSupportsDeleteTableAlias()) {
         // delete from table <alias> ...
         return aliasReplace(buildSql("delete", request, predicates, sqlTree).getSql(), alias);
@@ -168,7 +169,7 @@ class CQueryBuilder {
     sb.append(" set ").append(predicates.getDbUpdateClause());
     String updateClause = sb.toString();
 
-    if (!sqlTree.isIncludeJoins()) {
+    if (sqlTree.noJoins()) {
       // simple - update table set ... where ...
       return aliasStrip(buildSqlUpdate(updateClause, request, predicates, sqlTree).getSql());
     }
@@ -600,7 +601,10 @@ class CQueryBuilder {
       }
       if (distinct && dbOrderBy != null && !query.isSingleAttribute()) {
         // add the orderBy columns to the select clause (due to distinct)
-        sb.append(", ").append(DbOrderByTrim.trim(dbOrderBy));
+        final OrderBy<?> orderBy = query.getOrderBy();
+        if (orderBy != null && orderBy.supportsSelect()) {
+          sb.append(", ").append(DbOrderByTrim.trim(dbOrderBy));
+        }
       }
     }
 
@@ -641,7 +645,7 @@ class CQueryBuilder {
     }
 
     String dbWhere = predicates.getDbWhere();
-    if (!isEmpty(dbWhere)) {
+    if (hasValue(dbWhere)) {
       if (!hasWhere) {
         hasWhere = true;
         sb.append(" where ");
@@ -652,7 +656,7 @@ class CQueryBuilder {
     }
 
     String dbFilterMany = predicates.getDbFilterMany();
-    if (!isEmpty(dbFilterMany)) {
+    if (hasValue(dbFilterMany)) {
       if (!hasWhere) {
         hasWhere = true;
         sb.append(" where ");
@@ -685,7 +689,7 @@ class CQueryBuilder {
     }
 
     String dbHaving = predicates.getDbHaving();
-    if (!isEmpty(dbHaving)) {
+    if (hasValue(dbHaving)) {
       sb.append(" having ").append(dbHaving);
     }
 
@@ -740,8 +744,8 @@ class CQueryBuilder {
     return true;
   }
 
-  private boolean isEmpty(String s) {
-    return s == null || s.isEmpty();
+  private boolean hasValue(String s) {
+    return s != null && !s.isEmpty();
   }
 
   boolean isPlatformDistinctOn() {
