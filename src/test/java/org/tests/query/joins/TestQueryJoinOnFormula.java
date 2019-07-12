@@ -2,6 +2,9 @@ package org.tests.query.joins;
 
 import io.ebean.BaseTestCase;
 import io.ebean.Ebean;
+import io.ebean.annotation.IgnorePlatform;
+import io.ebean.annotation.Platform;
+
 import org.tests.model.basic.Order;
 import org.tests.model.basic.ResetBasicData;
 import org.tests.model.family.ChildPerson;
@@ -135,6 +138,8 @@ public class TestQueryJoinOnFormula extends BaseTestCase {
   }
 
   @Test
+  @IgnorePlatform(Platform.SQLSERVER17) // query too complex
+  // fails with "No column name was specified for column 2 of 'c'"
   public void test_ParentPersonFindCount() {
 
     LoggedSqlCollector.start();

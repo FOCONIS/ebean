@@ -14,7 +14,12 @@ import io.ebean.BaseTestCase;
 import io.ebean.DB;
 import io.ebean.Ebean;
 import io.ebean.Query;
+import io.ebean.annotation.ForPlatform;
+import io.ebean.annotation.Formula;
+import io.ebean.annotation.IgnorePlatform;
+import io.ebean.annotation.Platform;
 import io.ebean.text.PathProperties;
+
 
 public class TestLazyForeignKeys extends BaseTestCase {
 
@@ -37,6 +42,7 @@ public class TestLazyForeignKeys extends BaseTestCase {
   }
 
   @Test
+  @IgnorePlatform(Platform.SQLSERVER17)
   public void testFindOne() throws Exception {
     // use findOne without select, so lazy loading will occur
     LoggedSqlCollector.start();
@@ -56,7 +62,9 @@ public class TestLazyForeignKeys extends BaseTestCase {
     assertThat(loggedSql.get(1)).contains("select t0.id, t0.attr1, t0.attr2, t0.id is null from main_entity t0");
     assertThat(loggedSql.get(2)).contains("select t0.id, t0.attr1, t0.attr2, t0.id is null from main_entity t0");
   }
+
   @Test
+  @IgnorePlatform(Platform.SQLSERVER17)
   public void testFindListWithSelect() {
     PathProperties pathProp = new PathProperties();
     pathProp.addToPath(null, "attr1");

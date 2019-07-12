@@ -1,8 +1,8 @@
 package org.tests.basic;
 
+import io.ebean.BaseTestCase;
 import io.ebean.DB;
 import io.ebean.Ebean;
-import io.ebean.TransactionalTestCase;
 
 import org.junit.Test;
 import org.tests.model.basic.EDefaultProp;
@@ -10,7 +10,7 @@ import org.tests.model.basic.EDefaultProp;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-public class TestCreateEntityBean extends TransactionalTestCase {
+public class TestCreateEntityBean extends BaseTestCase {
 
   @Test
   public void testDefaultRelation() {
@@ -34,6 +34,9 @@ public class TestCreateEntityBean extends TransactionalTestCase {
     assertEquals("defaultName", beanCreateEntityBeanDb.getName());
     assertNotNull(beanCreateEntityBeanDb.geteSimple());
     assertEquals("Default prop eSimple", beanCreateEntityBeanDb.geteSimple().getName());
+
+    Ebean.delete(beanCreateEntityBean);
+    Ebean.delete(beanNew);
 
   }
 
