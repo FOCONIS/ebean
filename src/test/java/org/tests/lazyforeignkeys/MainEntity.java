@@ -3,6 +3,7 @@ package org.tests.lazyforeignkeys;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.validation.constraints.Size;
 
 import io.ebean.annotation.Formula;
 import io.ebean.annotation.Platform;
@@ -13,6 +14,7 @@ import io.ebean.annotation.SoftDelete;
 public class MainEntity {
 
   @Id
+  @Size(max = 16)
   private String id;
 
   private String attr1;
