@@ -264,13 +264,7 @@ class CQueryBuilder {
     boolean countDistinct = query.isDistinct();
     if (!countDistinct) {
       // minimise select clause for standard count
-      if (manyWhereJoins.isFormulaWithJoin()) {
-        // FIXME: we join the strings here and on the other side we split them again
-        // this is not yet optimal
-        query.select(String.join(",",manyWhereJoins.getFormulaJoinProperties()));
-      } else {
-        query.setSelectId();
-      }
+      query.setSelectId();
     }
 
     CQueryPredicates predicates = new CQueryPredicates(binder, request);
