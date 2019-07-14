@@ -68,6 +68,25 @@ public class TestQueryJoinOnFormula extends BaseTestCase {
     List<String> loggedSql = LoggedSqlCollector.stop();
     assertEquals(1, loggedSql.size());
     assertThat(loggedSql.get(0)).contains("join (select order_id, count(*) as total_items,");
+    assertThat(loggedSql.get(0)).contains("select count(*) from ( select t0.id from o_order t0  left join (select order_id,");
+  }
+
+  @Test
+  public void test_OrderFindCount_multiFormula() {
+
+    LoggedSqlCollector.start();
+
+    int orders = Ebean.find(Order.class)
+      .where()
+      .eq("totalItems", 3)
+      .gt("totalAmount", 10)
+      .findCount();
+
+    assertThat(orders).isEqualTo(2);
+
+    List<String> loggedSql = LoggedSqlCollector.stop();
+    assertEquals(1, loggedSql.size());
+    assertThat(loggedSql.get(0)).contains("select count(*) from ( select t0.id from o_order t0  left join (select order_id,");
   }
 
   @Test
@@ -84,6 +103,7 @@ public class TestQueryJoinOnFormula extends BaseTestCase {
     List<String> loggedSql = LoggedSqlCollector.stop();
     assertEquals(1, loggedSql.size());
     assertThat(loggedSql.get(0)).contains("join (select order_id, count(*) as total_items,");
+    assertThat(loggedSql.get(0)).contains("select t0.order_date from o_order t0");
   }
 
   @Test
@@ -103,6 +123,7 @@ public class TestQueryJoinOnFormula extends BaseTestCase {
     List<String> loggedSql = LoggedSqlCollector.stop();
     assertEquals(1, loggedSql.size());
     assertThat(loggedSql.get(0)).contains("join (select order_id, count(*) as total_items,");
+    assertThat(loggedSql.get(0)).contains("select t0.id, z_bt0.total_items from o_order t0 join (select order_id");
   }
 
   @Test
@@ -113,10 +134,10 @@ public class TestQueryJoinOnFormula extends BaseTestCase {
     List<ParentPerson> orderIds = Ebean.find(ParentPerson.class)
         .where().eq("totalAge", 3)
         .findIds();
-    // TODO: There are no beans in database, so for now only the query must run.
 
     List<String> loggedSql = LoggedSqlCollector.stop();
     assertEquals(1, loggedSql.size());
+    assertThat(loggedSql.get(0)).contains("where coalesce(f2.child_age, 0) = ?; --bind(3)");
   }
 
   @Test
@@ -129,10 +150,10 @@ public class TestQueryJoinOnFormula extends BaseTestCase {
         //.where().eq("totalAge", 3)
         .where().eq("familyName", "foo")
         .findList();
-    // TODO: There are no beans in database, so for now only the query must run.
 
     List<String> loggedSql = LoggedSqlCollector.stop();
     assertEquals(1, loggedSql.size());
+    assertThat(loggedSql.get(0)).contains("select t0.identifier from parent_person t0 where t0.family_name = ?");
   }
 
   @Test
@@ -143,10 +164,11 @@ public class TestQueryJoinOnFormula extends BaseTestCase {
     Ebean.find(ParentPerson.class)
       .where().eq("totalAge", 3)
       .findCount();
-    // TODO: There are no beans in database, so for now only the query must run.
 
     List<String> loggedSql = LoggedSqlCollector.stop();
     assertEquals(1, loggedSql.size());
+    assertThat(loggedSql.get(0)).contains("where coalesce(f2.child_age, 0) = ?)");
+    assertThat(loggedSql.get(0)).contains("select count(*) from ( select t0.identifier from parent_person t0");
   }
 
   @Test
@@ -155,13 +177,14 @@ public class TestQueryJoinOnFormula extends BaseTestCase {
     LoggedSqlCollector.start();
 
     Ebean.find(ParentPerson.class)
-      .select("address") // .select("address, totalAge") would work
+      .select("address")
       .where().eq("totalAge", 3)
       .findSingleAttributeList();
-    // TODO: There are no beans in database, so for now only the query must run.
 
     List<String> loggedSql = LoggedSqlCollector.stop();
     assertEquals(1, loggedSql.size());
+    assertThat(loggedSql.get(0)).contains("select t0.address from parent_person t0 left join (select i2.parent_identifier");
+    assertThat(loggedSql.get(0)).contains("where coalesce(f2.child_age, 0) = ?; --bind(3)");
   }
 
   @Test
@@ -174,10 +197,10 @@ public class TestQueryJoinOnFormula extends BaseTestCase {
       .setMaxRows(1)
       .orderById(true)
       .findOne();
-    // TODO: There are no beans in database, so for now only the query must run.
 
     List<String> loggedSql = LoggedSqlCollector.stop();
     assertEquals(1, loggedSql.size());
+    assertThat(loggedSql.get(0)).contains("where coalesce(f2.child_age, 0) = ? order by t0.identifier");
   }
 
   @Test
@@ -188,10 +211,11 @@ public class TestQueryJoinOnFormula extends BaseTestCase {
     Ebean.find(ChildPerson.class)
         .where().eq("parent.totalAge", 3)
         .findIds();
-    // TODO: There are no beans in database, so for now only the query must run.
 
     List<String> loggedSql = LoggedSqlCollector.stop();
     assertEquals(1, loggedSql.size());
+    assertThat(loggedSql.get(0)).contains("select t0.identifier from child_person t0 left join (select i2.parent_identifier");
+    assertThat(loggedSql.get(0)).contains("where coalesce(f2.child_age, 0) = ?");
   }
 
   @Test
@@ -202,9 +226,10 @@ public class TestQueryJoinOnFormula extends BaseTestCase {
     Ebean.find(ChildPerson.class)
         .where().eq("parent.totalAge", 3)
         .findCount();
-    // TODO: There are no beans in database, so for now only the query must run.
 
     List<String> loggedSql = LoggedSqlCollector.stop();
     assertEquals(1, loggedSql.size());
+    assertThat(loggedSql.get(0)).contains("select count(*) from ( select t0.identifier");
+    assertThat(loggedSql.get(0)).contains("where coalesce(f2.child_age, 0) = ?");
   }
 }

@@ -14,8 +14,6 @@ import io.ebean.BaseTestCase;
 import io.ebean.DB;
 import io.ebean.Ebean;
 import io.ebean.Query;
-import io.ebean.annotation.ForPlatform;
-import io.ebean.annotation.Formula;
 import io.ebean.annotation.IgnorePlatform;
 import io.ebean.annotation.Platform;
 import io.ebean.text.PathProperties;
