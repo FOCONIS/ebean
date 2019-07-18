@@ -129,6 +129,6 @@ public interface EntityBean extends Serializable {
    */
   default void _ebean_onPersistTrigger() {
     // DO NOT THROW NotEnhancedException here
-  };
+  }
 
 }
