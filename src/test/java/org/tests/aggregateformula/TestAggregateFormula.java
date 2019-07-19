@@ -2,9 +2,8 @@ package org.tests.aggregateformula;
 
 import io.ebean.BaseTestCase;
 import io.ebean.Ebean;
-import io.ebean.annotation.ForPlatform;
+import io.ebean.annotation.IgnorePlatform;
 import io.ebean.annotation.Platform;
-
 import org.ebeantest.LoggedSqlCollector;
 import org.junit.Test;
 import org.tests.model.basic.Address;
@@ -20,8 +19,8 @@ import static org.junit.Assert.assertNotNull;
 
 public class TestAggregateFormula extends BaseTestCase {
 
+  @IgnorePlatform(Platform.SQLSERVER)
   @Test
-  @ForPlatform(Platform.H2)
   public void minDistinctOrderByNulls() {
 
     ResetBasicData.reset();

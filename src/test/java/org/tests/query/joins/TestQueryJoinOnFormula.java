@@ -124,7 +124,7 @@ public class TestQueryJoinOnFormula extends BaseTestCase {
     assertEquals(1, loggedSql.size());
     assertThat(loggedSql.get(0)).contains("join (select order_id, count(*) as total_items,");
     if (isSqlServer()) {
-      assertThat(loggedSql.get(0)).contains("select top 1 t0.id, z_bt0.total_items from o_order t0 join (select order_id");
+      assertThat(loggedSql.get(0)).contains("select top 1 t0.id, z_bt0.total_items from o_order t0 join (select");
     } else {
       assertThat(loggedSql.get(0)).contains("select t0.id, z_bt0.total_items from o_order t0 join (select order_id");
     }
