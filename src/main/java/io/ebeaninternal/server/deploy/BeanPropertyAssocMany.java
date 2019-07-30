@@ -621,8 +621,12 @@ public class BeanPropertyAssocMany<T> extends BeanPropertyAssoc<T> implements ST
   }
 
   @Override
-  public BeanCollection<?> createReferenceIfNull(EntityBean parentBean) {
+  public BeanCollection<?> createReference(EntityBean localBean, boolean forceNewReference) {
+    return forceNewReference ? createReference(localBean) : createReferenceIfNull(localBean);
+  }
 
+  @Override
+  public BeanCollection<?> createReferenceIfNull(EntityBean parentBean) {
     Object v = getValue(parentBean);
     if (v instanceof BeanCollection<?>) {
       BeanCollection<?> bc = (BeanCollection<?>) v;
@@ -635,7 +639,6 @@ public class BeanPropertyAssocMany<T> extends BeanPropertyAssoc<T> implements ST
   }
 
   public BeanCollection<?> createReference(EntityBean parentBean) {
-
     BeanCollection<?> ref = help.createReference(parentBean);
     setValue(parentBean, ref);
     return ref;
