@@ -83,6 +83,19 @@ update migtest_e_history6 set test_number1 = 42 where test_number1 is null;
 alter table migtest_e_history6 alter column test_number1 set default 42;
 alter table migtest_e_history6 alter column test_number1 set not null;
 alter table migtest_e_history6 alter column test_number2 set null;
+alter table migtest_e_index1 alter column string1 varchar(20);
+alter table migtest_e_index1 alter column string2 varchar(20);
+alter table migtest_e_index2 alter column string1 varchar(20);
+alter table migtest_e_index2 alter column string2 varchar(20);
+alter table migtest_e_index3 alter column string1 varchar(20);
+alter table migtest_e_index3 alter column string2 varchar(20);
+alter table migtest_e_index4 alter column string1 varchar(20);
+alter table migtest_e_index4 alter column string2 varchar(20);
+alter table migtest_e_index5 alter column string1 varchar(20);
+alter table migtest_e_index5 alter column string2 varchar(20);
+alter table migtest_e_index6 alter column string1 varchar(20);
+alter table migtest_e_index6 alter column string2 varchar(20);
+alter table migtest_e_index6 drop constraint uq_mgtst__n_1aoskk;
 alter table migtest_e_softdelete add column deleted boolean default false not null;
 
 alter table migtest_oto_child add column master_id bigint;
@@ -91,6 +104,8 @@ create index ix_mgtst__b_eu8css on migtest_e_basic (indextest3);
 create index ix_mgtst__b_eu8csv on migtest_e_basic (indextest6);
 drop index ix_mgtst__b_eu8csq;
 drop index ix_mgtst__b_eu8csu;
+drop index ix_mgtst__ndx5;
+drop index ix_mgtst__n_r52a9e;
 create index ix_mgtst_mt_3ug4ok on migtest_mtm_c_migtest_mtm_m (migtest_mtm_c_id);
 alter table migtest_mtm_c_migtest_mtm_m add constraint fk_mgtst_mt_93awga foreign key (migtest_mtm_c_id) references migtest_mtm_c (id) on delete restrict;
 

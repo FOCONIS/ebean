@@ -130,6 +130,25 @@ alter table migtest_e_history6 drop system versioning /* 12 */;
 alter table migtest_e_history6 alter ( test_number2 integer);
 alter table migtest_e_history6_history alter ( test_number2 integer);
 alter table migtest_e_history6 add system versioning history table migtest_e_history6_history not validated /* 13 */;
+alter table migtest_e_index1 alter ( string1 nvarchar(20));
+alter table migtest_e_index1 alter ( string2 nvarchar(20));
+alter table migtest_e_index2 alter ( string1 nvarchar(20));
+alter table migtest_e_index2 alter ( string2 nvarchar(20));
+alter table migtest_e_index3 alter ( string1 nvarchar(20));
+alter table migtest_e_index3 alter ( string2 nvarchar(20));
+alter table migtest_e_index4 alter ( string1 nvarchar(20));
+alter table migtest_e_index4 alter ( string2 nvarchar(20));
+alter table migtest_e_index5 alter ( string1 nvarchar(20));
+alter table migtest_e_index5 alter ( string2 nvarchar(20));
+alter table migtest_e_index6 alter ( string1 nvarchar(20));
+alter table migtest_e_index6 alter ( string2 nvarchar(20));
+delimiter $$
+do
+begin
+declare exit handler for sql_error_code 397 begin end;
+exec 'alter table migtest_e_index6 drop constraint uq_migtest_e_index6_string1';
+end;
+$$;
 alter table migtest_e_softdelete add ( deleted boolean default false not null);
 
 alter table migtest_oto_child add ( master_id bigint);
@@ -148,6 +167,20 @@ do
 begin
 declare exit handler for sql_error_code 261 begin end;
 exec 'drop index ix_migtest_e_basic_indextest5';
+end;
+$$;
+delimiter $$
+do
+begin
+declare exit handler for sql_error_code 261 begin end;
+exec 'drop index ix_migtest_e_index5';
+end;
+$$;
+delimiter $$
+do
+begin
+declare exit handler for sql_error_code 261 begin end;
+exec 'drop index ix_migtest_e_index6_string2';
 end;
 $$;
 -- explicit index "ix_migtest_mtm_c_migtest_mtm_m_migtest_mtm_c" for single column "migtest_mtm_c_id" of table "migtest_mtm_c_migtest_mtm_m" is not necessary;
