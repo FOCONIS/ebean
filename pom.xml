@@ -9,14 +9,15 @@
 
   <groupId>io.ebean</groupId>
   <artifactId>ebean</artifactId>
-  <version>11.41.5-FOC3-SNAPSHOT</version>
+  <version>11.42.2-FOC1-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>ebean</name>
   <url>http://ebean-orm.github.io/</url>
 
   <properties>
-    <jackson-core.version>2.9.8</jackson-core.version>
+    <jackson-core.version>2.9.9</jackson-core.version>
+    <jackson-databind.version>2.9.9.1</jackson-databind.version>
     <snakeyaml.version>1.21</snakeyaml.version>
   </properties>
 
@@ -161,7 +162,7 @@
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
-      <version>${jackson-core.version}</version>
+      <version>${jackson-databind.version}</version>
       <scope>provided</scope>
     </dependency>
 
@@ -331,7 +332,11 @@
       <plugin>
         <groupId>io.ebean</groupId>
         <artifactId>ebean-maven-plugin</artifactId>
+<<<<<<< HEAD
         <version>11.41.4-FOC1</version>
+=======
+        <version>11.42.1</version>
+>>>>>>> ebean/master
         <executions>
           <execution>
             <id>test</id>
