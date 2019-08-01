@@ -30,6 +30,8 @@ alter table migtest_fk_none add constraint fk_migtest_fk_none_one_id foreign key
 alter table migtest_fk_none_via_join add constraint fk_mgtst_fk_nn_v_jn_n_d foreign key (one_id) references migtest_fk_one (id);
 alter table migtest_fk_set_null drop constraint fk_migtest_fk_set_null_one_id;
 alter table migtest_fk_set_null add constraint fk_migtest_fk_set_null_one_id foreign key (one_id) references migtest_fk_one (id);
+alter table migtest_e_basic drop constraint uq_migtest_e_basic_indextest2;
+alter table migtest_e_basic drop constraint uq_migtest_e_basic_indextest6;
 
 update migtest_e_basic set status = 'A' where status is null;
 alter table migtest_e_basic drop constraint ck_migtest_e_basic_status;
@@ -56,8 +58,6 @@ alter table migtest_e_basic add column progress number(10) default 0 not null;
 alter table migtest_e_basic add constraint ck_migtest_e_basic_progress check ( progress in (0,1,2));
 alter table migtest_e_basic add column new_integer number(10) default 42 not null;
 
-alter table migtest_e_basic drop constraint uq_migtest_e_basic_indextest2;
-alter table migtest_e_basic drop constraint uq_migtest_e_basic_indextest6;
 -- NOT YET IMPLEMENTED: alter table migtest_e_basic add constraint uq_mgtst__bsc_stts_ndxtst1 unique  (status,indextest1);
 -- NOT YET IMPLEMENTED: alter table migtest_e_basic add constraint uq_migtest_e_basic_name unique  (name);
 -- NOT YET IMPLEMENTED: alter table migtest_e_basic add constraint uq_migtest_e_basic_indextest4 unique  (indextest4);
@@ -94,9 +94,9 @@ alter table migtest_e_index4 modify string1 varchar2(20);
 alter table migtest_e_index4 modify string2 varchar2(20);
 alter table migtest_e_index5 modify string1 varchar2(20);
 alter table migtest_e_index5 modify string2 varchar2(20);
+alter table migtest_e_index6 drop constraint uq_migtest_e_index6_string1;
 alter table migtest_e_index6 modify string1 varchar2(20);
 alter table migtest_e_index6 modify string2 varchar2(20);
-alter table migtest_e_index6 drop constraint uq_migtest_e_index6_string1;
 alter table migtest_e_softdelete add column deleted number(1) default 0 not null;
 
 alter table migtest_oto_child add column master_id number(19);

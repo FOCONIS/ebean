@@ -35,6 +35,8 @@ alter table migtest_fk_none add constraint fk_migtest_fk_none_one_id foreign key
 alter table migtest_fk_none_via_join add constraint fk_migtest_fk_none_via_join_one_id foreign key (one_id) references migtest_fk_one (id) on delete restrict on update restrict;
 alter table migtest_fk_set_null drop constraint if exists fk_migtest_fk_set_null_one_id;
 alter table migtest_fk_set_null add constraint fk_migtest_fk_set_null_one_id foreign key (one_id) references migtest_fk_one (id) on delete restrict on update restrict;
+alter table migtest_e_basic drop constraint uq_migtest_e_basic_indextest2;
+alter table migtest_e_basic drop constraint uq_migtest_e_basic_indextest6;
 
 update migtest_e_basic set status = 'A' where status is null;
 alter table migtest_e_basic drop constraint if exists ck_migtest_e_basic_status;
@@ -61,8 +63,6 @@ alter table migtest_e_basic add column progress integer default 0 not null;
 alter table migtest_e_basic add constraint ck_migtest_e_basic_progress check ( progress in (0,1,2));
 alter table migtest_e_basic add column new_integer integer default 42 not null;
 
-alter table migtest_e_basic drop constraint uq_migtest_e_basic_indextest2;
-alter table migtest_e_basic drop constraint uq_migtest_e_basic_indextest6;
 alter table migtest_e_basic add constraint uq_migtest_e_basic_status_indextest1 unique  (status,indextest1);
 alter table migtest_e_basic add constraint uq_migtest_e_basic_name unique  (name);
 alter table migtest_e_basic add constraint uq_migtest_e_basic_indextest4 unique  (indextest4);
@@ -104,9 +104,9 @@ alter table migtest_e_index4 alter column string1 varchar(20);
 alter table migtest_e_index4 alter column string2 varchar(20);
 alter table migtest_e_index5 alter column string1 varchar(20);
 alter table migtest_e_index5 alter column string2 varchar(20);
+alter table migtest_e_index6 drop constraint uq_migtest_e_index6_string1;
 alter table migtest_e_index6 alter column string1 varchar(20);
 alter table migtest_e_index6 alter column string2 varchar(20);
-alter table migtest_e_index6 drop constraint uq_migtest_e_index6_string1;
 alter table migtest_e_softdelete add column deleted boolean default false not null;
 
 alter table migtest_oto_child add column master_id bigint;

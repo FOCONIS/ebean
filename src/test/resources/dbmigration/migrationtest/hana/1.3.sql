@@ -18,6 +18,34 @@ delimiter $$
 do
 begin
 declare exit handler for sql_error_code 397 begin end;
+exec 'alter table migtest_e_basic drop constraint uq_migtest_e_basic_status_indextest1';
+end;
+$$;
+delimiter $$
+do
+begin
+declare exit handler for sql_error_code 397 begin end;
+exec 'alter table migtest_e_basic drop constraint uq_migtest_e_basic_name';
+end;
+$$;
+delimiter $$
+do
+begin
+declare exit handler for sql_error_code 397 begin end;
+exec 'alter table migtest_e_basic drop constraint uq_migtest_e_basic_indextest4';
+end;
+$$;
+delimiter $$
+do
+begin
+declare exit handler for sql_error_code 397 begin end;
+exec 'alter table migtest_e_basic drop constraint uq_migtest_e_basic_indextest5';
+end;
+$$;
+delimiter $$
+do
+begin
+declare exit handler for sql_error_code 397 begin end;
 exec 'alter table migtest_e_basic drop constraint ck_migtest_e_basic_status';
 end;
 $$;
@@ -50,34 +78,6 @@ alter table migtest_e_basic add ( old_boolean boolean default false not null);
 alter table migtest_e_basic add ( old_boolean2 boolean);
 alter table migtest_e_basic add ( eref_id integer);
 
-delimiter $$
-do
-begin
-declare exit handler for sql_error_code 397 begin end;
-exec 'alter table migtest_e_basic drop constraint uq_migtest_e_basic_status_indextest1';
-end;
-$$;
-delimiter $$
-do
-begin
-declare exit handler for sql_error_code 397 begin end;
-exec 'alter table migtest_e_basic drop constraint uq_migtest_e_basic_name';
-end;
-$$;
-delimiter $$
-do
-begin
-declare exit handler for sql_error_code 397 begin end;
-exec 'alter table migtest_e_basic drop constraint uq_migtest_e_basic_indextest4';
-end;
-$$;
-delimiter $$
-do
-begin
-declare exit handler for sql_error_code 397 begin end;
-exec 'alter table migtest_e_basic drop constraint uq_migtest_e_basic_indextest5';
-end;
-$$;
 -- cannot create unique index "uq_migtest_e_basic_indextest2" on table "migtest_e_basic" with nullable columns;
 -- cannot create unique index "uq_migtest_e_basic_indextest6" on table "migtest_e_basic" with nullable columns;
 delimiter $$

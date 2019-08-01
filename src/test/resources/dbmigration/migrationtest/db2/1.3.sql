@@ -14,6 +14,10 @@ alter table migtest_fk_none drop constraint fk_mgtst_fk_nn_n_d;
 alter table migtest_fk_none_via_join drop constraint fk_mgtst_fk_9tknzj;
 alter table migtest_fk_set_null drop constraint fk_mgtst_fk_wicx8x;
 alter table migtest_fk_set_null add constraint fk_mgtst_fk_wicx8x foreign key (one_id) references migtest_fk_one (id) on delete set null;
+alter table migtest_e_basic drop constraint uq_mgtst__b_ucfcne;
+alter table migtest_e_basic drop constraint uq_mgtst__bsc_nm;
+alter table migtest_e_basic drop constraint uq_mgtst__b_4ayc00;
+alter table migtest_e_basic drop constraint uq_mgtst__b_4ayc01;
 alter table migtest_e_basic drop constraint ck_mgtst__bsc_stts;
 alter table migtest_e_basic alter column status drop default;
 alter table migtest_e_basic alter column status set null;
@@ -35,10 +39,6 @@ alter table migtest_e_basic add column old_boolean boolean default false not nul
 alter table migtest_e_basic add column old_boolean2 boolean;
 alter table migtest_e_basic add column eref_id integer;
 
-alter table migtest_e_basic drop constraint uq_mgtst__b_ucfcne;
-alter table migtest_e_basic drop constraint uq_mgtst__bsc_nm;
-alter table migtest_e_basic drop constraint uq_mgtst__b_4ayc00;
-alter table migtest_e_basic drop constraint uq_mgtst__b_4ayc01;
 -- NOT SUPPORTED alter table migtest_e_basic add constraint uq_mgtst__b_4aybzy unique  (indextest2);
 -- NOT SUPPORTED alter table migtest_e_basic add constraint uq_mgtst__b_4ayc02 unique  (indextest6);
 alter table migtest_e_enum drop constraint ck_mgtst__n_773sok;
