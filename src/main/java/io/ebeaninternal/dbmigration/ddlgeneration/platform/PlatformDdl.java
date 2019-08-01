@@ -118,6 +118,8 @@ public class PlatformDdl {
    */
   protected boolean inlineForeignKeys;
 
+  protected boolean dropConstraintsOnAlter;
+
   protected boolean includeStorageEngine;
 
   protected final DbDefaultValue dbDefaultValue;
@@ -206,6 +208,14 @@ public class PlatformDdl {
    */
   public boolean isInlineForeignKeys() {
     return inlineForeignKeys;
+  }
+
+  /**
+   * Return true if constraints have to be dropped on alter. This is neccessary on SqlServer,
+   * because you cannot alter a column as long it is referenced by an index or constraint.
+   */
+  public boolean isDropConstraintsOnAlter() {
+    return dropConstraintsOnAlter;
   }
 
   /**
