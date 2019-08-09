@@ -2075,6 +2075,13 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
   }
 
   /**
+   * Return the BeanDescriptor of another bean type.
+   */
+  public boolean isTableManaged(String tableName) {
+    return owner.isTableManaged(tableName);
+  }
+
+  /**
    * Return the order column property.
    */
   public BeanProperty getOrderColumn() {
