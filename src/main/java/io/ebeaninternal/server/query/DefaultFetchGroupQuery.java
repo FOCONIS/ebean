@@ -9,6 +9,7 @@ import io.ebean.ExpressionList;
 import io.ebean.FetchConfig;
 import io.ebean.FetchGroup;
 import io.ebean.FetchPath;
+import io.ebean.Filter;
 import io.ebean.FutureIds;
 import io.ebean.FutureList;
 import io.ebean.FutureRowCount;
@@ -575,6 +576,11 @@ class DefaultFetchGroupQuery<T> implements SpiFetchGroupQuery<T> {
 
   @Override
   public Query<T> orderById(boolean orderById) {
+    throw new RuntimeException("Not allowed on fetch group query ");
+  }
+
+  @Override
+  public Filter<T> filter() {
     throw new RuntimeException("Not allowed on fetch group query ");
   }
 }
