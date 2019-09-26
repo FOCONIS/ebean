@@ -4,10 +4,10 @@ import io.ebean.BaseTestCase;
 import io.ebean.Ebean;
 import io.ebean.SqlQuery;
 import io.ebean.SqlRow;
+import org.junit.Test;
 import org.tests.model.m2m.MnyA;
 import org.tests.model.m2m.MnyB;
 import org.tests.model.m2m.MnyC;
-import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
