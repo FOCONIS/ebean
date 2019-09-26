@@ -26,6 +26,11 @@ public interface BeanQueryRequest<T> {
   Query<T> getQuery();
 
   /**
+   * Return true if an Id IN expression should have the bind parameters padded.
+   */
+  boolean isPadInExpression();
+
+  /**
    * Return true if multi-value binding using Array or Table Values is supported.
    */
   IsSupported isMultiValueIdSupported();

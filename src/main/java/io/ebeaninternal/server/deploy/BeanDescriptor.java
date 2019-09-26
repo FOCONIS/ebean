@@ -1833,6 +1833,13 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
   }
 
   /**
+   * Return true if Id IN expression should have bind parameters padded.
+   */
+  public boolean isPadInExpression() {
+    return isMultiValueIdSupported() == IsSupported.NO && isSimpleId();
+  }
+
+  /**
    * Return the sql for binding an id. This is the columns with table alias that
    * make up the id.
    */
@@ -2311,6 +2318,13 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
    */
   public Object convertSetId(Object idValue, EntityBean bean) {
     return idBinder.convertSetId(idValue, bean);
+  }
+
+  /**
+   * Set the Id value to the bean (without type conversion).
+   */
+  public void setId(Object idValue, EntityBean bean) {
+    idProperty.setValueIntercept(bean, idValue);
   }
 
   @Override

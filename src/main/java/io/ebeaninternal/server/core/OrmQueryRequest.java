@@ -98,6 +98,7 @@ public final class OrmQueryRequest<T> extends BeanRequest implements SpiOrmQuery
     this.queryEngine = queryEngine;
     this.query = query;
     this.readOnly = query.isReadOnly();
+    this.persistenceContext = query.getPersistenceContext();
   }
 
   public PersistenceException translate(String bindLog, String sql, SQLException e) {
@@ -114,6 +115,11 @@ public final class OrmQueryRequest<T> extends BeanRequest implements SpiOrmQuery
       queryPlanKey = query.setDeleteByIdsPlan();
       return false;
     }
+  }
+
+  @Override
+  public boolean isPadInExpression() {
+    return beanDescriptor.isPadInExpression();
   }
 
   @Override

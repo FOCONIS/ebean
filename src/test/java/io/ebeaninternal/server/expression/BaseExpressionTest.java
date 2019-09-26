@@ -22,18 +22,18 @@ public abstract class BaseExpressionTest extends BaseTestCase {
   }
 
   protected String hash(SpiExpression expression) {
-    StringBuilder sb  = new StringBuilder();
+    StringBuilder sb = new StringBuilder();
     if (expression != null) {
       expression.queryPlanHash(sb);
     }
     return sb.toString();
   }
 
-  protected void same(SpiExpression one, SpiExpression two){
+  protected void same(SpiExpression one, SpiExpression two) {
     assertThat(hash(one)).isEqualTo(hash(two));
   }
 
-  protected void different(SpiExpression one, SpiExpression two){
+  protected void different(SpiExpression one, SpiExpression two) {
     assertThat(hash(one)).isNotEqualTo(hash(two));
   }
 
@@ -79,12 +79,17 @@ public abstract class BaseExpressionTest extends BaseTestCase {
     }
 
     @Override
-    public IsSupported isMultiValueIdSupported() {
-      return supported;
+    public boolean isPadInExpression() {
+      return supported == IsSupported.NO;
     }
 
     @Override
     public IsSupported isMultiValueSupported(Class<?> valueType) {
+      return supported;
+    }
+
+    @Override
+    public IsSupported isMultiValueIdSupported() {
       return supported;
     }
   }
