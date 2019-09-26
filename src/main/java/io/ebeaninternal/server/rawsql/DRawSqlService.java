@@ -47,6 +47,10 @@ public class DRawSqlService implements SpiRawSqlService {
         name = meta.getColumnName(i);
       }
 
+      if (ret.containsKey(name)) {
+        name = combine(meta.getSchemaName(i), meta.getTableName(i), name);
+      }
+
       // convert (C/B)LOBs to java objects.
       // A java.sql.Clob depends on an open connection, so storing this object in a map
       // that is accessed later, when the connection is closed, will result in a "connection is closed" exception.
@@ -64,8 +68,22 @@ public class DRawSqlService implements SpiRawSqlService {
         ret.put(name, resultSet.getObject(i));
         break;
       }
-
     }
     return ret;
+  }
+
+  /**
+   * Combine schema table and column names allowing for null schema and table.
+   */
+  String combine(String schemaName, String tableName, String name) {
+
+    StringBuilder sb = new StringBuilder();
+    if (schemaName != null) {
+      sb.append(schemaName).append(".");
+    }
+    if (tableName != null) {
+      sb.append(tableName).append(".");
+    }
+    return sb.append(name).toString();
   }
 }
