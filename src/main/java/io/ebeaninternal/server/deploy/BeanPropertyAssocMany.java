@@ -230,6 +230,7 @@ public class BeanPropertyAssocMany<T> extends BeanPropertyAssoc<T> implements ST
       desc.registerTable(targetDescriptor.getBaseTable(), this);
     }
   }
+
   /**
    * Return the underlying collection of beans.
    */
@@ -349,7 +350,7 @@ public class BeanPropertyAssocMany<T> extends BeanPropertyAssoc<T> implements ST
 
   /**
    * Add the loaded current bean to its associated parent.
-   *
+   * <p>
    * Helper method used by Elastic integration when loading with a persistence context.
    */
   @Override
@@ -973,6 +974,13 @@ public class BeanPropertyAssocMany<T> extends BeanPropertyAssoc<T> implements ST
 
   void jsonWriteElementValue(SpiJsonWriter ctx, Object element) {
     elementDescriptor.jsonWriteElement(ctx, element);
+  }
+
+  /**
+   * Only cache Many Ids if the target bean is also cached.
+   */
+  public boolean isUseCache() {
+    return targetDescriptor.isBeanCaching();
   }
 
   /**

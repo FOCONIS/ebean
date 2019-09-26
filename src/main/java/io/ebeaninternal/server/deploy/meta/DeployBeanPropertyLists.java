@@ -53,6 +53,8 @@ public class DeployBeanPropertyLists {
 
   private final List<BeanProperty> nonManys = new ArrayList<>();
 
+  private final List<BeanProperty> aggs = new ArrayList<>();
+
   private final List<BeanPropertyAssocOne<?>> ones = new ArrayList<>();
 
   private final List<BeanPropertyAssocOne<?>> onesImported = new ArrayList<>();
@@ -231,6 +233,9 @@ public class DeployBeanPropertyLists {
 
     } else {
       nonManys.add(prop);
+      if (prop.isAggregation()) {
+        aggs.add(prop);
+      }
       if (prop.isTenantId()) {
         tenant = prop;
       }
@@ -328,6 +333,10 @@ public class DeployBeanPropertyLists {
 
   public BeanProperty[] getNonMany() {
     return nonManys.toArray(new BeanProperty[0]);
+  }
+
+  public BeanProperty[] getAggregates() {
+    return aggs.toArray(new BeanProperty[0]);
   }
 
   public BeanPropertyAssocMany<?>[] getMany() {
