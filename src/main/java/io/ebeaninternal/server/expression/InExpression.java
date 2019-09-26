@@ -9,8 +9,6 @@ import io.ebeaninternal.api.SpiExpressionRequest;
 import io.ebeaninternal.server.deploy.BeanDescriptor;
 import io.ebeaninternal.server.el.ElPropertyValue;
 import io.ebeaninternal.server.persist.MultiValueWrapper;
-import io.ebeaninternal.server.persist.platform.MultiValueBind;
-import io.ebeaninternal.server.persist.platform.MultiValueBind.IsSupported;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -21,8 +19,7 @@ import java.util.List;
 
 class InExpression extends AbstractExpression {
 
-  private static final String SQL_TRUE = "1=1";
-  private static final String SQL_FALSE = "1=0";
+
 
   private final boolean not;
 
@@ -35,7 +32,7 @@ class InExpression extends AbstractExpression {
 
   private List<Object> bindValues;
 
-  private IsSupported multiValueSupported;
+  private boolean multiValueSupported;
 
   InExpression(String propertyName, Collection<?> sourceValues, boolean not) {
     this(propertyName, sourceValues, not, false);
@@ -88,8 +85,6 @@ class InExpression extends AbstractExpression {
     initBindValues();
     if (bindValues.size() > 0) {
       multiValueSupported = request.isMultiValueSupported((bindValues.get(0)).getClass());
-    } else {
-      multiValueSupported = IsSupported.NO;
     }
   }
 
@@ -176,12 +171,9 @@ class InExpression extends AbstractExpression {
       builder.append("empty");
     } else {
       builder.append(" ?");
-      if (multiValueSupported == IsSupported.NO) {
+      if (!multiValueSupported) {
+        // query plan specific to the number of parameters in the IN clause
         builder.append(bindValues.size());
-      } else if (multiValueSupported == IsSupported.ONLY_FOR_MANY_PARAMS) {
-        if (bindValues.size() <= MultiValueBind.MANY_PARAMS) {
-          builder.append(bindValues.size());
-        }
       }
     }
     builder.append("]");

@@ -9,8 +9,6 @@ import io.ebeaninternal.api.SpiExpression;
 import io.ebeaninternal.api.SpiExpressionRequest;
 import io.ebeaninternal.server.deploy.BeanDescriptor;
 import io.ebeaninternal.server.persist.MultiValueWrapper;
-import io.ebeaninternal.server.persist.platform.MultiValueBind;
-import io.ebeaninternal.server.persist.platform.MultiValueBind.IsSupported;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -26,7 +24,7 @@ class InPairsExpression extends AbstractExpression {
 
   private List<Pairs.Entry> entries;
 
-  private IsSupported multiValueSupported;
+  private boolean multiValueSupported;
 
   private final String separator;
 
@@ -100,7 +98,7 @@ class InPairsExpression extends AbstractExpression {
   public void addSql(SpiExpressionRequest request) {
 
     if (entries.isEmpty()) {
-      String expr = not ? "1=1" : "1=0";
+      String expr = not ? SQL_TRUE : SQL_FALSE;
       request.append(expr);
       return;
     }
@@ -123,13 +121,9 @@ class InPairsExpression extends AbstractExpression {
     builder.append(property1).append("-");
     builder.append(separator).append("-");
     builder.append(suffix).append(" ?");
-    // query plan specific to the number of parameters in the IN clause
-    if (multiValueSupported == IsSupported.NO) {
+    if (!multiValueSupported) {
+      // query plan specific to the number of parameters in the IN clause
       builder.append(entries.size());
-    } else if (multiValueSupported == IsSupported.ONLY_FOR_MANY_PARAMS) {
-      if (entries.size() <= MultiValueBind.MANY_PARAMS) {
-        builder.append(entries.size());
-      }
     }
     builder.append("]");
   }

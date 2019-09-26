@@ -2,7 +2,6 @@ package io.ebeaninternal.server.persist.platform;
 
 import static java.sql.Types.*;
 
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.Collection;
@@ -11,6 +10,7 @@ import com.microsoft.sqlserver.jdbc.SQLServerDataTable;
 import com.microsoft.sqlserver.jdbc.SQLServerPreparedStatement;
 
 import io.ebean.config.dbplatform.ExtraDbTypes;
+import io.ebeaninternal.server.type.DataBind;
 import io.ebeaninternal.server.type.ScalarType;
 
 /**
@@ -23,14 +23,8 @@ import io.ebeaninternal.server.type.ScalarType;
  */
 public class SqlServerMultiValueBind extends AbstractMultiValueBind {
 
-
   @Override
-  public IsSupported isTypeSupported(int jdbcType) {
-    return getArrayType(jdbcType) == null ? IsSupported.NO : IsSupported.ONLY_FOR_MANY_PARAMS;
-  }
-
-  @Override
-  public void bindMultiValues(int parameterPosition, PreparedStatement pstmt, Collection<?> values, ScalarType<?> type, String tvpName)
+    protected void setArray(DataBind dataBind, String arrayType, Collection<?> values, ScalarType<?> type)
       throws SQLException {
     SQLServerDataTable array = new SQLServerDataTable();
 
@@ -47,8 +41,8 @@ public class SqlServerMultiValueBind extends AbstractMultiValueBind {
       array.addRow(element);
     }
 
-    SQLServerPreparedStatement sqlserverPstmt = pstmt.unwrap(SQLServerPreparedStatement.class);
-    sqlserverPstmt.setStructured(parameterPosition, tvpName, array);
+    SQLServerPreparedStatement sqlserverPstmt = dataBind.getPstmt().unwrap(SQLServerPreparedStatement.class);
+    sqlserverPstmt.setStructured(dataBind.nextPos(), arrayType, array);
   }
 
   @Override
@@ -98,7 +92,7 @@ public class SqlServerMultiValueBind extends AbstractMultiValueBind {
   }
 
   @Override
-  protected String getInExpression(boolean not, ScalarType<?> type, int size, String tvpName) {
+  public String getInExpression(boolean not, ScalarType<?> type, int size) {
     if (not) {
       return " not in (SELECT * FROM ?) ";
     } else {

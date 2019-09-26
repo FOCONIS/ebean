@@ -51,6 +51,7 @@ import io.ebeaninternal.server.deploy.parse.DeployInherit;
 import io.ebeaninternal.server.deploy.parse.DeployUtil;
 import io.ebeaninternal.server.deploy.parse.ReadAnnotations;
 import io.ebeaninternal.server.deploy.parse.TransientProperties;
+import io.ebeaninternal.server.persist.platform.MultiValueBind;
 import io.ebeaninternal.server.properties.BeanPropertiesReader;
 import io.ebeaninternal.server.properties.BeanPropertyAccess;
 import io.ebeaninternal.server.properties.EnhanceBeanPropertyAccess;
@@ -140,6 +141,8 @@ public class BeanDescriptorManager implements BeanDescriptorMap {
 
   private final DocStoreFactory docStoreFactory;
 
+  private final MultiValueBind multiValueBind;
+
   private final TypeManager typeManager;
 
   private int entityBeanCount;
@@ -213,7 +216,8 @@ public class BeanDescriptorManager implements BeanDescriptorMap {
     this.dataSource = serverConfig.getDataSource();
     this.encryptKeyManager = serverConfig.getEncryptKeyManager();
     this.databasePlatform = serverConfig.getDatabasePlatform();
-    this.idBinderFactory = new IdBinderFactory(databasePlatform.isIdInExpandedForm(), config.getMultiValueBind());
+    this.multiValueBind = config.getMultiValueBind();
+    this.idBinderFactory = new IdBinderFactory(databasePlatform.isIdInExpandedForm(), multiValueBind);
     this.queryPlanTTLSeconds = serverConfig.getQueryPlanTTLSeconds();
 
     this.asOfViewSuffix = getAsOfViewSuffix(databasePlatform, serverConfig);
@@ -289,6 +293,11 @@ public class BeanDescriptorManager implements BeanDescriptorMap {
     DbHistorySupport historySupport = databasePlatform.getHistorySupport();
     // with historySupport returns a simple view suffix or the sql2011 versions between timestamp suffix
     return (historySupport == null) ? serverConfig.getAsOfViewSuffix() : historySupport.getVersionsBetweenSuffix(serverConfig.getAsOfViewSuffix());
+  }
+
+  @Override
+  public boolean isMultiValueSupported() {
+    return multiValueBind.isSupported();
   }
 
   @Override

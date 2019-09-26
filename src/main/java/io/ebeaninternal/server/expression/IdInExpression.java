@@ -9,8 +9,6 @@ import io.ebeaninternal.api.SpiExpressionValidation;
 import io.ebeaninternal.server.core.BindPadding;
 import io.ebeaninternal.server.deploy.BeanDescriptor;
 import io.ebeaninternal.server.deploy.id.IdBinder;
-import io.ebeaninternal.server.persist.platform.MultiValueBind;
-import io.ebeaninternal.server.persist.platform.MultiValueBind.IsSupported;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -26,7 +24,7 @@ public class IdInExpression extends NonPrepareExpression {
 
   private final List<Object> idCollection;
 
-  private IsSupported multiValueIdSupported = IsSupported.NO;
+  private boolean multiValueIdSupported;
 
   public IdInExpression(Collection<?> idCollection) {
     this.idCollection = new ArrayList<>(idCollection);
@@ -50,7 +48,7 @@ public class IdInExpression extends NonPrepareExpression {
   @Override
   public void prepareExpression(BeanQueryRequest<?> request) {
     multiValueIdSupported = request.isMultiValueIdSupported();
-    if (multiValueIdSupported == IsSupported.NO && !idCollection.isEmpty() && request.isPadInExpression()) {
+    if (!multiValueIdSupported && !idCollection.isEmpty() && request.isPadInExpression()) {
       // pad out the ids for better hit ratio on DB query plans
       BindPadding.padIds(idCollection);
     }
@@ -77,15 +75,15 @@ public class IdInExpression extends NonPrepareExpression {
 
   @Override
   public void addBindValues(SpiExpressionRequest request) {
-
+    if (idCollection.isEmpty()) {
+      return;
+    }
     // Bind the Id values including EmbeddedId and multiple Id
 
     DefaultExpressionRequest r = (DefaultExpressionRequest) request;
     BeanDescriptor<?> descriptor = r.getBeanDescriptor();
     IdBinder idBinder = descriptor.getIdBinder();
-    if (!idCollection.isEmpty()) {
-      idBinder.addIdInBindValues(request, idCollection);
-    }
+    idBinder.addIdInBindValues(request, idCollection);
   }
 
   /**
@@ -97,7 +95,7 @@ public class IdInExpression extends NonPrepareExpression {
     BeanDescriptor<?> descriptor = r.getBeanDescriptor();
     IdBinder idBinder = descriptor.getIdBinder();
     if (idCollection.isEmpty()) {
-      request.append("1=0"); // append false for this stage
+      request.append(SQL_FALSE); // append false for this stage
     } else {
       request.append(descriptor.getIdBinder().getBindIdInSql(null));
       String inClause = idBinder.getIdInValueExpr(false, idCollection.size());
@@ -112,7 +110,7 @@ public class IdInExpression extends NonPrepareExpression {
     BeanDescriptor<?> descriptor = r.getBeanDescriptor();
     IdBinder idBinder = descriptor.getIdBinder();
     if (idCollection.isEmpty()) {
-      request.append("1=0"); // append false for this stage
+      request.append(SQL_FALSE); // append false for this stage
     } else {
       request.append(descriptor.getIdBinderInLHSSql());
       String inClause = idBinder.getIdInValueExpr(false, idCollection.size());
@@ -126,12 +124,9 @@ public class IdInExpression extends NonPrepareExpression {
   @Override
   public void queryPlanHash(StringBuilder builder) {
     builder.append("IdIn[?");
-    if (multiValueIdSupported == IsSupported.NO) {
+    if (!multiValueIdSupported) {
+      // query plan specific to the number of parameters in the IN clause
       builder.append(idCollection.size());
-    } else if (multiValueIdSupported == IsSupported.ONLY_FOR_MANY_PARAMS) {
-      if (idCollection.size() <= MultiValueBind.MANY_PARAMS) {
-        builder.append(idCollection.size());
-      }
     }
     builder.append("]");
   }

@@ -9,7 +9,6 @@ import io.ebeaninternal.server.deploy.DbReadContext;
 import io.ebeaninternal.server.deploy.DbSqlContext;
 import io.ebeaninternal.server.persist.MultiValueWrapper;
 import io.ebeaninternal.server.persist.platform.MultiValueBind;
-import io.ebeaninternal.server.persist.platform.MultiValueBind.IsSupported;
 import io.ebeaninternal.server.type.DataBind;
 import io.ebeaninternal.server.type.ScalarType;
 
@@ -54,11 +53,6 @@ public final class IdBinderSimple implements IdBinder {
   @Override
   public boolean isIdInExpandedForm() {
     return false;
-  }
-
-  @Override
-  public IsSupported isMultiValueIdSupported() {
-    return multiValueBind.isTypeSupported(scalarType.getJdbcType());
   }
 
   @Override

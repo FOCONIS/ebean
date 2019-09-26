@@ -32,7 +32,6 @@ import io.ebeaninternal.server.deploy.BeanPropertyAssocMany;
 import io.ebeaninternal.server.deploy.DeployParser;
 import io.ebeaninternal.server.deploy.DeployPropertyParserMap;
 import io.ebeaninternal.server.loadcontext.DLoadContext;
-import io.ebeaninternal.server.persist.platform.MultiValueBind.IsSupported;
 import io.ebeaninternal.server.query.CQueryPlan;
 import io.ebeaninternal.server.query.CancelableQuery;
 import io.ebeaninternal.server.transaction.DefaultPersistenceContext;
@@ -123,12 +122,12 @@ public final class OrmQueryRequest<T> extends BeanRequest implements SpiOrmQuery
   }
 
   @Override
-  public IsSupported isMultiValueIdSupported() {
+  public boolean isMultiValueIdSupported() {
     return beanDescriptor.isMultiValueIdSupported();
   }
 
   @Override
-  public IsSupported isMultiValueSupported(Class<?> valueType) {
+  public boolean isMultiValueSupported(Class<?> valueType) {
     return queryEngine.isMultiValueSupported(valueType);
   }
 

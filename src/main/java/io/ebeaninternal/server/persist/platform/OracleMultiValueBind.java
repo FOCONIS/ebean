@@ -8,6 +8,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Collection;
 
+import io.ebeaninternal.server.type.DataBind;
 import io.ebeaninternal.server.type.ScalarType;
 
 // import oracle.jdbc.*
@@ -40,11 +41,6 @@ public class OracleMultiValueBind extends AbstractMultiValueBind {
     }
   }
 
-  @Override
-  public IsSupported isTypeSupported(int jdbcType) {
-    return getArrayType(jdbcType) == null ? IsSupported.NO : IsSupported.ONLY_FOR_MANY_PARAMS;
-  }
-
   // code without reflection
   // private Array createArray(Connection conn, String tvpName, Object[] values)
   // throws SQLException {
@@ -53,14 +49,14 @@ public class OracleMultiValueBind extends AbstractMultiValueBind {
   // }
 
   @Override
-  public void bindMultiValues(int parameterPosition, PreparedStatement pstmt, Collection<?> values, ScalarType<?> type, String tvpName)
+  protected void setArray(DataBind dataBind, String arrayType, Collection<?> values, ScalarType<?> type)
       throws SQLException {
-      Connection conn = pstmt.getConnection();
+    PreparedStatement stmt = dataBind.getPstmt();
 
-      Object[] array = toArray(values, type);
-      Array sqlArray = ORACLE_HELP.createArray(conn, tvpName, array);
+    Object[] array = toArray(values, type);
+    Array sqlArray = ORACLE_HELP.createArray(stmt.getConnection(), arrayType, array);
 
-      pstmt.setArray(parameterPosition, sqlArray);
+    stmt.setArray(dataBind.nextPos(), sqlArray);
   }
 
   @Override
@@ -105,7 +101,7 @@ public class OracleMultiValueBind extends AbstractMultiValueBind {
   }
 
   @Override
-  protected String getInExpression(boolean not, ScalarType<?> type, int size, String tvpName) {
+  public String getInExpression(boolean not, ScalarType<?> type, int size) {
     if (not) {
       return " not in (SELECT * FROM TABLE (SELECT ? FROM DUAL)) ";
     } else {

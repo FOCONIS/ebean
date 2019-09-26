@@ -156,7 +156,6 @@ public class BindParamsParser {
           int castEnd = findEndOfCast(sql, endOfParam);
           String castStatement = sql.substring(castStart,nameParamStart); // "cast ("
           String asStatement = sql.substring(endOfParam, castEnd);        // "as Decimal(30))"
-          param.setCastDataType(extractCastDataType(asStatement));
           placeHolder =  castStatement + "?" + asStatement;
           nameParamStart = castStart;
           endOfParam = castEnd;
@@ -223,23 +222,6 @@ public class BindParamsParser {
       if (ch == ')') openBrackets--;
     }
     return pos;
-  }
-
-  /**
-   * parses a cast statement like "as varchar(32))" Statement and returns "varchar(32)" for further analysis.
-   */
-  private String extractCastDataType(String sql) {
-    int pos = 0;
-    // remove all leading whitespace
-    while (pos < sql.length() && Character.isWhitespace(sql.charAt(pos))) {
-      pos++;
-    }
-    pos += 3; // remove "as "
-    if (pos < sql.length() - 1) {
-      return sql.substring(pos, sql.length() - 1).trim();
-    } else {
-      return null;
-    }
   }
 
   /**

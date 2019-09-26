@@ -31,9 +31,7 @@ public class TestMTOInheritNoDiscriminator extends BaseTestCase {
     final List<String> sql = LoggedSqlCollector.stop();
 
     assertThat(sql).hasSize(1);
-    if (isH2() || isPostgres()) {
-      assertThat(sql.get(0)).contains(" and t2.type = 'truck' ");
-    }
+    assertThat(sql.get(0)).doesNotContain("t2."); // only t0 & t1. required
   }
 
   private TTruckHolder setup() {

@@ -10,7 +10,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 
 /**
  * Parameters used for binding to a statement.
@@ -257,13 +256,6 @@ public class BindParams implements Serializable {
   }
 
   /**
-   * Returns all parameter names.
-   */
-  public Set<String> getParameterNames() {
-    return namedParameters.keySet();
-  }
-
-  /**
    * Return the values of ordered parameters.
    */
   public List<Param> positionedParameters() {
@@ -377,8 +369,6 @@ public class BindParams implements Serializable {
 
     private int type;
 
-    private String castDataType;
-
     private Object inValue;
 
     private Object outValue;
@@ -465,20 +455,6 @@ public class BindParams implements Serializable {
     public void setInValue(Object in) {
       this.inValue = in;
       this.isInParam = true;
-    }
-
-    /**
-     * Sets the cast dataType.
-     */
-    public void setCastDataType(String castDataType) {
-      this.castDataType = castDataType;
-    }
-
-    /**
-     * Returns the cast dataType.
-     */
-    public String getCastDataType() {
-      return castDataType;
     }
 
     /**

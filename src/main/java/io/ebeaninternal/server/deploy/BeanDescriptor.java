@@ -66,7 +66,6 @@ import io.ebeaninternal.server.el.ElPropertyChainBuilder;
 import io.ebeaninternal.server.el.ElPropertyDeploy;
 import io.ebeaninternal.server.el.ElPropertyValue;
 import io.ebeaninternal.server.persist.DeleteMode;
-import io.ebeaninternal.server.persist.platform.MultiValueBind.IsSupported;
 import io.ebeaninternal.server.query.CQueryPlan;
 import io.ebeaninternal.server.query.ExtraJoin;
 import io.ebeaninternal.server.query.STreeProperty;
@@ -139,6 +138,8 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
   private final Map<String, String> namedQuery;
 
   private final short profileBeanId;
+
+  private final boolean multiValueSupported;
 
   public enum EntityType {
     ORM, EMBEDDED, VIEW, SQL, DOC
@@ -426,6 +427,7 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
   public BeanDescriptor(BeanDescriptorMap owner, DeployBeanDescriptor<T> deploy) {
 
     this.owner = owner;
+    this.multiValueSupported = owner.isMultiValueSupported();
     this.entityType = deploy.getEntityType();
     this.properties = deploy.getProperties();
     this.name = InternString.intern(deploy.getName());
@@ -1817,15 +1819,15 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
   /**
    * Return true if this type has a simple Id and the platform supports mutli-value binding.
    */
-  public IsSupported isMultiValueIdSupported() {
-    return idBinder.isMultiValueIdSupported();
+  public boolean isMultiValueIdSupported() {
+    return multiValueSupported && isSimpleId();
   }
 
   /**
    * Return true if Id IN expression should have bind parameters padded.
    */
   public boolean isPadInExpression() {
-    return isMultiValueIdSupported() == IsSupported.NO && isSimpleId();
+    return !multiValueSupported && isSimpleId();
   }
 
   /**

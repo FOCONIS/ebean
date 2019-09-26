@@ -7,7 +7,6 @@ import io.ebeaninternal.server.core.Message;
 import io.ebeaninternal.server.core.timezone.DataTimeZone;
 import io.ebeaninternal.server.expression.platform.DbExpressionHandler;
 import io.ebeaninternal.server.persist.platform.MultiValueBind;
-import io.ebeaninternal.server.persist.platform.MultiValueBind.IsSupported;
 import io.ebeaninternal.server.type.DataBind;
 import io.ebeaninternal.server.type.DataReader;
 import io.ebeaninternal.server.type.PostgresHelper;
@@ -192,12 +191,12 @@ public class Binder {
   /**
    * Return true if MultiValue binding is supported for the given type.
    */
-  public IsSupported isMultiValueSupported(Class<?> cls) {
+  public boolean isMultiValueSupported(Class<?> cls) {
     try {
       ScalarType<?> scalarType = getScalarType(cls);
       return multiValueBind.isTypeSupported(scalarType.getJdbcType());
     } catch (PersistenceException e) {
-      return IsSupported.NO;
+      return false;
     }
   }
 

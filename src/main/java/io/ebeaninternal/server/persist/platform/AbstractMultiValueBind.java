@@ -29,69 +29,37 @@ import static java.sql.Types.TIME_WITH_TIMEZONE;
 import static java.sql.Types.TINYINT;
 import static java.sql.Types.VARCHAR;
 
-import java.sql.Array;
-import java.sql.PreparedStatement;
-
 /**
  * Base MultiValueBind for platform specific support.
  */
-public abstract class AbstractMultiValueBind extends MultiValueBind {
+abstract class AbstractMultiValueBind extends MultiValueBind {
 
   @Override
-  public final void bindMultiValues(DataBind dataBind, Collection<?> values, ScalarType<?> type, Binder binder) throws SQLException {
+  public boolean isSupported() {
+    return true;
+  }
 
-    switch (isTypeSupported(type.getJdbcType())) {
-    case NO:
+  @Override
+  public boolean isTypeSupported(int jdbcType) {
+    return getArrayType(jdbcType) != null;
+  }
+
+  @Override
+  public void bindMultiValues(DataBind dataBind, Collection<?> values, ScalarType<?> type, Binder binder) throws SQLException {
+    String arrayType = getArrayType(type.getJdbcType());
+    if (arrayType == null) {
       super.bindMultiValues(dataBind, values, type, binder);
-      break;
-    case ONLY_FOR_MANY_PARAMS:
-      if (values.size() <= MANY_PARAMS) {
-        super.bindMultiValues(dataBind, values, type, binder);
-        break;
-      }
-      // fall thru
-    case YES:
-      String arrayType = getArrayType(type.getJdbcType());
-      if (dataBind instanceof DataBindCapture) {
-        ((DataBindCapture)dataBind).bindMultiValues(values, type, arrayType, this);
-      } else {
-        bindMultiValues(dataBind.nextPos(), dataBind.getPstmt(), values, type, arrayType);
-      }
-      break;
-    default:
-      break;
+    } else if (dataBind instanceof DataBindCapture) {
+      dataBind.setArray(arrayType, toArray(values, type));
+    } else {
+      setArray(dataBind, arrayType, values, type);
     }
   }
 
-  /**
-   * Bind the values if MultiValueBind can be used. Overwrite this method.
-   */
-  public void bindMultiValues(int parameterPosition, PreparedStatement pstmt, Collection<?> values, ScalarType<?> type, String arrayType) throws SQLException {
-    Array array = pstmt.getConnection().createArrayOf(arrayType, toArray(values, type));
-    pstmt.setArray(parameterPosition, array);
+  protected void setArray(DataBind dataBind, String arrayType, Collection<?> values, ScalarType<?> type)
+      throws SQLException {
+    dataBind.setArray(arrayType, toArray(values, type));
   }
-
-  @Override
-  public final String getInExpression(boolean not, ScalarType<?> type, int size) {
-    switch (isTypeSupported(type.getJdbcType())) {
-    case NO:
-      return super.getInExpression(not, type, size);
-    case ONLY_FOR_MANY_PARAMS:
-      if (size <= MANY_PARAMS) {
-        return super.getInExpression(not, type, size);
-      }
-      // fall thru
-    case YES:
-      return getInExpression(not, type, size, getArrayType(type.getJdbcType()));
-    default:
-      throw new IllegalStateException();
-    }
-  }
-
-  /**
-   * Appends the 'in' expression to the request. Must add leading and trailing space! Overweite this method.
-   */
-  abstract String getInExpression(boolean not, ScalarType<?> type, int size, String arrayType);
 
   String getArrayType(int dbType) {
     switch(dbType) {

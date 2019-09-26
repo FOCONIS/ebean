@@ -3,7 +3,6 @@ package io.ebeaninternal.server.core;
 import io.ebean.QueryIterator;
 import io.ebean.Version;
 import io.ebean.bean.BeanCollection;
-import io.ebeaninternal.server.persist.platform.MultiValueBind.IsSupported;
 
 import javax.persistence.PersistenceException;
 import java.sql.SQLException;
@@ -72,5 +71,5 @@ public interface OrmQueryEngine {
   /**
    * Return true if multi-value bind is supported for this type (and current platform).
    */
-  IsSupported isMultiValueSupported(Class<?> valueType);
+  boolean isMultiValueSupported(Class<?> valueType);
 }
