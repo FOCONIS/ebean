@@ -1586,4 +1586,15 @@ public interface Database {
   * serverConfig.initDatabase is set to true.
   */
   void initDatabase();
+
+  /**
+   * Truncate all the given tables.
+   */
+  void truncate(String... tables);
+
+  /**
+   * Truncate the base tables for the given bean types.
+   */
+  void truncate(Class<?>... tables);
+
 }
