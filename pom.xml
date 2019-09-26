@@ -19,6 +19,7 @@
     <jackson-core.version>2.9.9</jackson-core.version>
     <jackson-databind.version>2.9.9.2</jackson-databind.version>
     <snakeyaml.version>1.21</snakeyaml.version>
+    <agent.version>11.45.2-FOC1</agent.version>
   </properties>
 
   <scm>
@@ -331,8 +332,16 @@
 
   </dependencies>
 
-
+  
   <build>
+    
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+      </resource>
+    </resources>
+
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -346,7 +355,7 @@
       <plugin>
         <groupId>io.ebean</groupId>
         <artifactId>ebean-maven-plugin</artifactId>
-        <version>11.45.2-FOC1</version>
+        <version>${agent.version}</version>
         <executions>
           <execution>
             <id>test</id>
@@ -396,6 +405,7 @@
         <configuration>
           <archive>
             <manifestFile>src/main/resources/META-INF/MANIFEST.MF</manifestFile>
+            <addMavenDescriptor>false</addMavenDescriptor>
           </archive>
         </configuration>
       </plugin>
