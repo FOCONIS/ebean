@@ -389,7 +389,7 @@ public final class SqlTreeBuilder {
    */
   private void addPropertyToSubQuery(SqlTreeProperties selectProps, STreeType desc, String propName) {
 
-    STreeProperty p = desc.findProperty(propName);
+    STreeProperty p = desc.findPropertyWithDynamic(propName, null);
     if (p == null) {
       logger.error("property [" + propName + "]not found on " + desc + " for query - excluding it.");
 
