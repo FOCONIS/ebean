@@ -585,6 +585,21 @@ public class TestQuerySingleAttribute extends BaseTestCase {
     }
     assertThat(list5.get(0)).isInstanceOf(CountedValue.class);
     assertThat(list5.toString()).isEqualTo("[3: P.O.Box 1234, 3: Bos town]");
+    
+    query = Ebean.find(Contact.class).select("firstName")
+        .where().eq("customer.shippingAddress.line1", "12 Apple St").query();
+      List<CountedValue<Object>> list6 = query
+        .setCountDistinct(CountDistinctOrder.NO_ORDERING)
+        .findSingleAttributeList();
+      assertThat(sqlOf(query)).contains("select r1.attribute_, count(*) from ("
+        + "select t0.first_name as attribute_ from contact t0 "
+        + "join o_customer t1 on t1.id = t0.customer_id  "
+        + "left join o_address t2 on t2.id = t1.shipping_address_id  where t2.line_1 = ?"
+        + ") r1 group by r1.attribute_")
+        .doesNotContain("order by");
+      assertThat(list6.get(0)).isInstanceOf(CountedValue.class);
+      // Ordering is not required/deterministic
+      // assertThat(list6.toString()).isEqualTo("[1: Bugs1, 1: Fiona, 1: Fred1, 1: Jim1, 1: Tracy]");
   }
 
   @Test
