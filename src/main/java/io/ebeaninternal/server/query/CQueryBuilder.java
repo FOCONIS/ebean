@@ -19,6 +19,7 @@ import io.ebeaninternal.server.core.OrmQueryRequest;
 import io.ebeaninternal.server.deploy.BeanDescriptor;
 import io.ebeaninternal.server.deploy.BeanProperty;
 import io.ebeaninternal.server.deploy.BeanPropertyAssocOne;
+import io.ebeaninternal.server.deploy.DbSqlContextColumn;
 import io.ebeaninternal.server.el.ElPropertyValue;
 import io.ebeaninternal.server.persist.Binder;
 import io.ebeaninternal.server.querydefn.OrmQueryDetail;
@@ -596,27 +597,18 @@ class CQueryBuilder {
       }
      
       if (query.isCountDistinct() && query.isSingleAttribute()) {
-        String tst = select.getGroupBy();
-        List<String> cols = DSelectColumnsParser.parse(select.getSelectSql());
         int i = 0;
         StringBuilder groupBySb = new StringBuilder();
         StringBuilder subSelectSb = new StringBuilder();
-        for (String col : cols) {
+        for (DbSqlContextColumn col : select.getColumns()) {
           i++;
-          String alias = "attribute_" + i;
-          int spc = col.lastIndexOf(' ');
-          int bracket = col.lastIndexOf(')');
-          if (bracket != -1 && bracket + 1 == spc 
-              || bracket == -1 && spc != -1) {
-            alias = col.substring(spc+1);
-            col = col.substring(0, spc);
-          }
+          String alias = col.getAlias() == null ? ("attribute_" + i) : col.getAlias();
           if (i > 1) {
             groupBySb.append(", ");
             subSelectSb.append(", ");
           }
           groupBySb.append("r1.").append(alias);
-          subSelectSb.append(col).append(' ').append(alias);
+          subSelectSb.append(col.getSql()).append(' ').append(alias);
         }
         //        vvvvvvvvvvvvvvvvvvvv-groupBySb
         // select r1.alias1, r1.alias2, count(*) from (select

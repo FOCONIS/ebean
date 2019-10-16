@@ -641,7 +641,7 @@ public class TestQuerySingleAttribute extends BaseTestCase {
   }
   
   @Test
-  public void distinctWithDtoCount() {
+  public void distinctWithDtoAndAggregationCount() {
 
     ResetBasicData.reset();
     
@@ -650,14 +650,33 @@ public class TestQuerySingleAttribute extends BaseTestCase {
       .setCountDistinctDto(TestDto.class)
       .setUseQueryCache(true);
     
-    List<TestDto> list = query
-      .findSingleAttributeList();
+    List<TestDto> list = query.findSingleAttributeList();
 
     assertThat(list).hasSize(6);
     
     assertThat(sqlOf(query)).isEqualTo("select r1.date, r1.prefix, count(*) cnt from ("
       + "select cast(t0.cretime as date) date, left(t0.first_name,3) prefix from contact t0"
       + ") r1 group by r1.date, r1.prefix");
+  }
+  
+  @Test
+  public void distinctWithDtoAndAliasCount() {
+
+    ResetBasicData.reset();
+    
+    // Brackets for lastName currently necessary to parse correctly.
+    Query<Contact> query = Ebean.find(Contact.class).select("cast(cretime as date) as date, (lastName) as prefix")
+      .setCountDistinct(CountDistinctOrder.NO_ORDERING)
+      .setCountDistinctDto(TestDto.class)
+      .setUseQueryCache(true);
+    
+    List<TestDto> list = query.findSingleAttributeList();
+
+    assertThat(list).hasSize(5);
+    
+    assertThat(sqlOf(query)).isEqualTo("select r1.date, r1.prefix, count(*) cnt from ("
+        + "select cast(t0.cretime as date) date, (t0.last_name) prefix from contact t0"
+        + ") r1 group by r1.date, r1.prefix");
   }
 
   @Test
@@ -672,8 +691,7 @@ public class TestQuerySingleAttribute extends BaseTestCase {
       .setCountDistinctDto(TestDto.class)
       .setUseQueryCache(true);
     
-    List<TestDto> list = query
-        .findSingleAttributeList();
+    List<TestDto> list = query.findSingleAttributeList();
     
     assertThat(list).extracting(dto -> dto.getCnt()).containsAll(Arrays.asList(1, 5, 3, 3));
     
