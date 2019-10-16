@@ -391,7 +391,7 @@ public final class SqlTreeBuilder {
 
     STreeProperty p = desc.findPropertyWithDynamic(propName, path);
     if (p == null) {
-      logger.error("property [" + propName + "]not found on " + desc + " for query - excluding it.");
+      logger.error("property [" + propName + "] not found on " + desc + " for query - excluding it.");
 
     } else if (p instanceof STreePropertyAssoc && p.isEmbedded()) {
       // if the property is embedded we need to lookup the real column name
