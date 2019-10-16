@@ -1,8 +1,10 @@
 package io.ebeaninternal.server.query;
 
 import io.ebeaninternal.api.SpiQuery;
+import io.ebeaninternal.server.util.DSelectColumnsParser;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -38,6 +40,8 @@ class SqlTree {
   private final String inheritanceWhereSql;
 
   private final boolean noJoins;
+  
+  private final List<String> selectColumns;
 
   /**
    * Create the SqlSelectClause.
@@ -54,6 +58,7 @@ class SqlTree {
     this.encryptedProps = encryptedProps;
     this.manyProperty = manyProperty;
     this.noJoins = !includeJoins;
+    this.selectColumns = selectSql == null ? Collections.emptyList(): DSelectColumnsParser.parse(selectSql);
   }
 
   /**
@@ -156,5 +161,12 @@ class SqlTree {
     Set<String> tables = new LinkedHashSet<>();
     rootNode.dependentTables(tables);
     return tables;
+  }
+
+  /**
+   * Return the columns of the select clause.
+   */
+  public List<String> getSelectColumns() {
+    return selectColumns;
   }
 }

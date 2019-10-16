@@ -1,6 +1,7 @@
 package io.ebeaninternal.server.query;
 
 import io.ebean.CountedValue;
+import io.ebean.DB;
 import io.ebean.util.JdbcClose;
 import io.ebeaninternal.api.SpiProfileTransactionEvent;
 import io.ebeaninternal.api.SpiQuery;
@@ -64,12 +65,14 @@ class CQueryFetchSingleAttribute implements SpiProfileTransactionEvent {
 
   private final boolean containsCounts;
 
+  private final Class dtoClass;
+
   private long profileOffset;
 
   /**
    * Create the Sql select based on the request.
    */
-  CQueryFetchSingleAttribute(OrmQueryRequest<?> request, CQueryPredicates predicates, CQueryPlan queryPlan, boolean containsCounts) {
+  CQueryFetchSingleAttribute(OrmQueryRequest<?> request, CQueryPredicates predicates, CQueryPlan queryPlan, boolean containsCounts, Class<?> dtoClass) {
     this.request = request;
     this.queryPlan = queryPlan;
     this.query = request.getQuery();
@@ -78,6 +81,7 @@ class CQueryFetchSingleAttribute implements SpiProfileTransactionEvent {
     this.predicates = predicates;
     this.containsCounts = containsCounts;
     this.reader = queryPlan.getSingleAttributeScalarType();
+    this.dtoClass = dtoClass;
     query.setGeneratedSql(sql);
   }
 
@@ -100,6 +104,11 @@ class CQueryFetchSingleAttribute implements SpiProfileTransactionEvent {
    */
   List<Object> findList() throws SQLException {
 
+    // Hack: run the query as DTO query
+    if (dtoClass != null) {
+      return request.getEbeanServer().findDto(dtoClass , sql).findList();
+    }
+    
     long startNano = System.nanoTime();
     try {
       prepareExecute();
