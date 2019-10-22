@@ -645,17 +645,17 @@ public class TestQuerySingleAttribute extends BaseTestCase {
 
     ResetBasicData.reset();
     
-    Query<Contact> query = Ebean.find(Contact.class).select("cast(cretime as date) as date, left(firstName,3) as prefix")
+    Query<Customer> query = Ebean.find(Customer.class).select("cast(cretime as date) as date, left(smallnote,3) as prefix")
       .setCountDistinct(CountDistinctOrder.NO_ORDERING)
       .setCountDistinctDto(TestDto.class)
       .setUseQueryCache(true);
     
     List<TestDto> list = query.findSingleAttributeList();
 
-    assertThat(list).hasSize(6);
+    assertThat(list).hasSize(1);
     
     assertThat(sqlOf(query)).isEqualTo("select r1.date, r1.prefix, count(*) cnt from ("
-      + "select cast(t0.cretime as date) date, left(t0.first_name,3) prefix from contact t0"
+      + "select cast(t0.cretime as date) date, left(t0.smallnote,3) prefix from o_customer t0"
       + ") r1 group by r1.date, r1.prefix");
   }
   
@@ -665,17 +665,17 @@ public class TestQuerySingleAttribute extends BaseTestCase {
     ResetBasicData.reset();
     
     // Brackets for lastName currently necessary to parse correctly.
-    Query<Contact> query = Ebean.find(Contact.class).select("cast(cretime as date) as date, (lastName) as prefix")
+    Query<Customer> query = Ebean.find(Customer.class).select("cast(cretime as date) as date, (smallnote) as prefix")
       .setCountDistinct(CountDistinctOrder.NO_ORDERING)
       .setCountDistinctDto(TestDto.class)
       .setUseQueryCache(true);
     
     List<TestDto> list = query.findSingleAttributeList();
 
-    assertThat(list).hasSize(5);
+    assertThat(list).hasSize(1);
     
     assertThat(sqlOf(query)).isEqualTo("select r1.date, r1.prefix, count(*) cnt from ("
-        + "select cast(t0.cretime as date) date, (t0.last_name) prefix from contact t0"
+        + "select cast(t0.cretime as date) date, (t0.smallnote) prefix from o_customer t0"
         + ") r1 group by r1.date, r1.prefix");
   }
 
@@ -684,20 +684,20 @@ public class TestQuerySingleAttribute extends BaseTestCase {
     
     ResetBasicData.reset();
     
-    Query<Contact> query = Ebean.find(Contact.class)
+    Query<Customer> query = Ebean.find(Customer.class)
       .select("cast(cretime as date)::LocalDate as date")
-      .fetch("customer", "left(name,3)::String as prefix")
+      .fetch("shippingAddress", "left(city,3)::String as prefix")
       .setCountDistinct(CountDistinctOrder.NO_ORDERING)
       .setCountDistinctDto(TestDto.class)
       .setUseQueryCache(true);
     
     List<TestDto> list = query.findSingleAttributeList();
     
-    assertThat(list).extracting(dto -> dto.getCnt()).containsAll(Arrays.asList(1, 5, 3, 3));
+    assertThat(list).extracting(dto -> dto.getCnt()).containsAll(Arrays.asList(1, 3));
     
     assertThat(sqlOf(query)).contains("select r1.date, r1.prefix, count(*) cnt from ("
-        + "select cast(t0.cretime as date) date, left(t1.name,3) prefix from contact t0 "
-        + "join o_customer t1 on t1.id = t0.customer_id "
+        + "select cast(t0.cretime as date) date, left(t1.city,3) prefix from o_customer t0 "
+        + "left join o_address t1 on t1.id = t0.shipping_address_id "
         + ") r1 group by r1.date, r1.prefix");
   }
 
