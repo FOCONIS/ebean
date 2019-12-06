@@ -1,6 +1,7 @@
 package org.tests.query;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.*;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -384,7 +385,79 @@ public class TestInMemoryQuery extends BaseTestCase {
     }, fiona, nocCust);
 
   }
+  
+  @Test
+  public void testStartsWithNonStringType() throws Exception {
+    testQuery(condition -> {
+      condition.startsWith("anniversary", "20");
+    }, rob, fiona, nocCust);
+  }
+  
+  @Test
+  public void testContainsNonStringType() throws Exception {
+    testQuery(condition -> {
+      condition.contains("anniversary", "2");
+    }, rob, fiona, nocCust);
+  }
+  
+  @Test
+  public void testEndsWithNonStringType() throws Exception {
+    testQuery(condition -> {
+      condition.endsWith("anniversary", "1");
+    }, fiona);
+  }
+  
 
+  @Test
+  public void testStartsWithNonStringTypeInsensitive() throws Exception {
+    testQuery(condition -> {
+      condition.icontains("anniversary", "20");
+    }, rob, fiona, nocCust);
+  }
+  
+  @Test
+  public void testContainsNonStringTypeInsensitive() throws Exception {
+    testQuery(condition -> {
+      condition.icontains("anniversary", "2");
+    }, rob, fiona, nocCust);
+  }
+  
+  @Test
+  public void testEndsWithNonStringTypeInsensitive() throws Exception {
+    testQuery(condition -> {
+      condition.iendsWith("anniversary", "1");
+    }, fiona);
+  }
+  
+  @Test
+  public void testLike() throws Exception {
+    testQuery(condition -> {
+      condition.like("name", "F_o%");
+    }, fiona);
+  }
+  
+  @Test
+  public void testLikeInsensitive() throws Exception {
+    testQuery(condition -> {
+      condition.ilike("name", "f_O%");
+    }, fiona);
+  }
+  
+  @Test
+  public void testLikeNonStringType() throws Exception {
+    testQuery(condition -> {
+      condition.like("anniversary", "2%");
+    }, rob, fiona, nocCust);
+  }
+  
+  @Test
+  public void testLikeNonStringTypeInsensitive() throws Exception {
+    testQuery(condition -> {
+      condition.ilike("anniversary", "2%");
+    }, rob, fiona, nocCust);
+  }
+  
+  
   private <T> void testQuery(Consumer<QueryDsl<Customer,?>> condition, Customer... expected) {
 
     // Query

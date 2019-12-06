@@ -41,6 +41,8 @@ class ElMatchBuilder {
      * Test the value, if it matches the filter
      */
     abstract boolean match(V value);
+
+
   }
 
   static abstract class BaseValue<T,V> extends Base<T,V> {
@@ -60,6 +62,30 @@ class ElMatchBuilder {
     @Override
     public void toString(StringBuilder sb) {
       sb.append(elGetValue.getElName()).append(' ').append(getLiteral()).append(" '").append(testValue).append('\'');
+    }
+  }
+
+  static abstract class BaseStringValue<T,V> extends Base<T,V> {
+
+    final String testValue;
+
+    public BaseStringValue(ElPropertyValue elGetValue, String testValue) {
+      super(elGetValue);
+      this.testValue = testValue;
+    }
+
+    String getLiteral() {
+      return "UNKNOWN";
+    }
+
+
+    @Override
+    public void toString(StringBuilder sb) {
+      sb.append(elGetValue.getElName()).append(' ').append(getLiteral()).append(" '").append(testValue).append('\'');
+    }
+
+    String valueToString(V value) {
+      return value.toString();
     }
   }
 
@@ -110,12 +136,12 @@ class ElMatchBuilder {
   /**
    * Case insensitive equals.
    */
-  static class RegularExpr<T> extends Base<T,String> {
+  static class RegularExpr<T, V> extends BaseStringValue<T, V> {
 
     final Pattern pattern;
 
     RegularExpr(ElPropertyValue elGetValue, String value, int options) {
-      super(elGetValue);
+      super(elGetValue, value);
       this.pattern = Pattern.compile(value, options);
     }
 
@@ -125,8 +151,8 @@ class ElMatchBuilder {
     }
 
     @Override
-    public boolean match(String v) {
-      return pattern.matcher(v).matches();
+    public boolean match(V v) {
+      return pattern.matcher(valueToString(v)).matches();
     }
 
     @Override
@@ -135,7 +161,7 @@ class ElMatchBuilder {
     }
   }
 
-  static class Like<T> extends RegularExpr<T> {
+  static class Like<T> extends RegularExpr<T, String> {
 
     private final String like;
     private final boolean ignoreCase;
@@ -189,52 +215,14 @@ class ElMatchBuilder {
     }
   }
 
-  static class Ends<T> extends RegularExpr<T> {
-
-    private final String value;
-    private final boolean ignoreCase;
-
-    private static String asPattern(String s) {
-      RegexAppender regex = new RegexAppender(s.length()+32);
-      regex.appendPattern(".*");
-      regex.appendLiteral(s);
-      return regex.toString();
-    }
-
-    Ends(ElPropertyValue elGetValue, String value, boolean ignoreCase) {
-      super(elGetValue, asPattern(value), ignoreCase ? Pattern.CASE_INSENSITIVE : 0);
-      this.value = value;
-      this.ignoreCase = ignoreCase;
-    }
-
-    @Override
-    public void toString(StringBuilder sb) {
-      if (ignoreCase) {
-        sb.append("iEnds(");
-      } else {
-        sb.append("ends");
-      }
-      sb.append(elGetValue.getElName()).append(", '").append(pattern).append("')");
-    }
-
-    @Override
-    public <F extends QueryDsl<T, F>> void visitDsl(QueryDsl<T, F> target) {
-      if (ignoreCase) {
-        target.iendsWith(elGetValue.getElName(), value);
-      } else {
-        target.endsWith(elGetValue.getElName(), value);
-      }
-    }
-  }
-
-  static class Ieq<T> extends BaseValue<T, String> {
+  static class Ieq<T, V> extends BaseStringValue<T, V> {
     Ieq(ElPropertyValue elGetValue, String value) {
       super(elGetValue, value);
     }
 
     @Override
-    public boolean match(String v) {
-      return v.equalsIgnoreCase(testValue);
+    public boolean match(V v) {
+      return valueToString(v).equalsIgnoreCase(testValue);
     }
 
     @Override
@@ -248,14 +236,14 @@ class ElMatchBuilder {
     }
   }
 
-  static class Ine<T> extends BaseValue<T, String> {
+  static class Ine<T, V> extends BaseStringValue<T, V> {
     Ine(ElPropertyValue elGetValue, String value) {
       super(elGetValue, value);
     }
 
     @Override
-    public boolean match(String v) {
-      return !v.equalsIgnoreCase(testValue);
+    public boolean match(V v) {
+      return !valueToString(v).equalsIgnoreCase(testValue);
     }
 
     @Override
@@ -273,7 +261,7 @@ class ElMatchBuilder {
   /**
    * Case insensitive starts with matcher.
    */
-  static class IStartsWith<T> extends BaseValue<T, String> {
+  static class IStartsWith<T, V> extends BaseStringValue<T, V> {
 
     private final CharMatch charMatch;
 
@@ -283,8 +271,8 @@ class ElMatchBuilder {
     }
 
     @Override
-    public boolean match(String v) {
-      return charMatch.startsWith(v);
+    public boolean match(V v) {
+      return charMatch.startsWith(valueToString(v));
     }
 
     @Override
@@ -301,7 +289,7 @@ class ElMatchBuilder {
   /**
    * Case insensitive ends with matcher.
    */
-  static class IEndsWith<T> extends BaseValue<T, String> {
+  static class IEndsWith<T, V> extends BaseStringValue<T, V> {
 
     final CharMatch charMatch;
 
@@ -311,8 +299,8 @@ class ElMatchBuilder {
     }
 
     @Override
-    public boolean match(String v) {
-      return charMatch.endsWith(v);
+    public boolean match(V v) {
+      return charMatch.endsWith(valueToString(v));
     }
 
     @Override
@@ -329,7 +317,7 @@ class ElMatchBuilder {
   /**
    * Case insensitive ends with matcher.
    */
-  static class IContains<T> extends BaseValue<T, String> {
+  static class IContains<T, V> extends BaseStringValue<T, V> {
 
     final CharMatch charMatch;
 
@@ -339,8 +327,8 @@ class ElMatchBuilder {
     }
 
     @Override
-    public boolean match(String v) {
-      return charMatch.contains(v);
+    public boolean match(V v) {
+      return charMatch.contains(valueToString(v));
     }
 
     @Override
@@ -354,14 +342,14 @@ class ElMatchBuilder {
     }
   }
 
-  static class StartsWith<T> extends BaseValue<T, String> {
+  static class StartsWith<T, V> extends BaseStringValue<T, V> {
     StartsWith(ElPropertyValue elGetValue, String value) {
       super(elGetValue, value);
     }
 
     @Override
-    public boolean match(String v) {
-      return v.startsWith(testValue);
+    public boolean match(V v) {
+      return valueToString(v).startsWith(testValue);
     }
 
     @Override
@@ -375,14 +363,14 @@ class ElMatchBuilder {
     }
   }
 
-  static class EndsWith<T> extends BaseValue<T, String> {
+  static class EndsWith<T, V> extends BaseStringValue<T, V> {
     EndsWith(ElPropertyValue elGetValue, String value) {
       super(elGetValue, value);
     }
 
     @Override
-    public boolean match(String v) {
-      return v.endsWith(testValue);
+    public boolean match(V v) {
+      return valueToString(v).endsWith(testValue);
     }
 
     @Override
@@ -396,15 +384,15 @@ class ElMatchBuilder {
     }
   }
 
-  static class Contains<T> extends BaseValue<T, String> {
+  static class Contains<T, V> extends BaseStringValue<T, V> {
 
     Contains(ElPropertyValue elGetValue, String value) {
       super(elGetValue, value);
     }
 
     @Override
-    public boolean match(String v) {
-      return v.contains(testValue);
+    public boolean match(V v) {
+      return valueToString(v).contains(testValue);
     }
 
     @Override
