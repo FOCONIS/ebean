@@ -228,7 +228,7 @@ public class InheritInfo {
   /**
    * Return the associated InheritInfo for this discriminator value.
    */
-  InheritInfo readType(String discValue) {
+  public InheritInfo readType(String discValue) {
 
     if (discValue == null) {
       return null;
