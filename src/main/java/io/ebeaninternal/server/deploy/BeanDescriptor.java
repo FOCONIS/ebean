@@ -3255,6 +3255,12 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
     return versionPropertyIndex > -1 && ebi.isLoadedProperty(versionPropertyIndex);
   }
 
+  void setReferenceIfIdOnly(EntityBeanIntercept ebi) {
+    if (hasIdPropertyOnly(ebi)) {
+      ebi.setReference(idPropertyIndex);
+    }
+  }
+
   /**
    * Set the version value returning it in primitive long form.
    */

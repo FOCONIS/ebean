@@ -19,7 +19,7 @@
     <jackson-core.version>2.9.9</jackson-core.version>
     <jackson-databind.version>2.9.9.2</jackson-databind.version>
     <snakeyaml.version>1.21</snakeyaml.version>
-    <agent.version>11.45.2-FOC1</agent.version>
+    <agent.version>11.45.2-FOC2</agent.version>
   </properties>
 
   <scm>

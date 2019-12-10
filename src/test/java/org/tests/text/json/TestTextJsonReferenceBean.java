@@ -46,15 +46,10 @@ public class TestTextJsonReferenceBean extends BaseTestCase {
       prodDesc.isReference(eb._ebean_getIntercept());
 
       BeanState beanState = Ebean.getBeanState(refProd);
-      Assert.assertTrue(beanState.isNew());
+      Assert.assertTrue(beanState.isReference());
 
       String name = refProd.getName();
-      Assert.assertNull(name);
-
-      // Set to be 'loaded' to invoke lazy loading
-      beanState.setLoaded();
-      String name2 = refProd.getName();
-      Assert.assertNotNull(name2);
+      Assert.assertNotNull(name);
 
     }
 
