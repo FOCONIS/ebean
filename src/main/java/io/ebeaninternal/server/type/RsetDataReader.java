@@ -12,6 +12,7 @@ import java.sql.Array;
 import java.sql.Date;
 import java.sql.Ref;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;
@@ -31,9 +32,19 @@ public class RsetDataReader implements DataReader {
 
   protected int pos;
 
+  protected int columnCount;
+  
   public RsetDataReader(DataTimeZone dataTimeZone, ResultSet rset) {
     this.dataTimeZone = dataTimeZone;
     this.rset = rset;
+    if (rset != null) {
+      try {
+        ResultSetMetaData meta = rset.getMetaData();
+        columnCount = meta.getColumnCount();
+      } catch (SQLException e) {
+        throw new RuntimeException(e);
+      }
+    }
   }
 
   @Override
@@ -244,5 +255,11 @@ public class RsetDataReader implements DataReader {
       throw new SQLException(e.getClass().getName() + ":" + e.getMessage());
     }
   }
-
+  
+  /**
+   * Returns the column count.
+   */
+  public int getColumnCount() {
+    return columnCount;
+  }
 }

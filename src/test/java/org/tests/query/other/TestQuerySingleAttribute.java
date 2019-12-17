@@ -3,6 +3,7 @@ package org.tests.query.other;
 import io.ebean.BaseTestCase;
 import io.ebean.CountDistinctOrder;
 import io.ebean.CountedValue;
+import io.ebean.DB;
 import io.ebean.Ebean;
 import io.ebean.Query;
 import org.junit.Ignore;
@@ -10,15 +11,20 @@ import org.junit.Test;
 import org.tests.inherit.ChildA;
 import org.tests.inherit.Data;
 import org.tests.inherit.EUncle;
+import org.tests.lazyforeignkeys.MainEntity;
+import org.tests.lazyforeignkeys.MainEntityRelation;
 import org.tests.model.basic.Contact;
 import org.tests.model.basic.Customer;
 import org.tests.model.basic.Order;
 import org.tests.model.basic.ResetBasicData;
+import org.tests.model.onetoone.OtoUPrime;
+import org.tests.model.onetoone.OtoUPrimeExtra;
 
 import java.sql.Date;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 import javax.annotation.Nonnull;
 
@@ -99,6 +105,65 @@ public class TestQuerySingleAttribute extends BaseTestCase {
 
     assertThat(sqlOf(query)).contains("select t0.name from o_customer t0");
     assertThat(name).isNotNull();
+  }
+  
+  @Test
+  public void findSingleAttributeList_with_join_column() {
+
+    ResetBasicData.reset();
+
+    MainEntity e1 = new MainEntity();
+    e1.setId("1");
+    e1.setAttr1("a1");
+    DB.save(e1);
+    
+    MainEntity e2 = new MainEntity();
+    e2.setId("2");
+    e2.setAttr1("a2");
+    DB.save(e2);
+    
+    MainEntity e3 = new MainEntity();
+    e3.setId("3");
+    e3.setAttr1("a3");
+    DB.save(e3);
+    
+    MainEntityRelation rel = new MainEntityRelation();
+    rel.setEntity1(e1);
+    rel.setEntity2(e2);
+    DB.save(rel);
+    
+    rel = new MainEntityRelation();
+    rel.setEntity1(e1);
+    rel.setEntity2(e3);
+    DB.save(rel);
+    
+    rel = new MainEntityRelation();
+    rel.setEntity1(e2);
+    rel.setEntity2(e3);
+    DB.save(rel);
+    
+    Query<MainEntityRelation> query = Ebean.find(MainEntityRelation.class)
+      .fetch("entity1", "attr1")
+      .setDistinct(true)
+      .setCountDistinct(CountDistinctOrder.COUNT_DESC_ATTR_ASC)
+      .where().query();
+
+    List<CountedValue<String>> attr1list = query.findSingleAttributeList();
+
+    assertThat(sqlOf(query)).contains("select distinct r1.attribute_1, r1.attribute_2, count(*) cnt from "
+        + "(select t0.id1 attribute_1, t1.attr1 attribute_2 from main_entity_relation t0 "
+        + "left join main_entity t1 on t1.id = t0.id1 ) r1 "
+        + "group by r1.attribute_1, r1.attribute_2 "
+        + "order by count(*) desc, r1.attribute_1");
+    assertThat(attr1list).isNotNull();
+    assertThat(attr1list).hasSize(2);
+    assertThat(attr1list.get(0).getValue()).isEqualTo("a1");
+    assertThat(attr1list.get(0).getCount()).isEqualTo(2l);
+    assertThat(attr1list.get(1).getValue()).isEqualTo("a2");
+    assertThat(attr1list.get(1).getCount()).isEqualTo(1l);
+    
+    Ebean.find(MainEntityRelation.class).delete();
+    Ebean.find(MainEntity.class).delete();
   }
 
   @Test

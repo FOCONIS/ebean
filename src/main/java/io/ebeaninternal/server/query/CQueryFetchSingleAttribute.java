@@ -118,6 +118,18 @@ class CQueryFetchSingleAttribute implements SpiProfileTransactionEvent {
         prepareExecute();
         result = new ArrayList<>();
         while (dataReader.next()) {
+          int columnCount = dataReader.getColumnCount();
+          if (query.isDistinct()) {
+            if (containsCounts) {
+              if (columnCount > 2) {
+                dataReader.incrementPos(columnCount - 2);
+              }
+            } else {
+              if (columnCount > 1) {
+                dataReader.incrementPos(columnCount - 1);
+              }
+            }
+          }
           Object value = reader.read(dataReader);
           if (containsCounts) {
             value = new CountedValue<>(value, dataReader.getLong());
