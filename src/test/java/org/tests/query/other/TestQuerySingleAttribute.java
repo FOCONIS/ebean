@@ -3,6 +3,7 @@ package org.tests.query.other;
 import io.ebean.BaseTestCase;
 import io.ebean.CountDistinctOrder;
 import io.ebean.CountedValue;
+import io.ebean.DB;
 import io.ebean.Ebean;
 import io.ebean.Query;
 import org.junit.Ignore;
@@ -10,6 +11,8 @@ import org.junit.Test;
 import org.tests.inherit.ChildA;
 import org.tests.inherit.Data;
 import org.tests.inherit.EUncle;
+import org.tests.lazyforeignkeys.MainEntity;
+import org.tests.lazyforeignkeys.MainEntityRelation;
 import org.tests.model.basic.Contact;
 import org.tests.model.basic.Customer;
 import org.tests.model.basic.Order;
@@ -99,6 +102,64 @@ public class TestQuerySingleAttribute extends BaseTestCase {
 
     assertThat(sqlOf(query)).contains("select t0.name from o_customer t0");
     assertThat(name).isNotNull();
+  }
+
+  @Test
+  public void findSingleAttributeList_with_join_column() {
+
+    ResetBasicData.reset();
+
+    MainEntity e1 = new MainEntity();
+    e1.setId("1");
+    e1.setAttr1("a1");
+    DB.save(e1);
+
+    MainEntity e2 = new MainEntity();
+    e2.setId("2");
+    e2.setAttr1("a2");
+    DB.save(e2);
+
+    MainEntity e3 = new MainEntity();
+    e3.setId("3");
+    e3.setAttr1("a1");
+    DB.save(e3);
+
+    MainEntityRelation rel = new MainEntityRelation();
+    rel.setEntity1(e1);
+    rel.setEntity2(e1);
+    DB.save(rel);
+
+    rel = new MainEntityRelation();
+    rel.setEntity1(e2);
+    rel.setEntity2(e2);
+    DB.save(rel);
+
+    rel = new MainEntityRelation();
+    rel.setEntity1(e3);
+    rel.setEntity2(e3);
+    DB.save(rel);
+
+    Query<MainEntityRelation> query = Ebean.find(MainEntityRelation.class)
+      .fetch("entity1", "attr1")
+      .setDistinct(true)
+      .setCountDistinct(CountDistinctOrder.COUNT_DESC_ATTR_ASC)
+      .where().query();
+
+    List<CountedValue<String>> attr1list = query.findSingleAttributeList();
+
+    assertThat(sqlOf(query)).contains("select distinct r1.attribute_1, count(*) cnt"
+        + " from (select t1.attr1 attribute_1 from main_entity_relation t0 left join main_entity t1 on t1.id = t0.id1 ) r1"
+        + " group by r1.attribute_1"
+        + " order by count(*) desc, r1.attribute_1");
+    assertThat(attr1list).isNotNull();
+    assertThat(attr1list).hasSize(2);
+    assertThat(attr1list.get(0).getValue()).isEqualTo("a1");
+    assertThat(attr1list.get(0).getCount()).isEqualTo(2l);
+    assertThat(attr1list.get(1).getValue()).isEqualTo("a2");
+    assertThat(attr1list.get(1).getCount()).isEqualTo(1l);
+
+    Ebean.find(MainEntityRelation.class).delete();
+    Ebean.find(MainEntity.class).delete();
   }
 
   @Test
@@ -588,7 +649,7 @@ public class TestQuerySingleAttribute extends BaseTestCase {
     }
     assertThat(list5.get(0)).isInstanceOf(CountedValue.class);
     assertThat(list5.toString()).isEqualTo("[3: P.O.Box 1234, 3: Bos town]");
-    
+
     query = Ebean.find(Contact.class).select("firstName")
         .where().eq("customer.shippingAddress.line1", "12 Apple St").query();
       List<CountedValue<Object>> list6 = query
@@ -604,76 +665,76 @@ public class TestQuerySingleAttribute extends BaseTestCase {
       // Ordering is not required/deterministic
       // assertThat(list6.toString()).isEqualTo("[1: Bugs1, 1: Fiona, 1: Fred1, 1: Jim1, 1: Tracy]");
   }
-  
+
   public static class TestDto {
     int cnt;
     LocalDate date;
     String prefix;
-    
+
     public int getCnt() {
       return cnt;
     }
-    
+
     public void setCnt(int cnt) {
       this.cnt = cnt;
     }
-    
+
     public LocalDate getDate() {
       return date;
     }
-    
+
     public void setDate(LocalDate date) {
       this.date = date;
     }
-    
+
     public String getPrefix() {
       return prefix;
     }
-    
+
     public void setPrefix(String prefix) {
       this.prefix = prefix;
     }
-    
+
     @Override
     public @Nonnull String toString() {
       return "#" + cnt + ", " + prefix + ", @" + date;
     }
   }
-  
+
   @Test
   public void distinctWithDtoAndAggregationCount() {
 
     ResetBasicData.reset();
-    
+
     Query<Customer> query = Ebean.find(Customer.class).select("cast(cretime as date) as date, left(smallnote,3) as prefix")
       .setCountDistinct(CountDistinctOrder.NO_ORDERING)
       .setCountDistinctDto(TestDto.class)
       .setUseQueryCache(true);
-    
+
     List<TestDto> list = query.findSingleAttributeList();
 
     assertThat(list).hasSize(1);
-    
+
     assertThat(sqlOf(query)).isEqualTo("select r1.date, r1.prefix, count(*) cnt from ("
       + "select cast(t0.cretime as date) date, left(t0.smallnote,3) prefix from o_customer t0"
       + ") r1 group by r1.date, r1.prefix");
   }
-  
+
   @Test
   public void distinctWithDtoAndAliasCount() {
 
     ResetBasicData.reset();
-    
+
     // Brackets for lastName currently necessary to parse correctly.
     Query<Customer> query = Ebean.find(Customer.class).select("cast(cretime as date) as date, (smallnote) as prefix")
       .setCountDistinct(CountDistinctOrder.NO_ORDERING)
       .setCountDistinctDto(TestDto.class)
       .setUseQueryCache(true);
-    
+
     List<TestDto> list = query.findSingleAttributeList();
 
     assertThat(list).hasSize(1);
-    
+
     assertThat(sqlOf(query)).isEqualTo("select r1.date, r1.prefix, count(*) cnt from ("
         + "select cast(t0.cretime as date) date, (t0.smallnote) prefix from o_customer t0"
         + ") r1 group by r1.date, r1.prefix");
@@ -681,20 +742,20 @@ public class TestQuerySingleAttribute extends BaseTestCase {
 
   @Test
   public void distinctWithCastAndFetchCount() {
-    
+
     ResetBasicData.reset();
-    
+
     Query<Customer> query = Ebean.find(Customer.class)
       .select("cast(cretime as date)::LocalDate as date")
       .fetch("shippingAddress", "left(city,3)::String as prefix")
       .setCountDistinct(CountDistinctOrder.NO_ORDERING)
       .setCountDistinctDto(TestDto.class)
       .setUseQueryCache(true);
-    
+
     List<TestDto> list = query.findSingleAttributeList();
-    
+
     assertThat(list).extracting(dto -> dto.getCnt()).containsAll(Arrays.asList(1, 3));
-    
+
     assertThat(sqlOf(query)).contains("select r1.date, r1.prefix, count(*) cnt from ("
         + "select cast(t0.cretime as date) date, left(t1.city,3) prefix from o_customer t0 "
         + "left join o_address t1 on t1.id = t0.shipping_address_id "

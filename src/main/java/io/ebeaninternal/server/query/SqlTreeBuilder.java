@@ -256,7 +256,7 @@ public final class SqlTreeBuilder {
       String propPrefix = SplitName.add(prefix, one.getName());
       if (isIncludeBean(propPrefix)) {
         selectIncludes.add(propPrefix);
-        if (!one.hasForeignKey()) {
+        if (!one.hasForeignKey() && !query.isSingleAttribute()) {
           extraProps.add(one);
         }
         buildSelectChain(propPrefix, one, one.target(), myJoinList);
