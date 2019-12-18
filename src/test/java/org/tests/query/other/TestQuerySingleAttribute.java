@@ -140,7 +140,6 @@ public class TestQuerySingleAttribute extends BaseTestCase {
     DB.save(rel);
 
     Query<MainEntityRelation> query = Ebean.find(MainEntityRelation.class)
-      .select("")
       .fetch("entity1", "attr1")
       .setDistinct(true)
       .setCountDistinct(CountDistinctOrder.COUNT_DESC_ATTR_ASC)
