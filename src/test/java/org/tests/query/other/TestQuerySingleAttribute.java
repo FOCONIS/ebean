@@ -150,11 +150,11 @@ public class TestQuerySingleAttribute extends BaseTestCase {
 
     List<CountedValue<String>> attr1list = query.findSingleAttributeList();
 
-    assertThat(sqlOf(query)).contains("select distinct r1.attribute_1, r1.attribute_2, count(*) cnt from "
+    assertThat(sqlOf(query)).contains("select distinct r1.attribute_2, count(*) cnt from "
         + "(select t0.id1 attribute_1, t1.attr1 attribute_2 from main_entity_relation t0 "
         + "left join main_entity t1 on t1.id = t0.id1 ) r1 "
         + "group by r1.attribute_1, r1.attribute_2 "
-        + "order by count(*) desc, r1.attribute_1");
+        + "order by count(*) desc, r1.attribute_2");
     assertThat(attr1list).isNotNull();
     assertThat(attr1list).hasSize(2);
     assertThat(attr1list.get(0).getValue()).isEqualTo("a1");

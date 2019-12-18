@@ -574,6 +574,7 @@ class CQueryBuilder {
     StringBuilder sb = new StringBuilder(500);
     String dbOrderBy = predicates.getDbOrderBy();
     String groupByAttribute = null;
+    String distinctSingleAttributeSelectSb = null;
     if (selectClause != null) {
       sb.append(selectClause);
 
@@ -606,17 +607,21 @@ class CQueryBuilder {
             groupBySb.append(", ");
             subSelectSb.append(", ");
           }
-          groupBySb.append("r1.").append(alias);
+          distinctSingleAttributeSelectSb = "r1.".concat(alias);
+          groupBySb.append(distinctSingleAttributeSelectSb);
           subSelectSb.append(col.getSql()).append(' ').append(alias);
         }
-        //        vvvvvvvvvvvvvvvvvvvv-groupBySb
+        //       (vvvvvvvvv)vvvvvvvvvv - selectSb or groupBySb (if CountDistinctDto is set)
         // select r1.alias1, r1.alias2, count(*) from (select
         //     xx alias1, yy alias2 from zzz) r1 group by r1.alias1, r1.alias2
         //     ^^^^^^^^^^^^^^^^^^^^                       ^^^^^^^^^^^^^^^^^^^^
         //     subselectSb                                groupBySb
-
+        if (query.getCountDistinctDto() != null) {
+          distinctSingleAttributeSelectSb = groupBySb.toString();
+        }
         groupByAttribute = groupBySb.toString();
-        sb.append(groupByAttribute).append(", count(*) cnt from (select ");
+        sb.append(distinctSingleAttributeSelectSb);
+        sb.append(", count(*) cnt from (select ");
         sb.append(subSelectSb.toString());
 
       } else {
@@ -725,7 +730,7 @@ class CQueryBuilder {
 
     if (query.isCountDistinct() && query.isSingleAttribute()) {
       sb.append(") r1 group by ").append(groupByAttribute);
-      sb.append(toSql(query.getCountDistinctOrder()));
+      sb.append(toSql(query.getCountDistinctOrder(), distinctSingleAttributeSelectSb));
     }
 
     if (useSqlLimiter) {
@@ -743,20 +748,20 @@ class CQueryBuilder {
    * @deprecated The 'order by' clause should be set via raw sql to customize ordering wit multiple attributes.
    */
   @Deprecated
-  private String toSql(CountDistinctOrder orderBy) {
+  private String toSql(CountDistinctOrder orderBy, String distinctSingleAttributeSelectSb) {
     switch (orderBy) {
       case ATTR_ASC:
-        return " order by r1.attribute_1";
+        return " order by " + distinctSingleAttributeSelectSb;
       case ATTR_DESC:
-        return " order by r1.attribute_1 desc";
+        return " order by " + distinctSingleAttributeSelectSb + " desc";
       case COUNT_ASC_ATTR_ASC:
-        return " order by count(*), r1.attribute_1";
+        return " order by count(*), " + distinctSingleAttributeSelectSb;
       case COUNT_ASC_ATTR_DESC:
-        return " order by count(*), r1.attribute_1 desc";
+        return " order by count(*), " + distinctSingleAttributeSelectSb + " desc";
       case COUNT_DESC_ATTR_ASC:
-        return " order by count(*) desc, r1.attribute_1";
+        return " order by count(*) desc, " + distinctSingleAttributeSelectSb;
       case COUNT_DESC_ATTR_DESC:
-        return " order by count(*) desc, r1.attribute_1 desc";
+        return " order by count(*) desc, " + distinctSingleAttributeSelectSb + " desc";
       case NO_ORDERING:
         return "";
       default:
