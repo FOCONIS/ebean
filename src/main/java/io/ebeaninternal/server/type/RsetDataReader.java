@@ -12,7 +12,6 @@ import java.sql.Array;
 import java.sql.Date;
 import java.sql.Ref;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;
@@ -245,4 +244,5 @@ public class RsetDataReader implements DataReader {
       throw new SQLException(e.getClass().getName() + ":" + e.getMessage());
     }
   }
+
 }
