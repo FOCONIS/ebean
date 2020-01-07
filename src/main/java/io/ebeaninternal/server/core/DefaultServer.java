@@ -1124,7 +1124,7 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
       t = currentServerTransaction();
     }
     query.setDefaultRawSqlIfRequired();
-    if (query.isAutoTunable() && !autoTuneService.tuneQuery(query)) {
+    if (!query.isAutoTunable() || !autoTuneService.tuneQuery(query)) {
       // use deployment FetchType.LAZY/EAGER annotations
       // to define the 'default' select clause
       query.setDefaultSelectClause();
