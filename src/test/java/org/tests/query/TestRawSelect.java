@@ -8,7 +8,6 @@ import io.ebean.annotation.Platform;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.tests.model.basic.Customer;
 import org.tests.model.basic.Dog;

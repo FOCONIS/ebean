@@ -6,7 +6,6 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.ebean.bean.EntityBean;
-import io.ebean.bean.EntityBeanIntercept;
 import io.ebean.text.json.EJson;
 import io.ebean.text.json.JsonVersionMigrationHandler;
 import io.ebeaninternal.api.json.SpiJsonReader;
