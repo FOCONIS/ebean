@@ -1,11 +1,14 @@
 package org.tests.query.other;
 
-import io.ebean.BaseTestCase;
-import io.ebean.CountDistinctOrder;
-import io.ebean.CountedValue;
-import io.ebean.DB;
-import io.ebean.Ebean;
-import io.ebean.Query;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.StrictAssertions.assertThat;
+
+import java.sql.Date;
+import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.List;
+
+import javax.annotation.Nonnull;
 
 import org.junit.After;
 import org.junit.Before;
@@ -20,16 +23,15 @@ import org.tests.model.basic.Contact;
 import org.tests.model.basic.Customer;
 import org.tests.model.basic.Order;
 import org.tests.model.basic.ResetBasicData;
+import org.tests.model.basic.VwCustomer;
 import org.tests.o2m.OmBasicParent;
 
-import java.sql.Date;
-import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.List;
-
-import javax.annotation.Nonnull;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import io.ebean.BaseTestCase;
+import io.ebean.CountDistinctOrder;
+import io.ebean.CountedValue;
+import io.ebean.DB;
+import io.ebean.Ebean;
+import io.ebean.Query;
 
 public class TestQuerySingleAttribute extends BaseTestCase {
 
@@ -402,6 +404,20 @@ public class TestQuerySingleAttribute extends BaseTestCase {
 
     assertThat(cities).contains("Auckland").containsNull();
     assertThat(sqlOf(query)).contains("select t1.city from o_customer t0 left join o_address t1 on t1.id = t0.billing_address_id");
+  }
+
+  @Test
+  public void findSingleWithFetchOnView() {
+
+    ResetBasicData.reset();
+
+    Query<VwCustomer> query = Ebean.find(VwCustomer.class)
+      .fetch("billingAddress", "city");
+
+    List<String> cities = query.findSingleAttributeList();
+
+    assertThat(sqlOf(query)).contains("select t1.city from o_customer t0 left join o_address t1 on t1.id = t0.billing_address_id");
+    assertThat(cities).contains("Auckland").containsNull();
   }
 
   @Test
