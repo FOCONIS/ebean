@@ -77,10 +77,10 @@ public final class ElFilter<T> implements Filter<T> {
         beanDescriptor.sort(list, sortByClause);
       }
 
-      DefaultFilterContext ctx = new DefaultFilterContext();
       int count = 0;
+      Matcher<T> matcher = root.matcher();
       for (T t : list) {
-        if (root.isMatchAnyPermuation(t, ctx)) {
+        if (matcher.match(t)) {
           count++;
           if (count > firstRow) {
             filterList.add(t);
@@ -89,16 +89,14 @@ public final class ElFilter<T> implements Filter<T> {
             }
           }
         }
-        ctx.reset();
       }
     } else {
       // no LIMIT clause, so let's filter and then sort
-      DefaultFilterContext ctx = new DefaultFilterContext();
+      Matcher<T> matcher = root.matcher();
       for (T t : list) {
-        if (root.isMatchAnyPermuation(t, ctx)) {
+        if (matcher.match(t)) {
           filterList.add(t);
         }
-        ctx.reset();
       }
       if (sortByClause != null) {
         beanDescriptor.sort(filterList, sortByClause);

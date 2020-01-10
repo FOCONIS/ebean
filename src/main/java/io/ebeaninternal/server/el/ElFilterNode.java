@@ -131,9 +131,11 @@ class ElFilterNode<T> implements Filter<T>, ElMatcher<T> {
   protected boolean isMatchAnyPermuation(T bean, DefaultFilterContext ctx) {
     do {
       if (isMatch(bean, ctx) == Expression3VL.TRUE) {
+        ctx.reset();
         return true;
       }
     } while (ctx.nextPermutation());
+    ctx.reset();
     return false;
   }
 
