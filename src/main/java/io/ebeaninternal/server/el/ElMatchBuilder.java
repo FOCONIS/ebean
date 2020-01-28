@@ -181,7 +181,7 @@ class ElMatchBuilder {
         if (ch == '%') {
           regex.appendPattern(".*");
         } else if (ch == '_') {
-          regex.appendPattern(".*");
+          regex.appendPattern(".");
         } else {
           regex.appendLiteral(ch);
         }
