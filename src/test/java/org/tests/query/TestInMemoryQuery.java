@@ -441,6 +441,11 @@ public class TestInMemoryQuery extends BaseTestCase {
     testQuery(condition -> {
       condition.like("name", "F_o%");
     }, fiona);
+    
+    // No customer, because there is no three char long customer.
+    testQuery(condition -> {
+      condition.like("name", "No_");
+    });
   }
 
   @Test
