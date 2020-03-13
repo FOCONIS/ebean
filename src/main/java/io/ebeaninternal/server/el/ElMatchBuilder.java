@@ -444,7 +444,12 @@ class ElMatchBuilder {
     public boolean match(Object value) {
       return true;
     }
-
+    
+    @Override
+    public Expression3VL testNull() {
+      return Expression3VL.FALSE;
+    }
+    
     @Override
     public void toString(StringBuilder sb) {
       sb.append(elGetValue).append(" is not null");
