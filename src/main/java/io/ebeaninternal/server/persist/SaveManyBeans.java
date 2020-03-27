@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import static io.ebeaninternal.server.persist.DmlUtil.isNullOrZero;
@@ -116,7 +117,7 @@ public class SaveManyBeans extends SaveManyBase {
     BeanProperty orderColumn = null;
     boolean hasOrderColumn = many.hasOrderColumn();
     if (hasOrderColumn) {
-      if (!insertedParent && canSkipForOrderColumn()) {
+      if (!insertedParent && canSkipForOrderColumn() && saveRecurseSkippable) {
         return;
       }
       orderColumn = targetDescriptor.getOrderColumn();
@@ -166,7 +167,7 @@ public class SaveManyBeans extends SaveManyBase {
         if (many.hasJoinTable()) {
           skipSavingThisBean = targetDescriptor.isReference(ebi);
         } else {
-          if (orderColumn != null) {
+          if (orderColumn != null && !Objects.equals(sortOrder, orderColumn.getValue(detail))) {
             orderColumn.setValue(detail, sortOrder);
             ebi.setDirty(true);
           }
