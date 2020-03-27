@@ -351,8 +351,13 @@ public class SaveManyBeans extends SaveManyBase {
 
       BeanCollection<?> c = (BeanCollection<?>) value;
       Set<?> modifyRemovals = c.getModifyRemovals();
-      modifyListenReset(c);
-      if (modifyRemovals != null && !modifyRemovals.isEmpty()) {
+      if (modifyRemovals == null || modifyRemovals.isEmpty()) {
+        modifyListenReset(c);
+      } else {
+        // We may not reset when we still have to update other entities in the collection and set their new orderColumn value
+        if (!many.hasOrderColumn()) {
+          modifyListenReset(c);
+        }
         for (Object removedBean : modifyRemovals) {
           if (removedBean instanceof EntityBean) {
             EntityBean eb = (EntityBean) removedBean;
