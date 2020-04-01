@@ -169,6 +169,9 @@ abstract class AbstractBeanCollection<E> implements BeanCollection<E> {
   @Override
   public void modifyAddition(E bean) {
     if (modifyListening) {
+      if (bean instanceof EntityBean) {
+        ((EntityBean) bean)._ebean_getIntercept().setBelongsToCollection(true);
+      }
       getModifyHolder().modifyAddition(bean);
     }
   }
@@ -176,6 +179,9 @@ abstract class AbstractBeanCollection<E> implements BeanCollection<E> {
   @Override
   public void modifyRemoval(Object bean) {
     if (modifyListening) {
+      if (bean instanceof EntityBean) {
+        ((EntityBean) bean)._ebean_getIntercept().setBelongsToCollection(false);
+      }
       getModifyHolder().modifyRemoval(bean);
     }
   }

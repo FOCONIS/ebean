@@ -42,6 +42,8 @@ public final class EntityBeanIntercept implements Serializable {
 
   private String ebeanServerName;
 
+  private boolean belongsToCollection;
+
   /**
    * The actual entity bean that 'owns' this intercept.
    */
@@ -1195,5 +1197,13 @@ public final class EntityBeanIntercept implements Serializable {
       }
     }
     return ret;
+  }
+
+  public boolean belongsToCollection() {
+    return belongsToCollection;
+  }
+
+  public void setBelongsToCollection(final boolean belongsToCollection) {
+    this.belongsToCollection = belongsToCollection;
   }
 }
