@@ -69,7 +69,7 @@ public class TestOrderColumn extends TransactionalTestCase {
 
     LoggedSqlCollector.start();
     Ebean.save(result);
-    final List<String> sql = LoggedSqlCollector.current();
+    final List<String> sql = LoggedSqlCollector.stop();
     assertThat(sql).hasSize(3);
 
     assertThat(sql.get(0)).contains("update order_toy set title=?, sort_order=? where id=?");
@@ -102,13 +102,11 @@ public class TestOrderColumn extends TransactionalTestCase {
 
     final OrderReferencedChild child = children.get(0);
 
-    final OrderToy removedToy = child.getToys().remove(1);
+    child.getToys().remove(1);
 
     LoggedSqlCollector.start();
     Ebean.save(result);
-    final List<String> sql = LoggedSqlCollector.current();
-
-    assertThat(Ebean.find(OrderToy.class).where().eq("id", removedToy.getId()).findCount()).isEqualTo(0);
+    final List<String> sql = LoggedSqlCollector.stop();
 
     assertThat(sql).hasSize(4);
     assertThat(sql.get(0)).contains("delete from order_toy where id=?");
