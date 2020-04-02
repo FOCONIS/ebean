@@ -188,6 +188,10 @@ public class SaveManyBeans extends SaveManyBase {
 
         if (!skipSavingThisBean) {
           persister.saveRecurse(detail, transaction, parentBean, request.getFlags());
+          if (many.hasOrderColumn()) {
+            final BeanDescriptor<?> beanDescriptor = many.getBeanDescriptor();
+            beanDescriptor.contextClear(transaction.getPersistenceContext(), beanDescriptor.getId(parentBean));
+          }
         }
       }
     }
