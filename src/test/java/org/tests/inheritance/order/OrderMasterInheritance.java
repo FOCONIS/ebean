@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-public class OrderMaster {
+public class OrderMasterInheritance {
 
   @Id
   Integer id;

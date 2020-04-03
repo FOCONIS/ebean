@@ -5,7 +5,7 @@ import io.ebean.Ebean;
 import io.ebeantest.LoggedSql;
 import org.ebeantest.LoggedSqlCollector;
 import org.junit.Test;
-import org.tests.inheritance.order.OrderMaster;
+import org.tests.inheritance.order.OrderMasterInheritance;
 import org.tests.inheritance.order.OrderedA;
 import org.tests.inheritance.order.OrderedB;
 import org.tests.inheritance.order.OrderedParent;
@@ -18,7 +18,7 @@ public class TestInheritanceOrderColumn extends BaseTestCase {
 
   @Test
   public void test() {
-    final OrderMaster master = new OrderMaster();
+    final OrderMasterInheritance master = new OrderMasterInheritance();
     final OrderedA orderedA = new OrderedA();
     orderedA.setCommonName("commonOrderedA");
     orderedA.setOrderedAName("orderedA");
@@ -37,7 +37,7 @@ public class TestInheritanceOrderColumn extends BaseTestCase {
     assertThat(sql.get(1)).contains("insert into ordered_parent (order_master_id, dtype, common_name, ordered_aname, sort_order)");
     assertThat(sql.get(3)).contains("insert into ordered_parent (order_master_id, dtype, common_name, ordered_bname, sort_order)");
 
-    OrderMaster result = Ebean.find(OrderMaster.class).findOne();
+    OrderMasterInheritance result = Ebean.find(OrderMasterInheritance.class).findOne();
     assertThat(result.getReferenced())
       .extracting(OrderedParent::getCommonName)
       .containsExactly("commonOrderedA", "commonOrderedB");
@@ -54,7 +54,7 @@ public class TestInheritanceOrderColumn extends BaseTestCase {
     assertThat(sql).hasSize(3);
     assertThat(sql.get(0)).contains("update ordered_parent set sort_order=? where id=?");
 
-    result = Ebean.find(OrderMaster.class).findOne();
+    result = Ebean.find(OrderMasterInheritance.class).findOne();
     assertThat(result.getReferenced())
       .extracting(OrderedParent::getCommonName)
       .containsExactly("commonOrderedB", "commonOrderedA");
