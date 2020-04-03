@@ -34,10 +34,13 @@ public class TestInheritanceOrderColumn extends BaseTestCase {
     Ebean.save(master);
     List<String> sql = LoggedSqlCollector.stop();
     assertThat(sql).hasSize(5);
+    // Some platforms insert ids and others don't need to...
     assertThat(sql.get(1))
-      .contains("insert into ordered_parent (order_master_inheritance_id, dtype, common_name, ordered_aname, sort_order)");
+      .matches(
+        "txn\\[[0-9]+] insert into ordered_parent \\((id, )?order_master_inheritance_id, dtype, common_name, ordered_aname, sort_order\\).*");
     assertThat(sql.get(3))
-      .contains("insert into ordered_parent (order_master_inheritance_id, dtype, common_name, ordered_bname, sort_order)");
+      .matches(
+        "txn\\[[0-9]+] insert into ordered_parent \\((id, )?order_master_inheritance_id, dtype, common_name, ordered_bname, sort_order\\).*");
 
     OrderMasterInheritance result = Ebean.find(OrderMasterInheritance.class).findOne();
     assertThat(result.getReferenced())
