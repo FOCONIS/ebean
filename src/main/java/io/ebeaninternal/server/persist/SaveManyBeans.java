@@ -369,12 +369,9 @@ public class SaveManyBeans extends SaveManyBase {
         for (Object removedBean : modifyRemovals) {
           if (removedBean instanceof EntityBean) {
             EntityBean eb = (EntityBean) removedBean;
-            // check if this bean was moved to another collection. If yes, skip the deletion and let it update
-            if (!eb._ebean_getIntercept().belongsToCollection()) {
-              if (!eb._ebean_getIntercept().isNew()) {
-                // only delete if the bean was loaded meaning that it is known to exist in the DB
-                persister.deleteRequest(persister.createDeleteRemoved(removedBean, transaction, request.getFlags()));
-              }
+            if (!eb._ebean_getIntercept().isNew()) {
+              // only delete if the bean was loaded meaning that it is known to exist in the DB
+              persister.deleteRequest(persister.createDeleteRemoved(removedBean, transaction, request.getFlags()));
             }
           }
         }

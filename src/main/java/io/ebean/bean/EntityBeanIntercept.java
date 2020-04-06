@@ -42,7 +42,7 @@ public final class EntityBeanIntercept implements Serializable {
 
   private String ebeanServerName;
 
-  private boolean belongsToCollection;
+  private boolean deletedFromCollection;
 
   /**
    * The actual entity bean that 'owns' this intercept.
@@ -1199,11 +1199,11 @@ public final class EntityBeanIntercept implements Serializable {
     return ret;
   }
 
-  public boolean belongsToCollection() {
-    return belongsToCollection;
+  public boolean isDeletedFromCollection() {
+    return deletedFromCollection;
   }
 
-  public void setBelongsToCollection(final boolean belongsToCollection) {
-    this.belongsToCollection = belongsToCollection;
+  public void setDeletedFromCollection(final boolean deletedFromCollection) {
+    this.deletedFromCollection = deletedFromCollection;
   }
 }
