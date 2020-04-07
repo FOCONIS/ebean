@@ -1200,14 +1200,14 @@ public final class EntityBeanIntercept implements Serializable {
   }
 
   /**
-   * Returns if the entity is part of a BeanCollection. This can be used to track movement from one collection to another.
+   * Returns true if the entity was removed from a BeanCollection. This can be used to track movement from one collection to another.
    */
   public boolean isDeletedFromCollection() {
     return deletedFromCollection;
   }
 
   /**
-   * Set if the entity is contained in a BeanCollection.
+   * Set if the entity was deleted from a BeanCollection.
    */
   public void setDeletedFromCollection(final boolean deletedFromCollection) {
     this.deletedFromCollection = deletedFromCollection;
