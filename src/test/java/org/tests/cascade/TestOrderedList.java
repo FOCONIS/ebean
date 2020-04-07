@@ -87,11 +87,10 @@ public class TestOrderedList extends BaseTestCase {
     Ebean.save(fresh);
 
     sql = LoggedSqlCollector.current();
-    assertThat(sql).hasSize(8);
-    assertThat(sql.get(0)).contains("update om_ordered_master set name=?, version=?");
-    assertThat(sql.get(1)).contains("update om_ordered_detail set version=?, sort_order=? where id=? and version=?");
-    assertThat(sql.get(3)).contains("update om_ordered_detail set name=?, version=?, sort_order=? where id=? and version=?");
-
+    assertThat(sql).hasSize(3);
+    assertThat(sql.get(0)).contains("update om_ordered_master set name=?, version=? where id=? and version=?; -- bind(m1-mod3");
+    assertThat(sql.get(1)).contains("update om_ordered_detail set name=?, version=?, sort_order=? where id=? and version=?");
+    assertThat(sql.get(2)).contains("bind(was 1,3,2,");
 
     Ebean.delete(fresh);
 

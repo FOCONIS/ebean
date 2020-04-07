@@ -1113,6 +1113,14 @@ public class BeanDescriptorManager implements BeanDescriptorMap {
     orderProperty.setDbRead(true);
     orderProperty.setOwningType(targetDesc.getBeanType());
 
+    final InheritInfo targetInheritInfo = targetDesc.getInheritInfo();
+    if (targetInheritInfo != null) {
+      for (InheritInfo child : targetInheritInfo.getChildren()) {
+        final DeployBeanDescriptor<?> childDescriptor = deployInfoMap.get(child.getType().getName()).getDescriptor();
+        childDescriptor.setOrderColumn(orderProperty);
+      }
+    }
+
     targetDesc.setOrderColumn(orderProperty);
   }
 
