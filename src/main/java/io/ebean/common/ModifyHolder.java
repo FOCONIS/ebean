@@ -90,25 +90,11 @@ class ModifyHolder<E> implements Serializable {
   }
 
   Set<E> getModifyAdditions() {
-    final LinkedHashSet<E> ret = new LinkedHashSet<>();
-    for (E modifyAdditions : modifyAdditions) {
-      if (modifyAdditions instanceof EntityBean && ((EntityBean) modifyAdditions)._ebean_intercept().isDeletedFromCollection()) {
-        continue;
-      }
-      ret.add(modifyAdditions);
-    }
-    return ret;
+    return modifyAdditions;
   }
 
   Set<E> getModifyRemovals() {
-    final LinkedHashSet<E> ret = new LinkedHashSet<>();
-    for (E modifyDeletion : modifyDeletions) {
-      if (modifyDeletion instanceof EntityBean && !((EntityBean) modifyDeletion)._ebean_intercept().isDeletedFromCollection()) {
-        continue;
-      }
-      ret.add(modifyDeletion);
-    }
-    return ret;
+    return modifyDeletions;
   }
 
   /**
