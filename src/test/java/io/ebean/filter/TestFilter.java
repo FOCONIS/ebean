@@ -110,9 +110,17 @@ public class TestFilter {
     testOrder2.setCustomerName("Thomas Rob");
     
     Filter<Order> filter = Ebean.filter(Order.class);
-    List<Order> orders = filter.icontains("customerName", "Rob").filter(Arrays.asList(testOrder, testOrder2));
+    List<Order> orders = filter.icontains("customerName", "R").filter(Arrays.asList(testOrder, testOrder2));
+    assertThat(orders).hasSize(2);
     
-    assertThat(orders).hasSize(1);
+    Filter<Order> filter2 = Ebean.filter(Order.class);
+    List<Order> orders2 = filter2.icontains("customerName", "Rob").filter(Arrays.asList(testOrder, testOrder2));
+    assertThat(orders2).hasSize(1);
+    
+    Filter<Order> filter3 = Ebean.filter(Order.class);
+    List<Order> orders3 = filter3.icontains("customerName", "").filter(Arrays.asList(testOrder, testOrder2));
+    assertThat(orders3).hasSize(2);
+    
   }
 
   
