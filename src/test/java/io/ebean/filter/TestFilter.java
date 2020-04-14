@@ -7,6 +7,7 @@ package io.ebean.filter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Assert;
@@ -96,5 +97,23 @@ public class TestFilter {
     Assert.assertNotNull(newOrders);
     assertThat(newOrders).hasSize(2);
   }
+  
+
+  @Test
+  public void test_iContains() {
+    ResetBasicData.reset();
+    
+    Order testOrder = new Order();
+    testOrder.setCustomerName("Thomas Maier");
+    
+    Order testOrder2 = new Order();
+    testOrder2.setCustomerName("Thomas Rob");
+    
+    Filter<Order> filter = Ebean.filter(Order.class);
+    List<Order> orders = filter.icontains("customerName", "Rob").filter(Arrays.asList(testOrder, testOrder2));
+    
+    assertThat(orders).hasSize(1);
+  }
+
   
 }
