@@ -86,6 +86,9 @@ public final class CharMatch {
       if (i < otherLength) {
           int j = i + 1;
           int end = j + maxLength - 1;
+          if (end > otherLength) {
+            return false;
+          }
           for (int k = 1; j < end && Character.toUpperCase(ta[j]) == upperChars[k]; j++, k++);
 
           if (j == end) {
