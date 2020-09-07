@@ -377,6 +377,9 @@ class JdbcTransaction implements SpiTransaction, TxnProfileEventCodes {
           logger.error("Error executing preCommit callback", e);
         }
       }
+      // we must flush the batch queue again, because the callback can
+      // modify current transaction
+      internalBatchFlush();
     }
   }
 
