@@ -97,14 +97,59 @@ public class TestFilter {
     Assert.assertNotNull(newOrders);
     assertThat(newOrders).hasSize(2);
   }
-  
 
   @Test
-  public void test_iContains() {
+  public void test_istartswith() {
     ResetBasicData.reset();
     
     Order testOrder = new Order();
-    testOrder.setCustomerName("Thomas Maier");
+    testOrder.setCustomerName("Tom Werb");
+    
+    Order testOrder2 = new Order();
+    testOrder2.setCustomerName("Thomas Rob");
+    
+    Filter<Order> filter = Ebean.filter(Order.class);
+    List<Order> orders = filter.icontains("customerName", "T").filter(Arrays.asList(testOrder, testOrder2));
+    assertThat(orders).hasSize(2);
+    
+    Filter<Order> filter2 = Ebean.filter(Order.class);
+    List<Order> orders2 = filter2.icontains("customerName", "Tom").filter(Arrays.asList(testOrder, testOrder2));
+    assertThat(orders2).hasSize(1);
+    
+    Filter<Order> filter3 = Ebean.filter(Order.class);
+    List<Order> orders3 = filter3.icontains("customerName", "").filter(Arrays.asList(testOrder, testOrder2));
+    assertThat(orders3).hasSize(2);
+  }
+  
+  @Test
+  public void test_istartswith_with_linebreak() {
+    ResetBasicData.reset();
+    
+    Order testOrder = new Order();
+    testOrder.setCustomerName("Tom \n Werb");
+    
+    Order testOrder2 = new Order();
+    testOrder2.setCustomerName("Thomas \n Rob");
+    
+    Filter<Order> filter = Ebean.filter(Order.class);
+    List<Order> orders = filter.icontains("customerName", "T").filter(Arrays.asList(testOrder, testOrder2));
+    assertThat(orders).hasSize(2);
+    
+    Filter<Order> filter2 = Ebean.filter(Order.class);
+    List<Order> orders2 = filter2.icontains("customerName", "Tom").filter(Arrays.asList(testOrder, testOrder2));
+    assertThat(orders2).hasSize(1);
+    
+    Filter<Order> filter3 = Ebean.filter(Order.class);
+    List<Order> orders3 = filter3.icontains("customerName", "").filter(Arrays.asList(testOrder, testOrder2));
+    assertThat(orders3).hasSize(2);
+  }
+  
+  @Test
+  public void test_icontains() {
+    ResetBasicData.reset();
+    
+    Order testOrder = new Order();
+    testOrder.setCustomerName("Tom Werb");
     
     Order testOrder2 = new Order();
     testOrder2.setCustomerName("Thomas Rob");
@@ -120,8 +165,112 @@ public class TestFilter {
     Filter<Order> filter3 = Ebean.filter(Order.class);
     List<Order> orders3 = filter3.icontains("customerName", "").filter(Arrays.asList(testOrder, testOrder2));
     assertThat(orders3).hasSize(2);
+  }
+  
+  @Test
+  public void test_icontains_with_linebreak() {
+    ResetBasicData.reset();
     
+    Order testOrder = new Order();
+    testOrder.setCustomerName("Tom \n Werb");
+    
+    Order testOrder2 = new Order();
+    testOrder2.setCustomerName("Thomas \n Rob");
+    
+    Filter<Order> filter = Ebean.filter(Order.class);
+    List<Order> orders = filter.icontains("customerName", "R").filter(Arrays.asList(testOrder, testOrder2));
+    assertThat(orders).hasSize(2);
+    
+    Filter<Order> filter2 = Ebean.filter(Order.class);
+    List<Order> orders2 = filter2.icontains("customerName", "Rob").filter(Arrays.asList(testOrder, testOrder2));
+    assertThat(orders2).hasSize(1);
+    
+    Filter<Order> filter3 = Ebean.filter(Order.class);
+    List<Order> orders3 = filter3.icontains("customerName", "").filter(Arrays.asList(testOrder, testOrder2));
+    assertThat(orders3).hasSize(2);
   }
 
+  @Test
+  public void test_iendswith() {
+    ResetBasicData.reset();
+    
+    Order testOrder = new Order();
+    testOrder.setCustomerName("Tom Werb");
+    
+    Order testOrder2 = new Order();
+    testOrder2.setCustomerName("Thomas Rob");
+    
+    Filter<Order> filter = Ebean.filter(Order.class);
+    List<Order> orders = filter.icontains("customerName", "b").filter(Arrays.asList(testOrder, testOrder2));
+    assertThat(orders).hasSize(2);
+    
+    Filter<Order> filter2 = Ebean.filter(Order.class);
+    List<Order> orders2 = filter2.icontains("customerName", "Rob").filter(Arrays.asList(testOrder, testOrder2));
+    assertThat(orders2).hasSize(1);
+    
+    Filter<Order> filter3 = Ebean.filter(Order.class);
+    List<Order> orders3 = filter3.icontains("customerName", "").filter(Arrays.asList(testOrder, testOrder2));
+    assertThat(orders3).hasSize(2);
+  }
   
+  @Test
+  public void test_iendswith_with_linebreak() {
+    ResetBasicData.reset();
+    
+    Order testOrder = new Order();
+    testOrder.setCustomerName("Tom \n Werb");
+    
+    Order testOrder2 = new Order();
+    testOrder2.setCustomerName("Thomas \n Rob");
+    
+    Filter<Order> filter = Ebean.filter(Order.class);
+    List<Order> orders = filter.icontains("customerName", "b").filter(Arrays.asList(testOrder, testOrder2));
+    assertThat(orders).hasSize(2);
+    
+    Filter<Order> filter2 = Ebean.filter(Order.class);
+    List<Order> orders2 = filter2.icontains("customerName", "Rob").filter(Arrays.asList(testOrder, testOrder2));
+    assertThat(orders2).hasSize(1);
+    
+    Filter<Order> filter3 = Ebean.filter(Order.class);
+    List<Order> orders3 = filter3.icontains("customerName", "").filter(Arrays.asList(testOrder, testOrder2));
+    assertThat(orders3).hasSize(2);
+  }
+  
+  @Test
+  public void test_ilike() {
+    ResetBasicData.reset();
+    
+    Order testOrder = new Order();
+    testOrder.setCustomerName("Tom Werb");
+    
+    Order testOrder2 = new Order();
+    testOrder2.setCustomerName("Thomas Rob");
+    
+    Filter<Order> filter = Ebean.filter(Order.class);
+    List<Order> orders = filter.ilike("customerName", "%R%").filter(Arrays.asList(testOrder, testOrder2));
+    assertThat(orders).hasSize(2);
+    
+    Filter<Order> filter2 = Ebean.filter(Order.class);
+    List<Order> orders2 = filter2.ilike("customerName", "%Rob%").filter(Arrays.asList(testOrder, testOrder2));
+    assertThat(orders2).hasSize(1);
+  }
+  
+  @Test
+  public void test_ilike_with_linebreak() {
+    ResetBasicData.reset();
+    
+    Order testOrder = new Order();
+    testOrder.setCustomerName("Tom \n Werb");
+    
+    Order testOrder2 = new Order();
+    testOrder2.setCustomerName("Thomas \n Rob");
+    
+    Filter<Order> filter = Ebean.filter(Order.class);
+    List<Order> orders = filter.ilike("customerName", "%R%").filter(Arrays.asList(testOrder, testOrder2));
+    assertThat(orders).hasSize(2);
+    
+    Filter<Order> filter2 = Ebean.filter(Order.class);
+    List<Order> orders2 = filter2.ilike("customerName", "%Rob%").filter(Arrays.asList(testOrder, testOrder2));
+    assertThat(orders2).hasSize(1);
+  }
 }

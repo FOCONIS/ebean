@@ -189,8 +189,16 @@ class ElMatchBuilder {
       return regex.toString();
     }
 
+    private static int getOptions(boolean ignoreCase) {
+      if (ignoreCase) {
+        return Pattern.DOTALL + Pattern.CASE_INSENSITIVE;
+      } else {
+        return Pattern.DOTALL;
+      }
+    }
+    
     Like(ElPropertyValue elGetValue, String like, boolean ignoreCase) {
-      super(elGetValue, asPattern(like), ignoreCase ? Pattern.CASE_INSENSITIVE : 0);
+      super(elGetValue, asPattern(like), getOptions(ignoreCase));
       this.like = like;
       this.ignoreCase = ignoreCase;
     }
