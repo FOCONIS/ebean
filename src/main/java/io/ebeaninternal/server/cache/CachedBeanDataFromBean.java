@@ -25,11 +25,12 @@ public class CachedBeanDataFromBean {
         data.put(idProperty.getName(), idProperty.getCacheDataValue(bean));
       }
     }
-    BeanProperty[] props = desc.propertiesNonMany();
 
-    // extract all the non-many properties
-    for (BeanProperty prop : props) {
-      if (ebi.isLoadedProperty(prop.getPropertyIndex())) {
+    final boolean dirty = ebi.isDirty();
+    for (BeanProperty prop : desc.propertiesNonMany()) {
+      if (dirty && ebi.isDirtyProperty(prop.getPropertyIndex())) {
+        data.put(prop.getName(), prop.getCacheDataValueOrig(ebi));
+      } else if (ebi.isLoadedProperty(prop.getPropertyIndex())) {
         data.put(prop.getName(), prop.getCacheDataValue(bean));
       }
     }

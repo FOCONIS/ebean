@@ -63,6 +63,9 @@ public class TestBeanCacheContactLazyLoad extends BaseTestCase {
     assertThat(sql).isEmpty(); // We expect that the bean was loaded from cache
     assertThat(contactDb2).isNotNull();
     assertThat(contactDb2.getLastName()).isEqualTo("Button");
+
+    DB.delete(contact);
+    DB.delete(customer);
   }
 
 }

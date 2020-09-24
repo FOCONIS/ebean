@@ -7,13 +7,13 @@ import io.ebeaninternal.api.SpiEbeanServer;
 import io.ebeaninternal.server.deploy.BeanDescriptor;
 import io.ebeaninternal.server.deploy.BeanPropertyAssocOne;
 import io.ebeaninternal.server.transaction.DefaultPersistenceContext;
+import org.junit.Test;
 import org.tests.model.basic.Address;
 import org.tests.model.basic.Country;
 import org.tests.model.basic.Customer;
 import org.tests.model.basic.Customer.Status;
 import org.tests.model.embedded.EAddress;
 import org.tests.model.embedded.EPerson;
-import org.junit.Test;
 
 import java.sql.Timestamp;
 
@@ -43,7 +43,7 @@ public class CacheBeanDataTest extends BaseTestCase {
     billingAddress.setLine1("92 Someplace Else");
     c.setBillingAddress(billingAddress);
 
-    ((EntityBean) c)._ebean_getIntercept().setNewBeanForUpdate();
+    ((EntityBean) c)._ebean_getIntercept().setLoaded();
 
     CachedBeanData cacheData = CachedBeanDataFromBean.extract(desc, (EntityBean) c);
 

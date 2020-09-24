@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonToken;
 import io.ebean.ValuePair;
 import io.ebean.bean.BeanCollection;
 import io.ebean.bean.EntityBean;
+import io.ebean.bean.EntityBeanIntercept;
 import io.ebean.bean.OwnerBeanAware;
 import io.ebean.bean.PersistenceContext;
 import io.ebean.config.EncryptKey;
@@ -853,7 +854,17 @@ public class BeanProperty implements ElPropertyValue, Property, STreeProperty {
    * </p>
    */
   public Object getCacheDataValue(EntityBean bean) {
-    Object value = getValue(bean);
+    return cacheDataConvert(getValue(bean));
+  }
+
+  /**
+   * Return the bean cache value for this property using original values.
+   */
+  public Object getCacheDataValueOrig(EntityBeanIntercept ebi) {
+    return cacheDataConvert(ebi.getOrigValue(propertyIndex));
+  }
+
+  private Object cacheDataConvert(Object value) {
     if (value == null || scalarType.isBinaryType()) {
       return value;
     } else {

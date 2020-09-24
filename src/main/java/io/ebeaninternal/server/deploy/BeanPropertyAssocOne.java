@@ -440,9 +440,19 @@ public class BeanPropertyAssocOne<T> extends BeanPropertyAssoc<T> implements STr
     return getPropertyType();
   }
 
+  /**
+   * Return the bean cache value for this property using original values.
+   */
+  public Object getCacheDataValueOrig(EntityBeanIntercept ebi) {
+    return cacheDataConvert(ebi.getOrigValue(propertyIndex));
+  }
+
   @Override
   public Object getCacheDataValue(EntityBean bean) {
-    Object ap = getValue(bean);
+    return cacheDataConvert(getValue(bean));
+  }
+
+  private Object cacheDataConvert(Object ap) {
     if (ap == null) {
       return null;
     }
