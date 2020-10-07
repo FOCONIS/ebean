@@ -36,7 +36,7 @@ public class SaveManyBeans extends SaveManyBase {
   private final boolean isMap;
   private final boolean saveRecurseSkippable;
   private final DeleteMode deleteMode;
-
+  private final boolean untouchedBeanCollection;
   private Collection<?> collection;
   private final DefaultPersister persister;
   private boolean deleteMissing;
@@ -51,6 +51,14 @@ public class SaveManyBeans extends SaveManyBase {
     this.isMap = many.getManyType().isMap();
     this.saveRecurseSkippable = many.isSaveRecurseSkippable();
     this.deleteMode = targetDescriptor.isSoftDelete() ? DeleteMode.SOFT : DeleteMode.HARD;
+    this.untouchedBeanCollection = untouchedBeanCollection();
+  }
+
+  /**
+   * BeanCollection with no additions or removals.
+   */
+  private boolean untouchedBeanCollection() {
+    return value instanceof BeanCollection && !((BeanCollection<?>) value).wasTouched();
   }
 
   @Override
@@ -82,6 +90,10 @@ public class SaveManyBeans extends SaveManyBase {
         // potentially deletes 'missing children' for 'stateless update'
         saveAssocManyDetails(request.isDeleteMissingChildren());
       }
+    }
+    if (!insertedParent && !untouchedBeanCollection) {
+      // notify l2 cache of manyId change
+      request.addUpdatedManyForL2Cache(many);
     }
   }
 
@@ -201,9 +213,7 @@ public class SaveManyBeans extends SaveManyBase {
    * Return true if we can skip based on .. no modifications to the collection and no beans are dirty.
    */
   private boolean canSkipForOrderColumn() {
-    return value instanceof BeanCollection
-      && !((BeanCollection<?>) value).wasTouched()
-      && noDirtyBeans();
+    return untouchedBeanCollection && noDirtyBeans();
   }
 
   private boolean noDirtyBeans() {
