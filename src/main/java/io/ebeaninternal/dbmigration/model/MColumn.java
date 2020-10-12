@@ -455,6 +455,7 @@ public class MColumn {
         // support reverting these changes
         alterColumn.setCurrentType(type);
         alterColumn.setCurrentNotnull(notnull);
+        alterColumn.setCurrentDefaultValue(defaultValue);
       }
     }
   }

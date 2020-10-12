@@ -10,7 +10,7 @@
         <addUniqueConstraint constraintName="uq_migtest_e_basic_name" tableName="migtest_e_basic" columnNames="DROP CONSTRAINT" nullableColumns="name"/>
         <addUniqueConstraint constraintName="uq_migtest_e_basic_indextest4" tableName="migtest_e_basic" columnNames="DROP CONSTRAINT" nullableColumns="indextest4"/>
         <addUniqueConstraint constraintName="uq_migtest_e_basic_indextest5" tableName="migtest_e_basic" columnNames="DROP CONSTRAINT" nullableColumns="indextest5"/>
-        <alterColumn columnName="status" tableName="migtest_e_basic" currentType="varchar(1)" defaultValue="DROP DEFAULT" notnull="false" currentNotnull="true" checkConstraint="check ( status in ('N','A','I'))" checkConstraintName="ck_migtest_e_basic_status"/>
+        <alterColumn columnName="status" tableName="migtest_e_basic" currentType="varchar(1)" defaultValue="DROP DEFAULT" currentDefaultValue="'A'" notnull="false" currentNotnull="true" checkConstraint="check ( status in ('N','A','I'))" checkConstraintName="ck_migtest_e_basic_status"/>
         <alterColumn columnName="status2" tableName="migtest_e_basic" type="varchar(1)" currentType="varchar(127)" defaultValue="'N'" notnull="true" currentNotnull="false" checkConstraint="check ( status2 in ('N','A','I'))" checkConstraintName="ck_migtest_e_basic_status2"/>
         <alterColumn columnName="description" tableName="migtest_e_basic" dropUnique="uq_migtest_e_basic_description"/>
         <alterColumn columnName="user_id" tableName="migtest_e_basic" currentType="integer" defaultValue="23" notnull="true" currentNotnull="false" dropForeignKey="fk_migtest_e_basic_user_id" dropForeignKeyIndex="ix_migtest_e_basic_user_id"/>
@@ -24,14 +24,14 @@
         <alterColumn columnName="test_status" tableName="migtest_e_enum" checkConstraint="check ( test_status in ('N','A','I'))" checkConstraintName="ck_migtest_e_enum_test_status"/>
         <alterColumn columnName="test_string" tableName="migtest_e_history" withHistory="true" comment="DROP COMMENT"/>
         <addTableComment name="migtest_e_history" comment="DROP COMMENT"/>
-        <alterColumn columnName="test_string" tableName="migtest_e_history2" withHistory="true" currentType="varchar" defaultValue="DROP DEFAULT" notnull="false" currentNotnull="true"/>
+        <alterColumn columnName="test_string" tableName="migtest_e_history2" withHistory="true" currentType="varchar" defaultValue="DROP DEFAULT" currentDefaultValue="'unknown'" notnull="false" currentNotnull="true"/>
         <addColumn tableName="migtest_e_history2" withHistory="true">
             <column name="obsolete_string1" type="varchar" historyExclude="true"/>
             <column name="obsolete_string2" type="varchar"/>
         </addColumn>
         <alterColumn columnName="test_string" tableName="migtest_e_history3" withHistory="true" historyExclude="false"/>
         <alterColumn columnName="test_number" tableName="migtest_e_history4" withHistory="true" type="integer" currentType="bigint" currentNotnull="false"/>
-        <alterColumn columnName="test_number1" tableName="migtest_e_history6" withHistory="true" currentType="integer" defaultValue="DROP DEFAULT" notnull="false" currentNotnull="true"/>
+        <alterColumn columnName="test_number1" tableName="migtest_e_history6" withHistory="true" currentType="integer" defaultValue="DROP DEFAULT" currentDefaultValue="42" notnull="false" currentNotnull="true"/>
         <alterColumn columnName="test_number2" tableName="migtest_e_history6" withHistory="true" currentType="integer" defaultValue="7" notnull="true" currentNotnull="false"/>
         <alterColumn columnName="string1" tableName="migtest_e_index1" type="varchar(10)" currentType="varchar(20)" currentNotnull="false"/>
         <alterColumn columnName="string2" tableName="migtest_e_index1" type="varchar(10)" currentType="varchar(20)" currentNotnull="false"/>
