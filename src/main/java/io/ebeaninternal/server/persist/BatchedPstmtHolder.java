@@ -1,12 +1,11 @@
 package io.ebeaninternal.server.persist;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import javax.persistence.PersistenceException;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * Used to hold BatchedPstmt objects for batch based execution.
@@ -18,13 +17,11 @@ import java.util.LinkedHashMap;
  */
 public class BatchedPstmtHolder {
 
-  private static final Logger logger = LoggerFactory.getLogger(BatchedPstmtHolder.class);
-
   /**
    * A Map of the statements using a String key. This is used so that the same
    * Statement,Prepared,Callable is reused.
    */
-  private final LinkedHashMap<String, BatchedPstmt> stmtMap = new LinkedHashMap<>();
+  private Map<String, BatchedPstmt> stmtMap = new LinkedHashMap<>();
 
   /**
    * The Max size across all the BatchedPstmt.
@@ -66,13 +63,19 @@ public class BatchedPstmtHolder {
   }
 
   /**
+   * Return the size of the biggest batched statement.
+   * Used to determine when to flush the batch.
+   */
+  int getMaxSize() {
+    return maxSize;
+  }
+
+  /**
    * Add a new PreparedStatement wrapped in the BatchStatement object.
    */
   public void addStmt(BatchedPstmt bs, BatchPostExecute postExecute) {
-    // add the batch post execute to the statement for POST processing
     bs.add(postExecute);
 
-    // cache so that getStmt() can find it for additional beans/rows
     stmtMap.put(bs.getSql(), bs);
   }
 
@@ -80,7 +83,15 @@ public class BatchedPstmtHolder {
    * Return true if the batch has no statements to execute.
    */
   public boolean isEmpty() {
-    return stmtMap.isEmpty();
+    if (stmtMap.isEmpty()) {
+      return true;
+    }
+    for (BatchedPstmt bs : stmtMap.values()) {
+      if (!bs.isEmpty()) {
+        return false;
+      }
+    }
+    return true;
   }
 
   /**
@@ -88,7 +99,7 @@ public class BatchedPstmtHolder {
    */
   public int[] execute(String key, boolean getGeneratedKeys) throws SQLException {
 
-    BatchedPstmt batchedPstmt = stmtMap.remove(key);
+    BatchedPstmt batchedPstmt = stmtMap.get(key);
     if (batchedPstmt == null) {
       throw new PersistenceException("No batched statement found for key " + key);
     }
@@ -98,53 +109,43 @@ public class BatchedPstmtHolder {
 
   /**
    * Execute all batched PreparedStatements.
-   *
-   * @param getGeneratedKeys if true try to get generated keys for inserts
    */
-  public void flush(boolean getGeneratedKeys) throws BatchedSqlException {
+  public void flush(boolean getGeneratedKeys, boolean reset) throws BatchedSqlException {
 
-    SQLException firstError = null;
-    String errorSql = null;
+    // which means this needs to process a copy of stmtMap, create a new stmtMap and loadBack after
+    final Map<String, BatchedPstmt> copyMap = stmtMap;
+    final Collection<BatchedPstmt> copy = copyMap.values();
+    this.stmtMap = new LinkedHashMap<>();
+    this.maxSize = 0;
+    try {
+      executeAll(copy, getGeneratedKeys);
+      if (reset) {
+        closeStatements(copy);
+      } else {
+        loadBack(copyMap);
+      }
+    } catch (BatchedSqlException e) {
+      closeStatements(copy);
+      throw e;
+    }
+  }
 
-    // flag set if something fails. Will not execute
-    // but still need to close PreparedStatements.
-    boolean isError = false;
+  private void loadBack(Map<String, BatchedPstmt> copyMap) {
+    if (stmtMap.isEmpty()) {
+      // just restore, was not modified during flush by Listeners/Controllers
+      stmtMap = copyMap;
+    } else {
+      closeStatements(copyMap.values());
+    }
+  }
 
-    // if there are Listeners/Controllers that interact with the database,
-    // the flush may get called recursively in executeBatch/postExecute.
-    // which leads that we process stmtMap.values() twice in the loop.
-    // So we copy the values, that we want to flush and clear it immediately.
-    BatchedPstmt[] values = stmtMap.values().toArray(new BatchedPstmt[0]);
-    clear();
-
+  private void executeAll(Collection<BatchedPstmt> values, boolean getGeneratedKeys) throws BatchedSqlException {
     for (BatchedPstmt bs : values) {
       try {
-        if (!isError) {
-          bs.executeBatch(getGeneratedKeys);
-        }
+        bs.executeBatch(getGeneratedKeys);
       } catch (SQLException ex) {
-        SQLException next = ex.getNextException();
-        while (next != null) {
-          logger.trace("Next Exception during batch execution", next);
-          next = next.getNextException();
-        }
-
-        firstError = ex;
-        errorSql = bs.getSql();
-        isError = true;
-
-      } finally {
-        try {
-          bs.close();
-        } catch (SQLException ex) {
-          logger.error("Error closing batched PreparedStatement", ex);
-        }
+        throw new BatchedSqlException("Error when batch flush on sql:" + bs.getSql(), ex);
       }
-    }
-
-    if (firstError != null) {
-      String msg = "Error when batch flush on sql: " + errorSql;
-      throw new BatchedSqlException(msg, firstError);
     }
   }
 
@@ -153,14 +154,10 @@ public class BatchedPstmtHolder {
     maxSize = 0;
   }
 
-  /**
-   * Return the size of the biggest batched statement.
-   * <p>
-   * Used to determine when to flush the batch.
-   * </p>
-   */
-  public int getMaxSize() {
-    return maxSize;
+  private void closeStatements(Collection<BatchedPstmt> batchedStatements) {
+    for (BatchedPstmt bs : batchedStatements) {
+      bs.close();
+    }
   }
 
 }

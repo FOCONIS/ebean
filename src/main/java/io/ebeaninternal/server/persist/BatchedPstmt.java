@@ -1,7 +1,7 @@
 package io.ebeaninternal.server.persist;
 
-import io.ebeaninternal.api.SpiTransaction;
 import io.ebeaninternal.api.SpiProfileTransactionEvent;
+import io.ebeaninternal.api.SpiTransaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +37,7 @@ public class BatchedPstmt implements SpiProfileTransactionEvent {
   /**
    * The list of BatchPostExecute used to perform post processing.
    */
-  private final ArrayList<BatchPostExecute> list = new ArrayList<>();
+  private final List<BatchPostExecute> list = new ArrayList<>();
 
   private final String sql;
 
@@ -66,6 +66,10 @@ public class BatchedPstmt implements SpiProfileTransactionEvent {
     return list.size();
   }
 
+  public boolean isEmpty() {
+    return list.isEmpty();
+  }
+
   /**
    * Return the sql
    */
@@ -92,6 +96,9 @@ public class BatchedPstmt implements SpiProfileTransactionEvent {
    * Run any post processing including getGeneratedKeys.
    */
   public void executeBatch(boolean getGeneratedKeys) throws SQLException {
+    if (list.isEmpty()) {
+      return;
+    }
 
     this.profileStart = transaction.profileOffset();
     executeAndCheckRowCounts();
@@ -99,7 +106,7 @@ public class BatchedPstmt implements SpiProfileTransactionEvent {
       getGeneratedKeys();
     }
     postExecute();
-    close();
+    list.clear();
     transaction.profileEvent(this);
   }
 
@@ -112,10 +119,15 @@ public class BatchedPstmt implements SpiProfileTransactionEvent {
   /**
    * Close the underlying statement.
    */
-  public void close() throws SQLException {
+  public void close() {
     if (pstmt != null) {
-      pstmt.close();
-      pstmt = null;
+      try {
+        pstmt.close();
+      } catch (SQLException e) {
+        log.warn("Error closing statement", e);
+      } finally {
+        pstmt = null;
+      }
     }
   }
 
@@ -164,8 +176,13 @@ public class BatchedPstmt implements SpiProfileTransactionEvent {
   /**
    * Register any inputStreams that should be closed after execution.
    */
-  public void registerInputStreams(List<InputStream> inputStreams) {
-    this.inputStreams = inputStreams;
+  public void registerInputStreams(List<InputStream> streams) {
+    if (streams != null) {
+      if (this.inputStreams == null) {
+        this.inputStreams = new ArrayList<>();
+      }
+      this.inputStreams.addAll(streams);
+    }
   }
 
   private void closeInputStreams() {
@@ -177,6 +194,7 @@ public class BatchedPstmt implements SpiProfileTransactionEvent {
           log.warn("Error closing inputStream ", e);
         }
       }
+      inputStreams = null;
     }
   }
 }
