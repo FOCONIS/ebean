@@ -1975,14 +1975,15 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
       }
     }
     try {
-      if (inheritInfo != null && inheritInfo.hasChildren()) {
-        return findReferenceBean(id, pc);
-      }
       if (pc != null) {
         Object contextBean = contextGet(pc, id);
         if (contextBean != null) {
           return (T) contextBean;
         }
+      }
+
+      if (inheritInfo != null && inheritInfo.hasChildren()) {
+        return findReferenceBean(id, pc);
       }
 
       EntityBean eb = createEntityBean();
@@ -2017,15 +2018,15 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
   public T createReference(Object id, PersistenceContext pc) {
 
     try {
-      if (inheritInfo != null && inheritInfo.hasChildren()) {
-        return findReferenceBean(id, pc);
-      }
-
       if (pc != null) {
         Object contextBean = contextGet(pc, id);
         if (contextBean != null) {
           return (T) contextBean;
         }
+      }
+
+      if (inheritInfo != null && inheritInfo.hasChildren()) {
+        return findReferenceBean(id, pc);
       }
 
       EntityBean eb = createEntityBean();
