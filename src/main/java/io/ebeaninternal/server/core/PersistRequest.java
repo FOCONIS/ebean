@@ -109,6 +109,10 @@ public abstract class PersistRequest extends BeanRequest implements BatchPostExe
    * Execute the statement.
    */
   int executeStatement() {
+    return executeStatement(false);
+  }
+
+  int executeStatement(boolean addBatch) {
 
     boolean batch = isBatchThisRequest();
 
@@ -116,12 +120,12 @@ public abstract class PersistRequest extends BeanRequest implements BatchPostExe
       int rows;
       BatchControl control = transaction.getBatchControl();
       if (control != null) {
-        rows = control.executeStatementOrBatch(this, batch);
+        rows = control.executeStatementOrBatch(this, batch, addBatch);
 
       } else if (batch) {
         // need to create the BatchControl
         control = persistExecute.createBatchControl(transaction);
-        rows = control.executeStatementOrBatch(this, true);
+        rows = control.executeStatementOrBatch(this, true, addBatch);
       } else {
         rows = executeNow();
       }

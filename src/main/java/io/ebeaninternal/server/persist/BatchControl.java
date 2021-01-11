@@ -138,9 +138,8 @@ public final class BatchControl {
    * These all go straight to jdbc and use addBatch(). Entity beans goto a queue
    * and wait there so that the jdbc is executed in the correct order according
    * to the depth.
-   * </p>
    */
-  public int executeStatementOrBatch(PersistRequest request, boolean batch) throws BatchedSqlException {
+  public int executeStatementOrBatch(PersistRequest request, boolean batch, boolean addBatch) throws BatchedSqlException {
     if (!batch || (batchFlushOnMixed && !isBeansEmpty())) {
       // flush when mixing beans and updateSql
       flush();
@@ -150,7 +149,7 @@ public final class BatchControl {
       return request.executeNow();
     }
 
-    if (pstmtHolder.getMaxSize() >= batchSize) {
+    if (!addBatch && pstmtHolder.getMaxSize() >= batchSize) {
       flush();
     }
     // for OrmUpdate, SqlUpdate, CallableSql there is no queue...
@@ -220,7 +219,11 @@ public final class BatchControl {
    * Flush any batched PreparedStatements.
    */
   private void flushPstmtHolder() throws BatchedSqlException {
-    pstmtHolder.flush(getGeneratedKeys);
+    pstmtHolder.flush(getGeneratedKeys, false);
+  }
+
+  private void flushPstmtHolder(boolean reset) throws BatchedSqlException {
+    pstmtHolder.flush(getGeneratedKeys, reset);
   }
 
   /**
@@ -235,6 +238,15 @@ public final class BatchControl {
       list.get(i).executeNow();
     }
     flushPstmtHolder();
+  }
+
+  public void flushOnCommit() throws BatchedSqlException {
+    try {
+      flushBuffer(false);
+    } finally {
+      // ensure PreparedStatements are closed
+      pstmtHolder.clear();
+    }
   }
 
   /**
@@ -261,8 +273,8 @@ public final class BatchControl {
     persistedBeans.clear();
   }
 
-  private void flushBuffer(boolean resetTop) throws BatchedSqlException {
-    flushInternal(resetTop);
+  private void flushBuffer(boolean reset) throws BatchedSqlException {
+    flushInternal(reset);
     flushQueue(earlyQueue);
     flushQueue(lateQueue);
   }
@@ -275,14 +287,16 @@ public final class BatchControl {
 
   /**
    * execute all the requests currently queued or batched.
+   *
+   * @param reset When true close all batched statements (completely empty)
    */
-  private void flushInternal(boolean resetTop) throws BatchedSqlException {
+  private void flushInternal(boolean reset) throws BatchedSqlException {
 
     try {
       bufferMax = 0;
       if (!pstmtHolder.isEmpty()) {
         // Flush existing pstmts (updateSql or callableSql)
-        flushPstmtHolder();
+        flushPstmtHolder(reset);
       }
       if (isEmpty()) {
         // Nothing in queue to flush
@@ -304,7 +318,7 @@ public final class BatchControl {
       } while (!isBeanHoldersEmpty());
 
       persistedBeans.clear();
-      if (resetTop) {
+      if (reset) {
         beanHoldMap.clear();
         depthOrder.clear();
       }

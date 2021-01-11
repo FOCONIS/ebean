@@ -130,7 +130,7 @@ class JdbcTransaction implements SpiTransaction, TxnProfileEventCodes {
 
   private Boolean batchFlushOnMixed;
 
-  private String logPrefix;
+  private final String logPrefix;
 
   private Object tenantId;
 
@@ -669,7 +669,7 @@ class JdbcTransaction implements SpiTransaction, TxnProfileEventCodes {
   private void batchFlush() {
     if (batchControl != null) {
       try {
-        batchControl.flush();
+        batchControl.flushOnCommit();
       } catch (BatchedSqlException e) {
         throw translate(e.getMessage(), e.getCause());
       }
@@ -706,14 +706,18 @@ class JdbcTransaction implements SpiTransaction, TxnProfileEventCodes {
 
   @Override
   public void flushBatchOnRollback() {
-    if (batchControl != null) {
-      if (logger.isTraceEnabled()) {
-        logger.trace("... flushBatchOnRollback");
-      }
-      batchControl.clear();
-    }
+    internalBatchClear();
     // restore the previous batch mode
     batchMode = oldBatchMode;
+  }
+
+  /**
+   * Ensure batched PreparedStatements are closed on rollback.
+   */
+  private void internalBatchClear() {
+    if (batchControl != null) {
+      batchControl.clear();
+    }
   }
 
   @Override
@@ -1138,6 +1142,7 @@ class JdbcTransaction implements SpiTransaction, TxnProfileEventCodes {
    * Perform the jdbc rollback and fire any registered callbacks.
    */
   private void doRollback(Throwable cause) {
+    internalBatchClear();
     firePreRollback();
     try {
       performRollback();

@@ -46,10 +46,13 @@ class PstmtFactory {
   public PreparedStatement getPstmt(SpiTransaction t, boolean logSql, String sql, BatchPostExecute batchExe) throws SQLException {
 
     BatchedPstmtHolder batch = t.getBatchControl().getPstmtHolder();
-    PreparedStatement stmt = batch.getStmt(sql, batchExe);
+    final BatchedPstmt existingStmt = batch.getBatchedPstmt(sql, batchExe);
 
-    if (stmt != null) {
-      return stmt;
+    if (existingStmt != null) {
+      if (existingStmt.isEmpty() && t.isLogSql()) {
+        t.logSql(TrimLogSql.trim(sql));
+      }
+      return existingStmt.getStatement();
     }
 
     if (logSql) {
@@ -57,7 +60,7 @@ class PstmtFactory {
     }
 
     Connection conn = t.getInternalConnection();
-    stmt = conn.prepareStatement(sql);
+    PreparedStatement stmt = conn.prepareStatement(sql);
 
     BatchedPstmt bs = new BatchedPstmt(stmt, false, sql, t);
     batch.addStmt(bs, batchExe);
