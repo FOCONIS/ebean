@@ -289,17 +289,20 @@ public final class BatchControl {
         return;
       }
 
-      // convert entry map to array for sorting
-      BatchedBeanHolder[] bsArray = getBeanHolderArray();
-      // sort the entries by depth
-      Arrays.sort(bsArray, depthComparator);
+      do {
+        // convert entry map to array for sorting
+        BatchedBeanHolder[] bsArray = getBeanHolderArray();
+        // sort the entries by depth
+        Arrays.sort(bsArray, depthComparator);
 
-      if (transaction.isLogSummary()) {
-        transaction.logSummary("BatchControl flush " + Arrays.toString(bsArray));
-      }
-      for (BatchedBeanHolder beanHolder : bsArray) {
-        beanHolder.executeNow();
-      }
+        if (transaction.isLogSummary()) {
+          transaction.logSummary("BatchControl flush " + Arrays.toString(bsArray));
+        }
+        for (BatchedBeanHolder beanHolder : bsArray) {
+          beanHolder.executeNow();
+        }
+      } while (!isBeanHoldersEmpty());
+
       persistedBeans.clear();
       if (resetTop) {
         beanHoldMap.clear();
@@ -346,6 +349,18 @@ public final class BatchControl {
    */
   private BatchedBeanHolder[] getBeanHolderArray() {
     return beanHoldMap.values().toArray(new BatchedBeanHolder[0]);
+  }
+
+  /**
+   * Return if all bean holders are empty.
+   */
+  private boolean isBeanHoldersEmpty() {
+    for (BatchedBeanHolder beanHolder : beanHoldMap.values()) {
+      if (!beanHolder.isEmpty()) {
+        return false;
+      }
+    }
+    return true;
   }
 
   /**

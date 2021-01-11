@@ -48,6 +48,11 @@ class BatchedBeanHolder {
   private ArrayList<PersistRequest> deletes;
 
   /**
+   * The holder is empty
+   */
+  private boolean empty = true;
+
+  /**
    * Create a new entry with a given type and depth.
    */
   public BatchedBeanHolder(BatchControl control, BeanDescriptor<?> beanDescriptor, int order) {
@@ -90,6 +95,7 @@ class BatchedBeanHolder {
       updates = new ArrayList<>();
       control.executeNow(bufferedUpdates);
     }
+    empty = true;
   }
 
   @Override
@@ -121,6 +127,7 @@ class BatchedBeanHolder {
           inserts = new ArrayList<>();
         }
         inserts.add(request);
+        empty = false;
         return inserts.size();
 
       case UPDATE:
@@ -129,6 +136,7 @@ class BatchedBeanHolder {
           updates = new ArrayList<>();
         }
         updates.add(request);
+        empty = false;
         return updates.size();
 
       case DELETE:
@@ -136,11 +144,19 @@ class BatchedBeanHolder {
           deletes = new ArrayList<>();
         }
         deletes.add(request);
+        empty = false;
         return deletes.size();
 
       default:
         throw new RuntimeException("Invalid type code " + request.getType());
     }
+  }
+
+  /**
+   * Returns if the BeanHolder is empty.
+   */
+  public boolean isEmpty() {
+    return empty;
   }
 
 }
