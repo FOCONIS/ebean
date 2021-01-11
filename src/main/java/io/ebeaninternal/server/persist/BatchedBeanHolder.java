@@ -50,7 +50,7 @@ class BatchedBeanHolder {
   /**
    * The holder is empty
    */
-  private boolean empty;
+  private boolean empty = true;
 
   /**
    * Create a new entry with a given type and depth.
