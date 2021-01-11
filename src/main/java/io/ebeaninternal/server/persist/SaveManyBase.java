@@ -29,11 +29,14 @@ abstract class SaveManyBase {
   SaveManyBase(boolean insertedParent, BeanPropertyAssocMany<?> many, EntityBean parentBean, PersistRequestBean<?> request) {
     this.request = request;
     this.server = request.getServer();
-    this.insertedParent = insertedParent;
     this.many = many;
     this.parentBean = parentBean;
     this.transaction = request.getTransaction();
     this.value = many.getValue(parentBean);
+    this.insertedParent = insertedParent;
+    if (!insertedParent) {
+      request.setUpdatedMany();
+    }
   }
 
   /**
