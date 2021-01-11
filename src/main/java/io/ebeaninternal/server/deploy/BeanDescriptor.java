@@ -1978,6 +1978,12 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
       if (inheritInfo != null && inheritInfo.hasChildren()) {
         return findReferenceBean(id, pc);
       }
+      if (pc != null) {
+        Object contextBean = contextGet(pc, id);
+        if (contextBean != null) {
+          return (T) contextBean;
+        }
+      }
 
       EntityBean eb = createEntityBean();
       id = convertSetId(id, eb);
@@ -2013,6 +2019,13 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
     try {
       if (inheritInfo != null && inheritInfo.hasChildren()) {
         return findReferenceBean(id, pc);
+      }
+
+      if (pc != null) {
+        Object contextBean = contextGet(pc, id);
+        if (contextBean != null) {
+          return (T) contextBean;
+        }
       }
 
       EntityBean eb = createEntityBean();
