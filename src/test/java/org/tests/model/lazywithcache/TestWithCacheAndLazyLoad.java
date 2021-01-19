@@ -6,6 +6,9 @@ import io.ebean.BaseTestCase;
 import io.ebean.DB;
 import io.ebean.Ebean;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+
 /**
  * Test with bean cache and lazy loaded property.
  *
@@ -35,20 +38,17 @@ public class TestWithCacheAndLazyLoad extends BaseTestCase{
     parentB.setChild(child);
     Ebean.save(parentB);
     
-    DB.getDefault().getPluginApi().getServerCacheManager().clearAll();
-    
     ParentA tempA = DB.find(ParentA.class, 1L);
-    assert tempA != null;
-    tempA.getChild().getName();
+    tempA.getChild().getName(); //load name
     
     ParentB tempB = DB.find(ParentB.class, 1L);
-    assert tempB != null;
     
     ChildWithCache temp = tempB.getChild();
-    temp.getName();
+    //if the next line is commented out, the test passes
+    temp.getName(); //load name from cache --> ebean_intercept.loadedFromCache = true
     
     String tempLazyProp = temp.getAddress();
-    assert tempLazyProp != null;
+    assertThat(tempLazyProp).isEqualTo("Address");
     
   }
 
