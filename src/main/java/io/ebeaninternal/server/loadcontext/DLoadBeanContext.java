@@ -187,7 +187,13 @@ class DLoadBeanContext extends DLoadBaseContext implements LoadBeanContext {
         list.removeAll(hits);
         if (list.isEmpty() || hits.contains(ebi)) {
           // successfully hit the L2 cache so don't invoke DB lazy loading
-          return;
+          int propertyId = ebi.getLazyLoadPropertyIndex();
+          if (propertyId > -1 && !ebi.isLoadedProperty(propertyId)) {
+            // but if the L2 cache did not load the property
+            list.add(ebi); // we must re-add it to the batch and do a lazy load
+          } else {
+            return;
+          }
         }
       }
 
