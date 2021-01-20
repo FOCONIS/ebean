@@ -15,7 +15,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Noemi Szemenyei, FOCONIS AG
  *
  */
-
 public class TestWithCacheAndLazyLoad extends BaseTestCase{
 
   @Test
@@ -39,17 +38,16 @@ public class TestWithCacheAndLazyLoad extends BaseTestCase{
     Ebean.save(parentB);
     
     ParentA tempA = DB.find(ParentA.class, 1L);
-    tempA.getChild().getName(); //load name
+    tempA.getChild().getName(); // load name
     
     ParentB tempB = DB.find(ParentB.class, 1L);
     
     ChildWithCache temp = tempB.getChild();
-    //if the next line is commented out, the test passes
-    temp.getName(); //load name from cache --> ebean_intercept.loadedFromCache = true
+    // if the next line is commented out, the test passes
+    temp.getName(); // load name from cache --> ebean_intercept.loadedFromCache = true
     
-    String tempLazyProp = temp.getAddress();
-    assertThat(tempLazyProp).isEqualTo("Address");
-    
+    assertThat(temp.getAddress()).isEqualTo("Address");
+    assertThat(temp.getName()).isEqualTo("Child With Cache");
   }
 
 }
