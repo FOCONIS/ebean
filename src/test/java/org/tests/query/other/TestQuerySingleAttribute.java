@@ -6,6 +6,7 @@ import static org.assertj.core.api.StrictAssertions.assertThat;
 import java.sql.Date;
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import javax.annotation.Nonnull;
@@ -31,9 +32,36 @@ import io.ebean.CountDistinctOrder;
 import io.ebean.CountedValue;
 import io.ebean.DB;
 import io.ebean.Ebean;
+import io.ebean.FetchPath;
 import io.ebean.Query;
+import io.ebean.text.PathProperties;
 
 public class TestQuerySingleAttribute extends BaseTestCase {
+  @Test
+  public void findSingleAttributesTwoToMany() {
+    ResetBasicData.reset();
+    Query<Customer> query = Ebean.find(Customer.class)
+        .select("name")
+        //.apply(toFetchPath("name"))
+        .setCountDistinct(CountDistinctOrder.COUNT_DESC_ATTR_ASC)
+        .where()
+        .eq("name", "Rob")
+        .or()
+         .eq("orders.status", Order.Status.NEW)
+         .eq("contacts.firstName", "Fred1")
+        .query();
+
+    List<Object> counted =  query.findSingleAttributeList();
+    CountedValue<String> robs = (CountedValue<String>)counted.get(0);
+    assertThat(robs.getValue()).isEqualTo("Rob");
+    assertThat(robs.getCount()).isEqualTo(1);
+    
+    // TODO check correct future query
+    assertThat(sqlOf(query)).contains("select r1.attribute_1, count(*) cnt"
+        + " from (select t1.id attribute_1 from main_entity_relation t0 left join main_entity t1 on t1.id = t0.id1 ) r1"
+        + " group by r1.attribute_1"
+        + " order by count(*) desc, r1.attribute_1");
+  }
 
   @Test
   public void exampleUsage() {
