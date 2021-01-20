@@ -574,6 +574,7 @@ class CQueryBuilder {
     StringBuilder sb = new StringBuilder(500);
     String dbOrderBy = predicates.getDbOrderBy();
     String groupByAttribute = null;
+    boolean countSingleAttribute = query.isCountDistinct() && query.isSingleAttribute();
     if (selectClause != null) {
       sb.append(selectClause);
 
@@ -582,7 +583,7 @@ class CQueryBuilder {
 
       if (!useSqlLimiter) {
         sb.append("select ");
-        if (distinct) {
+        if (distinct && !countSingleAttribute) {
           if (request.isInlineCountDistinct()) {
             sb.append("count(");
           }
@@ -595,7 +596,7 @@ class CQueryBuilder {
         }
       }
 
-      if (query.isCountDistinct() && query.isSingleAttribute()) {
+      if (countSingleAttribute) {
         int i = 0;
         StringBuilder groupBySb = new StringBuilder();
         StringBuilder subSelectSb = new StringBuilder();
@@ -617,6 +618,10 @@ class CQueryBuilder {
 
         groupByAttribute = groupBySb.toString();
         sb.append(groupByAttribute).append(", count(*) cnt from (select ");
+        if (distinct) {
+          sb.append("distinct t0.");
+          sb.append(request.getBeanDescriptor().getIdProperty().getDbColumn()).append(", ");
+        }
         sb.append(subSelectSb.toString());
 
       } else {
@@ -723,7 +728,7 @@ class CQueryBuilder {
       sb.append(" order by ").append(dbOrderBy);
     }
 
-    if (query.isCountDistinct() && query.isSingleAttribute()) {
+    if (countSingleAttribute) {
       sb.append(") r1 group by ").append(groupByAttribute);
       sb.append(toSql(query.getCountDistinctOrder()));
     }

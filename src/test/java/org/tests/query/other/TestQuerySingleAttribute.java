@@ -34,6 +34,46 @@ import io.ebean.Ebean;
 import io.ebean.Query;
 
 public class TestQuerySingleAttribute extends BaseTestCase {
+  @Test
+  public void findSingleAttributesTwoToMany() {
+    ResetBasicData.reset();
+    // Query without ors with equals causing joins, only one Customer with name Rob exists
+    Query<Customer> query0 = DB.find(Customer.class)
+            .select("name")
+            .setCountDistinct(CountDistinctOrder.COUNT_DESC_ATTR_ASC)
+            .where()
+            .eq("name", "Rob")
+            .query();
+
+        CountedValue<String> robs0 = (CountedValue<String>) query0.findSingleAttributeList().get(0);
+        assertThat(robs0.getValue()).isEqualTo("Rob");
+        assertThat(robs0.getCount()).isEqualTo(1);
+
+     // Query with or with equals causing joins
+    Query<Customer> query = DB.find(Customer.class)
+        .select("name")
+        .setCountDistinct(CountDistinctOrder.COUNT_DESC_ATTR_ASC)
+        .where()
+        .eq("name", "Rob")
+        .or()
+         .eq("orders.status", Order.Status.NEW)
+         .eq("contacts.firstName", "Fred1")
+         .endOr()
+        .query();
+
+    CountedValue<String> robs = (CountedValue<String>) query.findSingleAttributeList().get(0);
+    assertThat(robs.getValue()).isEqualTo("Rob");
+    // only one Customer named rob exists, but 7 is returned for the amount of Customers named Rob
+    assertThat(robs.getCount()).isEqualTo(1);
+
+    // TODO check correct future query
+    assertThat(sqlOf(query)).contains("select r1.attribute_1, count(*) cnt "
+        + "from (select distinct t0.id, t0.name attribute_1 from o_customer t0 "
+        + "left join contact u1 on u1.customer_id = t0.id  "
+        + "left join o_order u2 on u2.kcustomer_id = t0.id and u2.order_date is not null  "
+        + "where t0.name = ? and (u2.status = ? or u1.first_name = ?)) "
+        + "r1 group by r1.attribute_1 order by count(*) desc, r1.attribute_1");
+  }
 
   @Test
   public void exampleUsage() {
@@ -125,8 +165,8 @@ public class TestQuerySingleAttribute extends BaseTestCase {
 
     List<CountedValue<String>> attr1list = query.findSingleAttributeList();
 
-    assertThat(sqlOf(query)).contains("select distinct r1.attribute_1, count(*) cnt"
-        + " from (select t1.attr1 attribute_1 from main_entity_relation t0 left join main_entity t1 on t1.id = t0.id1 ) r1"
+    assertThat(sqlOf(query)).contains("select r1.attribute_1, count(*) cnt"
+        + " from (select distinct t0.id, t1.attr1 attribute_1 from main_entity_relation t0 left join main_entity t1 on t1.id = t0.id1 ) r1"
         + " group by r1.attribute_1"
         + " order by count(*) desc, r1.attribute_1");
     assertThat(attr1list).isNotNull();
