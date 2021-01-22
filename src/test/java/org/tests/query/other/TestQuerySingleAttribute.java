@@ -63,17 +63,51 @@ public class TestQuerySingleAttribute extends BaseTestCase {
 
     CountedValue<String> robs = (CountedValue<String>) query.findSingleAttributeList().get(0);
     assertThat(robs.getValue()).isEqualTo("Rob");
-    // only one Customer named rob exists, but 7 is returned for the amount of Customers named Rob
     assertThat(robs.getCount()).isEqualTo(1);
 
-    // TODO check correct future query
     assertThat(sqlOf(query)).contains("select r1.attribute_1, count(*) cnt "
         + "from (select distinct t0.id, t0.name attribute_1 from o_customer t0 "
         + "left join contact u1 on u1.customer_id = t0.id  "
         + "left join o_order u2 on u2.kcustomer_id = t0.id and u2.order_date is not null  "
         + "where t0.name = ? and (u2.status = ? or u1.first_name = ?)) "
         + "r1 group by r1.attribute_1 order by count(*) desc, r1.attribute_1");
+    // TODO we have 'and u2.order_date is not null' in the query, rob's query from ebean 12 does not
   }
+  
+  /**
+   * Similar to {@link #findSingleAttributesVariousSelection5} but in the where clause are nasties that force a distinct in the subquery
+   */
+  @Test
+  public void findSingleAttributesTwoToMany1() {
+    ResetBasicData.reset();
+     // Query with or with equals causing joins
+    Query<Customer> query = DB.find(Customer.class)
+        .fetch("shippingAddress", "city")
+        .setCountDistinct(CountDistinctOrder.COUNT_DESC_ATTR_ASC)
+        .where()
+        .eq("name", "Rob")
+        .or()
+         .eq("orders.status", Order.Status.NEW)
+         .eq("contacts.firstName", "Fred1")
+         .endOr()
+        .query();
+
+    List<Object> list1 = query.findSingleAttributeList();
+    assertThat(list1).hasSize(1);
+    CountedValue<String> robs = (CountedValue<String>) list1.get(0);
+    assertThat(robs.getValue()).isEqualTo("Auckland");
+    assertThat(robs.getCount()).isEqualTo(1);
+    // in the subselect distinct and selecting t0.id is important
+    assertThat(sqlOf(query)).contains("select r1.attribute_1, count(*) cnt from ("
+        + "select distinct t0.id, t1.city attribute_1 "
+        + "from o_customer t0 "
+        + "left join o_address t1 on t1.id = t0.shipping_address_id  "
+        + "left join contact u1 on u1.customer_id = t0.id  "
+        + "left join o_order u2 on u2.kcustomer_id = t0.id and u2.order_date is not null  "
+        + "where t0.name = ? and (u2.status = ? or u1.first_name = ?))"
+        + " r1 group by r1.attribute_1 order by count(*) desc, r1.attribute_1");
+  }
+  
 
   @Test
   public void exampleUsage() {
@@ -152,11 +186,7 @@ public class TestQuerySingleAttribute extends BaseTestCase {
 
   @Test
   public void findSingleAttributeList_with_join_column() {
-
     ResetBasicData.reset();
-
-
-
     Query<MainEntityRelation> query = Ebean.find(MainEntityRelation.class)
       .fetch("entity1", "attr1")
       .setDistinct(true)
@@ -164,7 +194,12 @@ public class TestQuerySingleAttribute extends BaseTestCase {
       .where().query();
 
     List<CountedValue<String>> attr1list = query.findSingleAttributeList();
-
+    
+    //FIXME fix or decide what to do... different from Rob's, influences result, Rob's has an additional select t0.id1 in the ebean 12 subquery
+    // difference is in SqlTreeBuilder.buildSelectChain:  if (!one.hasForeignKey() && !query.isSingleAttribute()) the second predicate is missing in 12 version
+    // bud there are more changes and i connot remove the predicate
+    // our solution delivers wrong results if attribute_1 is not unique
+    
     assertThat(sqlOf(query)).contains("select r1.attribute_1, count(*) cnt"
         + " from (select distinct t0.id, t1.attr1 attribute_1 from main_entity_relation t0 left join main_entity t1 on t1.id = t0.id1 ) r1"
         + " group by r1.attribute_1"
@@ -175,85 +210,73 @@ public class TestQuerySingleAttribute extends BaseTestCase {
     assertThat(attr1list.get(0).getCount()).isEqualTo(2l);
     assertThat(attr1list.get(1).getValue()).isEqualTo("a2");
     assertThat(attr1list.get(1).getCount()).isEqualTo(1l);
-
-
   }
 
   @Test
   public void findSingleAttributesVariousSelection1() {
     Query<MainEntityRelation> query = Ebean.find(MainEntityRelation.class)
-        .fetch("entity1", "attr1")
-        .setCountDistinct(CountDistinctOrder.COUNT_DESC_ATTR_ASC)
-        .where().query();
-
+      .fetch("entity1", "attr1")
+      .setCountDistinct(CountDistinctOrder.COUNT_DESC_ATTR_ASC)
+      .where().query();
     query.findSingleAttributeList();
-
+    // different from Rob's, but doesn't influence result, Rob's has an additional select t0.id1 in the ebean 12 subquery
     assertThat(sqlOf(query)).contains("select r1.attribute_1, count(*) cnt"
-        + " from (select t1.attr1 attribute_1 from main_entity_relation t0 left join main_entity t1 on t1.id = t0.id1 ) r1"
-        + " group by r1.attribute_1"
-        + " order by count(*) desc, r1.attribute_1");
-
+      + " from (select t1.attr1 attribute_1 from main_entity_relation t0 left join main_entity t1 on t1.id = t0.id1 ) r1"
+      + " group by r1.attribute_1"
+      + " order by count(*) desc, r1.attribute_1"); // sub-query select clause includes t0.id1
   }
+
   @Test
   public void findSingleAttributesVariousSelection2() {
     Query<MainEntityRelation> query = Ebean.find(MainEntityRelation.class)
-        .select("attr1")
-        .setCountDistinct(CountDistinctOrder.COUNT_DESC_ATTR_ASC)
-        .where().query();
-
+      .select("attr1")
+      .setCountDistinct(CountDistinctOrder.COUNT_DESC_ATTR_ASC)
+      .where().query();
     query.findSingleAttributeList();
-
     assertThat(sqlOf(query)).contains("select r1.attribute_1, count(*) cnt"
-        + " from (select t0.attr1 attribute_1 from main_entity_relation t0) r1"
-        + " group by r1.attribute_1"
-        + " order by count(*) desc, r1.attribute_1");
-
+      + " from (select t0.attr1 attribute_1 from main_entity_relation t0) r1"
+      + " group by r1.attribute_1"
+      + " order by count(*) desc, r1.attribute_1");
   }
+
   @Test
   public void findSingleAttributesVariousSelection3() {
     Query<MainEntityRelation> query = Ebean.find(MainEntityRelation.class)
-        .select("id")
-        .setCountDistinct(CountDistinctOrder.COUNT_DESC_ATTR_ASC)
-        .where().query();
-
+      .select("id")
+      .setCountDistinct(CountDistinctOrder.COUNT_DESC_ATTR_ASC)
+      .where().query();
     query.findSingleAttributeList();
-
     assertThat(sqlOf(query)).contains("select r1.attribute_1, count(*) cnt"
-        + " from (select t0.id attribute_1 from main_entity_relation t0) r1"
-        + " group by r1.attribute_1"
-        + " order by count(*) desc, r1.attribute_1");
-
+      + " from (select t0.id attribute_1 from main_entity_relation t0) r1"
+      + " group by r1.attribute_1"
+      + " order by count(*) desc, r1.attribute_1");
   }
 
   @Test
   public void findSingleAttributesVariousSelection4() {
     Query<MainEntityRelation> query = Ebean.find(MainEntityRelation.class)
-        .fetch("entity1", "id")
-        .setCountDistinct(CountDistinctOrder.COUNT_DESC_ATTR_ASC)
-        .where().query();
-
+      .fetch("entity1", "id")
+      .setCountDistinct(CountDistinctOrder.COUNT_DESC_ATTR_ASC)
+      .where().query();
     query.findSingleAttributeList();
-
+    // different from Rob's, but doesn't influence result, Rob's has an additional select t0.id1 in the ebean 12 subquery
     assertThat(sqlOf(query)).contains("select r1.attribute_1, count(*) cnt"
-        + " from (select t1.id attribute_1 from main_entity_relation t0 left join main_entity t1 on t1.id = t0.id1 ) r1"
-        + " group by r1.attribute_1"
-        + " order by count(*) desc, r1.attribute_1");
-
+      + " from (select t1.id attribute_1 from main_entity_relation t0 left join main_entity t1 on t1.id = t0.id1 ) r1"
+      + " group by r1.attribute_1"
+      + " order by count(*) desc, r1.attribute_1"); // sub-query select clause includes t0.id1,
   }
 
   @Test
   public void findSingleAttributesVariousSelection5() {
     Query<OmBasicParent> query = Ebean.find(OmBasicParent.class)
-        .fetch("children", "name")
-        .setCountDistinct(CountDistinctOrder.COUNT_DESC_ATTR_ASC)
-        .where().query();
-
+      .fetch("children", "name")
+      .setCountDistinct(CountDistinctOrder.COUNT_DESC_ATTR_ASC)
+      .where().query();
     query.findSingleAttributeList();
-
+    // different from Rob's, but doesn't influence result, Rob's has an additional select t0.id1 in the ebean 12 subquery
     assertThat(sqlOf(query)).contains("select r1.attribute_1, count(*) cnt"
-        + " from (select t1.name attribute_1 from om_basic_parent t0 left join om_basic_child t1 on t1.parent_id = t0.id ) r1 "
-        + "group by r1.attribute_1 order by count(*) desc, r1.attribute_1");
-
+      + " from (select t1.name attribute_1 from om_basic_parent t0 left join om_basic_child t1 on t1.parent_id = t0.id ) r1 "
+      + "group by r1.attribute_1 order by count(*) desc, r1.attribute_1"); // sub-query select clause includes t1.id,
   }
 
   @Test
