@@ -1,5 +1,7 @@
 package io.ebeaninternal.server.query;
 
+import io.ebean.DB;
+import io.ebean.annotation.Platform;
 import io.ebean.util.StringHelper;
 import io.ebeaninternal.server.deploy.BeanProperty;
 import io.ebeaninternal.server.deploy.DbSqlContext;
@@ -118,6 +120,8 @@ class DefaultDbSqlContext implements DbSqlContext {
     joinStack.push(node);
   }
 
+  private static final boolean DISABLE_INDEX_HINT = Boolean.getBoolean("ebean.disableIndexHint");
+
   @Override
   public void addJoin(String type, String table, TableJoinColumn[] cols, String a1, String a2, String inheritance, String extraWhere) {
 
@@ -151,6 +155,15 @@ class DefaultDbSqlContext implements DbSqlContext {
     }
 
     sb.append(a2);
+    if (!DISABLE_INDEX_HINT) {
+      if (type.equals("join")) {
+        if (DB.getDefault().getPluginApi().getDatabasePlatform().getPlatform().base() == Platform.MYSQL) {
+          // enforce PRIMARY index on MariaDb on inner Joins
+          sb.append(" use index (PRIMARY)");
+        }
+      }
+    }
+
     sb.append(" on ");
     for (int i = 0; i < cols.length; i++) {
       TableJoinColumn pair = cols[i];
