@@ -196,6 +196,16 @@ public interface QueryDsl<T, F extends QueryDsl<T, F>> {
    */
   F notIn(String propertyName, Query<?> subQuery);
 
+  /**
+   * Exists expression.
+   */
+  F exists(Query<?> subQuery);
+
+  /**
+   * Not exists expression.
+   */
+  F notExists(Query<?> subQuery);
+
 //CHECKME: can this be implemented in Filter?
 //  /**
 //   * Is empty expression for collection properties.

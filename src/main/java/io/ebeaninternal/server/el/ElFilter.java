@@ -327,6 +327,16 @@ public final class ElFilter<T> implements Filter<T> {
   }
 
   @Override
+  public Filter<T> exists(Query<?> subQuery) {
+    return root.exists(subQuery);
+  }
+
+  @Override
+  public Filter<T> notExists(Query<?> subQuery) {
+    return root.notExists(subQuery);
+  }
+
+  @Override
   public Filter<T> and() {
     return root.and();
   }

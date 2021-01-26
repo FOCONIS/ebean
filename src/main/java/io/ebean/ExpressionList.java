@@ -1067,16 +1067,6 @@ public interface ExpressionList<T> extends QueryDsl<T, ExpressionList<T>> {
   ExpressionList<T> isNotEmpty(String propertyName);
 
   /**
-   * Exists expression
-   */
-  ExpressionList<T> exists(Query<?> subQuery);
-
-  /**
-   * Not exists expression
-   */
-  ExpressionList<T> notExists(Query<?> subQuery);
-
-  /**
    * Id IN a list of id values.
    */
   ExpressionList<T> idIn(Object... idValues);

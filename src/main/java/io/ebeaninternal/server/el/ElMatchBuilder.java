@@ -196,7 +196,7 @@ class ElMatchBuilder {
         return Pattern.DOTALL;
       }
     }
-    
+
     Like(ElPropertyValue elGetValue, String like, boolean ignoreCase) {
       super(elGetValue, asPattern(like), getOptions(ignoreCase));
       this.like = like;
@@ -452,12 +452,12 @@ class ElMatchBuilder {
     public boolean match(Object value) {
       return true;
     }
-    
+
     @Override
     public Expression3VL testNull() {
       return Expression3VL.FALSE;
     }
-    
+
     @Override
     public void toString(StringBuilder sb) {
       sb.append(elGetValue).append(" is not null");
@@ -591,6 +591,36 @@ class ElMatchBuilder {
     @Override
     public <F extends QueryDsl<T, F>> void visitDsl(QueryDsl<T, F> target) {
       target.in(elGetValue.getElName(), query);
+    }
+  }
+
+  static class Exists<T, V> implements ElMatcher<T> {
+
+    private final Query<?> query;
+    private final boolean exists;
+
+    public Exists(boolean exists, Query<?> query) {
+      this.exists = exists;
+      this.query = query;
+    }
+
+    @Override
+    public Expression3VL isMatch(T bean, FilterContext ctx) {
+      throw new UnsupportedOperationException("exists query are not for in memory");
+    }
+
+    @Override
+    public void toString(StringBuilder sb) {
+      sb.append(" exists [").append(query).append(']');
+    }
+
+    @Override
+    public <F extends QueryDsl<T, F>> void visitDsl(QueryDsl<T, F> target) {
+      if (exists) {
+        target.exists(query);
+      } else {
+        target.notExists(query);
+      }
     }
   }
 
