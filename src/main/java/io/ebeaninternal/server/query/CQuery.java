@@ -158,6 +158,8 @@ public class CQuery<T> implements DbReadContext, CancelableQuery, SpiProfileTran
    */
   private PreparedStatement pstmt;
 
+  private boolean cancellable;
+
   private boolean cancelled;
 
   private String bindLog;
@@ -296,7 +298,7 @@ public class CQuery<T> implements DbReadContext, CancelableQuery, SpiProfileTran
   public void cancel() {
     synchronized (this) {
       this.cancelled = true;
-      if (pstmt != null) {
+      if (pstmt != null && cancellable) {
         try {
           pstmt.cancel();
         } catch (SQLException e) {
@@ -363,6 +365,7 @@ public class CQuery<T> implements DbReadContext, CancelableQuery, SpiProfileTran
       } else {
         pstmt = conn.prepareStatement(sql);
       }
+      cancellable = true;
 
       if (query.getTimeout() > 0) {
         pstmt.setQueryTimeout(query.getTimeout());
@@ -373,10 +376,18 @@ public class CQuery<T> implements DbReadContext, CancelableQuery, SpiProfileTran
 
       DataBind dataBind = queryPlan.bindEncryptedProperties(pstmt, conn);
       bindLog = predicates.bind(dataBind);
-
-      // executeQuery
-      return pstmt.executeQuery();
     }
+    // executeQuery (outside the synchronized block) with canellable = true
+    ResultSet result = pstmt.executeQuery();
+    synchronized (this) {
+      cancellable = false;
+      if (cancelled || query.isCancelled()) {
+        // cancelled after we executed the query
+        cancelled = true;
+        return null;
+      }
+    }
+    return result;
   }
 
   /**
