@@ -377,17 +377,20 @@ public class CQuery<T> implements DbReadContext, CancelableQuery, SpiProfileTran
       DataBind dataBind = queryPlan.bindEncryptedProperties(pstmt, conn);
       bindLog = predicates.bind(dataBind);
     }
+    try {
     // executeQuery (outside the synchronized block) with canellable = true
-    ResultSet result = pstmt.executeQuery();
-    synchronized (this) {
-      cancellable = false;
-      if (cancelled || query.isCancelled()) {
-        // cancelled after we executed the query
-        cancelled = true;
-        return null;
+      return pstmt.executeQuery();
+    } finally {
+      synchronized (this) {
+        cancellable = false;
+        if (cancelled || query.isCancelled()) {
+          // cancelled after we executed the query
+          close();
+          cancelled = true;
+          return null;
+        }
       }
     }
-    return result;
   }
 
   /**
