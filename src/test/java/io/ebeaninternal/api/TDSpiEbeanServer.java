@@ -12,6 +12,7 @@ import io.ebean.Filter;
 import io.ebean.FutureIds;
 import io.ebean.FutureList;
 import io.ebean.FutureRowCount;
+import io.ebean.FutureSingleAttributeList;
 import io.ebean.MergeOptions;
 import io.ebean.PagedList;
 import io.ebean.PersistenceContextScope;
@@ -679,6 +680,11 @@ public class TDSpiEbeanServer implements SpiEbeanServer {
 
   @Override
   public <T> FutureIds<T> findFutureIds(Query<T> query, Transaction transaction) {
+    return null;
+  }
+  
+  @Override
+  public <T, A> FutureSingleAttributeList<T, A> findFutureSingleAttributeList(Query<T> query, Transaction t) {
     return null;
   }
 

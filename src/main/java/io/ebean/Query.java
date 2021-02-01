@@ -1069,6 +1069,9 @@ public interface Query<T> {
   @Nonnull
   FutureIds<T> findFutureIds();
 
+  @Nonnull
+  <A> FutureSingleAttributeList<T, A> findFutureSingleAttributeList();
+  
   /**
    * Execute find list query in a background thread.
    * <p>

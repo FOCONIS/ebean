@@ -3,6 +3,7 @@ package io.ebean;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.persistence.NonUniqueResultException;
+
 import java.time.Clock;
 import java.util.List;
 import java.util.Map;
@@ -238,6 +239,9 @@ public interface ExtendedServer {
   @Nonnull
   <T> FutureIds<T> findFutureIds(Query<T> query, Transaction transaction);
 
+  @Nonnull
+  <T, A> FutureSingleAttributeList<T, A> findFutureSingleAttributeList(Query<T> query, Transaction t);
+    
   /**
    * Execute find list query in a background thread returning a FutureList object.
    * <p>

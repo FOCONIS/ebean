@@ -13,6 +13,7 @@ import io.ebean.Filter;
 import io.ebean.FutureIds;
 import io.ebean.FutureList;
 import io.ebean.FutureRowCount;
+import io.ebean.FutureSingleAttributeList;
 import io.ebean.OrderBy;
 import io.ebean.OrderBy.Property;
 import io.ebean.PagedList;
@@ -838,6 +839,8 @@ public class DefaultOrmQuery<T> implements SpiQuery<T> {
     copy.baseTable = baseTable;
     copy.rootTableAlias = rootTableAlias;
     copy.distinct = distinct;
+    copy.countDistinctOrder = countDistinctOrder;
+    copy.countDistinctDto = countDistinctDto;
     copy.allowLoadErrors = allowLoadErrors;
     copy.timeout = timeout;
     copy.mapKey = mapKey;
@@ -1601,6 +1604,11 @@ public class DefaultOrmQuery<T> implements SpiQuery<T> {
   @Override
   public FutureList<T> findFutureList() {
     return server.findFutureList(this, transaction);
+  }
+  
+  @Override
+  public <A> FutureSingleAttributeList<T, A> findFutureSingleAttributeList() {
+    return server.findFutureSingleAttributeList(this, transaction);
   }
 
   @Override
