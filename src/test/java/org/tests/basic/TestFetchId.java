@@ -5,6 +5,7 @@ import io.ebean.Ebean;
 import io.ebean.FutureIds;
 import io.ebean.Query;
 import org.tests.model.basic.Order;
+import org.tests.model.basic.OrderDetail;
 import org.tests.model.basic.ResetBasicData;
 import org.junit.Test;
 
@@ -25,7 +26,29 @@ public class TestFetchId extends BaseTestCase {
       .fetch("details")
       .where().gt("id", 1)
       .gt("details.id", 0)
-      .query();
+      .orderBy("orderDate,id,updtime");
+
+    List<Object> ids = query.findIds();
+    assertThat(ids).isNotEmpty();
+
+    FutureIds<Order> futureIds = query.findFutureIds();
+
+    // wait for all the id's to be fetched
+    List<Object> idList = futureIds.get();
+    assertThat(idList).isNotEmpty();
+  }
+
+  @Test
+  public void testFetchIdWithExists() throws InterruptedException, ExecutionException {
+
+    ResetBasicData.reset();
+
+    Query<OrderDetail> subQuery = Ebean.find(OrderDetail.class)
+        .alias("sq")
+        .where().raw("details.id = sq.id").query();
+    Query<Order> query = Ebean.find(Order.class)
+      .where().exists(subQuery)
+      .orderBy("orderDate");
 
     List<Object> ids = query.findIds();
     assertThat(ids).isNotEmpty();
