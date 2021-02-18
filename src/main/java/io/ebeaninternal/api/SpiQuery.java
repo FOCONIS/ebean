@@ -84,6 +84,11 @@ public interface SpiQuery<T> extends Query<T>, TxnProfileEventCodes {
     ID_LIST(FIND_ID_LIST, "findIds"),
 
     /**
+     * Find exists.
+     */
+    EXISTS(FIND_EXISTS, "exists"),
+
+    /**
      * Find single attribute.
      */
     ATTRIBUTE(FIND_ATTRIBUTE, "findAttribute"),
