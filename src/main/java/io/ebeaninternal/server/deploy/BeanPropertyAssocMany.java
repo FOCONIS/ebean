@@ -8,7 +8,6 @@ import io.ebean.bean.BeanCollection;
 import io.ebean.bean.BeanCollection.ModifyListenMode;
 import io.ebean.bean.BeanCollectionAdd;
 import io.ebean.bean.EntityBean;
-import io.ebean.bean.OwnerBeanAware;
 import io.ebean.bean.PersistenceContext;
 import io.ebean.plugin.PropertyAssocMany;
 import io.ebean.text.PathProperties;
@@ -588,10 +587,6 @@ public class BeanPropertyAssocMany<T> extends BeanPropertyAssoc<T> implements ST
       mapKeyProperty.setValue(child, mapKeyValue);
     }
 
-    if (child instanceof OwnerBeanAware) {
-      ((OwnerBeanAware) child).setOwnerBeanInfo(parent, getName(), mapKeyValue);
-    }
-
     if (!manyToMany && childMasterProperty != null) {
       // bidirectional in the sense that the 'master' property
       // exists on the 'detail' bean
@@ -1055,7 +1050,6 @@ public class BeanPropertyAssocMany<T> extends BeanPropertyAssoc<T> implements ST
 
     BeanCollection<?> collection = createEmpty(parentBean);
     BeanCollectionAdd add = getBeanCollectionAdd(collection);
-    int i=0;
     do {
       EntityBean detailBean = (EntityBean) targetDescriptor.jsonRead(readJson, name);
       if (detailBean == null) {
@@ -1068,10 +1062,6 @@ public class BeanPropertyAssocMany<T> extends BeanPropertyAssoc<T> implements ST
         // bind detail bean back to master via mappedBy property
         childMasterProperty.setValue(detailBean, parentBean);
       }
-      if (detailBean instanceof OwnerBeanAware) {
-        ((OwnerBeanAware) detailBean).setOwnerBeanInfo(parentBean, name, i);
-      }
-      i++;
     } while (true);
 
     return collection;

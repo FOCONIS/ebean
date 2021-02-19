@@ -19,7 +19,7 @@
     <jackson-core.version>2.10.0</jackson-core.version>
     <jackson-databind.version>2.10.0</jackson-databind.version>
     <snakeyaml.version>1.21</snakeyaml.version>
-    <agent.version>11.45.2-FOC2</agent.version>
+    <agent.version>11.46-NEXT1</agent.version>
   </properties>
 
   <scm>
@@ -333,7 +333,7 @@
 
 
   <build>
-    
+
     <resources>
       <resource>
         <directory>src/main/resources</directory>
@@ -451,18 +451,18 @@
         <configuration>
           <skip>true</skip>
         </configuration>
-      </plugin>      
+      </plugin>
     </plugins>
 
-	<extensions>
-		<extension>
-			<groupId>org.apache.maven.wagon</groupId>
-			<artifactId>wagon-ssh</artifactId>
-			<version>2.10</version>
-		</extension>
-	</extensions>     
+    <extensions>
+      <extension>
+        <groupId>org.apache.maven.wagon</groupId>
+        <artifactId>wagon-ssh</artifactId>
+        <version>2.10</version>
+      </extension>
+    </extensions>
   </build>
-  
+
   <repositories>
   	<repository>
   	  <id>foconis-release</id>
@@ -473,7 +473,7 @@
   	  <url>https://repo.foconis.de/maven-snapshot/</url>
   	</repository>
   </repositories>
-  
+
   <pluginRepositories>
     <pluginRepository>
       <id>foconis-release</id>
@@ -484,9 +484,9 @@
       <url>https://repo.foconis.de/maven-snapshot/</url>
     </pluginRepository>
   </pluginRepositories>
-  <!-- 
+  <!--
   use   mvn clean source:jar deploy -DaltDeploymentRepository=foconis::default::sftp://bamboo@repo.foconis.de/var/www/html/repo/maven-snapshot/
- 
+
    -->
   <distributionManagement>
     <repository>

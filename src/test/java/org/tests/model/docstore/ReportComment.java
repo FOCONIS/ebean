@@ -1,16 +1,14 @@
 package org.tests.model.docstore;
 
+import io.ebean.annotation.DocStore;
+import io.ebean.annotation.JsonIgnore;
+import org.tests.model.basic.Customer;
+
 import javax.persistence.ManyToOne;
 import javax.persistence.Transient;
 
-import org.tests.model.basic.Customer;
-
-import io.ebean.annotation.DocStore;
-import io.ebean.annotation.JsonIgnore;
-import io.ebean.bean.OwnerBeanAware;
-
 @DocStore
-public class ReportComment implements OwnerBeanAware {
+public class ReportComment {
 
   private String comment;
 
@@ -39,12 +37,6 @@ public class ReportComment implements OwnerBeanAware {
 
   public void setAuthor(Customer author) {
     this.author = author;
-  }
-
-  @Override
-  public void setOwnerBeanInfo(Object parent, String propertyName, Object additionalKey) {
-    this.parentBean = parent;
-    this.propertyName = propertyName;
   }
 
   public Object getParentBean() {

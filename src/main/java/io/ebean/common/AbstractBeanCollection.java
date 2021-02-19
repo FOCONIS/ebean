@@ -5,7 +5,6 @@ import io.ebean.ExpressionList;
 import io.ebean.bean.BeanCollection;
 import io.ebean.bean.BeanCollectionLoader;
 import io.ebean.bean.EntityBean;
-import io.ebean.bean.OwnerBeanAware;
 
 import java.util.Set;
 
@@ -227,11 +226,5 @@ abstract class AbstractBeanCollection<E> implements BeanCollection<E> {
     this.loader = other.loader;
     this.ownerBean = other.ownerBean;
     this.propertyName = other.propertyName;
-  }
-
-  protected void owningBean(E bean, Object additionalKey) {
-    if (bean instanceof OwnerBeanAware) {
-      ((OwnerBeanAware) bean).setOwnerBeanInfo(ownerBean, propertyName, additionalKey);
-    }
   }
 }

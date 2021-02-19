@@ -1,24 +1,22 @@
 package org.tests.model.docstore;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import io.ebean.annotation.DocStore;
+import io.ebean.annotation.JsonIgnore;
+
 import javax.persistence.Inheritance;
 import javax.persistence.OneToMany;
 import javax.persistence.Transient;
-
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-
-import io.ebean.annotation.DocStore;
-import io.ebean.annotation.JsonIgnore;
-import io.ebean.bean.OwnerBeanAware;
+import java.util.ArrayList;
+import java.util.List;
 
 @DocStore
 @Inheritance
 @JsonSerialize(using = EbeanJsonSerializer.class)
 @JsonDeserialize(using = EbeanJsonDeserializer.class)
-public abstract class Report implements OwnerBeanAware {
-  
+public abstract class Report {
+
   private String title;
 
   @OneToMany
@@ -26,7 +24,7 @@ public abstract class Report implements OwnerBeanAware {
 
   @OneToMany
   private List<ReportComment> comments = new ArrayList<>();
-  
+
   @Transient
   @JsonIgnore
   private Object parentBean;
@@ -38,7 +36,7 @@ public abstract class Report implements OwnerBeanAware {
   @Transient
   @JsonIgnore
   private Object additionalKey;
-  
+
   public void setTitle(String title) {
     this.title = title;
   }
@@ -63,13 +61,6 @@ public abstract class Report implements OwnerBeanAware {
     this.comments = comments;
   }
 
-  @Override
-  public void setOwnerBeanInfo(Object parent, String propertyName, Object additionalKey) {
-    this.parentBean = parent;
-    this.propertyName = propertyName;
-    this.additionalKey = additionalKey;
-  }
-
   public Object getParentBean() {
     return parentBean;
   }
@@ -77,7 +68,7 @@ public abstract class Report implements OwnerBeanAware {
   public String getPropertyName() {
     return propertyName;
   }
-  
+
   public Object getAdditionalKey() {
     return additionalKey;
   }
