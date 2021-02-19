@@ -3,4 +3,4 @@ profile-location: true
 entity-packages: org,misc
 transactional-packages: org
 querybean-packages: none
-
+post-json-getter: org.tests.model.docstore.OwnerBeanAware

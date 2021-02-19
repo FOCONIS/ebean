@@ -7,7 +7,6 @@ import org.tests.model.basic.Customer;
 
 import io.ebean.annotation.DocStore;
 import io.ebean.annotation.JsonIgnore;
-import io.ebean.bean.OwnerBeanAware;
 
 @DocStore
 public class ReportComment implements OwnerBeanAware {

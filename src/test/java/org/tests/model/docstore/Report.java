@@ -11,22 +11,22 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import io.ebean.annotation.DocStore;
 import io.ebean.annotation.JsonIgnore;
-import io.ebean.bean.OwnerBeanAware;
 
 @DocStore
 @Inheritance
 @JsonSerialize(using = EbeanJsonSerializer.class)
 @JsonDeserialize(using = EbeanJsonDeserializer.class)
 public abstract class Report implements OwnerBeanAware {
-  
+
   private String title;
 
   @OneToMany
   private List<Report> embeddedReports;
 
   @OneToMany
+  //@DbJson
   private List<ReportComment> comments = new ArrayList<>();
-  
+
   @Transient
   @JsonIgnore
   private Object parentBean;
@@ -38,7 +38,7 @@ public abstract class Report implements OwnerBeanAware {
   @Transient
   @JsonIgnore
   private Object additionalKey;
-  
+
   public void setTitle(String title) {
     this.title = title;
   }
@@ -77,7 +77,7 @@ public abstract class Report implements OwnerBeanAware {
   public String getPropertyName() {
     return propertyName;
   }
-  
+
   public Object getAdditionalKey() {
     return additionalKey;
   }

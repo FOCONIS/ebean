@@ -2,11 +2,9 @@ package io.ebeaninternal.server.deploy;
 
 import com.fasterxml.jackson.core.JsonToken;
 import io.ebean.ValuePair;
-import io.ebean.bean.BeanCollection;
 import io.ebean.bean.EntityBean;
 import io.ebean.bean.EntityBeanIntercept;
 import io.ebean.bean.MutableValueInfo;
-import io.ebean.bean.OwnerBeanAware;
 import io.ebean.bean.PersistenceContext;
 import io.ebean.config.EncryptKey;
 import io.ebean.config.dbplatform.DbEncryptFunction;
@@ -59,7 +57,6 @@ import java.sql.Types;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 /**
@@ -797,29 +794,6 @@ public class BeanProperty implements ElPropertyValue, Property, STreeProperty {
    */
   public void setValue(EntityBean bean, Object value) {
     try {
-      if (value instanceof OwnerBeanAware) {
-        ((OwnerBeanAware) value).setOwnerBeanInfo(bean, getName(), null);
-
-      } else if (value instanceof BeanCollection) {
-        // NOP
-
-      } else if (value instanceof Collection) {
-        int i = 0;
-        for (Object entry : (Collection<?>) value) {
-          if (entry instanceof OwnerBeanAware) {
-            ((OwnerBeanAware) entry).setOwnerBeanInfo(bean, getName(), i);
-          }
-          i++;
-        }
-
-      } else if (value instanceof Map) {
-        for (Entry<?,?> entry : ((Map<?,?>) value).entrySet()) {
-          if (entry.getValue() instanceof OwnerBeanAware) {
-            ((OwnerBeanAware) entry.getValue()).setOwnerBeanInfo(bean, getName(), entry.getKey());
-          }
-        }
-      }
-
       setter.set(bean, value);
     } catch (Exception ex) {
       throw new RuntimeException(setterErrorMsg(bean, value, "set "), ex);

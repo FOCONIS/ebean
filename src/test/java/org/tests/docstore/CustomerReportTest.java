@@ -67,6 +67,7 @@ public class CustomerReportTest extends BaseTestCase {
 
     assertThat(json).isEqualTo("{\"dtype\":\"CR\","
         + "\"embeddedReports\":[{\"dtype\":\"PR\",\"title\":\"This is a good product\",\"product\":{\"id\":1}}],"
+        + "\"comments\":[{\"comment\":\"bla\"}],"
         + "\"friends\":[{\"id\":2},{\"id\":3}],"
         + "\"customer\":{\"id\":1}}");
 
@@ -138,7 +139,7 @@ public class CustomerReportTest extends BaseTestCase {
 
     comment1 = report.getComments().get(0);
     comment2 = report.getComments().get(1);
-    assertThat(report.getParentBean()).isSameAs(entity);
+    assertThat(entity.getReport().getParentBean()).isSameAs(entity);
     assertThat(comment1.getParentBean()).isSameAs(report);
     assertThat(comment2.getParentBean()).isSameAs(report);
 
@@ -228,6 +229,9 @@ public class CustomerReportTest extends BaseTestCase {
 
     report.setCustomer(customer);
     report.setFriends(Arrays.asList(friend1, friend2));
+    ReportComment comment = new ReportComment();
+    comment.setComment("bla");
+    report.getComments().add(comment);
     return report;
   }
 
