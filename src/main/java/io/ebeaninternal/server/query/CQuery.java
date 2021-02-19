@@ -1,5 +1,6 @@
 package io.ebeaninternal.server.query;
 
+import io.ebean.CancelableQuery;
 import io.ebean.QueryIterator;
 import io.ebean.Version;
 import io.ebean.bean.BeanCollection;
@@ -158,10 +159,6 @@ public class CQuery<T> implements DbReadContext, CancelableQuery, SpiProfileTran
    */
   private PreparedStatement pstmt;
 
-  private boolean cancellable;
-
-  private boolean cancelled;
-
   private String bindLog;
 
   private final CQueryPlan queryPlan;
@@ -297,8 +294,7 @@ public class CQuery<T> implements DbReadContext, CancelableQuery, SpiProfileTran
   @Override
   public void cancel() {
     synchronized (this) {
-      this.cancelled = true;
-      if (pstmt != null && cancellable) {
+      if (pstmt != null) {
         try {
           pstmt.cancel();
         } catch (SQLException e) {
@@ -336,11 +332,8 @@ public class CQuery<T> implements DbReadContext, CancelableQuery, SpiProfileTran
   ResultSet prepareResultSet(boolean forwardOnlyHint) throws SQLException {
 
     synchronized (this) {
-      if (cancelled || query.isCancelled()) {
-        // cancelled before we started
-        cancelled = true;
-        return null;
-      }
+      // cancelled before we started
+      query.checkCancelled();
 
       startNano = System.nanoTime();
 
@@ -365,7 +358,6 @@ public class CQuery<T> implements DbReadContext, CancelableQuery, SpiProfileTran
       } else {
         pstmt = conn.prepareStatement(sql);
       }
-      cancellable = true;
 
       if (query.getTimeout() > 0) {
         pstmt.setQueryTimeout(query.getTimeout());
@@ -377,20 +369,12 @@ public class CQuery<T> implements DbReadContext, CancelableQuery, SpiProfileTran
       DataBind dataBind = queryPlan.bindEncryptedProperties(pstmt, conn);
       bindLog = predicates.bind(dataBind);
     }
-    try {
-    // executeQuery (outside the synchronized block) with canellable = true
-      return pstmt.executeQuery();
-    } finally {
-      synchronized (this) {
-        cancellable = false;
-        if (cancelled || query.isCancelled()) {
-          // cancelled after we executed the query
-          close();
-          cancelled = true;
-          return null;
-        }
-      }
+
+    ResultSet ret = pstmt.executeQuery();
+    synchronized (this) {
+      query.checkCancelled();
     }
+    return ret;
   }
 
   /**
@@ -550,7 +534,8 @@ public class CQuery<T> implements DbReadContext, CancelableQuery, SpiProfileTran
   boolean hasNext() throws SQLException {
 
     synchronized (this) {
-      if (noMoreRows || cancelled) {
+      query.checkCancelled();
+      if (noMoreRows) {
         return false;
       }
       if (hasNextCache) {

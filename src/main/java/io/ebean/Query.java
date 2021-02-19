@@ -176,7 +176,7 @@ import java.util.function.Predicate;
  *
  * @param <T> the type of Entity bean this query will fetch.
  */
-public interface Query<T> {
+public interface Query<T> extends CancelableQuery {
 
   /**
    * For update mode.
@@ -258,15 +258,6 @@ public interface Query<T> {
    * }</pre>
    */
   UpdateQuery<T> asUpdate();
-
-  /**
-   * Cancel the query execution if supported by the underlying database and
-   * driver.
-   * <p>
-   * This must be called from a different thread to the query executor.
-   * </p>
-   */
-  void cancel();
 
   /**
    * Return a copy of the query.

@@ -37,7 +37,7 @@ import java.util.function.Predicate;
  *
  * }</pre>
  */
-public interface DtoQuery<T> {
+public interface DtoQuery<T> extends CancelableQuery {
 
   /**
    * Execute the query returning a list.

@@ -244,7 +244,9 @@ public class CQueryEngine {
 
     } catch (SQLException e) {
       try {
-        throw cquery.createPersistenceException(e);
+        PersistenceException pex = cquery.createPersistenceException(e);
+        cquery.close(); // close only when exception occurs
+        throw pex;
       } finally {
         request.rollbackTransIfRequired();
       }
@@ -342,6 +344,7 @@ public class CQueryEngine {
    */
   public <T> SpiResultSet findResultSet(OrmQueryRequest<T> request) {
     CQuery<T> cquery = queryBuilder.buildQuery(request);
+    request.setCancelableQuery(cquery);
     try {
       boolean fwdOnly;
       if (request.isFindIterate()) {
