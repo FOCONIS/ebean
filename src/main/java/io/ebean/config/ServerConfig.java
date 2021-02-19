@@ -1,6 +1,8 @@
 package io.ebean.config;
 
 import com.fasterxml.jackson.core.JsonFactory;
+
+import io.ebean.BackgroundExecutorWrapper;
 import io.ebean.DatabaseFactory;
 import io.ebean.PersistenceContextScope;
 import io.ebean.Query;
@@ -455,6 +457,8 @@ public class ServerConfig {
 
   private int backgroundExecutorSchedulePoolSize = 1;
   private int backgroundExecutorShutdownSecs = 30;
+
+  private BackgroundExecutorWrapper backgroundExecutorWrapper;
 
   // defaults for the L2 bean caching
 
@@ -1480,6 +1484,20 @@ public class ServerConfig {
    */
   public void setBackgroundExecutorShutdownSecs(int backgroundExecutorShutdownSecs) {
     this.backgroundExecutorShutdownSecs = backgroundExecutorShutdownSecs;
+  }
+
+  /**
+   * Return the Background executor wrapper. The wrapper can be used to transfer threadLocals.
+   */
+  public BackgroundExecutorWrapper getBackgroundExecutorWrapper() {
+    return backgroundExecutorWrapper;
+  }
+
+  /**
+   * Sets the Background executor wrapper. The wrapper can be used to transfer threadLocals.
+   */
+  public void setBackgroundExecutorWrapper(BackgroundExecutorWrapper backgroundExecutorWrapper) {
+    this.backgroundExecutorWrapper = backgroundExecutorWrapper;
   }
 
   /**
@@ -3000,6 +3018,8 @@ public class ServerConfig {
 
     backgroundExecutorSchedulePoolSize = p.getInt("backgroundExecutorSchedulePoolSize", backgroundExecutorSchedulePoolSize);
     backgroundExecutorShutdownSecs = p.getInt("backgroundExecutorShutdownSecs", backgroundExecutorShutdownSecs);
+    backgroundExecutorWrapper = p.createInstance(BackgroundExecutorWrapper.class, "backgroundExecutorWrapper", backgroundExecutorWrapper);
+
     disableClasspathSearch = p.getBoolean("disableClasspathSearch", disableClasspathSearch);
     currentUserProvider = p.createInstance(CurrentUserProvider.class, "currentUserProvider", currentUserProvider);
     databasePlatform = p.createInstance(DatabasePlatform.class, "databasePlatform", databasePlatform);

@@ -1,11 +1,10 @@
 package io.ebeaninternal.server.core;
 
+import io.ebean.BackgroundExecutorWrapper;
 import io.ebeaninternal.api.SpiBackgroundExecutor;
 import io.ebeaninternal.server.lib.DaemonExecutorService;
 import io.ebeaninternal.server.lib.DaemonScheduleThreadPool;
-import org.slf4j.MDC;
 
-import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -19,12 +18,15 @@ public class DefaultBackgroundExecutor implements SpiBackgroundExecutor {
 
   private final DaemonExecutorService pool;
 
+  private final BackgroundExecutorWrapper executionWrapper;
+
   /**
    * Construct the default implementation of BackgroundExecutor.
    */
-  public DefaultBackgroundExecutor(int schedulePoolSize, int shutdownWaitSeconds, String namePrefix) {
+  public DefaultBackgroundExecutor(int schedulePoolSize, int shutdownWaitSeconds, String namePrefix, BackgroundExecutorWrapper executionWrapper) {
     this.pool = new DaemonExecutorService(shutdownWaitSeconds, namePrefix);
     this.schedulePool = new DaemonScheduleThreadPool(schedulePoolSize, shutdownWaitSeconds, namePrefix + "-periodic-");
+    this.executionWrapper = executionWrapper;
   }
 
   /**
@@ -32,74 +34,26 @@ public class DefaultBackgroundExecutor implements SpiBackgroundExecutor {
    */
   @Override
   public void execute(Runnable r) {
-    final Map<String, String> map = MDC.getCopyOfContextMap();
-
-    if (map == null) {
-      pool.execute(r);
-    } else {
-      pool.execute(() -> {
-        MDC.setContextMap(map);
-        try {
-          r.run();
-        } finally {
-          MDC.clear();
-        }
-      });
-    }
+    Runnable wrapped = executionWrapper == null ? r : executionWrapper.wrap(r);
+    pool.execute(wrapped);
   }
 
   @Override
   public void executePeriodically(Runnable r, long delay, TimeUnit unit) {
-    final Map<String, String> map = MDC.getCopyOfContextMap();
-
-    if (map == null) {
-      schedulePool.scheduleWithFixedDelay(r, delay, delay, unit);
-    } else {
-      schedulePool.scheduleWithFixedDelay(() -> {
-        MDC.setContextMap(map);
-        try {
-          r.run();
-        } finally {
-          MDC.clear();
-        }
-      }, delay, delay, unit);
-    }
+    Runnable wrapped = executionWrapper == null ? r : executionWrapper.wrap(r);
+    schedulePool.scheduleWithFixedDelay(wrapped, delay, delay, unit);
   }
 
   @Override
   public ScheduledFuture<?> schedule(Runnable r, long delay, TimeUnit unit) {
-    final Map<String, String> map = MDC.getCopyOfContextMap();
-
-    if (map == null) {
-      return schedulePool.schedule(r, delay, unit);
-    } else {
-      return schedulePool.schedule(() -> {
-        MDC.setContextMap(map);
-        try {
-          r.run();
-        } finally {
-          MDC.clear();
-        }
-      }, delay, unit);
-    }
+    Runnable wrapped = executionWrapper == null ? r : executionWrapper.wrap(r);
+    return schedulePool.schedule(wrapped, delay, unit);
   }
 
   @Override
   public <V> ScheduledFuture<V> schedule(Callable<V> c, long delay, TimeUnit unit) {
-    final Map<String, String> map = MDC.getCopyOfContextMap();
-
-    if (map == null) {
-      return schedulePool.schedule(c, delay, unit);
-    } else {
-      return schedulePool.schedule(() -> {
-        MDC.setContextMap(map);
-        try {
-          return c.call();
-        } finally {
-          MDC.clear();
-        }
-      }, delay, unit);
-    }
+    Callable<V> wrapped = executionWrapper == null ? c : executionWrapper.wrap(c);
+    return schedulePool.schedule(wrapped, delay, unit);
   }
 
   @Override
