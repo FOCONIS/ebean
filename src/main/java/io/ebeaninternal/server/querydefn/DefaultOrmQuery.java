@@ -54,7 +54,6 @@ import io.ebeaninternal.server.deploy.TableJoin;
 import io.ebeaninternal.server.expression.DefaultExpressionList;
 import io.ebeaninternal.server.expression.IdInExpression;
 import io.ebeaninternal.server.expression.SimpleExpression;
-import io.ebeaninternal.server.query.CancelableQuery;
 import io.ebeaninternal.server.query.NativeSqlQueryPlanKey;
 import io.ebeaninternal.server.rawsql.SpiRawSql;
 import io.ebeaninternal.server.transaction.ExternalJdbcTransaction;
@@ -75,7 +74,7 @@ import java.util.function.Predicate;
 /**
  * Default implementation of an Object Relational query.
  */
-public class DefaultOrmQuery<T> implements SpiQuery<T> {
+public class DefaultOrmQuery<T> extends AbstractQuery implements SpiQuery<T> {
 
   private static final String DEFAULT_QUERY_NAME = "default";
 
@@ -104,10 +103,6 @@ public class DefaultOrmQuery<T> implements SpiQuery<T> {
   private TableJoin m2mIncludeJoin;
 
   private ProfilingListener profilingListener;
-
-  private boolean cancelled;
-
-  private CancelableQuery cancelableQuery;
 
   private Type type;
 
@@ -1413,6 +1408,7 @@ public class DefaultOrmQuery<T> implements SpiQuery<T> {
     return fetch(property, null, FETCH_QUERY);
   }
 
+  @Override
   public Query<T> fetchCache(String property) {
     return fetch(property, null, FETCH_CACHE);
   }
@@ -1965,13 +1961,6 @@ public class DefaultOrmQuery<T> implements SpiQuery<T> {
   }
 
   @Override
-  public void setCancelableQuery(CancelableQuery cancelableQuery) {
-    synchronized (this) {
-      this.cancelableQuery = cancelableQuery;
-    }
-  }
-
-  @Override
   public Query<T> setBaseTable(String baseTable) {
     this.baseTable = baseTable;
     return this;
@@ -1991,23 +1980,6 @@ public class DefaultOrmQuery<T> implements SpiQuery<T> {
   @Override
   public String getAlias() {
     return rootTableAlias;
-  }
-
-  @Override
-  public void cancel() {
-    synchronized (this) {
-      cancelled = true;
-      if (cancelableQuery != null) {
-        cancelableQuery.cancel();
-      }
-    }
-  }
-
-  @Override
-  public boolean isCancelled() {
-    synchronized (this) {
-      return cancelled;
-    }
   }
 
   @Override
