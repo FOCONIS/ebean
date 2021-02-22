@@ -19,6 +19,8 @@ import io.ebean.DtoQuery;
 import io.ebean.Query;
 import io.ebean.QueryIterator;
 import io.ebean.SqlQuery;
+import io.ebean.annotation.ForPlatform;
+import io.ebean.annotation.Platform;
 
 public class SqlQueryCancelTest extends BaseTestCase {
 
@@ -29,6 +31,7 @@ public class SqlQueryCancelTest extends BaseTestCase {
       DB.save(model);
     }
   }
+
   @Test
   public void cancelSqlQueryAtBegin() {
 
@@ -40,6 +43,7 @@ public class SqlQueryCancelTest extends BaseTestCase {
         .hasMessageContaining("Query was cancelled");
   }
 
+  @ForPlatform(Platform.H2)
   @Test
   public void cancelSqlDuringRun() throws SQLException {
 
@@ -61,6 +65,7 @@ public class SqlQueryCancelTest extends BaseTestCase {
         .hasMessageContaining("Query was cancelled");
   }
 
+  @ForPlatform(Platform.H2)
   @Test
   public void cancelOrmDuringRun() throws SQLException {
 
@@ -70,6 +75,7 @@ public class SqlQueryCancelTest extends BaseTestCase {
       .isInstanceOf(PersistenceException.class)
       .hasCauseInstanceOf(org.h2.jdbc.JdbcSQLTimeoutException.class);
   }
+
   @Test
   public void cancelOrmDuringIterate() throws SQLException {
 
@@ -106,6 +112,7 @@ public class SqlQueryCancelTest extends BaseTestCase {
       this.status = status;
     }
   }
+
   @Test
   public void cancelOrmDtoQueryAtBegin() {
 
@@ -116,6 +123,7 @@ public class SqlQueryCancelTest extends BaseTestCase {
         .hasMessageContaining("Query was cancelled");
   }
 
+  @ForPlatform(Platform.H2)
   @Test
   public void cancelOrmDtoDuringRun() throws SQLException {
 
@@ -136,6 +144,7 @@ public class SqlQueryCancelTest extends BaseTestCase {
         .hasMessageContaining("Query was cancelled");
   }
 
+  @ForPlatform(Platform.H2)
   @Test
   public void cancelSqlDtoDuringRun() throws SQLException {
 
