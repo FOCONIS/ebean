@@ -61,5 +61,25 @@ public class DefaultServerCacheTest {
     assertEquals(0, cache.size());
   }
 
-
+//  @Test
+//  public void testMemLimit() {
+//
+//    DefaultServerCache cache = createCache();
+//
+//    for (int i = 0; i < 100000; i++) {
+//      cache.put("key"+i, bigStrings());
+//      if (i % 100 == 0) {
+//        cache.runEviction();
+//        System.out.println(i);
+//      }
+//    }
+//  }
+//
+//  private List<String> bigStrings() {
+//    List<String> ret = new ArrayList<>();
+//    for (int i = 0; i < 10000; i++) {
+//      ret.add("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa " +i);
+//    }
+//    return ret;
+//  }
 }
