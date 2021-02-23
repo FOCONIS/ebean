@@ -70,9 +70,7 @@ class ElFilterNode<T> implements Filter<T>, ElMatcher<T> {
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder();
-    toString(sb);
-    return sb.toString();
+    return elFilter.toString();
   }
 
   @Override
