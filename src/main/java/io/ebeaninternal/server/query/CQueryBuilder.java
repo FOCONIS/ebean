@@ -681,6 +681,9 @@ class CQueryBuilder {
     }
 
     String dbWhere = predicates.getDbWhere();
+    if (stripAlias) {
+      dbWhere = StringHelper.replaceString(dbWhere, "t0.", "");
+    }
     if (hasValue(dbWhere)) {
       if (!hasWhere) {
         hasWhere = true;
