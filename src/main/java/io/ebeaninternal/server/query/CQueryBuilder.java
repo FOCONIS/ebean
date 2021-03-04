@@ -688,6 +688,9 @@ class CQueryBuilder {
       } else {
         sb.append(" and ");
       }
+      if (stripAlias) {
+        dbWhere = StringHelper.replaceString(dbWhere, "t0.", "");
+      }
       sb.append(dbWhere);
     }
 
