@@ -681,15 +681,15 @@ class CQueryBuilder {
     }
 
     String dbWhere = predicates.getDbWhere();
-    if (stripAlias) {
-      dbWhere = StringHelper.replaceString(dbWhere, "t0.", "");
-    }
     if (hasValue(dbWhere)) {
       if (!hasWhere) {
         hasWhere = true;
         sb.append(" where ");
       } else {
         sb.append(" and ");
+      }
+      if (stripAlias) {
+        dbWhere = StringHelper.replaceString(dbWhere, "t0.", "");
       }
       sb.append(dbWhere);
     }
