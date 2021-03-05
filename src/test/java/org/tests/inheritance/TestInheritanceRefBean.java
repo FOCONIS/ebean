@@ -10,6 +10,7 @@ import org.tests.inherit.Parent;
 import org.junit.Test;
 
 import io.ebean.BaseTestCase;
+import io.ebean.Ebean;
 
 public class TestInheritanceRefBean extends BaseTestCase {
 
@@ -35,6 +36,8 @@ public class TestInheritanceRefBean extends BaseTestCase {
       assertTrue(test instanceof ChildB);
       assertEquals(1, LoggedSqlCollector.stop().size());
 
+      Ebean.delete(a);
+      Ebean.delete(b);
 
     }
 }

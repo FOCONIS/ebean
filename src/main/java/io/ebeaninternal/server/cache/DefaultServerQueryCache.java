@@ -1,5 +1,7 @@
 package io.ebeaninternal.server.cache;
 
+import java.lang.ref.Reference;
+
 import io.ebean.cache.QueryCacheEntry;
 import io.ebean.cache.QueryCacheEntryValidate;
 
@@ -27,7 +29,11 @@ public class DefaultServerQueryCache extends DefaultServerCache {
   @Override
   protected CacheEntry getCacheEntry(Object id) {
     Object key = key(id);
-    CacheEntry entry = map.get(key);
+    Reference<CacheEntry> ref = map.get(key);
+    if (ref == null) {
+      return null;
+    }
+    CacheEntry entry = ref.get();
     if (entry == null) {
       return null;
     }

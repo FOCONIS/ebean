@@ -6,6 +6,7 @@ import org.tests.inherit.ChildA;
 import org.tests.inherit.ChildB;
 import org.tests.inherit.Data;
 import org.tests.inherit.Parent;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -18,13 +19,14 @@ import static org.junit.Assert.assertNotNull;
 public class ParentQueryTest extends BaseTestCase {
 
   @Before
+  @After
   public void clearDb() {
     Ebean.deleteAll(Ebean.find(Data.class).findList());
     //@rob: this does not work as it does not clear the ManyToMany relations.
-    //Ebean.find(Data.class).delete(); 
+    //Ebean.find(Data.class).delete();
     Ebean.find(Parent.class).delete();
   }
-  
+
   @Test
   public void QueryParentCollectionFetch() {
 

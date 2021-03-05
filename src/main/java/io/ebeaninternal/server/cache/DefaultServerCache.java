@@ -11,6 +11,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
+import java.lang.ref.Reference;
+import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -39,7 +41,7 @@ public class DefaultServerCache implements ServerCache {
   /**
    * The underlying map (ConcurrentHashMap or similar)
    */
-  protected final Map<Object, CacheEntry> map;
+  protected final Map<Object, Reference<CacheEntry>> map;
 
   protected final CountMetric hitCount;
   protected final CountMetric missCount;
@@ -201,7 +203,8 @@ public class DefaultServerCache implements ServerCache {
    * Get the cache entry - override for query cache to validate dependent tables.
    */
   protected CacheEntry getCacheEntry(Object id) {
-    return map.get(key(id));
+    Reference<CacheEntry> ref = map.get(key(id));
+    return ref == null ? null : ref.get();
   }
 
   @Override
@@ -215,7 +218,7 @@ public class DefaultServerCache implements ServerCache {
   @Override
   public void put(Object id, Object value) {
     Object key = key(id);
-    map.put(key, new CacheEntry(key, value));
+    map.put(key, new SoftReference<>(new CacheEntry(key, value)));
     putCount.increment();
   }
 
@@ -224,8 +227,8 @@ public class DefaultServerCache implements ServerCache {
    */
   @Override
   public void remove(Object id) {
-    CacheEntry entry = map.remove(key(id));
-    if (entry != null) {
+    Reference<CacheEntry> entry = map.remove(key(id));
+    if (entry != null && entry.get() != null) {
       removeCount.increment();
     }
   }
@@ -260,14 +263,15 @@ public class DefaultServerCache implements ServerCache {
       trimForMaxSize = size() - maxSize;
     }
 
-    if (maxIdleSecs == 0 && maxSecsToLive == 0 && trimForMaxSize < 0) {
-      // nothing to trim on this cache
-      return;
-    }
+//    if (maxIdleSecs == 0 && maxSecsToLive == 0 && trimForMaxSize < 0) {
+//      // nothing to trim on this cache
+//      return;
+//    }
 
     long startNanos = System.nanoTime();
 
     long trimmedByIdle = 0;
+    long trimmedByGC = 0;
     long trimmedByTTL = 0;
     long trimmedByLRU = 0;
 
@@ -276,10 +280,14 @@ public class DefaultServerCache implements ServerCache {
     long idleExpireNano = startNanos - TimeUnit.SECONDS.toNanos(maxIdleSecs);
     long ttlExpireNano = startNanos - TimeUnit.SECONDS.toNanos(maxSecsToLive);
 
-    Iterator<CacheEntry> it = map.values().iterator();
+    Iterator<Reference<CacheEntry>> it = map.values().iterator();
     while (it.hasNext()) {
-      CacheEntry cacheEntry = it.next();
-      if (maxIdleSecs > 0 && idleExpireNano > cacheEntry.getLastAccessTime()) {
+      Reference<CacheEntry> cacheEntryRef = it.next();
+      CacheEntry cacheEntry = cacheEntryRef.get();
+      if (cacheEntry == null) {
+        it.remove();
+        trimmedByGC++;
+      } else if (maxIdleSecs > 0 && idleExpireNano > cacheEntry.getLastAccessTime()) {
         it.remove();
         trimmedByIdle++;
 
@@ -293,14 +301,15 @@ public class DefaultServerCache implements ServerCache {
     }
 
     if (trimForMaxSize > 0) {
-      trimmedByLRU = activeList.size() - maxSize;
-      if (trimmedByLRU > 0) {
+      if (activeList.size() > maxSize) {
         // sort into last access time ascending
         activeList.sort(BY_LAST_ACCESS);
         int trimSize = getTrimSize();
         for (int i = trimSize; i < activeList.size(); i++) {
           // remove if still in the cache
-          map.remove(activeList.get(i).getKey());
+          if (map.remove(activeList.get(i).getKey()) != null) {
+            trimmedByLRU++;
+          }
         }
       }
     }
@@ -308,11 +317,12 @@ public class DefaultServerCache implements ServerCache {
     evictCount.add(trimmedByIdle);
     evictCount.add(trimmedByTTL);
     evictCount.add(trimmedByLRU);
+    evictCount.add(trimmedByGC);
 
     if (logger.isTraceEnabled()) {
       long exeMicros = TimeUnit.MICROSECONDS.convert(System.nanoTime() - startNanos, TimeUnit.NANOSECONDS);
-      logger.trace("Executed trim of cache {} in [{}]millis idle[{}] timeToLive[{}] accessTime[{}]"
-        , name, exeMicros, trimmedByIdle, trimmedByTTL, trimmedByLRU);
+      logger.trace("Executed trim of cache {} in [{}]millis idle[{}] timeToLive[{}] accessTime[{}] gc[{}]"
+        , name, exeMicros, trimmedByIdle, trimmedByTTL, trimmedByLRU, trimmedByGC);
     }
   }
 

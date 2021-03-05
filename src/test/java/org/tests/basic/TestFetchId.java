@@ -59,4 +59,20 @@ public class TestFetchId extends BaseTestCase {
     List<Object> idList = futureIds.get();
     assertThat(idList).isNotEmpty();
   }
+  @Test
+  public void testFetchIdWithOrderFormula() throws InterruptedException, ExecutionException {
+
+  //  ResetBasicData.reset();
+
+    Query<Order> query = Ebean.find(Order.class)
+        //.where().eq("customer.name", "bla").query()
+        //.where().gt("totalItems",0).query()
+        //.having().gt("totalItems",0).query()
+        .orderBy("totalItems")
+        ;
+    query.findList();
+    System.out.println(query.getGeneratedSql());
+    //query.findIds();
+
+  }
 }
