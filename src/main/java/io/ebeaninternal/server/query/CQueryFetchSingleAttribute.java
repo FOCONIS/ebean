@@ -1,5 +1,6 @@
 package io.ebeaninternal.server.query;
 
+import io.ebean.CancelableQuery;
 import io.ebean.CountedValue;
 import io.ebean.util.JdbcClose;
 import io.ebeaninternal.api.SpiProfileTransactionEvent;
@@ -19,10 +20,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import javax.persistence.PersistenceException;
+
 /**
  * Base compiled query request for single attribute queries.
  */
-class CQueryFetchSingleAttribute implements SpiProfileTransactionEvent {
+class CQueryFetchSingleAttribute implements SpiProfileTransactionEvent, CancelableQuery {
 
   private static final Logger logger = LoggerFactory.getLogger(CQueryFetchSingleAttribute.class);
 
@@ -194,5 +197,19 @@ class CQueryFetchSingleAttribute implements SpiProfileTransactionEvent {
 
   Set<String> getDependentTables() {
     return queryPlan.getDependentTables();
+  }
+
+  @Override
+  public void cancel() {
+    synchronized (this) {
+      if (pstmt != null) {
+        try {
+          pstmt.cancel();
+        } catch (SQLException e) {
+          String msg = "Error cancelling query";
+          throw new PersistenceException(msg, e);
+        }
+      }
+    }
   }
 }

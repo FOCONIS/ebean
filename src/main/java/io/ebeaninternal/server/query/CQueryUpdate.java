@@ -1,5 +1,6 @@
 package io.ebeaninternal.server.query;
 
+import io.ebean.CancelableQuery;
 import io.ebean.util.JdbcClose;
 import io.ebeaninternal.api.SpiProfileTransactionEvent;
 import io.ebeaninternal.api.SpiQuery;
@@ -11,10 +12,12 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
+import javax.persistence.PersistenceException;
+
 /**
  * Executes the delete query.
  */
-class CQueryUpdate implements SpiProfileTransactionEvent {
+class CQueryUpdate implements SpiProfileTransactionEvent, CancelableQuery {
 
   private final CQueryPlan queryPlan;
 
@@ -121,5 +124,19 @@ class CQueryUpdate implements SpiProfileTransactionEvent {
     getTransaction()
       .profileStream()
       .addQueryEvent(query.profileEventId(), profileOffset, desc.getProfileId(), rowCount, query.getProfileId());
+  }
+
+  @Override
+  public void cancel() {
+    synchronized (this) {
+      if (pstmt != null) {
+        try {
+          pstmt.cancel();
+        } catch (SQLException e) {
+          String msg = "Error cancelling query";
+          throw new PersistenceException(msg, e);
+        }
+      }
+    }
   }
 }

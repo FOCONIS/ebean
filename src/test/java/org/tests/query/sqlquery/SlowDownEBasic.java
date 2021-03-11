@@ -23,8 +23,6 @@ public class SlowDownEBasic implements Trigger {
 
   private static boolean triggerInstalled;
 
-  private static int interruptedCount;
-
   @Override
   public void init(final Connection conn, final String schemaName, final String triggerName, final String tableName,
       final boolean before, final int type) {
@@ -35,7 +33,7 @@ public class SlowDownEBasic implements Trigger {
     try {
       Thread.sleep(wait);
     } catch (InterruptedException e) {
-      interruptedCount++;
+      // nop
     }
   }
 
@@ -47,13 +45,9 @@ public class SlowDownEBasic implements Trigger {
   public void remove() {
   }
 
-  public static int getInterruptedCount() {
-    return interruptedCount;
-  }
 
   public static void setSelectWaitMillis(final int wait) throws SQLException {
     SlowDownEBasic.wait = wait;
-    SlowDownEBasic.interruptedCount = 0;
     if (triggerInstalled) {
       return;
     }
