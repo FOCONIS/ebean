@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.sql.SQLException;
+import java.util.function.Consumer;
 
 import javax.persistence.PersistenceException;
 
@@ -26,7 +27,7 @@ public class SqlQueryCancelTest extends BaseTestCase {
 
   @BeforeClass
   public static void setupTestData() {
-    for (int i = 0; i < 1000; i++) {
+    for (int i = 0; i < 128; i++) {
       EBasic model = new EBasic("Basic " + i);
       DB.save(model);
     }
@@ -68,12 +69,25 @@ public class SqlQueryCancelTest extends BaseTestCase {
   @ForPlatform(Platform.H2)
   @Test
   public void cancelOrmDuringRun() throws SQLException {
+    testDuringRun(Query::findList);
+    testDuringRun(Query::findSet);
+    testDuringRun(Query::findMap);
+    testDuringRun(Query::findIds);
+    //testDuringRun(Query::findCount); // We cannot test 'findCount'
+    testDuringRun(Query::findIterate);
+    testDuringRun(Query::findOne);
+    //testDuringRun(Query::findPagedList); untested
+    testDuringRun(Query::findSingleAttribute);
+    testDuringRun(Query::findSingleAttributeList);
+    testDuringRun(q->q.findEach(e->{}));
+  }
 
+  private void testDuringRun(Consumer<Query<EBasic>> test) throws SQLException {
     Query<EBasic> query = DB.find(EBasic.class);
     executeDelayed(query::cancel);
-    assertThatThrownBy(query::findList)
-      .isInstanceOf(PersistenceException.class)
-      .hasCauseInstanceOf(org.h2.jdbc.JdbcSQLTimeoutException.class);
+    assertThatThrownBy(() -> test.accept(query))
+        .isInstanceOf(PersistenceException.class)
+        .hasCauseInstanceOf(org.h2.jdbc.JdbcSQLTimeoutException.class);
   }
 
   @Test
@@ -168,25 +182,5 @@ public class SqlQueryCancelTest extends BaseTestCase {
     }).start();
 
   }
-
-//  @Test
-//  public void findSingleAttributeList_decimal() {
-//
-//    ResetBasicData.reset();
-//
-//    String sql = "select * from o_order_detail";
-//    SqlQuery query = Ebean.createSqlQuery(sql);
-//Thread canceller = new Thread() {
-//  public void run() {
-//    Thread.sleep(200);
-//    query.cancel();
-//  };
-//}
-//
-//    List<BigDecimal> lineAmounts =
-//      .findSingleAttributeList(BigDecimal.class);
-//
-//    assertThat(lineAmounts).isNotEmpty();
-//  }
 
 }

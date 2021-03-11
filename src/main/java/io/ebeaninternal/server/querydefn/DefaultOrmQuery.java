@@ -879,6 +879,7 @@ public class DefaultOrmQuery<T> extends AbstractQuery implements SpiQuery<T> {
     copy.parentNode = parentNode;
     copy.forUpdate = forUpdate;
     copy.rawSql = rawSql;
+    setCancelableQuery(copy); // required to cancel findId query
     return copy;
   }
 

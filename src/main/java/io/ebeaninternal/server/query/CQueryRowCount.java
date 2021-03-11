@@ -1,5 +1,6 @@
 package io.ebeaninternal.server.query;
 
+import io.ebean.CancelableQuery;
 import io.ebean.util.JdbcClose;
 import io.ebeaninternal.api.SpiProfileTransactionEvent;
 import io.ebeaninternal.api.SpiQuery;
@@ -17,7 +18,7 @@ import java.util.Set;
 /**
  * Executes the select row count query.
  */
-class CQueryRowCount implements SpiProfileTransactionEvent {
+class CQueryRowCount implements SpiProfileTransactionEvent, CancelableQuery {
 
   private final CQueryPlan queryPlan;
 
@@ -160,5 +161,19 @@ class CQueryRowCount implements SpiProfileTransactionEvent {
 
   Set<String> getDependentTables() {
     return queryPlan.getDependentTables();
+  }
+
+  @Override
+  public void cancel() {
+    synchronized (this) {
+      if (pstmt != null) {
+        try {
+          pstmt.cancel();
+        } catch (SQLException e) {
+          String msg = "Error cancelling query";
+          throw new PersistenceException(msg, e);
+        }
+      }
+    }
   }
 }

@@ -69,11 +69,13 @@ public class CQueryEngine {
 
   public <T> int delete(OrmQueryRequest<T> request) {
     CQueryUpdate query = queryBuilder.buildUpdateQuery(true, request);
+    request.setCancelableQuery(query);
     return executeUpdate(request, query);
   }
 
   public <T> int update(OrmQueryRequest<T> request) {
     CQueryUpdate query = queryBuilder.buildUpdateQuery(false, request);
+    request.setCancelableQuery(query);
     return executeUpdate(request, query);
   }
 
@@ -100,6 +102,7 @@ public class CQueryEngine {
   public <A> List<A> findSingleAttributeList(OrmQueryRequest<?> request) {
 
     CQueryFetchSingleAttribute rcQuery = queryBuilder.buildFetchAttributeQuery(request);
+    request.setCancelableQuery(rcQuery);
     return findAttributeList(request, rcQuery);
   }
 
@@ -155,6 +158,7 @@ public class CQueryEngine {
   public <A> List<A> findIds(OrmQueryRequest<?> request) {
 
     CQueryFetchSingleAttribute rcQuery = queryBuilder.buildFetchIdsQuery(request);
+    request.setCancelableQuery(rcQuery);
     return findAttributeList(request, rcQuery);
   }
 
@@ -168,6 +172,7 @@ public class CQueryEngine {
   public <T> int findCount(OrmQueryRequest<T> request) {
 
     CQueryRowCount rcQuery = queryBuilder.buildRowCountQuery(request);
+    request.setCancelableQuery(rcQuery);
     try {
 
       int count = rcQuery.findCount();
@@ -272,6 +277,7 @@ public class CQueryEngine {
     query.orderBy().desc(sysPeriodLower);
 
     CQuery<T> cquery = queryBuilder.buildQuery(request);
+    request.setCancelableQuery(cquery);
     try {
       cquery.prepareBindExecuteQuery();
       if (request.isLogSql()) {
@@ -436,6 +442,7 @@ public class CQueryEngine {
 
     CQuery<T> cquery = queryBuilder.buildQuery(request);
 
+    request.setCancelableQuery(cquery);
     try {
       cquery.prepareBindExecuteQuery();
 
