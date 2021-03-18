@@ -22,9 +22,15 @@ class SqlTreeNodeFormulaWhereJoin implements SqlTreeNode {
    */
   private final SqlJoinType manyJoinType;
 
-  SqlTreeNodeFormulaWhereJoin(STreeProperty prop, SqlJoinType manyJoinType) {
+  /**
+   * This is a many where formula join
+   */
+  private final String manyWhere;
+
+  SqlTreeNodeFormulaWhereJoin(STreeProperty prop, SqlJoinType manyJoinType, String manyWhere) {
     this.nodeBeanProp = prop;
     this.manyJoinType = manyJoinType;
+    this.manyWhere = manyWhere;
   }
 
   @Override
@@ -69,7 +75,7 @@ class SqlTreeNodeFormulaWhereJoin implements SqlTreeNode {
   public void appendFrom(DbSqlContext ctx, SqlJoinType currentJoinType) {
     // always use the join type as per this many where join
     // (OUTER for disjunction and otherwise INNER)
-    nodeBeanProp.appendFrom(ctx, manyJoinType);
+    nodeBeanProp.appendFrom(ctx, manyJoinType, manyWhere);
   }
 
   @Override

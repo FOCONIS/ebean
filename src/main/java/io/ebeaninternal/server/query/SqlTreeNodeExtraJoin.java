@@ -31,7 +31,7 @@ class SqlTreeNodeExtraJoin implements SqlTreeNode {
 
   private final boolean pathContainsMany;
 
-  private List<SqlTreeNodeExtraJoin> children;
+  private List<SqlTreeNode> children;
 
   SqlTreeNodeExtraJoin(String prefix, STreePropertyAssoc assocBeanProperty, boolean pathContainsMany) {
     this.prefix = prefix;
@@ -94,7 +94,7 @@ class SqlTreeNodeExtraJoin implements SqlTreeNode {
     return prefix;
   }
 
-  public void addChild(SqlTreeNodeExtraJoin child) {
+  public void addChild(SqlTreeNode child) {
     if (children == null) {
       children = new ArrayList<>();
     }
@@ -141,21 +141,26 @@ class SqlTreeNodeExtraJoin implements SqlTreeNode {
     if (!manyToMany) {
       if (assocBeanProperty.isFormula()) {
         // add joins for formula beans
-        assocBeanProperty.appendFrom(ctx, joinType);
+        assocBeanProperty.appendFrom(ctx, joinType, null);
       }
       joinType = assocBeanProperty.addJoin(joinType, prefix, ctx);
     }
 
     if (children != null) {
+      ctx.pushJoin(prefix);
+      ctx.pushTableAlias(prefix);
 
       if (manyJoin || pathContainsMany) {
         // if AUTO then make all descendants use OUTER JOIN
         joinType = joinType.autoToOuter();
       }
 
-      for (SqlTreeNodeExtraJoin child : children) {
+      for (SqlTreeNode child : children) {
         child.appendFrom(ctx, joinType);
       }
+
+      ctx.popTableAlias();
+      ctx.popJoin();
     }
   }
 

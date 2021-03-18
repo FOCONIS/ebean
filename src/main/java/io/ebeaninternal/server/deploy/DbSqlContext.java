@@ -72,8 +72,8 @@ public interface DbSqlContext {
    * Append a Sql Formula join. This converts the "${ta}" keyword to the current
    * table alias.
    */
-  void appendFormulaJoin(String sqlFormulaJoin, SqlJoinType joinType);
-  
+  void appendFormulaJoin(String sqlFormulaJoin, SqlJoinType joinType, String manyWhere);
+
   /**
    * Returns a list of current columns.
    */

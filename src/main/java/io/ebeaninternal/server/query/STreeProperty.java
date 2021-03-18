@@ -94,6 +94,6 @@ public interface STreeProperty extends ScalarDataReader<Object> {
   /**
    * Append to the from clause.
    */
-  void appendFrom(DbSqlContext ctx, SqlJoinType joinType);
+  void appendFrom(DbSqlContext ctx, SqlJoinType joinType, String manyWhere);
 
 }
