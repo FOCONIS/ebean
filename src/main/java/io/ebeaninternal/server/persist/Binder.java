@@ -173,7 +173,11 @@ public class Binder {
               bindLog.append(value);
             }
           }
-          if (value == null) {
+          if (value instanceof Collection) {
+            for (Object entry: (Collection<?>) value) {
+              bindObject(dataBind, entry);
+            }
+          } else if (value == null) {
             // this doesn't work for query predicates
             bindObject(dataBind, null, param.getType());
           } else {
