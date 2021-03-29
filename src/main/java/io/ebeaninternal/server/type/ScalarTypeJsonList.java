@@ -1,11 +1,11 @@
 package io.ebeaninternal.server.type;
 
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
 import io.ebean.config.dbplatform.DbPlatformType;
 import io.ebean.text.TextException;
 import io.ebean.text.json.EJson;
 import io.ebeanservice.docstore.api.mapping.DocPropertyType;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
 
 import javax.persistence.PersistenceException;
 import java.io.IOException;
@@ -114,9 +114,6 @@ public class ScalarTypeJsonList {
 
     @Override
     public String formatValue(List value) {
-      if (value == null || value.isEmpty()) {
-        return "[]";
-      }
       try {
         return EJson.write(value);
       } catch (IOException e) {
