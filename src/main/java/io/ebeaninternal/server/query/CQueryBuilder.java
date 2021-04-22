@@ -619,8 +619,15 @@ class CQueryBuilder {
         groupByAttribute = groupBySb.toString();
         sb.append(groupByAttribute).append(", count(*) cnt from (select ");
         if (distinct) {
-          sb.append("distinct t0.");
-          sb.append(request.getBeanDescriptor().getIdProperty().getDbColumn()).append(", ");
+          sb.append("distinct ");
+          BeanProperty idProp = request.getBeanDescriptor().getIdProperty();
+          if (idProp.isEmbedded()) {
+            for (BeanProperty prop : ((BeanPropertyAssocOne<?>) idProp).getProperties()) {
+              sb.append("t0.").append(prop.getDbColumn()).append(", ");
+            }
+          } else {
+            sb.append("t0.").append(idProp.getDbColumn()).append(", ");
+          }
         }
         sb.append(subSelectSb.toString());
 

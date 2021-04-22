@@ -24,6 +24,7 @@ import org.tests.model.basic.Customer;
 import org.tests.model.basic.Order;
 import org.tests.model.basic.ResetBasicData;
 import org.tests.model.basic.VwCustomer;
+import org.tests.model.composite.ROrder;
 import org.tests.o2m.OmBasicParent;
 
 import io.ebean.BaseTestCase;
@@ -175,6 +176,31 @@ public class TestQuerySingleAttribute extends BaseTestCase {
     assertThat(attr1list.get(0).getCount()).isEqualTo(2l);
     assertThat(attr1list.get(1).getValue()).isEqualTo("a2");
     assertThat(attr1list.get(1).getCount()).isEqualTo(1l);
+
+
+  }
+
+  @Test
+  public void findSingleAttributeList_with_join_column_composed_key() {
+
+    ResetBasicData.reset();
+
+
+
+    Query<ROrder> query = Ebean.find(ROrder.class)
+      .fetch("customer", "description")
+      .setDistinct(true)
+      .setCountDistinct(CountDistinctOrder.COUNT_DESC_ATTR_ASC)
+      .where().query();
+
+    query.findSingleAttributeList();
+
+    assertThat(sqlOf(query)).contains("select r1.attribute_1, count(*) cnt"
+        + " from (select distinct t0.company, t0.order_number, t1.description attribute_1 from r_orders t0"
+        + " left join rcustomer t1 on t1.company = t0.company and t1.name = t0.customername ) r1"
+        + " group by r1.attribute_1"
+        + " order by count(*) desc, r1.attribute_1");
+
 
 
   }
