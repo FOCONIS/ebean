@@ -1,6 +1,5 @@
 package io.ebeaninternal.server.expression;
 
-import io.ebean.QueryDsl;
 import io.ebean.event.BeanQueryRequest;
 import io.ebeaninternal.api.ManyWhereJoins;
 import io.ebeaninternal.api.NaturalKeyQueryData;
@@ -137,18 +136,5 @@ class ExistsQueryExpression implements SpiExpression, UnsupportedDocStoreExpress
   @Override
   public void validate(SpiExpressionValidation validation) {
     // Nothing to do for exists expression
-  }
-
-  @Override
-  public <F extends QueryDsl<?, F>> void visitDsl(BeanDescriptor<?> desc, QueryDsl<?, F> target) {
-    if (subQuery != null) {
-      if (not) {
-        target.notExists(subQuery);
-      } else {
-        target.exists(subQuery);
-      }
-    } else {
-      SpiExpression.super.visitDsl(desc, target);
-    }
   }
 }

@@ -43,9 +43,4 @@ class ONamedParam implements SpiNamedParam {
       throw new PersistenceException("Named parameter [" + name + "] has not had it's value set.");
     }
   }
-
-  @Override
-  public String toString() {
-    return name;
-  }
 }

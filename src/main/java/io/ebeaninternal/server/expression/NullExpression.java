@@ -6,7 +6,6 @@ import io.ebeaninternal.api.SpiExpression;
 import io.ebeaninternal.api.SpiExpressionRequest;
 import io.ebeaninternal.server.deploy.BeanDescriptor;
 import io.ebeaninternal.server.el.ElPropertyValue;
-import io.ebean.QueryDsl;
 
 import java.io.IOException;
 
@@ -97,14 +96,5 @@ class NullExpression extends AbstractExpression {
   @Override
   public int queryBindHash() {
     return (notNull ? 1 : 0);
-  }
-
-  @Override
-  public <F extends QueryDsl<?,F>> void visitDsl(BeanDescriptor<?> desc, QueryDsl<?, F> target) {
-    if (notNull) {
-      target.isNotNull(propName);
-    } else {
-      target.isNull(propName);
-    }
   }
 }

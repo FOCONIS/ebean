@@ -16,9 +16,6 @@ import io.ebean.util.SplitName;
 import io.ebean.util.StringHelper;
 import io.ebeaninternal.api.SpiExpressionRequest;
 import io.ebeaninternal.api.SpiQuery;
-import io.ebeaninternal.api.filter.Expression3VL;
-import io.ebeaninternal.api.filter.ExpressionTest;
-import io.ebeaninternal.api.filter.FilterContext;
 import io.ebeaninternal.api.json.SpiJsonReader;
 import io.ebeaninternal.api.json.SpiJsonWriter;
 import io.ebeaninternal.server.core.InternString;
@@ -968,15 +965,6 @@ public class BeanProperty implements ElPropertyValue, Property, STreeProperty {
     return getValueIntercept((EntityBean) bean);
   }
 
-  @Override
-  public Expression3VL pathTest(Object bean, FilterContext ctx, ExpressionTest test) {
-    Object value = pathGet(bean);
-    if (value == null) {
-      return test.testNull();
-    } else {
-      return test.test(value);
-    }
-  }
   @Override
   public Object pathGetNested(Object bean) {
     throw new RuntimeException("Not expected to call this");

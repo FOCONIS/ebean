@@ -4,9 +4,6 @@ import io.ebean.bean.EntityBean;
 import io.ebean.plugin.Property;
 import io.ebean.text.StringParser;
 import io.ebeaninternal.api.SpiExpressionRequest;
-import io.ebeaninternal.api.filter.Expression3VL;
-import io.ebeaninternal.api.filter.ExpressionTest;
-import io.ebeaninternal.api.filter.FilterContext;
 import io.ebeaninternal.server.el.ElPropertyValue;
 
 /**
@@ -227,11 +224,6 @@ public final class BeanFkeyProperty implements ElPropertyValue {
   @Override
   public Object pathGetNested(Object bean) {
     throw new RuntimeException("ElPropertyDeploy only - not implemented");
-  }
-
-  @Override
-  public Expression3VL pathTest(Object bean, FilterContext ctx, ExpressionTest test) {
-   throw new RuntimeException("ElPropertyDeploy only - not implemented");
   }
 
   @Override

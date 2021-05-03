@@ -1,10 +1,8 @@
 package io.ebeaninternal.server.expression;
 
 import io.ebean.LikeType;
-import io.ebean.QueryDsl;
 import io.ebeaninternal.api.SpiExpression;
 import io.ebeaninternal.api.SpiExpressionRequest;
-import io.ebeaninternal.server.deploy.BeanDescriptor;
 import io.ebeaninternal.server.el.ElPropertyValue;
 
 import java.io.IOException;
@@ -64,11 +62,6 @@ class NativeILikeExpression extends AbstractExpression {
   public boolean isSameByBind(SpiExpression other) {
     NativeILikeExpression that = (NativeILikeExpression) other;
     return val.equals(that.val);
-  }
-
-  @Override
-  public <F extends QueryDsl<?,F>> void visitDsl(BeanDescriptor<?> desc, QueryDsl<?, F> target) {
-    target.ilike(propName, val);
   }
 
 }

@@ -880,7 +880,7 @@ public interface Query<T> extends CancelableQuery {
    * Sets the class to use for counting distinct values.
    */
   Query<T> setCountDistinctDto(Class<?> dtoClass);
-  
+
   /**
    * Returns the class to use for counting distinct values.
    */
@@ -1062,7 +1062,7 @@ public interface Query<T> extends CancelableQuery {
 
   @Nonnull
   <A> FutureSingleAttributeList<T, A> findFutureSingleAttributeList();
-  
+
   /**
    * Execute find list query in a background thread.
    * <p>
@@ -1679,14 +1679,5 @@ public interface Query<T> extends CancelableQuery {
    * this query provides a deterministic result.
    */
   Query<T> orderById(boolean orderById);
-
-
-  /**
-   * Returns the query as filter. This can be used for in memory filtering.
-   *
-   * Note, that this function is very limited. It cannot convert complex queries, that use aggregation
-   * or raw sql.
-   */
-  Filter<T> filter();
 
 }
