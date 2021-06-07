@@ -6,7 +6,7 @@ import io.ebeaninternal.server.deploy.BeanPropertyAssocOne;
 
 /**
  * Used to help mark PropertyVisitor methods that need to be implemented
- * to visit base table properties.
+ * to visitExpression base table properties.
  */
 public abstract class BaseTablePropertyVisitor implements BeanPropertyVisitor {
 

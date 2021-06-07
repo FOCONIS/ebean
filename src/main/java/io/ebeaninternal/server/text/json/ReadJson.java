@@ -211,7 +211,7 @@ public class ReadJson implements SpiJsonReader {
 
   /**
    * If there is a JsonReadBeanVisitor registered to the current path then
-   * call it's visit method with the bean and unmappedProperties.
+   * call it's visitExpression method with the bean and unmappedProperties.
    */
   @Override
   @SuppressWarnings({ "unchecked", "rawtypes" })

@@ -1,5 +1,6 @@
 package io.ebeaninternal.server.expression;
 
+import io.ebean.QueryVisitor;
 import io.ebeaninternal.api.SpiExpression;
 import io.ebeaninternal.api.SpiExpressionRequest;
 
@@ -113,6 +114,41 @@ class JsonPathExpression extends AbstractExpression {
     if (upperValue != null) {
       // upperValue only for BETWEEN operator
       request.addBindValue(upperValue);
+    }
+  }
+
+  @Override
+  public void visitExpression(final QueryVisitor<?> target) {
+    switch (operator) {
+      case EXISTS:
+        target.jsonExists(propName, path);
+        break;
+      case NOT_EXISTS:
+        target.jsonNotExists(propName, path);
+        break;
+      case BETWEEN:
+        target.jsonBetween(propName, path, value, upperValue);
+        break;
+      case EQ:
+        target.jsonEqualTo(propName, path, value);
+        break;
+      case NOT_EQ:
+        target.jsonNotEqualTo(propName, path, value);
+        break;
+      case LT:
+        target.jsonLessThan(propName, path, value);
+        break;
+      case LT_EQ:
+        target.jsonLessOrEqualTo(propName, path, value);
+        break;
+      case GT:
+        target.jsonGreaterThan(propName, path, value);
+        break;
+      case GT_EQ:
+        target.jsonGreaterOrEqual(propName, path, value);
+        break;
+      default:
+        throw new UnsupportedOperationException(operator + " is not implemented.");
     }
   }
 }

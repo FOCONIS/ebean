@@ -1,6 +1,7 @@
 package io.ebeaninternal.server.expression;
 
 import io.ebean.LikeType;
+import io.ebean.QueryVisitor;
 import io.ebeaninternal.api.SpiExpression;
 import io.ebeaninternal.api.SpiExpressionRequest;
 import io.ebeaninternal.server.el.ElPropertyValue;
@@ -63,7 +64,7 @@ class LikeExpression extends AbstractValueExpression {
    */
   @Override
   public void queryPlanHash(StringBuilder builder) {
-    if (caseInsensitive){
+    if (caseInsensitive) {
       builder.append("I");
     }
     builder.append("Like[").append(type).append(" ").append(propName).append("]");
@@ -101,5 +102,47 @@ class LikeExpression extends AbstractValueExpression {
       default:
         throw new RuntimeException("LikeType " + type + " missed?");
     }
+  }
+
+  @Override
+  public void visitExpression(QueryVisitor<?> target) {
+    if (caseInsensitive) {
+      switch (type) {
+        case CONTAINS:
+          target.icontains(propName, strValue());
+          return;
+        case STARTS_WITH:
+          target.istartsWith(propName, strValue());
+          return;
+        case ENDS_WITH:
+          target.iendsWith(propName, strValue());
+          return;
+        case EQUAL_TO:
+          target.ieq(propName, strValue());
+          return;
+        case RAW:
+          target.ilike(propName, strValue());
+          return;
+      }
+    } else {
+      switch (type) {
+        case CONTAINS:
+          target.contains(propName, strValue());
+          return;
+        case STARTS_WITH:
+          target.startsWith(propName, strValue());
+          return;
+        case ENDS_WITH:
+          target.endsWith(propName, strValue());
+          return;
+        case EQUAL_TO:
+          target.eq(propName, strValue());
+          return;
+        case RAW:
+          target.like(propName, strValue());
+          return;
+      }
+    }
+    throw new UnsupportedOperationException(type + " not supported");
   }
 }

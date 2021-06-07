@@ -1,5 +1,6 @@
 package io.ebeaninternal.server.expression;
 
+import io.ebean.QueryVisitor;
 import io.ebeaninternal.api.SpiExpression;
 import io.ebeaninternal.api.SpiExpressionRequest;
 
@@ -50,5 +51,14 @@ public class ArrayIsEmptyExpression extends AbstractExpression {
   @Override
   public void addBindValues(SpiExpressionRequest request) {
     // nothing to bind
+  }
+
+  @Override
+  public void visitExpression(final QueryVisitor<?> target) {
+    if (empty) {
+      target.arrayIsEmpty(propName);
+    } else {
+      target.arrayIsNotEmpty(propName);
+    }
   }
 }

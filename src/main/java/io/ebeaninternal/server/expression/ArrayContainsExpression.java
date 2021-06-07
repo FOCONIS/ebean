@@ -1,5 +1,6 @@
 package io.ebeaninternal.server.expression;
 
+import io.ebean.QueryVisitor;
 import io.ebeaninternal.api.SpiExpression;
 import io.ebeaninternal.api.SpiExpressionRequest;
 
@@ -77,6 +78,15 @@ public class ArrayContainsExpression extends AbstractExpression {
   public void addBindValues(SpiExpressionRequest request) {
     for (Object value : values) {
       request.addBindValue(value);
+    }
+  }
+
+  @Override
+  public void visitExpression(final QueryVisitor<?> target) {
+    if (contains) {
+      target.arrayContains(propName, values);
+    } else {
+      target.arrayNotContains(propName, values);
     }
   }
 }

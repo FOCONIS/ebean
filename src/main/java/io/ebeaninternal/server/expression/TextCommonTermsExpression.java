@@ -1,5 +1,6 @@
 package io.ebeaninternal.server.expression;
 
+import io.ebean.QueryVisitor;
 import io.ebean.search.TextCommonTerms;
 
 import java.io.IOException;
@@ -24,4 +25,8 @@ class TextCommonTermsExpression extends AbstractTextExpression {
     context.writeTextCommonTerms(search, options);
   }
 
+  @Override
+  public void visitExpression(final QueryVisitor<?> target) {
+    target.textCommonTerms(search, options);
+  }
 }

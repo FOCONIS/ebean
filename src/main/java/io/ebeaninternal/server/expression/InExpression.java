@@ -1,5 +1,6 @@
 package io.ebeaninternal.server.expression;
 
+import io.ebean.QueryVisitor;
 import io.ebean.bean.EntityBean;
 import io.ebean.event.BeanQueryRequest;
 import io.ebeaninternal.api.NaturalKeyQueryData;
@@ -198,5 +199,14 @@ class InExpression extends AbstractExpression {
       }
     }
     return true;
+  }
+
+  @Override
+  public void visitExpression(QueryVisitor<?> target) {
+    if (not) {
+      target.notIn(propName, sourceValues);
+    } else {
+      target.in(propName, sourceValues);
+    }
   }
 }

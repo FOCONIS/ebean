@@ -39,7 +39,7 @@ import java.util.function.Predicate;
  *
  * @see Query#where()
  */
-public interface ExpressionList<T> {
+public interface ExpressionList<T> extends QueryVisitor<T> {
 
   /**
    * Return the query that owns this expression list.
@@ -1612,5 +1612,10 @@ public interface ExpressionList<T> {
    * End a NOT junction - synonym for endJunction().
    */
   ExpressionList<T> endNot();
+
+  /**
+   * Apply this filter to another one.
+   */
+  void visit(QueryVisitor<T> filter);
 
 }

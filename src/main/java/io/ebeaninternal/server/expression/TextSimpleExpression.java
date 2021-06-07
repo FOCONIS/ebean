@@ -1,5 +1,6 @@
 package io.ebeaninternal.server.expression;
 
+import io.ebean.QueryVisitor;
 import io.ebean.search.TextSimple;
 
 import java.io.IOException;
@@ -24,4 +25,8 @@ class TextSimpleExpression extends AbstractTextExpression {
     context.writeTextSimple(search, options);
   }
 
+  @Override
+  public void visitExpression(final QueryVisitor<?> target) {
+    target.textSimple(search, options);
+  }
 }

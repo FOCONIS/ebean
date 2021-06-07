@@ -1,12 +1,12 @@
 package io.ebeaninternal.server.deploy;
 
 /**
- * Used to visit all the InheritInfo in a single inheritance hierarchy.
+ * Used to visitExpression all the InheritInfo in a single inheritance hierarchy.
  */
 public interface InheritInfoVisitor {
 
   /**
-   * visit the InheritInfo for this node.
+   * visitExpression the InheritInfo for this node.
    */
   void visit(InheritInfo inheritInfo);
 

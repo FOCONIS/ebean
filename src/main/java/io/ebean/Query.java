@@ -728,7 +728,7 @@ public interface Query<T> extends CancelableQuery {
    *     .findEach((Customer customer) -> {
    *
    *       // do something with customer
-   *       System.out.println("-- visit " + customer);
+   *       System.out.println("-- visitExpression " + customer);
    *     });
    *
    * }</pre>
@@ -759,7 +759,7 @@ public interface Query<T> extends CancelableQuery {
    *     .findEachWhile((Customer customer) -> {
    *
    *       // do something with customer
-   *       System.out.println("-- visit " + customer);
+   *       System.out.println("-- visitExpression " + customer);
    *
    *       // return true to continue processing or false to stop
    *       return (customer.getId() < 40);

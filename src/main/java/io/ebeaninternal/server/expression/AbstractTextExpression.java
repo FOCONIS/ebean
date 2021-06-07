@@ -46,4 +46,9 @@ public abstract class AbstractTextExpression extends AbstractExpression {
     // do not compare by plan / bind values (this way)
     return false;
   }
+
+//  @Override
+//  public void visitExpression(final BeanDescriptor<?> desc, final QueryVisitor<?> target)  {
+//    throw new UnsupportedOperationException("Not supported: " +getClass().getName());
+//  }
 }
