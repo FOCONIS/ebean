@@ -701,6 +701,7 @@ public interface ExpressionList<T> extends QueryVisitor<T> {
    * @param propertyName the property that holds a JSON document
    * @param path         the nested path in the JSON document in dot notation
    */
+  @Override
   ExpressionList<T> jsonExists(String propertyName, String path);
 
   /**
@@ -714,6 +715,7 @@ public interface ExpressionList<T> extends QueryVisitor<T> {
    * @param propertyName the property that holds a JSON document
    * @param path         the nested path in the JSON document in dot notation
    */
+  @Override
   ExpressionList<T> jsonNotExists(String propertyName, String path);
 
   /**
@@ -728,6 +730,7 @@ public interface ExpressionList<T> extends QueryVisitor<T> {
    * @param path         the nested path in the JSON document in dot notation
    * @param value        the value used to test against the document path's value
    */
+  @Override
   ExpressionList<T> jsonEqualTo(String propertyName, String path, Object value);
 
   /**
@@ -742,6 +745,7 @@ public interface ExpressionList<T> extends QueryVisitor<T> {
    * @param path         the nested path in the JSON document in dot notation
    * @param value        the value used to test against the document path's value
    */
+  @Override
   ExpressionList<T> jsonNotEqualTo(String propertyName, String path, Object value);
 
   /**
@@ -752,6 +756,7 @@ public interface ExpressionList<T> extends QueryVisitor<T> {
    *
    * }</pre>
    */
+  @Override
   ExpressionList<T> jsonGreaterThan(String propertyName, String path, Object value);
 
   /**
@@ -762,6 +767,7 @@ public interface ExpressionList<T> extends QueryVisitor<T> {
    *
    * }</pre>
    */
+  @Override
   ExpressionList<T> jsonGreaterOrEqual(String propertyName, String path, Object value);
 
   /**
@@ -772,6 +778,7 @@ public interface ExpressionList<T> extends QueryVisitor<T> {
    *
    * }</pre>
    */
+  @Override
   ExpressionList<T> jsonLessThan(String propertyName, String path, Object value);
 
   /**
@@ -782,6 +789,7 @@ public interface ExpressionList<T> extends QueryVisitor<T> {
    *
    * }</pre>
    */
+  @Override
   ExpressionList<T> jsonLessOrEqualTo(String propertyName, String path, Object value);
 
   /**
@@ -792,6 +800,7 @@ public interface ExpressionList<T> extends QueryVisitor<T> {
    *
    * }</pre>
    */
+  @Override
   ExpressionList<T> jsonBetween(String propertyName, String path, Object lowerValue, Object upperValue);
 
   /**
@@ -807,6 +816,7 @@ public interface ExpressionList<T> extends QueryVisitor<T> {
   /**
    * Equal To - property is equal to a given value.
    */
+  @Override
   ExpressionList<T> eq(String propertyName, Object value);
 
   /**
@@ -817,18 +827,21 @@ public interface ExpressionList<T> extends QueryVisitor<T> {
   /**
    * Not Equal To - property not equal to the given value.
    */
+  @Override
   ExpressionList<T> ne(String propertyName, Object value);
 
   /**
    * Case Insensitive Equal To - property equal to the given value (typically
    * using a lower() function to make it case insensitive).
    */
+  @Override
   ExpressionList<T> ieq(String propertyName, String value);
 
   /**
    * Case Insensitive Not Equal To - property not equal to the given value (typically
    * using a lower() function to make it case insensitive).
    */
+  @Override
   ExpressionList<T> ine(String propertyName, String value);
 
   /**
@@ -856,21 +869,25 @@ public interface ExpressionList<T> extends QueryVisitor<T> {
    * Unlike Between inRange is "half open" and usually more useful for use with dates or timestamps.
    * </p>
    */
+  @Override
   ExpressionList<T> inRange(String propertyName, Object value1, Object value2);
 
   /**
    * Between - property between the two given values.
    */
+  @Override
   ExpressionList<T> between(String propertyName, Object value1, Object value2);
 
   /**
    * Between - value between the two properties.
    */
+  @Override
   ExpressionList<T> betweenProperties(String lowProperty, String highProperty, Object value);
 
   /**
    * Greater Than - property greater than the given value.
    */
+  @Override
   ExpressionList<T> gt(String propertyName, Object value);
 
   /**
@@ -882,11 +899,13 @@ public interface ExpressionList<T> extends QueryVisitor<T> {
    * Greater Than or Equal to - property greater than or equal to the given
    * value.
    */
+  @Override
   ExpressionList<T> ge(String propertyName, Object value);
 
   /**
    * Less Than - property less than the given value.
    */
+  @Override
   ExpressionList<T> lt(String propertyName, Object value);
 
   /**
@@ -897,16 +916,19 @@ public interface ExpressionList<T> extends QueryVisitor<T> {
   /**
    * Less Than or Equal to - property less than or equal to the given value.
    */
+  @Override
   ExpressionList<T> le(String propertyName, Object value);
 
   /**
    * Is Null - property is null.
    */
+  @Override
   ExpressionList<T> isNull(String propertyName);
 
   /**
    * Is Not Null - property is not null.
    */
+  @Override
   ExpressionList<T> isNotNull(String propertyName);
 
   /**
@@ -964,6 +986,7 @@ public interface ExpressionList<T> extends QueryVisitor<T> {
    * Like - property like value where the value contains the SQL wild card
    * characters % (percentage) and _ (underscore).
    */
+  @Override
   ExpressionList<T> like(String propertyName, String value);
 
   /**
@@ -971,49 +994,58 @@ public interface ExpressionList<T> extends QueryVisitor<T> {
    * SQL wild card characters % (percentage) and _ (underscore). Typically uses
    * a lower() function to make the expression case insensitive.
    */
+  @Override
   ExpressionList<T> ilike(String propertyName, String value);
 
   /**
    * Starts With - property like value%.
    */
+  @Override
   ExpressionList<T> startsWith(String propertyName, String value);
 
   /**
    * Case insensitive Starts With - property like value%. Typically uses a
    * lower() function to make the expression case insensitive.
    */
+  @Override
   ExpressionList<T> istartsWith(String propertyName, String value);
 
   /**
    * Ends With - property like %value.
    */
+  @Override
   ExpressionList<T> endsWith(String propertyName, String value);
 
   /**
    * Case insensitive Ends With - property like %value. Typically uses a lower()
    * function to make the expression case insensitive.
    */
+  @Override
   ExpressionList<T> iendsWith(String propertyName, String value);
 
   /**
    * Contains - property like %value%.
    */
+  @Override
   ExpressionList<T> contains(String propertyName, String value);
 
   /**
    * Case insensitive Contains - property like %value%. Typically uses a lower()
    * function to make the expression case insensitive.
    */
+  @Override
   ExpressionList<T> icontains(String propertyName, String value);
 
   /**
    * In expression using pairs of value objects.
    */
+  @Override
   ExpressionList<T> inPairs(Pairs pairs);
 
   /**
    * In - using a subQuery.
    */
+  @Override
   ExpressionList<T> in(String propertyName, Query<?> subQuery);
 
   /**
@@ -1024,6 +1056,7 @@ public interface ExpressionList<T> extends QueryVisitor<T> {
   /**
    * In - property has a value in the collection of values.
    */
+  @Override
   ExpressionList<T> in(String propertyName, Collection<?> values);
 
   /**
@@ -1099,31 +1132,37 @@ public interface ExpressionList<T> extends QueryVisitor<T> {
   /**
    * Not In - property has a value in the collection of values.
    */
+  @Override
   ExpressionList<T> notIn(String propertyName, Collection<?> values);
 
   /**
    * Not In - using a subQuery.
    */
+  @Override
   ExpressionList<T> notIn(String propertyName, Query<?> subQuery);
 
   /**
    * Is empty expression for collection properties.
    */
+  @Override
   ExpressionList<T> isEmpty(String propertyName);
 
   /**
    * Is not empty expression for collection properties.
    */
+  @Override
   ExpressionList<T> isNotEmpty(String propertyName);
 
   /**
    * Exists expression
    */
+  @Override
   ExpressionList<T> exists(Query<?> subQuery);
 
   /**
    * Not exists expression
    */
+  @Override
   ExpressionList<T> notExists(Query<?> subQuery);
 
   /**
@@ -1134,11 +1173,13 @@ public interface ExpressionList<T> extends QueryVisitor<T> {
   /**
    * Id IN a collection of id values.
    */
+  @Override
   ExpressionList<T> idIn(Collection<?> idValues);
 
   /**
    * Id Equal to - ID property is equal to the value.
    */
+  @Override
   ExpressionList<T> idEq(Object value);
 
   /**
@@ -1150,11 +1191,13 @@ public interface ExpressionList<T> extends QueryVisitor<T> {
    *
    * @param propertyMap a map keyed by property names.
    */
+  @Override
   ExpressionList<T> allEq(Map<String, Object> propertyMap);
 
   /**
    * Array property contains entries with the given values.
    */
+  @Override
   ExpressionList<T> arrayContains(String propertyName, Object... values);
 
   /**
@@ -1163,6 +1206,7 @@ public interface ExpressionList<T> extends QueryVisitor<T> {
    * Array support is effectively limited to Postgres at this time.
    * </p>
    */
+  @Override
   ExpressionList<T> arrayNotContains(String propertyName, Object... values);
 
   /**
@@ -1171,6 +1215,7 @@ public interface ExpressionList<T> extends QueryVisitor<T> {
    * Array support is effectively limited to Postgres at this time.
    * </p>
    */
+  @Override
   ExpressionList<T> arrayIsEmpty(String propertyName);
 
   /**
@@ -1179,6 +1224,7 @@ public interface ExpressionList<T> extends QueryVisitor<T> {
    * Array support is effectively limited to Postgres at this time.
    * </p>
    */
+  @Override
   ExpressionList<T> arrayIsNotEmpty(String propertyName);
 
   /**
@@ -1192,6 +1238,7 @@ public interface ExpressionList<T> extends QueryVisitor<T> {
    * @param propertyName The property that holds the flags value
    * @param flags        The flags we are looking for
    */
+  @Override
   ExpressionList<T> bitwiseAny(String propertyName, long flags);
 
   /**
@@ -1205,6 +1252,7 @@ public interface ExpressionList<T> extends QueryVisitor<T> {
    * @param propertyName The property that holds the flags value
    * @param flags        The flags we are looking for
    */
+  @Override
   ExpressionList<T> bitwiseAll(String propertyName, long flags);
 
   /**
@@ -1238,6 +1286,7 @@ public interface ExpressionList<T> extends QueryVisitor<T> {
    * @param propertyName The property that holds the flags value
    * @param flags        The flags we are looking for
    */
+  @Override
   ExpressionList<T> bitwiseAnd(String propertyName, long flags, long match);
 
   /**
@@ -1281,6 +1330,7 @@ public interface ExpressionList<T> extends QueryVisitor<T> {
    * qualified) will still be translated to their physical name.
    * </p>
    */
+  @Override
   ExpressionList<T> raw(String raw, Object... values);
 
   /**
@@ -1381,6 +1431,7 @@ public interface ExpressionList<T> extends QueryVisitor<T> {
    * @param propertyName The property name for the match
    * @param search       The search value
    */
+  @Override
   ExpressionList<T> match(String propertyName, String search, Match options);
 
   /**
@@ -1391,21 +1442,25 @@ public interface ExpressionList<T> extends QueryVisitor<T> {
   /**
    * Add a multi-match expression using options.
    */
+  @Override
   ExpressionList<T> multiMatch(String search, MultiMatch options);
 
   /**
    * Add a simple query string expression.
    */
+  @Override
   ExpressionList<T> textSimple(String search, TextSimple options);
 
   /**
    * Add a query string expression.
    */
+  @Override
   ExpressionList<T> textQueryString(String search, TextQueryString options);
 
   /**
    * Add common terms expression.
    */
+  @Override
   ExpressionList<T> textCommonTerms(String search, TextCommonTerms options);
 
   /**
@@ -1455,6 +1510,7 @@ public interface ExpressionList<T> extends QueryVisitor<T> {
    *      .findList();
    * }</pre>
    */
+  @Override
   Junction<T> and();
 
   /**
@@ -1497,6 +1553,7 @@ public interface ExpressionList<T> extends QueryVisitor<T> {
    *
    * }</pre>
    */
+  @Override
   Junction<T> or();
 
   /**
@@ -1532,6 +1589,7 @@ public interface ExpressionList<T> extends QueryVisitor<T> {
    *
    * }</pre>
    */
+  @Override
   Junction<T> not();
 
   /**
@@ -1601,16 +1659,19 @@ public interface ExpressionList<T> extends QueryVisitor<T> {
   /**
    * End a AND junction - synonym for endJunction().
    */
+  @Override
   ExpressionList<T> endAnd();
 
   /**
    * End a AND junction - synonym for endJunction().
    */
+  @Override
   ExpressionList<T> endOr();
 
   /**
    * End a NOT junction - synonym for endJunction().
    */
+  @Override
   ExpressionList<T> endNot();
 
   /**
