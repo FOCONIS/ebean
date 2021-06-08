@@ -3,10 +3,10 @@ package io.ebeaninternal.server.expression;
 import io.ebean.ExpressionVisitor;
 import io.ebean.bean.EntityBean;
 import io.ebean.plugin.ExpressionPath;
-import io.ebeaninternal.api.NaturalKeyQueryData;
 import io.ebeaninternal.api.SpiExpression;
 import io.ebeaninternal.api.SpiExpressionRequest;
 import io.ebeaninternal.server.el.ElPropertyValue;
+import io.ebeaninternal.api.NaturalKeyQueryData;
 
 import java.io.IOException;
 import java.util.Arrays;

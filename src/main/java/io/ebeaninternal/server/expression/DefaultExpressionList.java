@@ -1271,7 +1271,9 @@ public class DefaultExpressionList<T> implements SpiExpressionList<T> {
 
   @Override
   public void visit(ExpressionVisitor visitor) {
-    list.forEach(exp -> exp.visit(visitor));
+    for (Expression expr : list) {
+      expr.visit(visitor);
+    }
   }
 
 }
