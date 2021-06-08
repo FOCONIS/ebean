@@ -1,5 +1,6 @@
 package io.ebeaninternal.server.expression;
 
+import io.ebean.ExpressionVisitor;
 import io.ebeaninternal.api.ManyWhereJoins;
 import io.ebeaninternal.api.SpiExpression;
 import io.ebeaninternal.api.SpiExpressionRequest;
@@ -164,5 +165,10 @@ class AllEqualsExpression extends NonPrepareExpression {
     }
 
     return true;
+  }
+
+  @Override
+  public void visit(ExpressionVisitor visitor) {
+    visitor.allEq(propMap);
   }
 }

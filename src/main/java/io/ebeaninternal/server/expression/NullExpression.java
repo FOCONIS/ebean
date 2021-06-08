@@ -1,5 +1,6 @@
 package io.ebeaninternal.server.expression;
 
+import io.ebean.ExpressionVisitor;
 import io.ebean.util.SplitName;
 import io.ebeaninternal.api.ManyWhereJoins;
 import io.ebeaninternal.api.SpiExpression;
@@ -96,5 +97,14 @@ class NullExpression extends AbstractExpression {
   @Override
   public int queryBindHash() {
     return (notNull ? 1 : 0);
+  }
+
+  @Override
+  public void visit(ExpressionVisitor visitor) {
+    if (notNull) {
+      visitor.isNotNull(propName);
+    } else {
+      visitor.isNull(propName);
+    }
   }
 }

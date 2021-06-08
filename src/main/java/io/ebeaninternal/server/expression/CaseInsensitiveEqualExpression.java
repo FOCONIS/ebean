@@ -1,5 +1,6 @@
 package io.ebeaninternal.server.expression;
 
+import io.ebean.ExpressionVisitor;
 import io.ebeaninternal.api.SpiExpression;
 import io.ebeaninternal.api.SpiExpressionRequest;
 import io.ebeaninternal.server.el.ElPropertyValue;
@@ -77,5 +78,14 @@ class CaseInsensitiveEqualExpression extends AbstractValueExpression {
   public boolean isSameByBind(SpiExpression other) {
     CaseInsensitiveEqualExpression that = (CaseInsensitiveEqualExpression) other;
     return val().equals(that.val());
+  }
+
+  @Override
+  public void visit(ExpressionVisitor visitor) {
+    if (not) {
+      visitor.ine(propName, strValue());
+    } else {
+      visitor.ieq(propName, strValue());
+    }
   }
 }

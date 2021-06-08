@@ -1,5 +1,6 @@
 package io.ebeaninternal.server.expression;
 
+import io.ebean.ExpressionVisitor;
 import io.ebeaninternal.api.SpiExpression;
 import io.ebeaninternal.api.SpiExpressionRequest;
 
@@ -59,5 +60,23 @@ class BitwiseExpression extends AbstractExpression {
   public void addBindValues(SpiExpressionRequest request) {
     request.addBindValue(flags);
     request.addBindValue(match);
+  }
+
+  @Override
+  public void visit(ExpressionVisitor visitor) {
+    switch (operator) {
+      case ALL:
+        visitor.bitwiseAll(propName, flags);
+        break;
+      case AND:
+        visitor.bitwiseAnd(propName, flags, match);
+        break;
+      case ANY:
+        visitor.bitwiseAny(propName, flags);
+        break;
+      default:
+        throw new UnsupportedOperationException(operator + " not supported");
+
+    }
   }
 }

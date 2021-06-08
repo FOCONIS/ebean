@@ -1,5 +1,6 @@
 package io.ebeaninternal.server.expression;
 
+import io.ebean.ExpressionVisitor;
 import io.ebean.event.BeanQueryRequest;
 import io.ebeaninternal.api.SpiEbeanServer;
 import io.ebeaninternal.api.SpiExpression;
@@ -108,5 +109,15 @@ class InQueryExpression extends AbstractExpression implements UnsupportedDocStor
       }
     }
     return true;
+  }
+
+  @Override
+  public void visit(ExpressionVisitor visitor) {
+    assert sql == null; // SQL used in tests only
+    if (not) {
+      visitor.notIn(propName, subQuery);
+    } else {
+      visitor.in(propName, subQuery);
+    }
   }
 }

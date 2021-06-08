@@ -1,6 +1,7 @@
 package io.ebeaninternal.server.expression;
 
 import io.ebean.Expression;
+import io.ebean.ExpressionVisitor;
 import io.ebean.event.BeanQueryRequest;
 import io.ebeaninternal.api.ManyWhereJoins;
 import io.ebeaninternal.api.NaturalKeyQueryData;
@@ -102,5 +103,12 @@ final class NotExpression implements SpiExpression {
   public boolean isSameByBind(SpiExpression other) {
     NotExpression that = (NotExpression) other;
     return exp.isSameByBind(that.exp);
+  }
+
+  @Override
+  public void visit(ExpressionVisitor visitor) {
+    visitor = visitor.not();
+    exp.visit(visitor);
+    visitor.endNot();
   }
 }

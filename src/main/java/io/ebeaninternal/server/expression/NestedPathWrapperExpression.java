@@ -1,5 +1,6 @@
 package io.ebeaninternal.server.expression;
 
+import io.ebean.ExpressionVisitor;
 import io.ebean.event.BeanQueryRequest;
 import io.ebeaninternal.api.ManyWhereJoins;
 import io.ebeaninternal.api.SpiExpression;
@@ -101,5 +102,9 @@ class NestedPathWrapperExpression implements SpiExpression {
   @Override
   public SpiExpression copyForPlanKey() {
     return new NestedPathWrapperExpression(nestedPath, delegate.copyForPlanKey());
+  }
+  @Override
+  public void visit(ExpressionVisitor visitor) {
+    throw new UnsupportedOperationException("NestedPathWrapper.visit is unsupported");
   }
 }
