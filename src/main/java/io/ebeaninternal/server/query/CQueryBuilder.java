@@ -19,7 +19,6 @@ import io.ebeaninternal.server.core.OrmQueryRequest;
 import io.ebeaninternal.server.deploy.BeanDescriptor;
 import io.ebeaninternal.server.deploy.BeanProperty;
 import io.ebeaninternal.server.deploy.BeanPropertyAssocOne;
-import io.ebeaninternal.server.deploy.DbSqlContextColumn;
 import io.ebeaninternal.server.el.ElPropertyValue;
 import io.ebeaninternal.server.persist.Binder;
 import io.ebeaninternal.server.querydefn.OrmQueryDetail;
@@ -205,7 +204,7 @@ class CQueryBuilder {
     CQueryPlan queryPlan = request.getQueryPlan();
     if (queryPlan != null) {
       predicates.prepare(false);
-      return new CQueryFetchSingleAttribute(request, predicates, queryPlan, query.isCountDistinct(), query.getCountDistinctDto());
+      return new CQueryFetchSingleAttribute(request, predicates, queryPlan, query.isCountDistinct());
     }
 
     // use RawSql or generated Sql
@@ -216,7 +215,7 @@ class CQueryBuilder {
 
     queryPlan = new CQueryPlan(request, s.getSql(), sqlTree, s.isIncludesRowNumberColumn(), predicates.getLogWhereSql());
     request.putQueryPlan(queryPlan);
-    return new CQueryFetchSingleAttribute(request, predicates, queryPlan, query.isCountDistinct(), query.getCountDistinctDto());
+    return new CQueryFetchSingleAttribute(request, predicates, queryPlan, query.isCountDistinct());
   }
 
   /**
@@ -573,7 +572,7 @@ class CQueryBuilder {
     boolean useSqlLimiter = false;
     StringBuilder sb = new StringBuilder(500);
     String dbOrderBy = predicates.getDbOrderBy();
-    String groupByAttribute = null;
+
     boolean countSingleAttribute = query.isCountDistinct() && query.isSingleAttribute();
     if (selectClause != null) {
       sb.append(selectClause);
@@ -595,29 +594,8 @@ class CQueryBuilder {
           }
         }
       }
-
       if (countSingleAttribute) {
-        int i = 0;
-        StringBuilder groupBySb = new StringBuilder();
-        StringBuilder subSelectSb = new StringBuilder();
-        for (DbSqlContextColumn col : select.getColumns()) {
-          i++;
-          String alias = col.getAlias() == null ? ("attribute_" + i) : col.getAlias();
-          if (i > 1) {
-            groupBySb.append(", ");
-            subSelectSb.append(", ");
-          }
-          groupBySb.append("r1.").append(alias);
-          subSelectSb.append(col.getSql()).append(' ').append(alias);
-        }
-        //        vvvvvvvvvvvvvvvvvvvv-groupBySb
-        // select r1.alias1, r1.alias2, count(*) from (select
-        //     xx alias1, yy alias2 from zzz) r1 group by r1.alias1, r1.alias2
-        //     ^^^^^^^^^^^^^^^^^^^^                       ^^^^^^^^^^^^^^^^^^^^
-        //     subselectSb                                groupBySb
-
-        groupByAttribute = groupBySb.toString();
-        sb.append(groupByAttribute).append(", count(*) cnt from (select ");
+        sb.append("r1.attribute_, count(*) from (select ");
         if (distinct) {
           sb.append("distinct ");
           BeanProperty idProp = request.getBeanDescriptor().getIdProperty();
@@ -629,8 +607,8 @@ class CQueryBuilder {
             sb.append("t0.").append(idProp.getDbColumn()).append(", ");
           }
         }
-        sb.append(subSelectSb.toString());
-
+        sb.append(select.getSelectSql());
+        sb.append(" as attribute_");
       } else {
         sb.append(select.getSelectSql());
       }
@@ -744,7 +722,7 @@ class CQueryBuilder {
     }
 
     if (countSingleAttribute) {
-      sb.append(") r1 group by ").append(groupByAttribute);
+      sb.append(") r1 group by r1.attribute_");
       sb.append(toSql(query.getCountDistinctOrder()));
     }
 
@@ -759,24 +737,20 @@ class CQueryBuilder {
 
   }
 
-  /**
-   * @deprecated The 'order by' clause should be set via raw sql to customize ordering wit multiple attributes.
-   */
-  @Deprecated
   private String toSql(CountDistinctOrder orderBy) {
     switch (orderBy) {
       case ATTR_ASC:
-        return " order by r1.attribute_1";
+        return " order by r1.attribute_";
       case ATTR_DESC:
-        return " order by r1.attribute_1 desc";
+        return " order by r1.attribute_ desc";
       case COUNT_ASC_ATTR_ASC:
-        return " order by count(*), r1.attribute_1";
+        return " order by count(*), r1.attribute_";
       case COUNT_ASC_ATTR_DESC:
-        return " order by count(*), r1.attribute_1 desc";
+        return " order by count(*), r1.attribute_ desc";
       case COUNT_DESC_ATTR_ASC:
-        return " order by count(*) desc, r1.attribute_1";
+        return " order by count(*) desc, r1.attribute_";
       case COUNT_DESC_ATTR_DESC:
-        return " order by count(*) desc, r1.attribute_1 desc";
+        return " order by count(*) desc, r1.attribute_ desc";
       case NO_ORDERING:
         return "";
       default:

@@ -5,7 +5,6 @@ import static org.assertj.core.api.StrictAssertions.assertThat;
 
 import java.sql.Date;
 import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.annotation.Nonnull;
@@ -68,12 +67,12 @@ public class TestQuerySingleAttribute extends BaseTestCase {
     assertThat(robs.getCount()).isEqualTo(1);
 
     // TODO check correct future query
-    assertThat(sqlOf(query)).contains("select r1.attribute_1, count(*) cnt "
-        + "from (select distinct t0.id, t0.name attribute_1 from o_customer t0 "
+    assertThat(sqlOf(query)).contains("select r1.attribute_, count(*) "
+        + "from (select distinct t0.id, t0.name as attribute_ from o_customer t0 "
         + "left join contact u1 on u1.customer_id = t0.id  "
         + "left join o_order u2 on u2.kcustomer_id = t0.id and u2.order_date is not null  "
         + "where t0.name = ? and (u2.status = ? or u1.first_name = ?)) "
-        + "r1 group by r1.attribute_1 order by count(*) desc, r1.attribute_1");
+        + "r1 group by r1.attribute_ order by count(*) desc, r1.attribute_");
   }
 
   @Test
@@ -166,10 +165,10 @@ public class TestQuerySingleAttribute extends BaseTestCase {
 
     List<CountedValue<String>> attr1list = query.findSingleAttributeList();
 
-    assertThat(sqlOf(query)).contains("select r1.attribute_1, count(*) cnt"
-        + " from (select distinct t0.id, t1.attr1 attribute_1 from main_entity_relation t0 left join main_entity t1 on t1.id = t0.id1 ) r1"
-        + " group by r1.attribute_1"
-        + " order by count(*) desc, r1.attribute_1");
+    assertThat(sqlOf(query)).contains("select r1.attribute_, count(*)"
+        + " from (select distinct t0.id, t1.attr1 as attribute_ from main_entity_relation t0 left join main_entity t1 on t1.id = t0.id1 ) r1"
+        + " group by r1.attribute_"
+        + " order by count(*) desc, r1.attribute_");
     assertThat(attr1list).isNotNull();
     assertThat(attr1list).hasSize(2);
     assertThat(attr1list.get(0).getValue()).isEqualTo("a1");
@@ -195,11 +194,11 @@ public class TestQuerySingleAttribute extends BaseTestCase {
 
     query.findSingleAttributeList();
 
-    assertThat(sqlOf(query)).contains("select r1.attribute_1, count(*) cnt"
-        + " from (select distinct t0.company, t0.order_number, t1.description attribute_1 from r_orders t0"
+    assertThat(sqlOf(query)).contains("select r1.attribute_, count(*)"
+        + " from (select distinct t0.company, t0.order_number, t1.description as attribute_ from r_orders t0"
         + " left join rcustomer t1 on t1.company = t0.company and t1.name = t0.customername ) r1"
-        + " group by r1.attribute_1"
-        + " order by count(*) desc, r1.attribute_1");
+        + " group by r1.attribute_"
+        + " order by count(*) desc, r1.attribute_");
 
 
 
@@ -214,10 +213,10 @@ public class TestQuerySingleAttribute extends BaseTestCase {
 
     query.findSingleAttributeList();
 
-    assertThat(sqlOf(query)).contains("select r1.attribute_1, count(*) cnt"
-        + " from (select t1.attr1 attribute_1 from main_entity_relation t0 left join main_entity t1 on t1.id = t0.id1 ) r1"
-        + " group by r1.attribute_1"
-        + " order by count(*) desc, r1.attribute_1");
+    assertThat(sqlOf(query)).contains("select r1.attribute_, count(*)"
+        + " from (select t1.attr1 as attribute_ from main_entity_relation t0 left join main_entity t1 on t1.id = t0.id1 ) r1"
+        + " group by r1.attribute_"
+        + " order by count(*) desc, r1.attribute_");
 
   }
   @Test
@@ -229,10 +228,10 @@ public class TestQuerySingleAttribute extends BaseTestCase {
 
     query.findSingleAttributeList();
 
-    assertThat(sqlOf(query)).contains("select r1.attribute_1, count(*) cnt"
-        + " from (select t0.attr1 attribute_1 from main_entity_relation t0) r1"
-        + " group by r1.attribute_1"
-        + " order by count(*) desc, r1.attribute_1");
+    assertThat(sqlOf(query)).contains("select r1.attribute_, count(*)"
+        + " from (select t0.attr1 as attribute_ from main_entity_relation t0) r1"
+        + " group by r1.attribute_"
+        + " order by count(*) desc, r1.attribute_");
 
   }
   @Test
@@ -244,10 +243,10 @@ public class TestQuerySingleAttribute extends BaseTestCase {
 
     query.findSingleAttributeList();
 
-    assertThat(sqlOf(query)).contains("select r1.attribute_1, count(*) cnt"
-        + " from (select t0.id attribute_1 from main_entity_relation t0) r1"
-        + " group by r1.attribute_1"
-        + " order by count(*) desc, r1.attribute_1");
+    assertThat(sqlOf(query)).contains("select r1.attribute_, count(*)"
+        + " from (select t0.id as attribute_ from main_entity_relation t0) r1"
+        + " group by r1.attribute_"
+        + " order by count(*) desc, r1.attribute_");
 
   }
 
@@ -260,10 +259,10 @@ public class TestQuerySingleAttribute extends BaseTestCase {
 
     query.findSingleAttributeList();
 
-    assertThat(sqlOf(query)).contains("select r1.attribute_1, count(*) cnt"
-        + " from (select t1.id attribute_1 from main_entity_relation t0 left join main_entity t1 on t1.id = t0.id1 ) r1"
-        + " group by r1.attribute_1"
-        + " order by count(*) desc, r1.attribute_1");
+    assertThat(sqlOf(query)).contains("select r1.attribute_, count(*)"
+        + " from (select t1.id as attribute_ from main_entity_relation t0 left join main_entity t1 on t1.id = t0.id1 ) r1"
+        + " group by r1.attribute_"
+        + " order by count(*) desc, r1.attribute_");
 
   }
 
@@ -276,9 +275,9 @@ public class TestQuerySingleAttribute extends BaseTestCase {
 
     query.findSingleAttributeList();
 
-    assertThat(sqlOf(query)).contains("select r1.attribute_1, count(*) cnt"
-        + " from (select t1.name attribute_1 from om_basic_parent t0 left join om_basic_child t1 on t1.parent_id = t0.id ) r1 "
-        + "group by r1.attribute_1 order by count(*) desc, r1.attribute_1");
+    assertThat(sqlOf(query)).contains("select r1.attribute_, count(*)"
+        + " from (select t1.name as attribute_ from om_basic_parent t0 left join om_basic_child t1 on t1.parent_id = t0.id ) r1 "
+        + "group by r1.attribute_ order by count(*) desc, r1.attribute_");
 
   }
 
@@ -689,9 +688,9 @@ public class TestQuerySingleAttribute extends BaseTestCase {
       .setCountDistinct(CountDistinctOrder.ATTR_ASC)
 
       .findSingleAttributeList();
-    assertThat(sqlOf(query)).contains("select r1.attribute_1, count(*) cnt from ("
-      + "select t0.first_name attribute_1 from contact t0"
-      + ") r1 group by r1.attribute_1 order by r1.attribute_1");
+    assertThat(sqlOf(query)).contains("select r1.attribute_, count(*) from ("
+      + "select t0.first_name as attribute_ from contact t0"
+      + ") r1 group by r1.attribute_ order by r1.attribute_");
     assertThat(list1.get(0)).isInstanceOf(CountedValue.class);
     assertThat(list1.toString()).isEqualTo("[3: Bugs1, 1: Fiona, 3: Fred1, 1: Jack, 3: Jim1, 1: Tracy]");
 
@@ -714,11 +713,11 @@ public class TestQuerySingleAttribute extends BaseTestCase {
     List<CountedValue<Object>> list2 = query
       .setCountDistinct(CountDistinctOrder.ATTR_ASC)
       .findSingleAttributeList();
-    assertThat(sqlOf(query)).contains("select r1.attribute_1, count(*) cnt from ("
-      + "select t2.line_1 attribute_1 "
+    assertThat(sqlOf(query)).contains("select r1.attribute_, count(*) from ("
+      + "select t2.line_1 as attribute_ "
       + "from contact t0 join o_customer t1 on t1.id = t0.customer_id  "
       + "left join o_address t2 on t2.id = t1.shipping_address_id "
-      + ") r1 group by r1.attribute_1 order by r1.attribute_1");
+      + ") r1 group by r1.attribute_ order by r1.attribute_");
     assertThat(list2.get(0)).isInstanceOf(CountedValue.class);
     if (isPostgres() || isOracle()) {
       assertThat(list2.toString()).isEqualTo("[3: 1 Banana St, 5: 12 Apple St, 3: 15 Kumera Way, 1: null]");
@@ -731,11 +730,11 @@ public class TestQuerySingleAttribute extends BaseTestCase {
     List<CountedValue<Object>> list3 = query
       .setCountDistinct(CountDistinctOrder.ATTR_ASC)
       .findSingleAttributeList();
-    assertThat(sqlOf(query)).contains("select r1.attribute_1, count(*) cnt from ("
-      + "select t0.first_name attribute_1 from contact t0 "
+    assertThat(sqlOf(query)).contains("select r1.attribute_, count(*) from ("
+      + "select t0.first_name as attribute_ from contact t0 "
       + "join o_customer t1 on t1.id = t0.customer_id  "
       + "left join o_address t2 on t2.id = t1.shipping_address_id  where t2.line_1 = ?"
-      + ") r1 group by r1.attribute_1 order by r1.attribute_1");
+      + ") r1 group by r1.attribute_ order by r1.attribute_");
     assertThat(list3.get(0)).isInstanceOf(CountedValue.class);
     assertThat(list3.toString()).isEqualTo("[1: Bugs1, 1: Fiona, 1: Fred1, 1: Jim1, 1: Tracy]");
 
@@ -748,13 +747,13 @@ public class TestQuerySingleAttribute extends BaseTestCase {
     List<CountedValue<Object>> list4 = query
       .setCountDistinct(CountDistinctOrder.ATTR_ASC)
       .findSingleAttributeList();
-    assertThat(sqlOf(query)).contains("select r1.attribute_1, count(*) cnt from ("
-      + "select t2.line_1 attribute_1 "
+    assertThat(sqlOf(query)).contains("select r1.attribute_, count(*) from ("
+      + "select t2.line_1 as attribute_ "
       + "from contact t0 join o_customer t1 on t1.id = t0.customer_id  "
       + "left join o_address t2 on t2.id = t1.billing_address_id  "
       + "left join o_address t3 on t3.id = t1.shipping_address_id  "
       + "where (t3.line_1 <> ? or t3.line_1 is null)"
-      + ") r1 group by r1.attribute_1 order by r1.attribute_1");
+      + ") r1 group by r1.attribute_ order by r1.attribute_");
     assertThat(list4.get(0)).isInstanceOf(CountedValue.class);
     if (isPostgres() || isOracle()) {
       assertThat(list4.toString()).isEqualTo("[3: Bos town, 3: P.O.Box 1234, 1: null]");
@@ -768,12 +767,12 @@ public class TestQuerySingleAttribute extends BaseTestCase {
       .where().isNotNull("customer.billingAddress.line1").query()
       .setCountDistinct(CountDistinctOrder.ATTR_DESC)
       .findSingleAttributeList();
-    assertThat(sqlOf(query)).contains("select r1.attribute_1, count(*) cnt from ("
-      + "select t2.line_1 attribute_1 from contact t0 "
+    assertThat(sqlOf(query)).contains("select r1.attribute_, count(*) from ("
+      + "select t2.line_1 as attribute_ from contact t0 "
       + "join o_customer t1 on t1.id = t0.customer_id  "
       + "left join o_address t2 on t2.id = t1.billing_address_id  "
       + "where t2.line_1 is not null"
-      + ") r1 group by r1.attribute_1 order by r1.attribute_1 desc ");
+      + ") r1 group by r1.attribute_ order by r1.attribute_ desc ");
     if (isSqlServer()) {
       assertThat(sqlOf(query)).endsWith(" fetch next 2 rows only");
     } else if (isDb2()) {
@@ -789,11 +788,11 @@ public class TestQuerySingleAttribute extends BaseTestCase {
       List<CountedValue<Object>> list6 = query
         .setCountDistinct(CountDistinctOrder.NO_ORDERING)
         .findSingleAttributeList();
-      assertThat(sqlOf(query)).contains("select r1.attribute_1, count(*) cnt from ("
-        + "select t0.first_name attribute_1 from contact t0 "
+      assertThat(sqlOf(query)).contains("select r1.attribute_, count(*) from ("
+        + "select t0.first_name as attribute_ from contact t0 "
         + "join o_customer t1 on t1.id = t0.customer_id  "
         + "left join o_address t2 on t2.id = t1.shipping_address_id  where t2.line_1 = ?"
-        + ") r1 group by r1.attribute_1")
+        + ") r1 group by r1.attribute_")
         .doesNotContain("order by");
       assertThat(list6.get(0)).isInstanceOf(CountedValue.class);
       // Ordering is not required/deterministic
@@ -833,67 +832,6 @@ public class TestQuerySingleAttribute extends BaseTestCase {
     public @Nonnull String toString() {
       return "#" + cnt + ", " + prefix + ", @" + date;
     }
-  }
-
-  @Test
-  public void distinctWithDtoAndAggregationCount() {
-
-    ResetBasicData.reset();
-
-    Query<Customer> query = Ebean.find(Customer.class).select("cast(cretime as date) as date, left(smallnote,3) as prefix")
-      .setCountDistinct(CountDistinctOrder.NO_ORDERING)
-      .setCountDistinctDto(TestDto.class)
-      .setUseQueryCache(true);
-
-    List<TestDto> list = query.findSingleAttributeList();
-
-    assertThat(list).hasSize(1);
-
-    assertThat(sqlOf(query)).isEqualTo("select r1.date, r1.prefix, count(*) cnt from ("
-      + "select cast(t0.cretime as date) date, left(t0.smallnote,3) prefix from o_customer t0"
-      + ") r1 group by r1.date, r1.prefix");
-  }
-
-  @Test
-  public void distinctWithDtoAndAliasCount() {
-
-    ResetBasicData.reset();
-
-    // Brackets for lastName currently necessary to parse correctly.
-    Query<Customer> query = Ebean.find(Customer.class).select("cast(cretime as date) as date, (smallnote) as prefix")
-      .setCountDistinct(CountDistinctOrder.NO_ORDERING)
-      .setCountDistinctDto(TestDto.class)
-      .setUseQueryCache(true);
-
-    List<TestDto> list = query.findSingleAttributeList();
-
-    assertThat(list).hasSize(1);
-
-    assertThat(sqlOf(query)).isEqualTo("select r1.date, r1.prefix, count(*) cnt from ("
-        + "select cast(t0.cretime as date) date, (t0.smallnote) prefix from o_customer t0"
-        + ") r1 group by r1.date, r1.prefix");
-  }
-
-  @Test
-  public void distinctWithCastAndFetchCount() {
-
-    ResetBasicData.reset();
-
-    Query<Customer> query = Ebean.find(Customer.class)
-      .select("cast(cretime as date)::LocalDate as date")
-      .fetch("shippingAddress", "left(city,3)::String as prefix")
-      .setCountDistinct(CountDistinctOrder.NO_ORDERING)
-      .setCountDistinctDto(TestDto.class)
-      .setUseQueryCache(true);
-
-    List<TestDto> list = query.findSingleAttributeList();
-
-    assertThat(list).extracting(dto -> dto.getCnt()).containsAll(Arrays.asList(1, 3));
-
-    assertThat(sqlOf(query)).contains("select r1.date, r1.prefix, count(*) cnt from ("
-        + "select cast(t0.cretime as date) date, left(t1.city,3) prefix from o_customer t0 "
-        + "left join o_address t1 on t1.id = t0.shipping_address_id "
-        + ") r1 group by r1.date, r1.prefix");
   }
 
   @Test

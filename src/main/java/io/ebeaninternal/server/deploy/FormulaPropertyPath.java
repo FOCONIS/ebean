@@ -107,36 +107,36 @@ final class FormulaPropertyPath {
 
   STreeProperty build() {
     // FIXME: we must parse all properties
-    final BeanProperty property = firstProp == null ? null : firstProp.getBeanProperty();
     if (cast != null) {
       ScalarType<?> scalarType = descriptor.getScalarType(cast);
       if (scalarType == null) {
         throw new IllegalStateException("Unable to find scalarType for cast of [" + cast + "] on formula [" + formula + "] for type " + descriptor);
       }
-      return create(scalarType, property);
+      return create(scalarType);
     }
     if (isCount()) {
-      return create(descriptor.getScalarType(Types.BIGINT), property);
+      return create(descriptor.getScalarType(Types.BIGINT));
     }
     if (isConcat()) {
-      return create(descriptor.getScalarType(Types.VARCHAR), property);
+      return create(descriptor.getScalarType(Types.VARCHAR));
     }
-    if (property == null) {
+    if (firstProp == null) {
       throw new IllegalStateException("unable to determine scalarType of formula [" + formula + "] for type " + descriptor + " - maybe use a cast like ::String ?");
     }
 
+    // determine scalarType based on first property found by parser
+    final BeanProperty property = firstProp.getBeanProperty();
     if (!property.isAssocId()) {
-      // determine scalarType based on first property found by parser
-      return create(property.getScalarType(), property);
+      return create(property.getScalarType());
     } else {
       return createManyToOne(property);
     }
   }
 
-  private DynamicPropertyAggregationFormula create(ScalarType<?> scalarType, BeanProperty baseProp) {
+  private DynamicPropertyAggregationFormula create(ScalarType<?> scalarType) {
 
     String logicalName = logicalName();
-    return new DynamicPropertyAggregationFormula(logicalName, scalarType, parsedAggregation, isAggregate(), baseProp, target(logicalName), alias);
+    return new DynamicPropertyAggregationFormula(logicalName, scalarType, parsedAggregation, isAggregate(), target(logicalName), alias);
   }
 
   private DynamicPropertyAggregationFormula createManyToOne(BeanProperty property) {

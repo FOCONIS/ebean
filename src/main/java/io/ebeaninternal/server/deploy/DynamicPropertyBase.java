@@ -15,14 +15,12 @@ abstract class DynamicPropertyBase implements STreeProperty {
   final String fullName;
   private final String elPrefix;
   final ScalarType<?> scalarType;
-  private final BeanProperty baseProp;
 
-  DynamicPropertyBase(String name, String fullName, String elPrefix, ScalarType<?> scalarType, BeanProperty baseProp) {
+  DynamicPropertyBase(String name, String fullName, String elPrefix, ScalarType<?> scalarType) {
     this.name = name;
     this.fullName = fullName;
     this.elPrefix = elPrefix;
     this.scalarType = scalarType;
-    this.baseProp = baseProp;
   }
 
   @Override
@@ -72,9 +70,7 @@ abstract class DynamicPropertyBase implements STreeProperty {
 
   @Override
   public void appendFrom(DbSqlContext ctx, SqlJoinType joinType, String manyWhere) {
-    if (baseProp != null) {
-      baseProp.appendFrom(ctx, joinType, manyWhere);
-    }
+    // do not add to from usually
   }
 
   @Override

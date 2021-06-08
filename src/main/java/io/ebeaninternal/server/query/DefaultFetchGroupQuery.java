@@ -289,11 +289,6 @@ class DefaultFetchGroupQuery<T> implements SpiFetchGroupQuery<T> {
   }
 
   @Override
-  public Class<?> getCountDistinctDto() {
-    throw new RuntimeException("EB102: Only select() and fetch() clause is allowed on FetchGroup");
-  }
-
-  @Override
   public boolean exists() {
     throw new RuntimeException("EB102: Only select() and fetch() clause is allowed on FetchGroup");
   }
@@ -463,11 +458,6 @@ class DefaultFetchGroupQuery<T> implements SpiFetchGroupQuery<T> {
 
   @Override
   public Query<T> setCountDistinct(CountDistinctOrder orderBy) {
-    throw new RuntimeException("EB102: Only select() and fetch() clause is allowed on FetchGroup");
-  }
-
-  @Override
-  public Query<T> setCountDistinctDto(Class<?> dtoClass) {
     throw new RuntimeException("EB102: Only select() and fetch() clause is allowed on FetchGroup");
   }
 

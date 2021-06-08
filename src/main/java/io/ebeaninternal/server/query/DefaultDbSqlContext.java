@@ -3,13 +3,11 @@ package io.ebeaninternal.server.query;
 import io.ebean.util.StringHelper;
 import io.ebeaninternal.server.deploy.BeanProperty;
 import io.ebeaninternal.server.deploy.DbSqlContext;
-import io.ebeaninternal.server.deploy.DbSqlContextColumn;
 import io.ebeaninternal.server.deploy.TableJoinColumn;
 import io.ebeaninternal.server.util.ArrayStack;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 
 class DefaultDbSqlContext implements DbSqlContext {
 
@@ -42,8 +40,6 @@ class DefaultDbSqlContext implements DbSqlContext {
   private HashSet<String> formulaJoins;
 
   private HashSet<String> tableJoins;
-
-  private List<DbSqlContextColumn> columns = new ArrayList<>();
 
   private final SqlTreeAlias alias;
 
@@ -278,7 +274,6 @@ class DefaultDbSqlContext implements DbSqlContext {
     String converted = this.alias.parse(parseSelect);
     sb.append(COMMA);
     sb.append(converted);
-    columns.add(new DbSqlContextColumn(converted, columnAlias));
     if (columnAlias != null) {
       sb.append(" ").append(columnAlias);
     } else {
@@ -294,7 +289,6 @@ class DefaultDbSqlContext implements DbSqlContext {
     sb.append(COMMA);
     sb.append(converted);
 
-    columns.add(new DbSqlContextColumn(converted, null));
     appendColumnAlias();
   }
 
@@ -302,16 +296,13 @@ class DefaultDbSqlContext implements DbSqlContext {
   public void appendHistorySysPeriod() {
 
     String tableAlias = tableAliasStack.peek();
-    String sql = historySupport.getSysPeriodLower(tableAlias);
+
     sb.append(COMMA);
-    sb.append(sql);
-    columns.add(new DbSqlContextColumn(sql, null));
+    sb.append(historySupport.getSysPeriodLower(tableAlias));
     appendColumnAlias();
 
-    sql=historySupport.getSysPeriodUpper(tableAlias);
     sb.append(COMMA);
-    sb.append(sql);
-    columns.add(new DbSqlContextColumn(sql, null));
+    sb.append(historySupport.getSysPeriodUpper(tableAlias));
     appendColumnAlias();
   }
 
@@ -332,17 +323,17 @@ class DefaultDbSqlContext implements DbSqlContext {
   @Override
   public void appendColumn(String tableAlias, String column) {
     sb.append(COMMA);
-    String sql;
 
     if (column.contains("${}")) {
       // support DB functions such as lower() etc
       // with the use of secondary columns
-      sql = StringHelper.replaceString(column, "${}", tableAlias);
+      String x = StringHelper.replaceString(column, "${}", tableAlias);
+      sb.append(x);
     } else {
-      sql = tableAlias + PERIOD + column;
+      sb.append(tableAlias);
+      sb.append(PERIOD);
+      sb.append(column);
     }
-    sb.append(sql);
-    columns.add(new DbSqlContextColumn(sql, null));
     appendColumnAlias();
   }
 
@@ -356,7 +347,6 @@ class DefaultDbSqlContext implements DbSqlContext {
     sb.append(COMMA);
     sb.append(rawcolumnWithTableAlias);
 
-    columns.add(new DbSqlContextColumn(rawcolumnWithTableAlias, null));
     appendColumnAlias();
   }
 
@@ -375,11 +365,6 @@ class DefaultDbSqlContext implements DbSqlContext {
   @Override
   public String toString() {
     return "DefaultDbSqlContext: " + sb;
-  }
-
-  @Override
-  public DbSqlContextColumn[] getColumns() {
-    return columns.toArray(new DbSqlContextColumn[0]);
   }
 
 }

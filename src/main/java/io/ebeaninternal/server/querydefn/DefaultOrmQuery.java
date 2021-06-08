@@ -288,8 +288,6 @@ public class DefaultOrmQuery<T> extends AbstractQuery implements SpiQuery<T> {
 
   private ProfileLocation profileLocation;
 
-  private Class<?> countDistinctDto;
-
   public DefaultOrmQuery(BeanDescriptor<T> desc, SpiEbeanServer server, ExpressionFactory expressionFactory) {
     this.beanDescriptor = desc;
     this.rootBeanDescriptor = desc;
@@ -843,7 +841,6 @@ public class DefaultOrmQuery<T> extends AbstractQuery implements SpiQuery<T> {
     copy.rootTableAlias = rootTableAlias;
     copy.distinct = distinct;
     copy.countDistinctOrder = countDistinctOrder;
-    copy.countDistinctDto = countDistinctDto;
     copy.allowLoadErrors = allowLoadErrors;
     copy.timeout = timeout;
     copy.mapKey = mapKey;
@@ -1571,17 +1568,6 @@ public class DefaultOrmQuery<T> extends AbstractQuery implements SpiQuery<T> {
   @SuppressWarnings("unchecked")
   public <A> List<A> findSingleAttributeList() {
     return (List<A>) server.findSingleAttributeList(this, transaction);
-  }
-
-  @Override
-  public Query<T> setCountDistinctDto(Class<?> countDistinctDto) {
-    this.countDistinctDto = countDistinctDto;
-    return this;
-  }
-
-  @Override
-  public Class<?> getCountDistinctDto() {
-    return countDistinctDto;
   }
 
   @Override

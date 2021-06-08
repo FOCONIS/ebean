@@ -6,7 +6,6 @@ import io.ebeaninternal.api.PropertyJoin;
 import io.ebeaninternal.api.SpiQuery;
 import io.ebeaninternal.api.SpiQuery.Type;
 import io.ebeaninternal.server.core.OrmQueryRequest;
-import io.ebeaninternal.server.deploy.DbSqlContextColumn;
 import io.ebeaninternal.server.deploy.InheritInfo;
 import io.ebeaninternal.server.deploy.TableJoin;
 import io.ebeaninternal.server.querydefn.OrmQueryDetail;
@@ -135,7 +134,6 @@ public final class SqlTreeBuilder {
     String inheritanceWhereSql = null;
     String groupBy = null;
     STreeProperty[] encryptedProps = null;
-    DbSqlContextColumn[] columns = null;
     if (!rawSql) {
       selectSql = buildSelectClause();
       fromSql = buildFromClause();
@@ -143,11 +141,10 @@ public final class SqlTreeBuilder {
       groupBy = buildGroupByClause();
       distinctOn = buildDistinctOn();
       encryptedProps = ctx.getEncryptedProps();
-      columns = ctx.getColumns();
     }
 
     boolean includeJoins = alias != null && alias.isIncludeJoins();
-    return new SqlTree(rootNode, distinctOn, selectSql, fromSql, columns, groupBy, inheritanceWhereSql, encryptedProps, manyProperty, includeJoins);
+    return new SqlTree(rootNode, distinctOn, selectSql, fromSql, groupBy, inheritanceWhereSql, encryptedProps, manyProperty, includeJoins);
   }
 
   private String buildSelectClause() {

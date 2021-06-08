@@ -75,11 +75,6 @@ public interface DbSqlContext {
   void appendFormulaJoin(String sqlFormulaJoin, SqlJoinType joinType, String manyWhere);
 
   /**
-   * Returns a list of current columns.
-   */
-  DbSqlContextColumn[] getColumns();
-
-  /**
    * Return the current content length.
    */
   int length();
