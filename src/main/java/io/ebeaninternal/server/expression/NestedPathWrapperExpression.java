@@ -1,6 +1,6 @@
 package io.ebeaninternal.server.expression;
 
-import io.ebean.QueryVisitor;
+import io.ebean.ExpressionVisitor;
 import io.ebean.event.BeanQueryRequest;
 import io.ebeaninternal.api.ManyWhereJoins;
 import io.ebeaninternal.api.NaturalKeyQueryData;
@@ -105,7 +105,10 @@ class NestedPathWrapperExpression implements SpiExpression {
   }
 
   @Override
-  public void visitExpression(final QueryVisitor<?> target) {
-    delegate.visitExpression(target);
+  public void visit(ExpressionVisitor visitor) {
+    throw new UnsupportedOperationException("NestedPathWrapper.visit is unsupported");
+//    visitor.startNested(nestedPath);
+//    delegate.visit(visitor);
+//    visitor.endNested();
   }
 }

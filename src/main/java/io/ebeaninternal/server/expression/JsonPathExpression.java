@@ -1,6 +1,6 @@
 package io.ebeaninternal.server.expression;
 
-import io.ebean.QueryVisitor;
+import io.ebean.ExpressionVisitor;
 import io.ebeaninternal.api.SpiExpression;
 import io.ebeaninternal.api.SpiExpressionRequest;
 
@@ -118,34 +118,34 @@ class JsonPathExpression extends AbstractExpression {
   }
 
   @Override
-  public void visitExpression(final QueryVisitor<?> target) {
+  public void visit(ExpressionVisitor visitor) {
     switch (operator) {
       case EXISTS:
-        target.jsonExists(propName, path);
+        visitor.jsonExists(propName, path);
         break;
       case NOT_EXISTS:
-        target.jsonNotExists(propName, path);
+        visitor.jsonNotExists(propName, path);
         break;
       case BETWEEN:
-        target.jsonBetween(propName, path, value, upperValue);
+        visitor.jsonBetween(propName, path, value, upperValue);
         break;
       case EQ:
-        target.jsonEqualTo(propName, path, value);
+        visitor.jsonEqualTo(propName, path, value);
         break;
       case NOT_EQ:
-        target.jsonNotEqualTo(propName, path, value);
+        visitor.jsonNotEqualTo(propName, path, value);
         break;
       case LT:
-        target.jsonLessThan(propName, path, value);
+        visitor.jsonLessThan(propName, path, value);
         break;
       case LT_EQ:
-        target.jsonLessOrEqualTo(propName, path, value);
+        visitor.jsonLessOrEqualTo(propName, path, value);
         break;
       case GT:
-        target.jsonGreaterThan(propName, path, value);
+        visitor.jsonGreaterThan(propName, path, value);
         break;
       case GT_EQ:
-        target.jsonGreaterOrEqual(propName, path, value);
+        visitor.jsonGreaterOrEqual(propName, path, value);
         break;
       default:
         throw new UnsupportedOperationException(operator + " is not implemented.");

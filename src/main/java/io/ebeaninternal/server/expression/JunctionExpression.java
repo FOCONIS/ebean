@@ -16,7 +16,7 @@ import io.ebean.PagedList;
 import io.ebean.Pairs;
 import io.ebean.Query;
 import io.ebean.QueryIterator;
-import io.ebean.QueryVisitor;
+import io.ebean.ExpressionVisitor;
 import io.ebean.Transaction;
 import io.ebean.UpdateQuery;
 import io.ebean.Version;
@@ -32,7 +32,6 @@ import io.ebeaninternal.api.SpiExpression;
 import io.ebeaninternal.api.SpiExpressionRequest;
 import io.ebeaninternal.api.SpiExpressionValidation;
 import io.ebeaninternal.api.SpiJunction;
-import io.ebeaninternal.api.SpiQuery;
 import io.ebeaninternal.server.deploy.BeanDescriptor;
 
 import java.io.IOException;
@@ -1004,31 +1003,27 @@ class JunctionExpression<T> implements SpiJunction<T>, SpiExpression, Expression
   }
 
   @Override
-  public void visitExpression(QueryVisitor<?> target) {
+  public void visit(ExpressionVisitor visitor) {
     switch (type) {
       case AND:
-        target = target.and();
-        exprList.visitExpression(target);
-        target.endAnd();
+        visitor = visitor.and();
+        exprList.visit(visitor);
+        visitor.endAnd();
         break;
       case OR:
-        target = target.or();
-        exprList.visitExpression(target);
-        target.endOr();
+        visitor = visitor.or();
+        exprList.visit(visitor);
+        visitor.endOr();
         break;
       case NOT:
-        target = target.not();
-        exprList.visitExpression(target);
-        target.endNot();
+        visitor = visitor.not();
+        exprList.visit(visitor);
+        visitor.endNot();
         break;
       default:
         throw new UnsupportedOperationException(type + " not supported");
     }
   }
 
-  @Override
-  public void visit(QueryVisitor<T> target) {
-    BeanDescriptor<T> desc = exprList.query instanceof SpiQuery ? ((SpiQuery) exprList.query).getBeanDescriptor() : null;
-    visitExpression(target);
-  }
+
 }

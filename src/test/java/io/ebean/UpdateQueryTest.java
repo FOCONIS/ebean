@@ -9,7 +9,6 @@ import org.junit.Test;
 import org.tests.model.basic.Country;
 import org.tests.model.basic.Customer;
 import org.tests.model.basic.EBasicWithUniqueCon;
-import org.tests.model.basic.Order;
 import org.tests.model.basic.ResetBasicData;
 
 import java.sql.Timestamp;
@@ -170,8 +169,8 @@ public class UpdateQueryTest extends BaseTestCase {
 
     assertThat(sqlOf(query)).contains("update o_customer set status=?, updtime=?  where id in (select t0.id from o_customer t0 left join o_address t1 on t1.id = t0.billing_address_id  where t0.status = ? and t1.country_code = ? and t0.id > ?)");
   }
-  
-  
+
+
   @Test
   public void whereIdIn() {
     EbeanServer server = server();

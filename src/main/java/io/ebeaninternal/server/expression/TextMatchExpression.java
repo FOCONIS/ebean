@@ -1,6 +1,6 @@
 package io.ebeaninternal.server.expression;
 
-import io.ebean.QueryVisitor;
+import io.ebean.ExpressionVisitor;
 import io.ebean.search.Match;
 
 import java.io.IOException;
@@ -26,7 +26,7 @@ public class TextMatchExpression extends AbstractTextExpression {
   }
 
   @Override
-  public void visitExpression(final QueryVisitor<?> target) {
-    target.match(propName, search, options);
+  public void visit(ExpressionVisitor visitor) {
+    visitor.match(propName, search, options);
   }
 }

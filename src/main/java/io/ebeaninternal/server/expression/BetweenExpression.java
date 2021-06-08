@@ -1,6 +1,6 @@
 package io.ebeaninternal.server.expression;
 
-import io.ebean.QueryVisitor;
+import io.ebean.ExpressionVisitor;
 import io.ebeaninternal.api.SpiExpression;
 import io.ebeaninternal.api.SpiExpressionRequest;
 
@@ -63,7 +63,7 @@ class BetweenExpression extends AbstractExpression {
   }
 
   @Override
-  public void visitExpression(QueryVisitor<?> target) {
-    target.between(propName, valueLow, valueHigh);
+  public void visit(ExpressionVisitor visitor) {
+    visitor.between(propName, low(), high());
   }
 }

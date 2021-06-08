@@ -1,7 +1,7 @@
 package io.ebeaninternal.server.expression;
 
 import io.ebean.LikeType;
-import io.ebean.QueryVisitor;
+import io.ebean.ExpressionVisitor;
 import io.ebeaninternal.api.SpiExpression;
 import io.ebeaninternal.api.SpiExpressionRequest;
 import io.ebeaninternal.server.el.ElPropertyValue;
@@ -105,41 +105,41 @@ class LikeExpression extends AbstractValueExpression {
   }
 
   @Override
-  public void visitExpression(QueryVisitor<?> target) {
+  public void visit(ExpressionVisitor visitor) {
     if (caseInsensitive) {
       switch (type) {
         case CONTAINS:
-          target.icontains(propName, strValue());
+          visitor.icontains(propName, strValue());
           return;
         case STARTS_WITH:
-          target.istartsWith(propName, strValue());
+          visitor.istartsWith(propName, strValue());
           return;
         case ENDS_WITH:
-          target.iendsWith(propName, strValue());
+          visitor.iendsWith(propName, strValue());
           return;
         case EQUAL_TO:
-          target.ieq(propName, strValue());
+          visitor.ieq(propName, strValue());
           return;
         case RAW:
-          target.ilike(propName, strValue());
+          visitor.ilike(propName, strValue());
           return;
       }
     } else {
       switch (type) {
         case CONTAINS:
-          target.contains(propName, strValue());
+          visitor.contains(propName, strValue());
           return;
         case STARTS_WITH:
-          target.startsWith(propName, strValue());
+          visitor.startsWith(propName, strValue());
           return;
         case ENDS_WITH:
-          target.endsWith(propName, strValue());
+          visitor.endsWith(propName, strValue());
           return;
         case EQUAL_TO:
-          target.eq(propName, strValue());
+          visitor.eq(propName, strValue());
           return;
         case RAW:
-          target.like(propName, strValue());
+          visitor.like(propName, strValue());
           return;
       }
     }

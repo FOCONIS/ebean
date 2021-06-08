@@ -2,7 +2,7 @@ package io.ebeaninternal.server.expression;
 
 import io.ebean.Pairs;
 import io.ebean.Pairs.Entry;
-import io.ebean.QueryVisitor;
+import io.ebean.ExpressionVisitor;
 import io.ebean.event.BeanQueryRequest;
 import io.ebeaninternal.api.NaturalKeyQueryData;
 import io.ebeaninternal.api.SpiExpression;
@@ -144,8 +144,8 @@ class InPairsExpression extends AbstractExpression {
   }
 
   @Override
-  public void visitExpression(QueryVisitor<?> target) {
+  public void visit(ExpressionVisitor visitor) {
     assert !not;  // Constructor is never called with `not == true`?
-    target.inPairs(pairs);
+    visitor.inPairs(pairs);
   }
 }

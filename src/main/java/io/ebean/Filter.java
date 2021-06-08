@@ -80,17 +80,6 @@ import java.util.Set;
 public interface Filter<T> {
 
   /**
-   * Matcher to test if a bean will match. This holds a context internally, so that matching will happen efficient.
-   *
-   * @author Roland Praml, FOCONIS AG
-   *
-   * @param <T> the entity bean type.
-   */
-  interface Matcher<T> {
-    boolean match(T bean);
-  }
-
-  /**
    * Specify a sortByClause.
    * <p>
    * The sort (if specified) will always execute first followed by the filter

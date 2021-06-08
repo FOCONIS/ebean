@@ -1,6 +1,6 @@
 package io.ebeaninternal.server.expression;
 
-import io.ebean.QueryVisitor;
+import io.ebean.ExpressionVisitor;
 import io.ebean.util.SplitName;
 import io.ebeaninternal.api.ManyWhereJoins;
 import io.ebeaninternal.api.SpiExpression;
@@ -100,11 +100,11 @@ class NullExpression extends AbstractExpression {
   }
 
   @Override
-  public void visitExpression(QueryVisitor<?> target) {
+  public void visit(ExpressionVisitor visitor) {
     if (notNull) {
-      target.isNotNull(propName);
+      visitor.isNotNull(propName);
     } else {
-      target.isNull(propName);
+      visitor.isNull(propName);
     }
   }
 }

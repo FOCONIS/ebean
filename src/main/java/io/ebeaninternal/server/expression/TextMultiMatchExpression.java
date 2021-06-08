@@ -1,6 +1,6 @@
 package io.ebeaninternal.server.expression;
 
-import io.ebean.QueryVisitor;
+import io.ebean.ExpressionVisitor;
 import io.ebean.search.MultiMatch;
 
 import java.io.IOException;
@@ -26,7 +26,7 @@ public class TextMultiMatchExpression extends AbstractTextExpression {
   }
 
   @Override
-  public void visitExpression(final QueryVisitor<?> target) {
-    target.multiMatch(search, options);
+  public void visit(ExpressionVisitor visitor) {
+    visitor.multiMatch(search, options);
   }
 }

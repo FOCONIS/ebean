@@ -1,6 +1,6 @@
 package io.ebeaninternal.server.expression;
 
-import io.ebean.QueryVisitor;
+import io.ebean.ExpressionVisitor;
 import io.ebeaninternal.api.ManyWhereJoins;
 import io.ebeaninternal.api.SpiExpression;
 import io.ebeaninternal.api.SpiExpressionRequest;
@@ -84,7 +84,7 @@ class IdExpression extends NonPrepareExpression implements SpiExpression {
   }
 
   @Override
-  public void visitExpression(QueryVisitor<?> target) {
-    target.idEq(value);
+  public void visit(ExpressionVisitor visitor) {
+    visitor.idEq(value);
   }
 }

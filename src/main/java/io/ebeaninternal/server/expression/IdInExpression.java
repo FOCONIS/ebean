@@ -1,6 +1,6 @@
 package io.ebeaninternal.server.expression;
 
-import io.ebean.QueryVisitor;
+import io.ebean.ExpressionVisitor;
 import io.ebean.event.BeanQueryRequest;
 import io.ebeaninternal.api.ManyWhereJoins;
 import io.ebeaninternal.api.SpiExpression;
@@ -153,7 +153,7 @@ public class IdInExpression extends NonPrepareExpression {
   }
 
   @Override
-  public void visitExpression(QueryVisitor<?> target) {
-    target.idIn(idCollection);
+  public void visit(ExpressionVisitor visitor) {
+    visitor.idIn(idCollection);
   }
 }

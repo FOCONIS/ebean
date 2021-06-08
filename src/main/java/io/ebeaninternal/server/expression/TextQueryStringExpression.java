@@ -1,6 +1,6 @@
 package io.ebeaninternal.server.expression;
 
-import io.ebean.QueryVisitor;
+import io.ebean.ExpressionVisitor;
 import io.ebean.search.TextQueryString;
 
 import java.io.IOException;
@@ -26,7 +26,7 @@ class TextQueryStringExpression extends AbstractTextExpression {
   }
 
   @Override
-  public void visitExpression(final QueryVisitor<?> target) {
-    target.textQueryString(search, options);
+  public void visit(ExpressionVisitor visitor) {
+    visitor.textQueryString(search, options);
   }
 }

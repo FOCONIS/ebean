@@ -1,6 +1,6 @@
 package io.ebeaninternal.server.expression;
 
-import io.ebean.QueryVisitor;
+import io.ebean.ExpressionVisitor;
 import io.ebeaninternal.api.SpiExpression;
 import io.ebeaninternal.api.SpiExpressionRequest;
 
@@ -82,11 +82,11 @@ public class ArrayContainsExpression extends AbstractExpression {
   }
 
   @Override
-  public void visitExpression(final QueryVisitor<?> target) {
+  public void visit(final ExpressionVisitor visitor) {
     if (contains) {
-      target.arrayContains(propName, values);
+      visitor.arrayContains(propName, values);
     } else {
-      target.arrayNotContains(propName, values);
+      visitor.arrayNotContains(propName, values);
     }
   }
 }

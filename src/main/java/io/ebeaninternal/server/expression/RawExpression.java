@@ -1,6 +1,6 @@
 package io.ebeaninternal.server.expression;
 
-import io.ebean.QueryVisitor;
+import io.ebean.ExpressionVisitor;
 import io.ebeaninternal.api.ManyWhereJoins;
 import io.ebeaninternal.api.SpiExpression;
 import io.ebeaninternal.api.SpiExpressionRequest;
@@ -101,7 +101,7 @@ class RawExpression extends NonPrepareExpression {
   }
 
   @Override
-  public void visitExpression(final QueryVisitor<?> target) {
-    target.raw(sql, values);
+  public void visit(ExpressionVisitor visitor) {
+    visitor.raw(sql, values);
   }
 }

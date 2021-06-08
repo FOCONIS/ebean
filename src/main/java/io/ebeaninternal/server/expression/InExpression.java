@@ -1,6 +1,6 @@
 package io.ebeaninternal.server.expression;
 
-import io.ebean.QueryVisitor;
+import io.ebean.ExpressionVisitor;
 import io.ebean.bean.EntityBean;
 import io.ebean.event.BeanQueryRequest;
 import io.ebeaninternal.api.NaturalKeyQueryData;
@@ -202,11 +202,15 @@ class InExpression extends AbstractExpression {
   }
 
   @Override
-  public void visitExpression(QueryVisitor<?> target) {
+  public void visit(ExpressionVisitor visitor) {
+
     if (not) {
-      target.notIn(propName, sourceValues);
+      assert !empty; // TODO Do we have to add "notInOrEmpty"
+      visitor.notIn(propName, initBindValues());
+    } else if (empty) {
+      visitor.inOrEmpty(propName, initBindValues());
     } else {
-      target.in(propName, sourceValues);
+      visitor.in(propName, initBindValues());
     }
   }
 }

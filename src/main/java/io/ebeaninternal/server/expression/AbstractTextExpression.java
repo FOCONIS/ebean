@@ -47,8 +47,4 @@ public abstract class AbstractTextExpression extends AbstractExpression {
     return false;
   }
 
-//  @Override
-//  public void visitExpression(final BeanDescriptor<?> desc, final QueryVisitor<?> target)  {
-//    throw new UnsupportedOperationException("Not supported: " +getClass().getName());
-//  }
 }

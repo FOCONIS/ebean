@@ -1,7 +1,6 @@
 package io.ebeaninternal.api;
 
 import io.ebean.Expression;
-import io.ebean.QueryVisitor;
 import io.ebean.event.BeanQueryRequest;
 import io.ebeaninternal.server.deploy.BeanDescriptor;
 import io.ebeaninternal.server.expression.DocQueryContext;
@@ -107,8 +106,4 @@ public interface SpiExpression extends Expression {
    */
   boolean naturalKey(NaturalKeyQueryData<?> data);
 
-  /**
-   * Applies given list to an other QueryDsl.
-   */
-  void visitExpression(QueryVisitor<?> target);
 }

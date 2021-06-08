@@ -39,7 +39,7 @@ import java.util.function.Predicate;
  *
  * @see Query#where()
  */
-public interface ExpressionList<T> extends QueryVisitor<T> {
+public interface ExpressionList<T> extends ExpressionVisitor {
 
   /**
    * Return the query that owns this expression list.
@@ -1092,6 +1092,7 @@ public interface ExpressionList<T> extends QueryVisitor<T> {
    *
    * }</pre>
    */
+  @Override
   ExpressionList<T> inOrEmpty(String propertyName, Collection<?> values);
 
   /**
@@ -1677,6 +1678,6 @@ public interface ExpressionList<T> extends QueryVisitor<T> {
   /**
    * Apply this filter to another one.
    */
-  void visit(QueryVisitor<T> filter);
+  void visit(ExpressionVisitor visitor);
 
 }
