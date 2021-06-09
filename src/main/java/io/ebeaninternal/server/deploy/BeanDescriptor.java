@@ -1993,7 +1993,7 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
         }
       }
 
-      if (inheritInfo != null && inheritInfo.hasChildren()) {
+      if (inheritInfo != null && !inheritInfo.isConcrete()) {
         return findReferenceBean(id, pc);
       }
 
@@ -2036,7 +2036,7 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
         }
       }
 
-      if (inheritInfo != null && inheritInfo.hasChildren()) {
+      if (inheritInfo != null && !inheritInfo.isConcrete()) {
         return findReferenceBean(id, pc);
       }
 

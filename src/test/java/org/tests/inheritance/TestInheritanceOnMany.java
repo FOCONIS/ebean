@@ -116,19 +116,16 @@ public class TestInheritanceOnMany extends BaseTestCase {
     Ebean.save(dog);
 
     LoggedSqlCollector.start();
-    // We must hit the database here and load the bean,
-    // as Dog could be a BigDog.
+    // Dog is concrete so we return as Dog even though
+    // it could be a BigDog (so we are trusting the caller)
     Dog ref = Ebean.getReference(Dog.class, dog.getId());
 
     List<String> sql = LoggedSqlCollector.stop();
-    assertThat(sql).hasSize(1);
+    assertThat(sql).isEmpty();
     assertNotNull(ref);
 
-    // not longer lazy loading
-    LoggedSqlCollector.start();
+    // invoke lazy loading
     assertEquals("D2", ref.getRegistrationNumber());
-    sql = LoggedSqlCollector.stop();
-    assertThat(sql).isEmpty();
   }
 
   @Test
