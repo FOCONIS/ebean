@@ -17,7 +17,7 @@ import io.ebean.PagedList;
 import io.ebean.Pairs;
 import io.ebean.Query;
 import io.ebean.QueryIterator;
-import io.ebean.ExpressionVisitor;
+import io.ebean.ExpressionListBuilder;
 import io.ebean.Transaction;
 import io.ebean.UpdateQuery;
 import io.ebean.Version;
@@ -1270,10 +1270,16 @@ public class DefaultExpressionList<T> implements SpiExpressionList<T> {
   }
 
   @Override
-  public void visit(ExpressionVisitor visitor) {
-    for (Expression expr : list) {
-      expr.visit(visitor);
+  public <B extends ExpressionListBuilder<T>> B applyTo(B builder) {
+    return (B) exprApply(builder);
+  }
+
+  @Override
+  public ExpressionListBuilder<?> exprApply(ExpressionListBuilder<?> builder) {
+    for (SpiExpression expr : list) {
+      builder = expr.exprApply(builder);
     }
+    return builder;
   }
 
 }

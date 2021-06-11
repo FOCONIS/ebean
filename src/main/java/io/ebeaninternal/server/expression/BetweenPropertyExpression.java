@@ -1,6 +1,6 @@
 package io.ebeaninternal.server.expression;
 
-import io.ebean.ExpressionVisitor;
+import io.ebean.ExpressionListBuilder;
 import io.ebean.util.SplitName;
 import io.ebeaninternal.api.ManyWhereJoins;
 import io.ebeaninternal.api.SpiExpression;
@@ -101,7 +101,7 @@ class BetweenPropertyExpression extends NonPrepareExpression {
   }
 
   @Override
-  public void visit(ExpressionVisitor visitor) {
-    visitor.betweenProperties(lowProperty, highProperty, val());
+  public ExpressionListBuilder<?> exprApply(ExpressionListBuilder<?> builder) {
+    return builder.betweenProperties(lowProperty, highProperty, val());
   }
 }

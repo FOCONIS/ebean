@@ -1,6 +1,6 @@
 package io.ebeaninternal.server.expression;
 
-import io.ebean.ExpressionVisitor;
+import io.ebean.ExpressionListBuilder;
 import io.ebean.bean.EntityBean;
 import io.ebean.plugin.ExpressionPath;
 import io.ebeaninternal.api.SpiExpression;
@@ -133,26 +133,20 @@ public class SimpleExpression extends AbstractValueExpression {
   }
 
   @Override
-  public void visit(ExpressionVisitor visitor) {
+  public ExpressionListBuilder<?> exprApply(ExpressionListBuilder<?> builder) {
     switch (type) {
       case EQ:
-        visitor.eq(getPropName(), getValue());
-        break;
+        return builder.eq(getPropName(), getValue());
       case NOT_EQ:
-        visitor.ne(getPropName(), getValue());
-        break;
+        return builder.ne(getPropName(), getValue());
       case GT:
-        visitor.gt(getPropName(), getValue());
-        break;
+        return builder.gt(getPropName(), getValue());
       case GT_EQ:
-        visitor.ge(getPropName(), getValue());
-        break;
+        return builder.ge(getPropName(), getValue());
       case LT:
-        visitor.lt(getPropName(), getValue());
-        break;
+        return builder.lt(getPropName(), getValue());
       case LT_EQ:
-        visitor.le(getPropName(), getValue());
-        break;
+        return builder.le(getPropName(), getValue());
       default:
         throw new UnsupportedOperationException(type + " not supported");
     }

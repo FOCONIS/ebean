@@ -1,6 +1,6 @@
 package io.ebeaninternal.server.expression;
 
-import io.ebean.ExpressionVisitor;
+import io.ebean.ExpressionListBuilder;
 import io.ebean.event.BeanQueryRequest;
 import io.ebeaninternal.api.SpiEbeanServer;
 import io.ebeaninternal.api.SpiExpression;
@@ -112,12 +112,12 @@ class InQueryExpression extends AbstractExpression implements UnsupportedDocStor
   }
 
   @Override
-  public void visit(ExpressionVisitor visitor) {
+  public ExpressionListBuilder<?> exprApply(ExpressionListBuilder<?> builder) {
     assert sql == null; // SQL used in tests only
     if (not) {
-      visitor.notIn(propName, subQuery);
+      return builder.notIn(propName, subQuery);
     } else {
-      visitor.in(propName, subQuery);
+      return builder.in(propName, subQuery);
     }
   }
 }

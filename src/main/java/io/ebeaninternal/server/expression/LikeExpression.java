@@ -1,7 +1,7 @@
 package io.ebeaninternal.server.expression;
 
 import io.ebean.LikeType;
-import io.ebean.ExpressionVisitor;
+import io.ebean.ExpressionListBuilder;
 import io.ebeaninternal.api.SpiExpression;
 import io.ebeaninternal.api.SpiExpressionRequest;
 import io.ebeaninternal.server.el.ElPropertyValue;
@@ -105,42 +105,32 @@ class LikeExpression extends AbstractValueExpression {
   }
 
   @Override
-  public void visit(ExpressionVisitor visitor) {
+  public ExpressionListBuilder<?> exprApply(ExpressionListBuilder<?> builder) {
     if (caseInsensitive) {
       switch (type) {
         case CONTAINS:
-          visitor.icontains(propName, strValue());
-          return;
+          return builder.icontains(propName, strValue());
         case STARTS_WITH:
-          visitor.istartsWith(propName, strValue());
-          return;
+          return builder.istartsWith(propName, strValue());
         case ENDS_WITH:
-          visitor.iendsWith(propName, strValue());
-          return;
+          return builder.iendsWith(propName, strValue());
         case EQUAL_TO:
-          visitor.ieq(propName, strValue());
-          return;
+          return builder.ieq(propName, strValue());
         case RAW:
-          visitor.ilike(propName, strValue());
-          return;
+          return builder.ilike(propName, strValue());
       }
     } else {
       switch (type) {
         case CONTAINS:
-          visitor.contains(propName, strValue());
-          return;
+          return builder.contains(propName, strValue());
         case STARTS_WITH:
-          visitor.startsWith(propName, strValue());
-          return;
+          return builder.startsWith(propName, strValue());
         case ENDS_WITH:
-          visitor.endsWith(propName, strValue());
-          return;
+          return builder.endsWith(propName, strValue());
         case EQUAL_TO:
-          visitor.eq(propName, strValue());
-          return;
+          return builder.eq(propName, strValue());
         case RAW:
-          visitor.like(propName, strValue());
-          return;
+          return builder.like(propName, strValue());
       }
     }
     throw new UnsupportedOperationException(type + " not supported");

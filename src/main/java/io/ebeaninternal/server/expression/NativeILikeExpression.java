@@ -1,7 +1,7 @@
 package io.ebeaninternal.server.expression;
 
 import io.ebean.LikeType;
-import io.ebean.ExpressionVisitor;
+import io.ebean.ExpressionListBuilder;
 import io.ebeaninternal.api.SpiExpression;
 import io.ebeaninternal.api.SpiExpressionRequest;
 import io.ebeaninternal.server.el.ElPropertyValue;
@@ -66,8 +66,8 @@ class NativeILikeExpression extends AbstractExpression {
   }
 
   @Override
-  public void visit(ExpressionVisitor visitor) {
-    visitor.ilike(propName, val);
+  public ExpressionListBuilder<?> exprApply(ExpressionListBuilder<?> builder) {
+    return builder.ilike(propName, val);
   }
 
 }

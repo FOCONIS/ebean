@@ -1,6 +1,6 @@
 package io.ebeaninternal.server.expression;
 
-import io.ebean.ExpressionVisitor;
+import io.ebean.ExpressionListBuilder;
 import io.ebeaninternal.api.SpiExpression;
 import io.ebeaninternal.api.SpiExpressionRequest;
 
@@ -61,7 +61,7 @@ class InRangeExpression extends AbstractExpression {
   }
 
   @Override
-  public void visit(ExpressionVisitor visitor) {
-    visitor.inRange(propName, low(), high());
+  public ExpressionListBuilder<?> exprApply(ExpressionListBuilder<?> builder) {
+    return builder.inRange(propName, low(), high());
   }
 }

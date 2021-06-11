@@ -3,7 +3,6 @@ package io.ebeaninternal.server.grammer;
 import io.ebean.BaseTestCase;
 import io.ebean.DB;
 import io.ebean.Ebean;
-import io.ebean.ExpressionVisitor;
 import io.ebean.Query;
 import io.ebean.annotation.ForPlatform;
 import io.ebean.annotation.IgnorePlatform;
@@ -1041,8 +1040,6 @@ public class EqlParserTest extends BaseTestCase {
   }
 
   private String toEql(Query<Customer> query) {
-    ExpressionVisitor visitor = new ToEqlExpressionVisitor();
-    query.where().visit(visitor);
-    return visitor.toString();
+    return query.where().applyTo(new ToEqlExpressionBuilder<>()).toString();
   }
 }

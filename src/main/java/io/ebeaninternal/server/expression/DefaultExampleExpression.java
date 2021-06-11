@@ -2,7 +2,7 @@ package io.ebeaninternal.server.expression;
 
 import io.ebean.ExampleExpression;
 import io.ebean.LikeType;
-import io.ebean.ExpressionVisitor;
+import io.ebean.ExpressionListBuilder;
 import io.ebean.bean.EntityBean;
 import io.ebean.event.BeanQueryRequest;
 import io.ebean.util.SplitName;
@@ -312,13 +312,14 @@ public class DefaultExampleExpression implements SpiExpression, ExampleExpressio
   }
 
   @Override
-  public void visit(ExpressionVisitor visitor) {
+  public ExpressionListBuilder<?> exprApply(ExpressionListBuilder<?> builder) {
     if (!list.isEmpty()) {
-      visitor = visitor.and();
+      builder = builder.and();
       for (SpiExpression expr : list) {
-        expr.visit(visitor);
+        builder = expr.exprApply(builder);
       }
-      visitor.endAnd();
+      builder = builder.endAnd();
     }
+    return builder;
   }
 }
