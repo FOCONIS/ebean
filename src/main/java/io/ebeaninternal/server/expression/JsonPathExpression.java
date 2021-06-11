@@ -1,6 +1,6 @@
 package io.ebeaninternal.server.expression;
 
-import io.ebean.ExpressionVisitor;
+import io.ebean.ExpressionListBuilder;
 import io.ebeaninternal.api.SpiExpression;
 import io.ebeaninternal.api.SpiExpressionRequest;
 
@@ -118,35 +118,27 @@ class JsonPathExpression extends AbstractExpression {
   }
 
   @Override
-  public void visit(ExpressionVisitor visitor) {
+  public ExpressionListBuilder<?> exprApply(ExpressionListBuilder<?> builder) {
+    ExpressionListBuilder.Json<?> builderJson = (ExpressionListBuilder.Json<?>) builder;
     switch (operator) {
       case EXISTS:
-        visitor.jsonExists(propName, path);
-        break;
+        return builderJson.jsonExists(propName, path);
       case NOT_EXISTS:
-        visitor.jsonNotExists(propName, path);
-        break;
+        return builderJson.jsonNotExists(propName, path);
       case BETWEEN:
-        visitor.jsonBetween(propName, path, value, upperValue);
-        break;
+        return builderJson.jsonBetween(propName, path, value, upperValue);
       case EQ:
-        visitor.jsonEqualTo(propName, path, value);
-        break;
+        return builderJson.jsonEqualTo(propName, path, value);
       case NOT_EQ:
-        visitor.jsonNotEqualTo(propName, path, value);
-        break;
+        return builderJson.jsonNotEqualTo(propName, path, value);
       case LT:
-        visitor.jsonLessThan(propName, path, value);
-        break;
+        return builderJson.jsonLessThan(propName, path, value);
       case LT_EQ:
-        visitor.jsonLessOrEqualTo(propName, path, value);
-        break;
+        return builderJson.jsonLessOrEqualTo(propName, path, value);
       case GT:
-        visitor.jsonGreaterThan(propName, path, value);
-        break;
+        return builderJson.jsonGreaterThan(propName, path, value);
       case GT_EQ:
-        visitor.jsonGreaterOrEqual(propName, path, value);
-        break;
+        return builderJson.jsonGreaterOrEqual(propName, path, value);
       default:
         throw new UnsupportedOperationException(operator + " is not implemented.");
     }

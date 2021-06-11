@@ -5,8 +5,4 @@ package io.ebean;
  */
 public interface Expression {
 
-  /**
-   * Visitor method to inspect that expression
-   */
-  void visit(ExpressionVisitor visitor);
 }

@@ -1,7 +1,7 @@
 package io.ebeaninternal.server.expression;
 
 import io.ebean.Expression;
-import io.ebean.ExpressionVisitor;
+import io.ebean.ExpressionListBuilder;
 import io.ebean.event.BeanQueryRequest;
 import io.ebeaninternal.api.ManyWhereJoins;
 import io.ebeaninternal.api.NaturalKeyQueryData;
@@ -106,9 +106,9 @@ final class NotExpression implements SpiExpression {
   }
 
   @Override
-  public void visit(ExpressionVisitor visitor) {
-    visitor = visitor.not();
-    exp.visit(visitor);
-    visitor.endNot();
+  public ExpressionListBuilder<?> exprApply(ExpressionListBuilder<?> builder) {
+    builder = builder.not();
+    exp.exprApply(builder);
+    return builder.endNot();
   }
 }

@@ -1,6 +1,6 @@
 package io.ebeaninternal.server.expression;
 
-import io.ebean.ExpressionVisitor;
+import io.ebean.ExpressionListBuilder;
 import io.ebeaninternal.api.SpiExpression;
 import io.ebeaninternal.api.SpiExpressionRequest;
 import io.ebeaninternal.server.el.ElPropertyValue;
@@ -81,11 +81,11 @@ class CaseInsensitiveEqualExpression extends AbstractValueExpression {
   }
 
   @Override
-  public void visit(ExpressionVisitor visitor) {
+  public ExpressionListBuilder<?> exprApply(ExpressionListBuilder<?> builder) {
     if (not) {
-      visitor.ine(propName, strValue());
+      return builder.ine(propName, strValue());
     } else {
-      visitor.ieq(propName, strValue());
+      return builder.ieq(propName, strValue());
     }
   }
 }

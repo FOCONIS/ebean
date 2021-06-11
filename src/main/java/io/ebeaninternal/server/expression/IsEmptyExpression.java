@@ -1,6 +1,6 @@
 package io.ebeaninternal.server.expression;
 
-import io.ebean.ExpressionVisitor;
+import io.ebean.ExpressionListBuilder;
 import io.ebeaninternal.api.ManyWhereJoins;
 import io.ebeaninternal.api.SpiExpression;
 import io.ebeaninternal.api.SpiExpressionRequest;
@@ -114,11 +114,11 @@ class IsEmptyExpression extends AbstractExpression {
   }
 
   @Override
-  public void visit(ExpressionVisitor visitor) {
+  public ExpressionListBuilder<?> exprApply(ExpressionListBuilder<?> builder) {
     if (empty) {
-      visitor.isEmpty(propName);
+      return builder.isEmpty(propName);
     } else {
-      visitor.isNotEmpty(propName);
+      return builder.isNotEmpty(propName);
     }
   }
 }

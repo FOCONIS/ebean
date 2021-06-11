@@ -1,6 +1,7 @@
 package io.ebeaninternal.api;
 
 import io.ebean.Expression;
+import io.ebean.ExpressionListBuilder;
 import io.ebean.event.BeanQueryRequest;
 import io.ebeaninternal.server.deploy.BeanDescriptor;
 import io.ebeaninternal.server.expression.DocQueryContext;
@@ -105,5 +106,11 @@ public interface SpiExpression extends Expression {
    * Check for match to a natural key query returning false if it doesn't match.
    */
   boolean naturalKey(NaturalKeyQueryData<?> data);
+
+  /**
+   * Applies the given expression to the builder.
+   * @param builder
+   */
+  ExpressionListBuilder<?> exprApply(ExpressionListBuilder<?> builder);
 
 }
