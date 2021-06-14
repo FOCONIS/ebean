@@ -17,7 +17,6 @@ import io.ebeaninternal.server.core.SpiOrmQueryRequest;
 import io.ebeaninternal.server.deploy.BeanDescriptor;
 import io.ebeaninternal.server.deploy.BeanPropertyAssocMany;
 import io.ebeaninternal.server.deploy.TableJoin;
-import io.ebeaninternal.server.query.CancelableQuery;
 import io.ebeaninternal.server.querydefn.NaturalKeyBindParam;
 import io.ebeaninternal.server.querydefn.OrmQueryDetail;
 import io.ebeaninternal.server.querydefn.OrmUpdateProperties;
@@ -30,7 +29,7 @@ import java.util.Set;
 /**
  * Object Relational query - Internal extension to Query object.
  */
-public interface SpiQuery<T> extends Query<T>, TxnProfileEventCodes {
+public interface SpiQuery<T> extends Query<T>, TxnProfileEventCodes, SpiCancelableQuery {
 
   enum Mode {
     NORMAL(false), LAZYLOAD_MANY(false), LAZYLOAD_BEAN(true), REFRESH_BEAN(true);
@@ -835,16 +834,6 @@ public interface SpiQuery<T> extends Query<T>, TxnProfileEventCodes {
    * Read the readEvent for future queries (null otherwise).
    */
   ReadEvent getFutureFetchAudit();
-
-  /**
-   * Set the underlying cancelable query (with the PreparedStatement).
-   */
-  void setCancelableQuery(CancelableQuery cancelableQuery);
-
-  /**
-   * Return true if this query has been cancelled.
-   */
-  boolean isCancelled();
 
   /**
    * Return the base table to use if user defined on the query.
