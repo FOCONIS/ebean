@@ -693,6 +693,119 @@ public interface ExpressionList<T> extends
   ExpressionList<T> where(String expressions, Object... params);
 
   /**
+   * Path exists - for the given path in a JSON document.
+   * <pre>{@code
+   *
+   *   where().jsonExists("content", "path.other")
+   *
+   * }</pre>
+   *
+   * @param propertyName the property that holds a JSON document
+   * @param path         the nested path in the JSON document in dot notation
+   */
+  @Override
+  ExpressionList<T> jsonExists(String propertyName, String path);
+
+  /**
+   * Path does not exist - for the given path in a JSON document.
+   * <pre>{@code
+   *
+   *   where().jsonNotExists("content", "path.other")
+   *
+   * }</pre>
+   *
+   * @param propertyName the property that holds a JSON document
+   * @param path         the nested path in the JSON document in dot notation
+   */
+  @Override
+  ExpressionList<T> jsonNotExists(String propertyName, String path);
+
+  /**
+   * Equal to expression for the value at the given path in the JSON document.
+   * <pre>{@code
+   *
+   *   where().jsonEqualTo("content", "path.other", 34)
+   *
+   * }</pre>
+   *
+   * @param propertyName the property that holds a JSON document
+   * @param path         the nested path in the JSON document in dot notation
+   * @param value        the value used to test against the document path's value
+   */
+  @Override
+  ExpressionList<T> jsonEqualTo(String propertyName, String path, Object value);
+
+  /**
+   * Not Equal to - for the given path in a JSON document.
+   * <pre>{@code
+   *
+   *   where().jsonNotEqualTo("content", "path.other", 34)
+   *
+   * }</pre>
+   *
+   * @param propertyName the property that holds a JSON document
+   * @param path         the nested path in the JSON document in dot notation
+   * @param value        the value used to test against the document path's value
+   */
+  @Override
+  ExpressionList<T> jsonNotEqualTo(String propertyName, String path, Object value);
+
+  /**
+   * Greater than - for the given path in a JSON document.
+   * <pre>{@code
+   *
+   *   where().jsonGreaterThan("content", "path.other", 34)
+   *
+   * }</pre>
+   */
+  @Override
+  ExpressionList<T> jsonGreaterThan(String propertyName, String path, Object value);
+
+  /**
+   * Greater than or equal to - for the given path in a JSON document.
+   * <pre>{@code
+   *
+   *   where().jsonGreaterOrEqual("content", "path.other", 34)
+   *
+   * }</pre>
+   */
+  @Override
+  ExpressionList<T> jsonGreaterOrEqual(String propertyName, String path, Object value);
+
+  /**
+   * Less than - for the given path in a JSON document.
+   * <pre>{@code
+   *
+   *   where().jsonLessThan("content", "path.other", 34)
+   *
+   * }</pre>
+   */
+  @Override
+  ExpressionList<T> jsonLessThan(String propertyName, String path, Object value);
+
+  /**
+   * Less than or equal to - for the given path in a JSON document.
+   * <pre>{@code
+   *
+   *   where().jsonLessOrEqualTo("content", "path.other", 34)
+   *
+   * }</pre>
+   */
+  @Override
+  ExpressionList<T> jsonLessOrEqualTo(String propertyName, String path, Object value);
+
+  /**
+   * Between - for the given path in a JSON document.
+   * <pre>{@code
+   *
+   *   where().jsonBetween("content", "orderDate", lowerDateTime, upperDateTime)
+   *
+   * }</pre>
+   */
+  @Override
+  ExpressionList<T> jsonBetween(String propertyName, String path, Object lowerValue, Object upperValue);
+
+  /**
    * Add an Expression to the list.
    */
   ExpressionList<T> add(Expression expr);
