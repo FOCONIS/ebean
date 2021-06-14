@@ -1276,6 +1276,9 @@ public class DefaultExpressionList<T> implements SpiExpressionList<T> {
 
   @Override
   public ExpressionListBuilder<?> exprApply(ExpressionListBuilder<?> builder) {
+    if (query.getId() != null) {
+      builder.idEq(query.getId());
+    }
     for (SpiExpression expr : list) {
       builder = expr.exprApply(builder);
     }
