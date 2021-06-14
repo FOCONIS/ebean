@@ -20,8 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import javax.persistence.PersistenceException;
-
 /**
  * Base compiled query request for single attribute queries.
  */
@@ -202,14 +200,7 @@ class CQueryFetchSingleAttribute implements SpiProfileTransactionEvent, Cancelab
   @Override
   public void cancel() {
     synchronized (this) {
-      if (pstmt != null) {
-        try {
-          pstmt.cancel();
-        } catch (SQLException e) {
-          String msg = "Error cancelling query";
-          throw new PersistenceException(msg, e);
-        }
-      }
+      JdbcClose.cancel(pstmt);
     }
   }
 }
