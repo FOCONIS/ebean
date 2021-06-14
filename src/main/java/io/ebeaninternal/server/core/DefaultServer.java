@@ -13,7 +13,6 @@ import io.ebean.Filter;
 import io.ebean.FutureIds;
 import io.ebean.FutureList;
 import io.ebean.FutureRowCount;
-import io.ebean.FutureSingleAttributeList;
 import io.ebean.MergeOptions;
 import io.ebean.MergeOptionsBuilder;
 import io.ebean.PagedList;
@@ -99,13 +98,11 @@ import io.ebeaninternal.server.query.CQueryEngine;
 import io.ebeaninternal.server.query.CallableQueryCount;
 import io.ebeaninternal.server.query.CallableQueryIds;
 import io.ebeaninternal.server.query.CallableQueryList;
-import io.ebeaninternal.server.query.CallableQuerySingleAttributeList;
 import io.ebeaninternal.server.query.DtoQueryEngine;
 import io.ebeaninternal.server.query.LimitOffsetPagedList;
 import io.ebeaninternal.server.query.QueryFutureIds;
 import io.ebeaninternal.server.query.QueryFutureList;
 import io.ebeaninternal.server.query.QueryFutureRowCount;
-import io.ebeaninternal.server.query.QueryFutureSingleAttributeList;
 import io.ebeaninternal.server.querydefn.DefaultDtoQuery;
 import io.ebeaninternal.server.querydefn.DefaultOrmQuery;
 import io.ebeaninternal.server.querydefn.DefaultOrmUpdate;
@@ -1467,22 +1464,6 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
 
     CallableQueryIds<T> call = new CallableQueryIds<>(this, copy, newTxn);
     QueryFutureIds<T> queryFuture = new QueryFutureIds<>(call);
-
-    backgroundExecutor.execute(queryFuture.getFutureTask());
-
-    return queryFuture;
-  }
-
-  @Override
-  public <T, A> FutureSingleAttributeList<T, A> findFutureSingleAttributeList(Query<T> query, Transaction t) {
-
-    SpiQuery<T> copy = ((SpiQuery<T>) query).copy();
-    copy.setFutureFetch(true);
-
-    Transaction newTxn = createTransaction();
-
-    CallableQuerySingleAttributeList<T, A> call = new CallableQuerySingleAttributeList<>(this, copy, newTxn);
-    QueryFutureSingleAttributeList<T, A> queryFuture = new QueryFutureSingleAttributeList<>(call);
 
     backgroundExecutor.execute(queryFuture.getFutureTask());
 

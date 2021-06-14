@@ -12,7 +12,6 @@ import io.ebean.FetchPath;
 import io.ebean.FutureIds;
 import io.ebean.FutureList;
 import io.ebean.FutureRowCount;
-import io.ebean.FutureSingleAttributeList;
 import io.ebean.OrderBy;
 import io.ebean.PagedList;
 import io.ebean.PersistenceContextScope;
@@ -351,11 +350,6 @@ class DefaultFetchGroupQuery<T> implements SpiFetchGroupQuery<T> {
   @Nonnull
   @Override
   public FutureIds<T> findFutureIds() {
-    throw new RuntimeException("EB102: Only select() and fetch() clause is allowed on FetchGroup");
-  }
-
-  @Override
-  public <A> FutureSingleAttributeList<T, A> findFutureSingleAttributeList() {
     throw new RuntimeException("EB102: Only select() and fetch() clause is allowed on FetchGroup");
   }
 

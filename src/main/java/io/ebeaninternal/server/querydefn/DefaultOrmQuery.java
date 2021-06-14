@@ -12,7 +12,6 @@ import io.ebean.FetchPath;
 import io.ebean.FutureIds;
 import io.ebean.FutureList;
 import io.ebean.FutureRowCount;
-import io.ebean.FutureSingleAttributeList;
 import io.ebean.OrderBy;
 import io.ebean.OrderBy.Property;
 import io.ebean.PagedList;
@@ -1594,11 +1593,6 @@ public class DefaultOrmQuery<T> extends AbstractQuery implements SpiQuery<T> {
   @Override
   public FutureList<T> findFutureList() {
     return server.findFutureList(this, transaction);
-  }
-
-  @Override
-  public <A> FutureSingleAttributeList<T, A> findFutureSingleAttributeList() {
-    return server.findFutureSingleAttributeList(this, transaction);
   }
 
   @Override
