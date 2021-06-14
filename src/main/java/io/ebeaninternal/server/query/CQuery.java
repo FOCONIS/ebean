@@ -158,8 +158,6 @@ public class CQuery<T> implements DbReadContext, CancelableQuery, SpiProfileTran
    */
   private PreparedStatement pstmt;
 
-  private boolean cancelled;
-
   private String bindLog;
 
   private final CQueryPlan queryPlan;
@@ -295,7 +293,6 @@ public class CQuery<T> implements DbReadContext, CancelableQuery, SpiProfileTran
   @Override
   public void cancel() {
     synchronized (this) {
-      this.cancelled = true;
       if (pstmt != null) {
         try {
           pstmt.cancel();
