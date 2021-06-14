@@ -22,7 +22,7 @@ public interface BeanDeleteIdRequest {
    * Returns the bean type of the bean being deleted.
    */
   Class<?> getBeanType();
-  
+
   /**
    * Returns the Id value of the bean being deleted.
    */
