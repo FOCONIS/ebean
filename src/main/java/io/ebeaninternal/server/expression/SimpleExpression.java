@@ -1,5 +1,6 @@
 package io.ebeaninternal.server.expression;
 
+import io.ebean.ExpressionListBuilder;
 import io.ebean.bean.EntityBean;
 import io.ebean.plugin.ExpressionPath;
 import io.ebeaninternal.api.SpiExpression;
@@ -129,5 +130,25 @@ public class SimpleExpression extends AbstractValueExpression {
   public boolean isSameByBind(SpiExpression other) {
     SimpleExpression that = (SimpleExpression) other;
     return value().equals(that.value());
+  }
+
+  @Override
+  public ExpressionListBuilder<?> exprApply(ExpressionListBuilder<?> builder) {
+    switch (type) {
+      case EQ:
+        return builder.eq(getPropName(), getValue());
+      case NOT_EQ:
+        return builder.ne(getPropName(), getValue());
+      case GT:
+        return builder.gt(getPropName(), getValue());
+      case GT_EQ:
+        return builder.ge(getPropName(), getValue());
+      case LT:
+        return builder.lt(getPropName(), getValue());
+      case LT_EQ:
+        return builder.le(getPropName(), getValue());
+      default:
+        throw new UnsupportedOperationException(type + " not supported");
+    }
   }
 }

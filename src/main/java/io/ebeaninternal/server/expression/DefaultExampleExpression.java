@@ -2,6 +2,7 @@ package io.ebeaninternal.server.expression;
 
 import io.ebean.ExampleExpression;
 import io.ebean.LikeType;
+import io.ebean.ExpressionListBuilder;
 import io.ebean.bean.EntityBean;
 import io.ebean.event.BeanQueryRequest;
 import io.ebean.util.SplitName;
@@ -308,5 +309,17 @@ public class DefaultExampleExpression implements SpiExpression, ExampleExpressio
       }
     }
     return false;
+  }
+
+  @Override
+  public ExpressionListBuilder<?> exprApply(ExpressionListBuilder<?> builder) {
+    if (!list.isEmpty()) {
+      builder = builder.and();
+      for (SpiExpression expr : list) {
+        builder = expr.exprApply(builder);
+      }
+      builder = builder.endAnd();
+    }
+    return builder;
   }
 }

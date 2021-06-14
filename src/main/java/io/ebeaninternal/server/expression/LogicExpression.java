@@ -2,6 +2,7 @@ package io.ebeaninternal.server.expression;
 
 import io.ebean.Expression;
 import io.ebean.Junction;
+import io.ebean.ExpressionListBuilder;
 import io.ebean.event.BeanQueryRequest;
 import io.ebeaninternal.api.ManyWhereJoins;
 import io.ebeaninternal.api.NaturalKeyQueryData;
@@ -31,6 +32,14 @@ abstract class LogicExpression implements SpiExpression {
       return new And(expOne.copyForPlanKey(), expTwo.copyForPlanKey());
     }
 
+    @Override
+    public ExpressionListBuilder<?> exprApply(ExpressionListBuilder<?> builder) {
+      builder = builder.and();
+      builder = expOne.exprApply(builder);
+      builder = expTwo.exprApply(builder);
+      return builder.endAnd();
+    }
+
   }
 
   static class Or extends LogicExpression {
@@ -42,6 +51,14 @@ abstract class LogicExpression implements SpiExpression {
     @Override
     public SpiExpression copyForPlanKey() {
       return new Or(expOne.copyForPlanKey(), expTwo.copyForPlanKey());
+    }
+
+    @Override
+    public ExpressionListBuilder<?> exprApply(ExpressionListBuilder<?> builder) {
+      builder = builder.or();
+      builder = expOne.exprApply(builder);
+      builder = expTwo.exprApply(builder);
+      return builder.endOr();
     }
   }
 

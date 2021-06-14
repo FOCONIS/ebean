@@ -1,5 +1,6 @@
 package io.ebeaninternal.server.expression;
 
+import io.ebean.ExpressionListBuilder;
 import io.ebean.search.Match;
 
 import java.io.IOException;
@@ -24,4 +25,8 @@ public class TextMatchExpression extends AbstractTextExpression {
     context.writeMatch(propName, search, options);
   }
 
+  @Override
+  protected ExpressionListBuilder.DocStore<?> exprApply(ExpressionListBuilder.DocStore<?> builder) {
+    return builder.match(propName, search, options);
+  }
 }

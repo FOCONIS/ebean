@@ -1,5 +1,6 @@
 package io.ebeaninternal.server.expression;
 
+import io.ebean.ExpressionListBuilder;
 import io.ebean.event.BeanQueryRequest;
 import io.ebeaninternal.api.ManyWhereJoins;
 import io.ebeaninternal.api.SpiExpression;
@@ -101,5 +102,13 @@ class NestedPathWrapperExpression implements SpiExpression {
   @Override
   public SpiExpression copyForPlanKey() {
     return new NestedPathWrapperExpression(nestedPath, delegate.copyForPlanKey());
+  }
+  @Override
+  public ExpressionListBuilder<?> exprApply(ExpressionListBuilder<?> builder) {
+    throw new UnsupportedOperationException("NestedPathWrapper.exprApply is unsupported");
+    // TODO: How can we do this?
+//    visitor.startNested(nestedPath);
+//    delegate.visit(visitor);
+//    visitor.endNested();
   }
 }

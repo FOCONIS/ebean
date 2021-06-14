@@ -1,5 +1,6 @@
 package io.ebeaninternal.server.expression;
 
+import io.ebean.ExpressionListBuilder;
 import io.ebeaninternal.api.ManyWhereJoins;
 import io.ebeaninternal.api.SpiExpression;
 import io.ebeaninternal.api.SpiExpressionRequest;
@@ -110,5 +111,14 @@ class IsEmptyExpression extends AbstractExpression {
   @Override
   public boolean isSameByBind(SpiExpression other) {
     return (other instanceof IsEmptyExpression);
+  }
+
+  @Override
+  public ExpressionListBuilder<?> exprApply(ExpressionListBuilder<?> builder) {
+    if (empty) {
+      return builder.isEmpty(propName);
+    } else {
+      return builder.isNotEmpty(propName);
+    }
   }
 }
