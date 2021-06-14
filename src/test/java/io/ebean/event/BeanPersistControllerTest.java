@@ -61,19 +61,16 @@ public class BeanPersistControllerTest {
     EBasicVer bean = new EBasicVer("testController");
 
     ebeanServer.save(bean);
-    assertThat(continuePersistingAdapter.methodsCalled).hasSize(2);
-    assertThat(continuePersistingAdapter.methodsCalled).containsExactly("preInsert", "postInsert");
+    assertThat(continuePersistingAdapter.methodsCalled).containsExactly("preInsert:EBasicVer,null", "postInsert:EBasicVer,1");
     continuePersistingAdapter.methodsCalled.clear();
 
     bean.setName("modified");
     ebeanServer.save(bean);
-    assertThat(continuePersistingAdapter.methodsCalled).hasSize(2);
-    assertThat(continuePersistingAdapter.methodsCalled).containsExactly("preUpdate", "postUpdate");
+    assertThat(continuePersistingAdapter.methodsCalled).containsExactly("preUpdate:EBasicVer,1", "postUpdate:EBasicVer,1");
     continuePersistingAdapter.methodsCalled.clear();
 
     ebeanServer.delete(bean);
-    assertThat(continuePersistingAdapter.methodsCalled).hasSize(2);
-    assertThat(continuePersistingAdapter.methodsCalled).containsExactly("preDelete", "postDelete");
+    assertThat(continuePersistingAdapter.methodsCalled).containsExactly("preDelete:EBasicVer,1", "postDelete:EBasicVer,1");
 
   }
 
@@ -85,29 +82,27 @@ public class BeanPersistControllerTest {
     EBasicVer bean = new EBasicVer("testController");
 
     ebeanServer.save(bean);
-    assertThat(stopPersistingAdapter.methodsCalled).hasSize(1);
-    assertThat(stopPersistingAdapter.methodsCalled).containsExactly("preInsert");
+    assertThat(stopPersistingAdapter.methodsCalled).containsExactly("preInsert:EBasicVer,null");
     stopPersistingAdapter.methodsCalled.clear();
 
     bean.setName("modified");
     ebeanServer.update(bean);
-    assertThat(stopPersistingAdapter.methodsCalled).hasSize(1);
-    assertThat(stopPersistingAdapter.methodsCalled).containsExactly("preUpdate");
+    assertThat(stopPersistingAdapter.methodsCalled).containsExactly("preUpdate:EBasicVer,null");
     stopPersistingAdapter.methodsCalled.clear();
 
     ebeanServer.delete(bean);
-    assertThat(stopPersistingAdapter.methodsCalled).hasSize(1);
-    assertThat(stopPersistingAdapter.methodsCalled).containsExactly("preDelete");
+    assertThat(stopPersistingAdapter.methodsCalled).containsExactly("preDelete:EBasicVer,null");
     stopPersistingAdapter.methodsCalled.clear();
 
     ebeanServer.delete(EBasicVer.class, 22);
-    assertThat(stopPersistingAdapter.methodsCalled).hasSize(1);
-    assertThat(stopPersistingAdapter.methodsCalled).containsExactly("preDeleteById");
+    assertThat(stopPersistingAdapter.methodsCalled).containsExactly("preDeleteById:EBasicVer,22");
     stopPersistingAdapter.methodsCalled.clear();
 
     ebeanServer.deleteAll(EBasicVer.class, Arrays.asList(22,23,24));
-    assertThat(stopPersistingAdapter.methodsCalled).hasSize(3);
-    assertThat(stopPersistingAdapter.methodsCalled).containsExactly("preDeleteById", "preDeleteById", "preDeleteById");
+    assertThat(stopPersistingAdapter.methodsCalled).containsExactly(
+        "preDeleteById:EBasicVer,22",
+        "preDeleteById:EBasicVer,23",
+        "preDeleteById:EBasicVer,24");
     stopPersistingAdapter.methodsCalled.clear();
   }
 
@@ -151,19 +146,19 @@ public class BeanPersistControllerTest {
 
     @Override
     public boolean preDelete(BeanPersistRequest<?> request) {
-      methodsCalled.add("preDelete");
+      methodsCalled.add("preDelete:" + requestInfo(request));
       return continueDefaultPersisting;
     }
 
     @Override
     public boolean preInsert(BeanPersistRequest<?> request) {
-      methodsCalled.add("preInsert");
+      methodsCalled.add("preInsert:" + requestInfo(request));
       return continueDefaultPersisting;
     }
 
     @Override
     public boolean preUpdate(BeanPersistRequest<?> request) {
-      methodsCalled.add("preUpdate");
+      methodsCalled.add("preUpdate:" + requestInfo(request));
 
       Object bean = request.getBean();
       if (bean instanceof UTDetail) {
@@ -177,22 +172,26 @@ public class BeanPersistControllerTest {
 
     @Override
     public void postDelete(BeanPersistRequest<?> request) {
-      methodsCalled.add("postDelete");
+      methodsCalled.add("postDelete:" + requestInfo(request));
     }
 
     @Override
     public void postInsert(BeanPersistRequest<?> request) {
-      methodsCalled.add("postInsert");
+      methodsCalled.add("postInsert:" + requestInfo(request));
     }
 
     @Override
     public void postUpdate(BeanPersistRequest<?> request) {
-      methodsCalled.add("postUpdate");
+      methodsCalled.add("postUpdate:" + requestInfo(request));
     }
 
     @Override
     public void preDelete(BeanDeleteIdRequest request) {
-      methodsCalled.add("preDeleteById");
+      methodsCalled.add("preDeleteById:" + request.getBeanType().getSimpleName() + "," + request.getId());
+    }
+
+    private String requestInfo(BeanPersistRequest<?> request) {
+      return request.getBean().getClass().getSimpleName() + "," + request.getEbeanServer().getBeanId(request.getBean());
     }
   }
 
