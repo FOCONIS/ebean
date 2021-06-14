@@ -206,6 +206,7 @@ public class ToEqlExpressionBuilder<T> implements ExpressionListBuilder<T> {
 
   @Override
   public ExpressionListBuilder<T> and() {
+    nextExpr();
     sb.append('(');
     return new ToEqlExpressionBuilder(sb, " and ", this);
   }
@@ -219,6 +220,7 @@ public class ToEqlExpressionBuilder<T> implements ExpressionListBuilder<T> {
 
   @Override
   public ExpressionListBuilder<T> or() {
+    nextExpr();
     sb.append('(');
     return new ToEqlExpressionBuilder(sb, " or ", this);
   }
@@ -232,6 +234,7 @@ public class ToEqlExpressionBuilder<T> implements ExpressionListBuilder<T> {
 
   @Override
   public ExpressionListBuilder<T> not() {
+    nextExpr();
     sb.append("not (");
     return new ToEqlExpressionBuilder<>(sb, " and ", this);
   }

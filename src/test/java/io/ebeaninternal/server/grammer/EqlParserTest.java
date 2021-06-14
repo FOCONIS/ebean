@@ -361,7 +361,7 @@ public class EqlParserTest extends BaseTestCase {
     query.findList();
 
     assertThat(query.getGeneratedSql()).contains("where (t0.name = ? or (t0.status = ? and t0.smallnote is null))");
-    assertThat(toEql(query)).isEqualTo("(name = 'Rob'(status = 'NEW' and smallnote isNull))");
+    assertThat(toEql(query)).isEqualTo("(name = 'Rob' or (status = 'NEW' and smallnote isNull))");
   }
 
   @Test
@@ -382,7 +382,7 @@ public class EqlParserTest extends BaseTestCase {
     query.findList();
 
     assertThat(query.getGeneratedSql()).contains("where ((t0.name = ? or t0.status = ?) and t0.smallnote is null)");
-    assertThat(toEql(query)).isEqualTo("((name = 'Rob' or status = 'NEW')smallnote isNull)");
+    assertThat(toEql(query)).isEqualTo("((name = 'Rob' or status = 'NEW') and smallnote isNull)");
   }
 
   @Test
@@ -1009,7 +1009,7 @@ public class EqlParserTest extends BaseTestCase {
     if (isH2()) {
       assertThat(query.getGeneratedSql()).contains("where ((t0.id is not null or t0.name = ?) and lower(t0.smallnote) like ? escape'|' )");
     }
-    assertThat(toEql(query)).isEqualTo("((id isNotNull or name = 'Rob')smallnote istartsWith 'Foo')");
+    assertThat(toEql(query)).isEqualTo("((id isNotNull or name = 'Rob') and smallnote istartsWith 'Foo')");
   }
 
   @Test

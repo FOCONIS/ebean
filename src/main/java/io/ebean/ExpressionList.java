@@ -1678,7 +1678,10 @@ public interface ExpressionList<T> extends
   ExpressionList<T> endNot();
 
   /**
-   * Apply this expression list to the builder. All methods of the builder are called and finally, the builder is returned
+   * Applies this expression list to the builder. All methods of the builder are
+   * called and finally, the builder is returned. Please note, that you may have
+   * to also implement additional interfaces for Json/DocStore/Array-support. See
+   * {@link ExpressionListBuilder} for details.
    */
   <B extends ExpressionListBuilder<T>> B applyTo(B builder);
 

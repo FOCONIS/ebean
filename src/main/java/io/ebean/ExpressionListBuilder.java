@@ -21,14 +21,26 @@ import io.ebean.search.TextSimple;
  *
  *
  * <pre>
- * ExpressionList permissionCheck = new
- * QBaseModel().owner.eq(currentUser).query().where(); Query someQuery =
- * DB.find(...) permissionCheck.applyTo(query.where()); // this will effectively
- * add the onwer.eq check to that query.
+ * ExpressionList permissionCheck = new QBaseModel()
+ *      .owner.eq(currentUser).query().where();
+ * Query someQuery = DB.find(...);
+ *
+ * // this will effectively add the onwer.eq check to 'someQuery'.
+ * permissionCheck.applyTo(someQuery.where());
+ * </pre>
  *
  * As ExpressionList itself implements ExpressionListBuilder, you are able to
  * apply/concat one ExpressionList with other ExpressionLists.
  *
+ * Note: <code>ExpressionListBuilder</code> is split in several parts:
+ * <ul>
+ * <li><code>ExpressionListBuilder.Json</code></li>
+ * <li><code>ExpressionListBuilder.DocStore</code></li>
+ * <li><code>ExpressionListBuilder.Array</code></li>
+ * </ul>
+ *
+ * If your code only implements a subset of the provided functionality, you may
+ * not be able to apply an ExpressionList with docStore queries to your builder.
  */
 public interface ExpressionListBuilder<T> {
 
@@ -85,8 +97,7 @@ public interface ExpressionListBuilder<T> {
   }
 
   /**
-   *  * Extension of ExpressionListBuilder for Postgres-ARRAY support.
-   *
+   *  Extension of ExpressionListBuilder for Postgres-ARRAY support.
    */
   public interface Array<T> extends ExpressionListBuilder<T> {
 
