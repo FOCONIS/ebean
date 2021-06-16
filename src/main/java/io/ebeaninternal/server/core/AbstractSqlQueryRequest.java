@@ -192,14 +192,7 @@ public abstract class AbstractSqlQueryRequest implements CancelableQuery {
   @Override
   public void cancel() {
     synchronized (this) {
-      if (pstmt != null) {
-        try {
-          pstmt.cancel();
-        } catch (SQLException e) {
-          String msg = "Error cancelling query";
-          throw new PersistenceException(msg, e);
-        }
-      }
+      JdbcClose.cancel(pstmt);
     }
   }
 }
