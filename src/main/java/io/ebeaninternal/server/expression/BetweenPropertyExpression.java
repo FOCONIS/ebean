@@ -1,6 +1,5 @@
 package io.ebeaninternal.server.expression;
 
-import io.ebean.ExpressionListBuilder;
 import io.ebean.util.SplitName;
 import io.ebeaninternal.api.ManyWhereJoins;
 import io.ebeaninternal.api.SpiExpression;
@@ -98,10 +97,5 @@ class BetweenPropertyExpression extends NonPrepareExpression {
   public boolean isSameByBind(SpiExpression other) {
     BetweenPropertyExpression that = (BetweenPropertyExpression) other;
     return val().equals(that.val());
-  }
-
-  @Override
-  public ExpressionListBuilder<?> exprApply(ExpressionListBuilder<?> builder) {
-    return builder.betweenProperties(lowProperty, highProperty, val());
   }
 }

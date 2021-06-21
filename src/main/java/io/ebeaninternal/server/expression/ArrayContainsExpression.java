@@ -1,6 +1,5 @@
 package io.ebeaninternal.server.expression;
 
-import io.ebean.ExpressionListBuilder;
 import io.ebeaninternal.api.SpiExpression;
 import io.ebeaninternal.api.SpiExpressionRequest;
 
@@ -78,15 +77,6 @@ public class ArrayContainsExpression extends AbstractExpression {
   public void addBindValues(SpiExpressionRequest request) {
     for (Object value : values) {
       request.addBindValue(value);
-    }
-  }
-
-  @Override
-  public ExpressionListBuilder<?> exprApply(final ExpressionListBuilder<?> builder) {
-    if (contains) {
-      return ((ExpressionListBuilder.Array<?>)builder).arrayContains(propName, values);
-    } else {
-      return ((ExpressionListBuilder.Array<?>)builder).arrayNotContains(propName, values);
     }
   }
 }

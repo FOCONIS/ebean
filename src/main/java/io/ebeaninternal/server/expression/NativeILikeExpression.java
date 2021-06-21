@@ -1,7 +1,6 @@
 package io.ebeaninternal.server.expression;
 
 import io.ebean.LikeType;
-import io.ebean.ExpressionListBuilder;
 import io.ebeaninternal.api.SpiExpression;
 import io.ebeaninternal.api.SpiExpressionRequest;
 import io.ebeaninternal.server.el.ElPropertyValue;
@@ -63,11 +62,6 @@ class NativeILikeExpression extends AbstractExpression {
   public boolean isSameByBind(SpiExpression other) {
     NativeILikeExpression that = (NativeILikeExpression) other;
     return val.equals(that.val);
-  }
-
-  @Override
-  public ExpressionListBuilder<?> exprApply(ExpressionListBuilder<?> builder) {
-    return builder.ilike(propName, val);
   }
 
 }

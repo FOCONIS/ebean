@@ -1,6 +1,5 @@
 package io.ebeaninternal.server.expression;
 
-import io.ebean.ExpressionListBuilder;
 import io.ebean.search.MultiMatch;
 
 import java.io.IOException;
@@ -25,8 +24,4 @@ public class TextMultiMatchExpression extends AbstractTextExpression {
     context.writeMultiMatch(search, options);
   }
 
-  @Override
-  protected ExpressionListBuilder.DocStore<?> exprApply(ExpressionListBuilder.DocStore<?> builder) {
-    return builder.multiMatch(search, options);
-  }
 }

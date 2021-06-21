@@ -1,6 +1,5 @@
 package io.ebeaninternal.server.expression;
 
-import io.ebean.ExpressionListBuilder;
 import io.ebean.bean.EntityBean;
 import io.ebean.event.BeanQueryRequest;
 import io.ebeaninternal.api.NaturalKeyQueryData;
@@ -199,18 +198,5 @@ class InExpression extends AbstractExpression {
       }
     }
     return true;
-  }
-
-  @Override
-  public ExpressionListBuilder<?> exprApply(ExpressionListBuilder<?> builder) {
-
-    if (not) {
-      assert !empty; // TODO Do we have to add "notInOrEmpty"
-      return builder.notIn(propName, initBindValues());
-    } else if (empty) {
-      return builder.inOrEmpty(propName, initBindValues());
-    } else {
-      return builder.in(propName, initBindValues());
-    }
   }
 }

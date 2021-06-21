@@ -1,7 +1,6 @@
 package io.ebeaninternal.server.expression;
 
 import io.ebean.LikeType;
-import io.ebean.ExpressionListBuilder;
 import io.ebeaninternal.api.SpiExpression;
 import io.ebeaninternal.api.SpiExpressionRequest;
 import io.ebeaninternal.server.el.ElPropertyValue;
@@ -104,35 +103,4 @@ class LikeExpression extends AbstractValueExpression {
     }
   }
 
-  @Override
-  public ExpressionListBuilder<?> exprApply(ExpressionListBuilder<?> builder) {
-    if (caseInsensitive) {
-      switch (type) {
-        case CONTAINS:
-          return builder.icontains(propName, strValue());
-        case STARTS_WITH:
-          return builder.istartsWith(propName, strValue());
-        case ENDS_WITH:
-          return builder.iendsWith(propName, strValue());
-        case EQUAL_TO:
-          return builder.ieq(propName, strValue());
-        case RAW:
-          return builder.ilike(propName, strValue());
-      }
-    } else {
-      switch (type) {
-        case CONTAINS:
-          return builder.contains(propName, strValue());
-        case STARTS_WITH:
-          return builder.startsWith(propName, strValue());
-        case ENDS_WITH:
-          return builder.endsWith(propName, strValue());
-        case EQUAL_TO:
-          return builder.eq(propName, strValue());
-        case RAW:
-          return builder.like(propName, strValue());
-      }
-    }
-    throw new UnsupportedOperationException(type + " not supported");
-  }
 }

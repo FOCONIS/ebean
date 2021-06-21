@@ -1,6 +1,5 @@
 package io.ebeaninternal.server.expression;
 
-import io.ebean.ExpressionListBuilder;
 import io.ebeaninternal.api.SpiExpression;
 import io.ebeaninternal.api.SpiExpressionRequest;
 
@@ -41,14 +40,6 @@ public abstract class AbstractTextExpression extends AbstractExpression {
   public int queryBindHash() {
     return 0;
   }
-
-  @Override
-  public ExpressionListBuilder<?> exprApply(ExpressionListBuilder<?> builder) {
-    // we assume, that we have an ExpressionListBuilderDocStore here.
-    return exprApply((ExpressionListBuilder.DocStore<?>) builder);
-  }
-
-  protected abstract ExpressionListBuilder.DocStore<?> exprApply(ExpressionListBuilder.DocStore<?> builder);
 
   @Override
   public boolean isSameByBind(SpiExpression other) {

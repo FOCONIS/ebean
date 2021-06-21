@@ -1,6 +1,5 @@
 package io.ebeaninternal.server.expression;
 
-import io.ebean.ExpressionListBuilder;
 import io.ebean.event.BeanQueryRequest;
 import io.ebeaninternal.api.ManyWhereJoins;
 import io.ebeaninternal.api.NaturalKeyQueryData;
@@ -137,15 +136,5 @@ class ExistsQueryExpression implements SpiExpression, UnsupportedDocStoreExpress
   @Override
   public void validate(SpiExpressionValidation validation) {
     // Nothing to do for exists expression
-  }
-
-  @Override
-  public ExpressionListBuilder<?> exprApply(ExpressionListBuilder<?> builder) {
-    assert subQuery != null; // `sql` is only used in tests?
-    if (not) {
-      return builder.notExists(subQuery);
-    } else {
-      return builder.exists(subQuery);
-    }
   }
 }

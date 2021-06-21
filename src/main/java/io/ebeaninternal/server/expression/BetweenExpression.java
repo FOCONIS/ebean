@@ -1,6 +1,5 @@
 package io.ebeaninternal.server.expression;
 
-import io.ebean.ExpressionListBuilder;
 import io.ebeaninternal.api.SpiExpression;
 import io.ebeaninternal.api.SpiExpressionRequest;
 
@@ -60,10 +59,5 @@ class BetweenExpression extends AbstractExpression {
   public boolean isSameByBind(SpiExpression other) {
     BetweenExpression that = (BetweenExpression) other;
     return low().equals(that.low()) && high().equals(that.high());
-  }
-
-  @Override
-  public ExpressionListBuilder<?> exprApply(ExpressionListBuilder<?> builder) {
-    return builder.between(propName, low(), high());
   }
 }

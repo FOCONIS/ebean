@@ -2,7 +2,6 @@ package io.ebeaninternal.server.expression;
 
 import io.ebean.Pairs;
 import io.ebean.Pairs.Entry;
-import io.ebean.ExpressionListBuilder;
 import io.ebean.event.BeanQueryRequest;
 import io.ebeaninternal.api.NaturalKeyQueryData;
 import io.ebeaninternal.api.SpiExpression;
@@ -16,8 +15,6 @@ import java.util.List;
 class InPairsExpression extends AbstractExpression {
 
   private final boolean not;
-
-  private final Pairs pairs;
 
   private final String property0, property1;
 
@@ -33,7 +30,6 @@ class InPairsExpression extends AbstractExpression {
 
   InPairsExpression(Pairs pairs, boolean not) {
     super(pairs.getProperty0());
-    this.pairs = pairs;
     this.property0 = pairs.getProperty0();
     this.property1 = pairs.getProperty1();
     // the entries might be modified on cache hit.
@@ -141,11 +137,5 @@ class InPairsExpression extends AbstractExpression {
 
     InPairsExpression that = (InPairsExpression) other;
     return this.entries.size() == that.entries.size() && entries.equals(that.entries);
-  }
-
-  @Override
-  public ExpressionListBuilder<?> exprApply(ExpressionListBuilder<?> builder) {
-    assert !not;  // Constructor is never called with `not == true`?
-    return builder.inPairs(pairs);
   }
 }

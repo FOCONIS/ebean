@@ -1,6 +1,5 @@
 package io.ebeaninternal.server.expression;
 
-import io.ebean.ExpressionListBuilder;
 import io.ebeaninternal.api.ManyWhereJoins;
 import io.ebeaninternal.api.SpiExpression;
 import io.ebeaninternal.api.SpiExpressionRequest;
@@ -81,10 +80,5 @@ class IdExpression extends NonPrepareExpression implements SpiExpression {
   public boolean isSameByBind(SpiExpression other) {
     IdExpression that = (IdExpression) other;
     return value.equals(that.value);
-  }
-
-  @Override
-  public ExpressionListBuilder<?> exprApply(ExpressionListBuilder<?> builder) {
-    return builder.idEq(value);
   }
 }

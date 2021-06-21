@@ -16,7 +16,6 @@ import io.ebean.PagedList;
 import io.ebean.Pairs;
 import io.ebean.Query;
 import io.ebean.QueryIterator;
-import io.ebean.ExpressionListBuilder;
 import io.ebean.Transaction;
 import io.ebean.UpdateQuery;
 import io.ebean.Version;
@@ -1001,31 +1000,4 @@ class JunctionExpression<T> implements SpiJunction<T>, SpiExpression, Expression
     }
     return null;
   }
-
-  @Override
-  public ExpressionListBuilder<?> exprApply(ExpressionListBuilder<?> builder) {
-    switch (type) {
-      case AND:
-        builder = builder.and();
-        exprList.exprApply(builder);
-        return builder.endAnd();
-      case OR:
-        builder = builder.or();
-        exprList.exprApply(builder);
-        return builder.endOr();
-      case NOT:
-        builder = builder.not();
-        exprList.exprApply(builder);
-        return builder.endNot();
-      default:
-        throw new UnsupportedOperationException(type + " not supported");
-    }
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  public <B extends ExpressionListBuilder<T>> B applyTo(B builder) {
-    return (B) exprApply(builder);
-  }
-
 }

@@ -1,6 +1,5 @@
 package io.ebeaninternal.server.expression;
 
-import io.ebean.ExpressionListBuilder;
 import io.ebean.search.TextCommonTerms;
 
 import java.io.IOException;
@@ -25,8 +24,4 @@ class TextCommonTermsExpression extends AbstractTextExpression {
     context.writeTextCommonTerms(search, options);
   }
 
-  @Override
-  protected ExpressionListBuilder.DocStore<?> exprApply(ExpressionListBuilder.DocStore<?> builder) {
-    return builder.textCommonTerms(search, options);
-  }
 }
