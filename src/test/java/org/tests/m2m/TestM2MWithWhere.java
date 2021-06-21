@@ -1,12 +1,14 @@
 package org.tests.m2m;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.StrictAssertions.assertThat;
 
 import java.util.List;
 
 import org.junit.Test;
 import org.tests.model.m2m.MnyEdge;
 import org.tests.model.m2m.MnyNode;
+import org.tests.o2m.OmBasicParent;
 
 import io.ebean.BaseTestCase;
 import io.ebean.DB;
@@ -124,5 +126,34 @@ public class TestM2MWithWhere extends BaseTestCase {
       sb.append('\n');
     }
     // System.out.println(sb); dump the table
+  }
+
+  @Test
+  public void testWithDbTableName() {
+    LoggedSql.start();
+    DB.find(MnyNode.class).where().isNotNull("withDbTableName.name").findList();
+    List<String> sql = LoggedSql.stop();
+    assertThat(sql).hasSize(1);
+    assertThat(sql.get(0)).contains("'mny_node' = u1.name");
+
+    LoggedSql.start();
+    DB.find(MnyNode.class).where().isNotEmpty("withDbTableName").findList();
+    sql = LoggedSql.stop();
+    assertThat(sql).hasSize(1);
+    assertThat(sql.get(0)).contains("'mny_node' = x2.name");
+  }
+
+  @Test
+  public void testLazyLoad() throws Exception {
+    MnyNode el = new MnyNode("testLazyLoad");
+    DB.save(el);
+    LoggedSql.start();
+    el = DB.find(MnyNode.class).select("name").where().eq("name", "testLazyLoad").findOne();
+    el.getWithDbTableName().size(); // trigger Lazy load
+    List<String> sql = LoggedSql.stop();
+    assertThat(sql).hasSize(2);
+    assertThat(sql.get(0)).contains("select t0.id, t0.name from mny_node");
+    assertThat(sql.get(1)).contains("where 'mny_node' = t0.name");
+    DB.delete(el);
   }
 }

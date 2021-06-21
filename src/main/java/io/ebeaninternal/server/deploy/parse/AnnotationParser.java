@@ -1,5 +1,6 @@
 package io.ebeaninternal.server.deploy.parse;
 
+import io.ebean.util.StringHelper;
 import io.ebeaninternal.server.deploy.BeanCascadeInfo;
 import io.ebeaninternal.server.deploy.meta.DeployBeanDescriptor;
 import io.ebeaninternal.server.deploy.meta.DeployBeanProperty;
@@ -138,4 +139,9 @@ public abstract class AnnotationParser extends AnnotationBase {
     }
     return groups.length == 0 || groups.length == 1 && Default.class.isAssignableFrom(groups[0]);
   }
+
+  public String replacePlaceholders(String source) {
+    return StringHelper.replaceString(source, "${dbTableName}", descriptor.getBaseTable());
+  }
+
 }
