@@ -12,6 +12,7 @@ import io.ebean.bean.OwnerBeanAware;
 import io.ebean.bean.PersistenceContext;
 import io.ebean.plugin.PropertyAssocMany;
 import io.ebean.text.PathProperties;
+import io.ebean.util.StringHelper;
 import io.ebeaninternal.api.SpiEbeanServer;
 import io.ebeaninternal.api.SpiExpressionRequest;
 import io.ebeaninternal.api.SpiQuery;
@@ -447,7 +448,8 @@ public class BeanPropertyAssocMany<T> extends BeanPropertyAssoc<T> implements ST
     } else {
       sb.append(targetDescriptor.getBaseTable(query.getTemporalMode()));
     }
-    if (softDelete && hasJoinTable()) {
+    boolean needsX2Table = softDelete || getExtraWhere() != null;
+    if (needsX2Table && hasJoinTable()) {
       sb.append(" x join ");
       sb.append(targetDescriptor.getBaseTable(query.getTemporalMode()));
       sb.append(" x2 on ");
@@ -463,6 +465,17 @@ public class BeanPropertyAssocMany<T> extends BeanPropertyAssoc<T> implements ST
       }
       exportedProperties[i].appendWhere(sb, "x.", path);
     }
+
+    if (getExtraWhere() != null) {
+      String ew = getExtraWhere();
+      if (hasJoinTable()) {
+        ew = StringHelper.replaceString(ew, "${ta}", "x2", "${mta}", "x");
+      } else {
+        ew = StringHelper.replaceString(ew, "${ta}", "x");
+      }
+      sb.append(" and ").append(ew);
+    }
+
     if (softDelete) {
       String alias = hasJoinTable() ? "x2" : "x";
       sb.append(" and ").append(targetDescriptor.getSoftDeletePredicate(alias));

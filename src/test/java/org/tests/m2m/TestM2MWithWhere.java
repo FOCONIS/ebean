@@ -125,4 +125,19 @@ public class TestM2MWithWhere extends BaseTestCase {
     }
     // System.out.println(sb); dump the table
   }
+
+  @Test
+  public void testWithDbTableName() {
+    LoggedSql.start();
+    DB.find(MnyNode.class).where().isNotNull("withDbTableName.name").findList();
+    List<String> sql = LoggedSql.stop();
+    assertThat(sql).hasSize(1);
+    assertThat(sql.get(0)).contains("'mny_node' = u1.name");
+
+    LoggedSql.start();
+    DB.find(MnyNode.class).where().isNotEmpty("withDbTableName").findList();
+    sql = LoggedSql.stop();
+    assertThat(sql).hasSize(1);
+    assertThat(sql.get(0)).contains("'mny_node' = x2.name");
+  }
 }

@@ -157,7 +157,7 @@ public class AnnotationFields extends AnnotationParser {
 
     Formula formula = get(prop, Formula.class);
     if (formula != null) {
-      prop.setSqlFormula(formula.select(), formula.join());
+      prop.setSqlFormula(replacePlaceholders(formula.select()), replacePlaceholders(formula.join()));
     }
 
     initWhoProperties(prop);
@@ -278,12 +278,12 @@ public class AnnotationFields extends AnnotationParser {
 
     Formula formula = get(prop, Formula.class);
     if (formula != null) {
-      prop.setSqlFormula(formula.select(), formula.join());
+      prop.setSqlFormula(replacePlaceholders(formula.select()), replacePlaceholders(formula.join()));
     }
 
     Aggregation aggregation = get(prop, Aggregation.class);
     if (aggregation != null) {
-      prop.setAggregation(aggregation.value());
+      prop.setAggregation(replacePlaceholders(aggregation.value()));
     }
     Sum sum = get(prop, Sum.class);
     if (sum != null) {
