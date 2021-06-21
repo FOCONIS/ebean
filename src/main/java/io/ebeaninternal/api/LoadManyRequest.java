@@ -125,8 +125,7 @@ public class LoadManyRequest extends LoadRequest {
     if (extraWhere != null) {
       // replace special ${ta}/${mta} placeholder with the base table alias
       // which is always t0/$int_ and add the extra where clause
-      String ew = StringHelper.replaceString(extraWhere, "${ta}", "t0");
-      ew = StringHelper.replaceString(ew, "${mta}", "int_");
+      String ew = StringHelper.replaceString(extraWhere, "${ta}", "t0", "${mta}", "int_");
       query.where().raw(ew);
     }
 

@@ -43,7 +43,6 @@ import java.util.List;
  */
 class CQueryBuilder {
 
-  final String tableAliasPlaceHolder;
   final String columnAliasPrefix;
 
   private final SqlLimiter sqlLimiter;
@@ -69,7 +68,6 @@ class CQueryBuilder {
     this.binder = binder;
     this.draftSupport = draftSupport;
     this.historySupport = historySupport;
-    this.tableAliasPlaceHolder = dbPlatform.getTableAliasPlaceHolder();
     this.columnAliasPrefix = dbPlatform.getColumnAliasPrefix();
     this.sqlLimiter = dbPlatform.getSqlLimiter();
     this.rawSqlHandler = new CQueryBuilderRawSql(sqlLimiter, dbPlatform);
@@ -183,16 +181,14 @@ class CQueryBuilder {
    * Strip the root table alias.
    */
   private String aliasStrip(String sql) {
-    sql = StringHelper.replaceString(sql, "${RTA}.", "");
-    return StringHelper.replaceString(sql, " ${RTA}", "");
+    return StringHelper.replaceString(sql, "${RTA}.", "", " ${RTA}", "");
   }
 
   /**
    * Replace the root table alias.
    */
   private String aliasReplace(String sql, String replaceWith) {
-    sql = StringHelper.replaceString(sql, "${RTA}.", replaceWith + ".");
-    return StringHelper.replaceString(sql, "${RTA}", replaceWith);
+    return StringHelper.replaceString(sql, "${RTA}.", replaceWith + ".", "${RTA}", replaceWith);
   }
 
   CQueryFetchSingleAttribute buildFetchAttributeQuery(OrmQueryRequest<?> request) {

@@ -191,9 +191,10 @@ public class BaseTableDdl implements TableDdl {
      * Replaces Table name (${table}), Column name (${column}) and default value (${default}) in DDL.
      */
     private String translate(String ddl, String tableName, String columnName, String defaultValue) {
-      String ret = StringHelper.replaceString(ddl, "${table}", tableName);
-      ret = StringHelper.replaceString(ret, "${column}", columnName);
-      return StringHelper.replaceString(ret, "${default}", defaultValue);
+      return StringHelper.replaceString(ddl,
+          "${table}", tableName,
+          "${column}", columnName,
+          "${default}", defaultValue);
     }
 
     private void handleStrictError(String tableName, String columnName) {

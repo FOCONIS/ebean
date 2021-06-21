@@ -375,8 +375,9 @@ public class DbMigrationConfig {
    */
   public String getDdlHeader() {
     if (ddlHeader != null && !ddlHeader.isEmpty()) {
-      ddlHeader = StringHelper.replaceString(ddlHeader, "${version}", EbeanVersion.getVersion());
-      ddlHeader = StringHelper.replaceString(ddlHeader, "${timestamp}", ZonedDateTime.now().format( DateTimeFormatter.ISO_INSTANT ));
+      ddlHeader = StringHelper.replaceString(ddlHeader,
+           "${version}", EbeanVersion.getVersion(),
+           "${timestamp}", ZonedDateTime.now().format( DateTimeFormatter.ISO_INSTANT ));
     }
     return ddlHeader;
   }

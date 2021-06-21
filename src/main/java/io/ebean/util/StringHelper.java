@@ -296,6 +296,29 @@ public class StringHelper {
   }
 
   /**
+   * Helper method to perform two replacements.
+   */
+  public static String replaceString(String source, String match1, String replace1, String match2, String replace2) {
+    source = replaceString(source, match1, replace1);
+    return replaceString(source, match2, replace2);
+  }
+
+  /**
+   * Helper method to perform more replacements.
+   */
+  public static String replaceString(String source,
+      String match1, String replace1,
+      String match2, String replace2,
+      String... pairs) {
+    source = replaceString(source, match1, replace1);
+    source = replaceString(source, match2, replace2);
+    assert pairs.length % 2 == 0;
+    for (int i = 0; i < pairs.length; i += 2) {
+      source = replaceString(source, pairs[i], pairs[i + 1]);
+    }
+    return source;
+  }
+  /**
    * Additionally specify the additionalSize to add to the buffer. This will
    * make the buffer bigger so that it doesn't have to grow when replacement
    * occurs.
