@@ -16,6 +16,8 @@ class DefaultDbSqlContext implements DbSqlContext {
   private static final String PERIOD = ".";
   private static final int STRING_BUILDER_INITIAL_CAPACITY = 140;
 
+  private final String tableAliasPlaceHolder;
+
   private final String columnAliasPrefix;
 
   private final ArrayStack<String> tableAliasStack = new ArrayStack<>();
@@ -59,6 +61,7 @@ class DefaultDbSqlContext implements DbSqlContext {
                       CQueryDraftSupport draftSupport, String fromForUpdate) {
 
     this.alias = alias;
+    this.tableAliasPlaceHolder = builder.tableAliasPlaceHolder;
     this.columnAliasPrefix = builder.columnAliasPrefix;
     this.useColumnAlias = columnAliasPrefix != null && alwaysUseColumnAlias;
     this.draftSupport = draftSupport;
@@ -152,7 +155,7 @@ class DefaultDbSqlContext implements DbSqlContext {
       }
 
       if (pair.getForeignSqlFormula() != null) {
-        sb.append(StringHelper.replaceString(pair.getForeignSqlFormula(), "${ta}", a2));
+        sb.append(StringHelper.replaceString(pair.getForeignSqlFormula(), tableAliasPlaceHolder, a2));
       } else {
         sb.append(a2).append(".").append(pair.getForeignDbColumn());
       }
@@ -160,7 +163,7 @@ class DefaultDbSqlContext implements DbSqlContext {
       sb.append(" = ");
 
       if (pair.getLocalSqlFormula() != null) {
-        sb.append(StringHelper.replaceString(pair.getLocalSqlFormula(), "${ta}", a1));
+        sb.append(StringHelper.replaceString(pair.getLocalSqlFormula(), tableAliasPlaceHolder, a1));
       } else {
         sb.append(a1).append(".").append(pair.getLocalDbColumn());
       }
@@ -175,13 +178,12 @@ class DefaultDbSqlContext implements DbSqlContext {
       sb.append(" and ").append(historySupport.getAsOfPredicate(a2));
     }
 
-    if (extraWhere != null && !extraWhere.isEmpty()) {
-      // we will also need a many-table alias here
-      String ew = StringHelper.replaceString(extraWhere, "${ta}", a2, "${mta}", a1);
-      sb.append(" and ").append(ew);
-    }
-
     sb.append(" ");
+    if (extraWhere != null && !extraWhere.isEmpty()) {
+      sb.append(" and ");
+      // we will also need a many-table alias here
+      sb.append(extraWhere.replace(tableAliasPlaceHolder, a2).replace("${mta}", a1));
+    }
   }
 
   private void appendTable(String table, String draftTable) {
@@ -239,7 +241,7 @@ class DefaultDbSqlContext implements DbSqlContext {
 
     // replace ${ta} place holder with the real table alias...
     String tableAlias = manyWhere == null ? tableAliasStack.peek() : getTableAliasManyWhere(manyWhere);
-    String converted = StringHelper.replaceString(sqlFormulaJoin, "${ta}", tableAlias);
+    String converted = StringHelper.replaceString(sqlFormulaJoin, tableAliasPlaceHolder, tableAlias);
 
     if (formulaJoins == null) {
       formulaJoins = new HashSet<>();
@@ -281,7 +283,7 @@ class DefaultDbSqlContext implements DbSqlContext {
   public void appendFormulaSelect(String sqlFormulaSelect) {
 
     String tableAlias = tableAliasStack.peek();
-    String converted = StringHelper.replaceString(sqlFormulaSelect, "${ta}", tableAlias);
+    String converted = StringHelper.replaceString(sqlFormulaSelect, tableAliasPlaceHolder, tableAlias);
     sb.append(COMMA);
     sb.append(converted);
 

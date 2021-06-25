@@ -1,7 +1,7 @@
 package io.ebeaninternal.server.core;
 
-import io.ebean.CancelableQuery;
 import io.ebean.EbeanServer;
+import io.ebean.CancelableQuery;
 import io.ebean.Transaction;
 import io.ebean.util.JdbcClose;
 import io.ebeaninternal.api.BindParams;
@@ -18,8 +18,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
-import javax.persistence.PersistenceException;
 
 /**
  * Wraps the objects involved in executing a SQL / Relational Query.
@@ -177,9 +175,7 @@ public abstract class AbstractSqlQueryRequest implements CancelableQuery {
       }
     }
     setResultSet(pstmt.executeQuery(), null);
-    synchronized(this) {
-      query.checkCancelled();
-    }
+    query.checkCancelled();
   }
 
   /**

@@ -5,7 +5,6 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.ebean.bean.EntityBean;
 import io.ebean.bean.PersistenceContext;
-import io.ebean.text.json.JsonVersionMigrationHandler;
 import io.ebeaninternal.server.deploy.BeanDescriptor;
 
 import java.io.IOException;
@@ -34,7 +33,4 @@ public interface SpiJsonReader {
   void beanVisitor(Object bean, Map<String, Object> unmappedProperties);
 
   Object readValueUsingObjectMapper(Class<?> propertyType) throws IOException;
-
-  JsonVersionMigrationHandler getVersionMigrationHandler();
-
 }

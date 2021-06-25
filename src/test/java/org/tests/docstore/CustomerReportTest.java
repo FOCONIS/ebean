@@ -4,7 +4,6 @@ package org.tests.docstore;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -19,7 +18,6 @@ import org.tests.model.docstore.ProductReport;
 import org.tests.model.docstore.Report;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.tests.model.docstore.ReportComment;
 import org.tests.model.docstore.ReportEntity;
 
@@ -36,69 +34,11 @@ import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
 import io.ebean.BaseTestCase;
-import io.ebean.plugin.BeanType;
 import io.ebean.text.json.JsonReadOptions;
-import io.ebean.text.json.JsonVersionMigrationHandler;
-import io.ebean.text.json.JsonWriteOptions;
 
 public class CustomerReportTest extends BaseTestCase {
 
-  private static class MigHandler implements JsonVersionMigrationHandler {
 
-    @Override
-    public ObjectNode migrateRoot(ObjectNode node, ObjectMapper mapper, BeanType<?> rootBeanType) throws IOException {
-
-      int version = node.get("_bv") == null ? 1 : node.get("_bv").asInt();
-
-      if (version == 2) {
-        if ("CustomerReport".equals(node.get("dtype").asText())) {
-          node.put("dtype", "CR");
-        }
-        version = 3;
-      }
-      node.put("_bv", version);
-
-      return node;
-    }
-
-    @Override
-    public ObjectNode migrate(ObjectNode node, ObjectMapper mapper, BeanType<?> beanType) throws IOException {
-      return node;
-    }
-
-  }
-
-  @Test
-  public void testToJson() throws Exception {
-    ResetBasicData.reset();
-
-
-
-    String json = server().json().toJson(getCustomerReport());
-
-
-    assertThat(json).isEqualTo("{\"dtype\":\"CR\",\"friends\":[{\"id\":2},{\"id\":3}],\"customer\":{\"id\":1}}");
-
-    JsonWriteOptions opts = new JsonWriteOptions();
-    opts.setVersionWriter((writer, desc) -> {
-      int version = 0;
-      if (Report.class.isAssignableFrom(desc.getBeanType())) {
-        version = 3;
-      }
-      writer.writeNumberField("_bv", version);
-    });
-    json = server().json().toJson(getCustomerReport(),opts);
-    assertThat(json).isEqualTo("{\"_bv\":3,\"dtype\":\"CR\",\"friends\":[{\"_bv\":0,\"id\":2},{\"_bv\":0,\"id\":3}],\"customer\":{\"_bv\":0,\"id\":1}}");
-  }
-
-  @Test
-  public void testMigration() {
-    String json = "{\"_bv\":2,\"dtype\":\"CustomerReport\",\"friends\":[{\"_bv\":0,\"id\":2},{\"_bv\":0,\"id\":3}],\"customer\":{\"_bv\":0,\"id\":1}}";
-    JsonReadOptions readOpts = new JsonReadOptions();
-    readOpts.setVersionMigrationHandler(new MigHandler());
-    Report report = server().json().toBean(Report.class, json, readOpts);
-    assertThat(report).isInstanceOf(CustomerReport.class);
-  }
 
   @Test
   public void testFromJson() throws Exception {

@@ -9,7 +9,7 @@ public class DefaultBackgroundExecutorTest {
   @Ignore("test takes long time")
   public void shutdown_when_running_expect_waitAndNiceShutdown() throws Exception {
 
-    DefaultBackgroundExecutor es = new DefaultBackgroundExecutor(1, 20, "test", null);
+    DefaultBackgroundExecutor es = new DefaultBackgroundExecutor(1, 20, "test");
 
     es.execute(new RunFor(3000, "a"));
     es.execute(new RunFor(3000, "b"));
@@ -22,7 +22,7 @@ public class DefaultBackgroundExecutorTest {
   @Ignore("test takes long time")
   public void shutdown_when_rougeRunnable_expect_InterruptedException() throws Exception {
 
-    DefaultBackgroundExecutor es = new DefaultBackgroundExecutor(1, 10, "test", null);
+    DefaultBackgroundExecutor es = new DefaultBackgroundExecutor(1, 10, "test");
 
     es.execute(new RunFor(300000, "a"));
     es.execute(new RunFor(3000, "b"));

@@ -8,7 +8,6 @@ import java.util.List;
 import org.junit.Test;
 import org.tests.model.m2m.MnyEdge;
 import org.tests.model.m2m.MnyNode;
-import org.tests.o2m.OmBasicParent;
 
 import io.ebean.BaseTestCase;
 import io.ebean.DB;

@@ -635,11 +635,11 @@ public class BeanPropertyAssocOne<T> extends BeanPropertyAssoc<T> implements STr
   }
 
   @Override
-  public void appendFrom(DbSqlContext ctx, SqlJoinType joinType, String manyWhere) {
+  public void appendFrom(DbSqlContext ctx, SqlJoinType joinType) {
     if (!isTransient && !primaryKeyExport) {
       localHelp.appendFrom(ctx, joinType);
       if (sqlFormulaJoin != null) {
-        ctx.appendFormulaJoin(sqlFormulaJoin, joinType, manyWhere);
+        ctx.appendFormulaJoin(sqlFormulaJoin, joinType, null);
       }
     }
   }
@@ -789,7 +789,6 @@ public class BeanPropertyAssocOne<T> extends BeanPropertyAssoc<T> implements STr
     BeanProperty idProperty = targetDescriptor.getIdProperty();
     if (idProperty != null) {
       writeJson.writeStartObject(name);
-      writeJson.writeBeanVersion(targetDescriptor);
       idProperty.jsonWriteForInsert(writeJson, childBean);
       writeJson.writeEndObject();
     }

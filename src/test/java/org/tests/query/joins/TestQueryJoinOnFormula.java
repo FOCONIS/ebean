@@ -135,6 +135,7 @@ public class TestQueryJoinOnFormula extends BaseTestCase {
         + "left join (select order_id, count(*) as total_items, sum(order_qty*unit_price) as total_amount from o_order_detail group by order_id) z_bu3 on z_bu3.order_id = u3.id  "
         + "where z_bu3.total_amount is not null");
   }
+
   @Test
   public void testOrderOnChainedFormulaPropertyWithFetch() {
 

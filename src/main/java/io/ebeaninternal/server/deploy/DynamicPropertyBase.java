@@ -69,8 +69,13 @@ abstract class DynamicPropertyBase implements STreeProperty {
   }
 
   @Override
-  public void appendFrom(DbSqlContext ctx, SqlJoinType joinType, String manyWhere) {
+  public void appendFrom(DbSqlContext ctx, SqlJoinType joinType) {
     // do not add to from usually
+  }
+
+  @Override
+  public void appendFormulaWhereJoin(DbSqlContext ctx, SqlJoinType joinType, String prefix) {
+    // do not add to where usually
   }
 
   @Override

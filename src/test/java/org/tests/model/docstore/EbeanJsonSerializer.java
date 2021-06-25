@@ -21,7 +21,6 @@ public class EbeanJsonSerializer<T> extends JsonSerializer<T> {
   public void serialize(T value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
     JsonWriteOptions options = new JsonWriteOptions();
     options.setPathProperties(new FocPathProperties());
-    options.setForceReference(true);
     options.setInclude(Include.NON_EMPTY);
     Ebean.json().toJson(value, gen, options);
   }
@@ -35,7 +34,11 @@ public class EbeanJsonSerializer<T> extends JsonSerializer<T> {
 
     @Override
     public Set<String> getProperties(final String path) {
-        return new HashSet<String>(Arrays.asList("*")); // und wir erzwingen so immer "ExplicitAllProperties"
+      if (path == null) {
+        return new HashSet<>(Arrays.asList("*")); // und wir erzwingen so immer "ExplicitAllProperties"
+      } else {
+        return new HashSet<>(Arrays.asList("*id")); // für Child-Beans geben wir die IDs aus.
+      }
     }
 
     @Override

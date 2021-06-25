@@ -38,11 +38,10 @@ public class TestTextJsonForceReference extends BaseTestCase {
     ResetBasicData.reset();
 
     Customer cust = Ebean.find(Customer.class).where().eq("name", "Rob").findOne();
-    JsonWriteOptions options = JsonWriteOptions.parsePath("*");
-    options.setForceReference(true);
+    JsonWriteOptions options = JsonWriteOptions.parsePath("*,billingAddress(*id)");
 
-    String json1 = Ebean.json().toJson(cust, options); // contains "billingAddress":{"id":1}
-
+    String json1 = Ebean.json().toJson(cust, options);
+    assertThat(json1).contains("\"billingAddress\":{\"id\":1}");
     cust.getBillingAddress().getCity(); // load the bean and convert to again
 
     String json2 = Ebean.json().toJson(cust, options); // still contains reference.

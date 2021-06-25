@@ -6,7 +6,6 @@ import io.ebean.annotation.TenantId;
 import io.ebean.annotation.Where;
 import io.ebean.config.BeanNotRegisteredException;
 import io.ebean.config.NamingConvention;
-import io.ebean.util.StringHelper;
 import io.ebeaninternal.server.deploy.BeanDescriptorManager;
 import io.ebeaninternal.server.deploy.BeanTable;
 import io.ebeaninternal.server.deploy.PropertyForeignKey;
@@ -104,7 +103,7 @@ public class AnnotationAssocOnes extends AnnotationParser {
     Where where = get(prop, Where.class);
     if (where != null) {
       // not expecting this to be used on assoc one properties
-      prop.setExtraWhere(replacePlaceholders(where.clause()));
+      prop.setExtraWhere(processFormula(where.clause()));
     }
 
     PrimaryKeyJoinColumn primaryKeyJoin = get(prop, PrimaryKeyJoinColumn.class);

@@ -364,7 +364,8 @@ public class BeanProperty implements ElPropertyValue, Property, STreeProperty {
 
   private String tableAliasIntern(BeanDescriptor<?> descriptor, String s, boolean dbEncrypted, String dbColumn) {
     if (descriptor != null) {
-      s = StringHelper.replaceString(s, "${ta}.", "${}", "${ta}", "${}");
+      s = StringHelper.replaceString(s, "${ta}.", "${}");
+      s = StringHelper.replaceString(s, "${ta}", "${}");
 
       if (dbEncrypted) {
         s = dbEncryptFunction.getDecryptSql(s);
@@ -564,14 +565,21 @@ public class BeanProperty implements ElPropertyValue, Property, STreeProperty {
    * operation except for a OneToOne exported.
    */
   @Override
-  public void appendFrom(DbSqlContext ctx, SqlJoinType joinType, String manyWhere) {
+  public void appendFrom(DbSqlContext ctx, SqlJoinType joinType) {
     if (formula && sqlFormulaJoin != null) {
-      ctx.appendFormulaJoin(sqlFormulaJoin, joinType, manyWhere);
+      ctx.appendFormulaJoin(sqlFormulaJoin, joinType, null);
 
     } else if (secondaryTableJoin != null) {
 
       String relativePrefix = ctx.getRelativePrefix(secondaryTableJoinPrefix);
       secondaryTableJoin.addJoin(joinType, relativePrefix, ctx);
+    }
+  }
+
+  @Override
+  public void appendFormulaWhereJoin(DbSqlContext ctx, SqlJoinType joinType, String manyWhere) {
+    if (formula && sqlFormulaJoin != null) {
+      ctx.appendFormulaJoin(sqlFormulaJoin, joinType, manyWhere);
     }
   }
 
