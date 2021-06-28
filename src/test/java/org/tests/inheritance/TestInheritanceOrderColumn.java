@@ -37,10 +37,10 @@ public class TestInheritanceOrderColumn extends BaseTestCase {
     // Some platforms insert ids and others don't need to...
     assertThat(sql.get(1))
       .matches(
-        "txn\\[[0-9]+] insert into ordered_parent \\((id, )?order_master_inheritance_id, dtype, common_name, ordered_aname, sort_order\\).*");
+        "txn\\[[0-9]*] insert into ordered_parent \\((id, )?order_master_inheritance_id, dtype, common_name, ordered_aname, sort_order\\).*");
     assertThat(sql.get(3))
       .matches(
-        "txn\\[[0-9]+] insert into ordered_parent \\((id, )?order_master_inheritance_id, dtype, common_name, ordered_bname, sort_order\\).*");
+        "txn\\[[0-9]*] insert into ordered_parent \\((id, )?order_master_inheritance_id, dtype, common_name, ordered_bname, sort_order\\).*");
 
     OrderMasterInheritance result = Ebean.find(OrderMasterInheritance.class).findOne();
     assertThat(result.getReferenced())

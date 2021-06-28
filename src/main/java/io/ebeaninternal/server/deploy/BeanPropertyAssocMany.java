@@ -605,7 +605,7 @@ public class BeanPropertyAssocMany<T> extends BeanPropertyAssoc<T> implements ST
     if (!manyToMany && childMasterProperty != null) {
       // bidirectional in the sense that the 'master' property
       // exists on the 'detail' bean
-      childMasterProperty.setValue(child, parent);
+      childMasterProperty.setValueIntercept(child, parent);
     }
   }
 

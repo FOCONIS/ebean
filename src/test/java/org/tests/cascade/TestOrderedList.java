@@ -1,6 +1,7 @@
 package org.tests.cascade;
 
 import io.ebean.BaseTestCase;
+import io.ebean.DB;
 import io.ebean.Ebean;
 import org.ebeantest.LoggedSqlCollector;
 import org.junit.Test;
@@ -98,5 +99,20 @@ public class TestOrderedList extends BaseTestCase {
     assertThat(sql).hasSize(2);
     assertThat(sql.get(0)).contains("delete from om_ordered_detail where master_id = ?");
     assertThat(sql.get(1)).contains("delete from om_ordered_master where id=? and version=?");
+  }
+
+  @Test
+  public void testAddSavedDetailToMaster() {
+    final OmOrderedMaster master = new OmOrderedMaster("Master");
+    final OmOrderedDetail detail = new OmOrderedDetail("Detail");
+
+    DB.save(master);
+    DB.save(detail);
+
+    master.getDetails().add(detail);
+    DB.save(master);
+
+    final OmOrderedMaster masterDb = DB.find(OmOrderedMaster.class, master.getId());
+    assertThat(masterDb.getDetails()).hasSize(1);
   }
 }
