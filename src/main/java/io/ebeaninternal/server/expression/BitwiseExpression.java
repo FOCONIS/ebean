@@ -40,7 +40,7 @@ class BitwiseExpression extends AbstractExpression {
 
   @Override
   public int queryBindHash() {
-    return Long.hashCode(flags);
+    return Long.hashCode(flags) * 31 + Long.hashCode(match);
   }
 
   @Override
