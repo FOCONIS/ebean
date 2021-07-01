@@ -2,6 +2,9 @@ package io.ebeaninternal.server.expression;
 
 import org.junit.Test;
 
+import io.ebeaninternal.api.BindHash;
+import io.ebeaninternal.server.querydefn.HashCodeBindHash;
+
 import static org.assertj.core.api.StrictAssertions.assertThat;
 
 public class RawExpressionTest extends BaseExpressionTest {
@@ -61,11 +64,17 @@ public class RawExpressionTest extends BaseExpressionTest {
   }
 
   public void assert_queryBindHash_isDifferent(RawExpression exp0, RawExpression exp1) {
-    assertThat(exp0.queryBindHash()).isNotEqualTo(exp1.queryBindHash());
+    assertThat(getHash(exp0)).isNotEqualTo(getHash(exp1));
   }
 
   public void assert_queryBindHash_isSame(RawExpression exp0, RawExpression exp1) {
-    assertThat(exp0.queryBindHash()).isEqualTo(exp1.queryBindHash());
+    assertThat(getHash(exp0)).isEqualTo(getHash(exp1));
   }
 
+  private int getHash(RawExpression query) {
+    BindHash hash = new HashCodeBindHash();
+    query.queryBindHash(hash);
+    hash.finish();
+    return hash.hashCode();
+  }
 }

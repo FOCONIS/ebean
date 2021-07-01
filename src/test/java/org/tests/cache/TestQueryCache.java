@@ -341,37 +341,33 @@ public class TestQueryCache extends BaseTestCase {
 
   @Test
   public void findCountDifferentQueriesBit() {
-
+    DB.getDefault().getPluginApi().getServerCacheManager().clearAll();
     differentFindCount(q->q.bitwiseAny("id",1), q->q.bitwiseAny("id",0));
     differentFindCount(q->q.bitwiseAll("id",1), q->q.bitwiseAll("id",0));
-    differentFindCount(q->q.bitwiseNot("id",1), q->q.bitwiseNot("id",0));
+    // differentFindCount(q->q.bitwiseNot("id",1), q->q.bitwiseNot("id",0)); NOT 1 == AND 1 = 0
     differentFindCount(q->q.bitwiseAnd("id",1, 0), q->q.bitwiseAnd("id",1, 1));
+
     differentFindCount(q->q.bitwiseAnd("id",2, 0), q->q.bitwiseAnd("id",4, 0));
     differentFindCount(q->q.bitwiseAnd("id",2, 1), q->q.bitwiseAnd("id",4, 1));
     // Will produce hash collision
-    // differentFindCount(q->q.bitwiseAnd("id",10, 0), q->q.bitwiseAnd("id",0, 310));
+    differentFindCount(q->q.bitwiseAnd("id",10, 0), q->q.bitwiseAnd("id",0, 928210));
 
   }
 
   void differentFindCount(Consumer<ExpressionList<EColAB>> q0, Consumer<ExpressionList<EColAB>> q1) {
-	    LoggedSqlCollector.start();
+    LoggedSqlCollector.start();
 
-	    ExpressionList<EColAB> el0 = Ebean.find(EColAB.class)
-	            .setUseQueryCache(CacheMode.ON)
-	            .where();
-	    q0.accept(el0);
-	    int count0 = el0.findCount();
+    ExpressionList<EColAB> el0 = Ebean.find(EColAB.class).setUseQueryCache(CacheMode.ON).where();
+    q0.accept(el0);
+    el0.findCount();
 
-	    ExpressionList<EColAB> el1 = Ebean.find(EColAB.class)
-                .setUseQueryCache(CacheMode.ON)
-                .where();
-        q1.accept(el1);
-	    int count1 = el1.findCount();
+    ExpressionList<EColAB> el1 = Ebean.find(EColAB.class).setUseQueryCache(CacheMode.ON).where();
+    q1.accept(el1);
+    el1.findCount();
 
-	    List<String> sql = LoggedSqlCollector.stop();
+    List<String> sql = LoggedSqlCollector.stop();
 
-	    assertThat(count0).isEqualTo(count1);
-	    assertThat(sql).hasSize(2); // different queries
+    assertThat(sql).hasSize(2); // different queries
   }
 
 
