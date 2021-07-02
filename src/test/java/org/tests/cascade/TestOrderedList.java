@@ -190,16 +190,4 @@ public class TestOrderedList extends BaseTestCase {
     assertThat(masterDb.getDetails()).containsExactly(detail3, detail1);
 
   }
-
-  @Test
-  public void testEqual() {
-    final OmOrderedMaster master = new OmOrderedMaster("Master");
-    final OmOrderedDetail detail = new OmOrderedDetail("Detail");
-    master.getDetails().add(detail);
-    DB.save(detail);
-    final OmOrderedDetail dbDetail = DB.find(OmOrderedDetail.class, detail.getId());
-
-    assertThat(dbDetail).isEqualTo(detail);
-
-  }
 }

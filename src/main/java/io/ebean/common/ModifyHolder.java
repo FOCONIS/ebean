@@ -50,9 +50,7 @@ class ModifyHolder<E> implements Serializable {
   }
 
   private boolean undoDeletion(E bean) {
-    return (bean instanceof EntityBean)
-        && !((EntityBean) bean)._ebean_getIntercept().isNew()
-        && modifyDeletions.remove(bean);
+    return (bean != null) && modifyDeletions.remove(bean);
   }
 
   void modifyAddition(E bean) {
@@ -72,9 +70,7 @@ class ModifyHolder<E> implements Serializable {
   }
 
   private boolean undoAddition(Object bean) {
-    return (bean instanceof EntityBean)
-        && !((EntityBean) bean)._ebean_getIntercept().isNew()
-        && modifyAdditions.remove(bean);
+    return (bean != null) && modifyAdditions.remove(bean);
   }
 
   @SuppressWarnings("unchecked")
@@ -84,9 +80,6 @@ class ModifyHolder<E> implements Serializable {
 
       if (bean instanceof EntityBean) {
         ((EntityBean) bean)._ebean_getIntercept().setDeletedFromCollection(true);
-        if (((EntityBean) bean)._ebean_getIntercept().isNew()) {
-          return; // do not track modifyDeletions
-        }
       }
 
       // If it is to be added then just remove the addition
