@@ -333,12 +333,12 @@ public final class SqlTreeBuilder {
 
     } else if (prop instanceof STreePropertyAssocMany) {
       // do not read Id on child beans (e.g. when used with fetch())
-      boolean withId = isNotSingleAttribute();
+      boolean withId = isNotSingleAttribute() && !subQuery;
       return new SqlTreeNodeManyRoot(prefix, (STreePropertyAssocMany) prop, props, myList, withId, temporalMode, disableLazyLoad);
 
     } else {
       // do not read Id on child beans (e.g. when used with fetch())
-      boolean withId = isNotSingleAttribute();
+      boolean withId = isNotSingleAttribute() && !subQuery;
       return new SqlTreeNodeBean(prefix, prop, props, myList, withId, temporalMode, disableLazyLoad);
     }
   }
