@@ -84,6 +84,7 @@ public class SqlQueryCancelTest extends BaseTestCase {
 
   private void testDuringRun(Consumer<Query<EBasic>> test) throws SQLException {
     Query<EBasic> query = DB.find(EBasic.class);
+    query.select("id");
     executeDelayed(query::cancel);
     assertThatThrownBy(() -> test.accept(query))
         .isInstanceOf(PersistenceException.class)
