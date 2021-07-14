@@ -2383,7 +2383,7 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
       // new.
       Query<?> query = new DefaultOrmQuery<>(beanDesc, this, expressionFactory);
       query.setId(id);
-      if (findCount(query, transaction) > 0) {
+      if (exists(query, transaction)) {
         Set<Property> ret = new HashSet<>();
         ret.add(idProperty);
         return ret;
@@ -2421,7 +2421,7 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
       exprList.eq(prop.getName(), value);
     }
 
-    if (findCount(query, transaction) > 0) {
+    if (exists(query, transaction)) {
       Set<Property> ret = new LinkedHashSet<>();
       Collections.addAll(ret, props);
       return ret;

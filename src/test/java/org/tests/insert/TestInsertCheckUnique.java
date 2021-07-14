@@ -4,10 +4,15 @@ import io.ebean.BaseTestCase;
 import io.ebean.DB;
 import io.ebean.Transaction;
 import io.ebean.plugin.Property;
+import io.ebeantest.LoggedSql;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.tests.model.draftable.Document;
+import org.tests.model.m2m.MnyEdge;
+import org.tests.model.m2m.MnyNode;
 
+import java.util.List;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -66,6 +71,34 @@ public class TestInsertCheckUnique extends BaseTestCase {
       doc2.save();
       DB.getDefault().publish(doc2.getClass(), doc2.getId());
     }
+  }
+
+  @Test
+  public  void testMultipleIndices() {
+    MnyNode from = new MnyNode("from");
+    DB.save(from);
+    MnyNode to = new MnyNode("to");
+    DB.save(to);
+
+    MnyEdge edge = new MnyEdge();
+    edge.setFrom(from);
+    edge.setTo(to);
+    DB.save(edge);
+
+    LoggedSql.start();
+    assertThat(DB.checkUniqueness(edge)).isEmpty();
+    List<String> sql = LoggedSql.stop();
+    assertThat(sql).hasSize(1);
+    assertThat(sql.get(0)).startsWith("select t0.id from mny_edge t0 where t0.id <> ? and t0.from_id = ? and t0.to_id = ? limit 1");
+
+    edge = new MnyEdge();
+    edge.setFrom(from);
+    edge.setTo(to);
+    LoggedSql.start();
+    assertThat(DB.checkUniqueness(edge)).extracting(Property::getName).containsExactly("from", "to");
+    sql = LoggedSql.stop();
+    assertThat(sql).hasSize(1);
+    assertThat(sql.get(0)).startsWith("select t0.id from mny_edge t0 where t0.from_id = ? and t0.to_id = ? limit 1");
   }
 
   @Test

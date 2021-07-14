@@ -100,6 +100,7 @@ import java.lang.reflect.Modifier;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -803,13 +804,13 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
       }
       props[i] = findProperty(propName);
     }
-    if (props.length == 1) {
-      for (BeanProperty[] inserted : propertiesUnique) {
-        if (inserted.length == 1 && inserted[0].equals(props[0])) {
-          return; // do not insert duplicates
-        }
+    Arrays.sort(props, (p1, p2) -> p1.getName().compareTo(p2.getName()));
+    for (BeanProperty[] inserted : propertiesUnique) {
+      if (Arrays.equals(inserted,props)) {
+        return; // do not insert duplicates
       }
     }
+
     propertiesUnique.add(props);
   }
 
