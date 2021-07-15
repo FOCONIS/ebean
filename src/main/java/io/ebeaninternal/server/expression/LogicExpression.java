@@ -2,8 +2,8 @@ package io.ebeaninternal.server.expression;
 
 import io.ebean.Expression;
 import io.ebean.Junction;
-import io.ebean.QueryDsl;
 import io.ebean.event.BeanQueryRequest;
+import io.ebeaninternal.api.BindHash;
 import io.ebeaninternal.api.ManyWhereJoins;
 import io.ebeaninternal.api.NaturalKeyQueryData;
 import io.ebeaninternal.api.SpiExpression;
@@ -32,14 +32,6 @@ abstract class LogicExpression implements SpiExpression {
       return new And(expOne.copyForPlanKey(), expTwo.copyForPlanKey());
     }
 
-    @Override
-    public <F extends QueryDsl<?, F>> void visitDsl(BeanDescriptor<?> desc, QueryDsl<?, F> target) {
-      target = target.and();
-      expOne.visitDsl(desc, target);
-      expTwo.visitDsl(desc, target);
-      target.endAnd();
-    }
-
   }
 
   static class Or extends LogicExpression {
@@ -51,14 +43,6 @@ abstract class LogicExpression implements SpiExpression {
     @Override
     public SpiExpression copyForPlanKey() {
       return new Or(expOne.copyForPlanKey(), expTwo.copyForPlanKey());
-    }
-
-    @Override
-    public <F extends QueryDsl<?, F>> void visitDsl(BeanDescriptor<?> desc, QueryDsl<?, F> target) {
-      target = target.or();
-      expOne.visitDsl(desc, target);
-      expTwo.visitDsl(desc, target);
-      target.endOr();
     }
   }
 
@@ -179,10 +163,8 @@ abstract class LogicExpression implements SpiExpression {
   }
 
   @Override
-  public int queryBindHash() {
-    int hc = expOne.queryBindHash();
-    hc = hc * 92821 + expTwo.queryBindHash();
-    return hc;
+  public void queryBindHash(BindHash hash) {
+    hash.update(expOne).update(expTwo);
   }
 
   @Override

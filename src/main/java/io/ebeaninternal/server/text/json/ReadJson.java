@@ -8,7 +8,6 @@ import io.ebean.bean.EntityBeanIntercept;
 import io.ebean.bean.PersistenceContext;
 import io.ebean.text.json.JsonReadBeanVisitor;
 import io.ebean.text.json.JsonReadOptions;
-import io.ebean.text.json.JsonVersionMigrationHandler;
 import io.ebeaninternal.api.LoadContext;
 import io.ebeaninternal.api.json.SpiJsonReader;
 import io.ebeaninternal.server.deploy.BeanDescriptor;
@@ -46,8 +45,6 @@ public class ReadJson implements SpiJsonReader {
 
   private final LoadContext loadContext;
 
-  private final JsonVersionMigrationHandler versionMigrationHandler;
-
   /**
    * Construct with parser and readOptions.
    */
@@ -58,7 +55,7 @@ public class ReadJson implements SpiJsonReader {
     this.objectMapper = objectMapper;
     this.persistenceContext = initPersistenceContext(readOptions);
     this.loadContext = initLoadContext(desc, readOptions);
-    this.versionMigrationHandler = (readOptions == null) ? null : readOptions.getVersionMigrationHandler();
+
     // only create visitorMap, pathStack if needed ...
     this.visitorMap = (readOptions == null) ? null : readOptions.getVisitorMap();
     this.pathStack = (visitorMap == null && loadContext == null) ? null : new PathStack();
@@ -73,7 +70,6 @@ public class ReadJson implements SpiJsonReader {
     this.pathStack = source.pathStack;
     this.visitorMap = source.visitorMap;
     this.objectMapper = source.objectMapper;
-    this.versionMigrationHandler = source.versionMigrationHandler;
     if (resetContext) {
       this.persistenceContext = new DefaultPersistenceContext();
       this.loadContext = source.loadContext;
@@ -211,7 +207,7 @@ public class ReadJson implements SpiJsonReader {
 
   /**
    * If there is a JsonReadBeanVisitor registered to the current path then
-   * call it's visit method with the bean and unmappedProperties.
+   * call it's visitExpression method with the bean and unmappedProperties.
    */
   @Override
   @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -232,14 +228,6 @@ public class ReadJson implements SpiJsonReader {
   @Override
   public Object readValueUsingObjectMapper(Class<?> propertyType) throws IOException {
     return getObjectMapper().readValue(parser, propertyType);
-  }
-
-  /**
-   * @return the versionMigrationHandler
-   */
-  @Override
-  public JsonVersionMigrationHandler getVersionMigrationHandler() {
-    return versionMigrationHandler;
   }
 
 }

@@ -294,14 +294,7 @@ public class CQuery<T> implements DbReadContext, CancelableQuery, SpiProfileTran
   @Override
   public void cancel() {
     synchronized (this) {
-      if (pstmt != null) {
-        try {
-          pstmt.cancel();
-        } catch (SQLException e) {
-          String msg = "Error cancelling query";
-          throw new PersistenceException(msg, e);
-        }
-      }
+      JdbcClose.cancel(pstmt);
     }
   }
 

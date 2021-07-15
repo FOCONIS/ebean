@@ -96,7 +96,7 @@ public class TestQueryExists extends BaseTestCase {
     query.findList();
     String sql = query.getGeneratedSql();
 
-    assertThat(sql).contains("exists (");
+    assertThat(sql).contains("exists (select 1 from");
   }
 
   @Test
@@ -109,6 +109,6 @@ public class TestQueryExists extends BaseTestCase {
     query.findList();
     String sql = query.getGeneratedSql();
 
-    assertThat(sql).contains("not exists (");
+    assertThat(sql).contains("not exists (select 1 from");
   }
 }

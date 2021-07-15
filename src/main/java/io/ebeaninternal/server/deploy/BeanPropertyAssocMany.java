@@ -15,9 +15,6 @@ import io.ebean.text.PathProperties;
 import io.ebeaninternal.api.SpiEbeanServer;
 import io.ebeaninternal.api.SpiExpressionRequest;
 import io.ebeaninternal.api.SpiQuery;
-import io.ebeaninternal.api.filter.Expression3VL;
-import io.ebeaninternal.api.filter.ExpressionTest;
-import io.ebeaninternal.api.filter.FilterContext;
 import io.ebeaninternal.api.json.SpiJsonReader;
 import io.ebeaninternal.api.json.SpiJsonWriter;
 import io.ebeaninternal.server.deploy.id.ImportedId;
@@ -442,6 +439,7 @@ public class BeanPropertyAssocMany<T> extends BeanPropertyAssoc<T> implements ST
   public String getAssocIsEmpty(SpiExpressionRequest request, String path) {
 
     boolean softDelete = targetDescriptor.isSoftDelete();
+    boolean needsX2Table = softDelete || getExtraWhere() != null;
 
     StringBuilder sb = new StringBuilder(50);
     SpiQuery<?> query = request.getQueryRequest().getQuery();
@@ -450,7 +448,7 @@ public class BeanPropertyAssocMany<T> extends BeanPropertyAssoc<T> implements ST
     } else {
       sb.append(targetDescriptor.getBaseTable(query.getTemporalMode()));
     }
-    if (softDelete && hasJoinTable()) {
+    if (needsX2Table && hasJoinTable()) {
       sb.append(" x join ");
       sb.append(targetDescriptor.getBaseTable(query.getTemporalMode()));
       sb.append(" x2 on ");
@@ -466,6 +464,16 @@ public class BeanPropertyAssocMany<T> extends BeanPropertyAssoc<T> implements ST
       }
       exportedProperties[i].appendWhere(sb, "x.", path);
     }
+    if (getExtraWhere() != null) {
+      sb.append(" and ");
+      if (hasJoinTable()) {
+        sb.append(getExtraWhere().replace("${ta}", "x2").replace("${mta}", "x"));
+      } else {
+        sb.append(getExtraWhere().replace("${ta}", "x"));
+      }
+    }
+
+
     if (softDelete) {
       String alias = hasJoinTable() ? "x2" : "x";
       sb.append(" and ").append(targetDescriptor.getSoftDeletePredicate(alias));
@@ -595,7 +603,7 @@ public class BeanPropertyAssocMany<T> extends BeanPropertyAssoc<T> implements ST
     if (!manyToMany && childMasterProperty != null) {
       // bidirectional in the sense that the 'master' property
       // exists on the 'detail' bean
-      childMasterProperty.setValue(child, parent);
+      childMasterProperty.setValueIntercept(child, parent);
     }
   }
 
@@ -1082,26 +1090,6 @@ public class BeanPropertyAssocMany<T> extends BeanPropertyAssoc<T> implements ST
    */
   public void bindElementValue(SqlUpdate insert, Object value) {
     targetDescriptor.bindElementValue(insert, value);
-  }
-
-  @Override
-  public Expression3VL pathTest(Object bean, FilterContext ctx, ExpressionTest test) {
-
-    Object value = pathGet(bean);
-    if (value == null) {
-      return test.testNull();
-    }
-    Collection<?> coll = (Collection<?>) value;
-    if (coll.isEmpty()) {
-      return test.testNull();
-    }
-
-    value = ctx.getFilterPermutations(name, coll).getCurrentValue();
-    if (value == null) {
-      return test.testNull();
-    } else {
-      return test.test(value);
-    }
   }
 
   /**

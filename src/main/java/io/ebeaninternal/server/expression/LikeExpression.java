@@ -1,10 +1,9 @@
 package io.ebeaninternal.server.expression;
 
 import io.ebean.LikeType;
-import io.ebean.QueryDsl;
+import io.ebeaninternal.api.BindHash;
 import io.ebeaninternal.api.SpiExpression;
 import io.ebeaninternal.api.SpiExpressionRequest;
-import io.ebeaninternal.server.deploy.BeanDescriptor;
 import io.ebeaninternal.server.el.ElPropertyValue;
 
 import java.io.IOException;
@@ -65,15 +64,15 @@ class LikeExpression extends AbstractValueExpression {
    */
   @Override
   public void queryPlanHash(StringBuilder builder) {
-    if (caseInsensitive){
+    if (caseInsensitive) {
       builder.append("I");
     }
     builder.append("Like[").append(type).append(" ").append(propName).append("]");
   }
 
   @Override
-  public int queryBindHash() {
-    return strValue().hashCode();
+  public void queryBindHash(BindHash hash) {
+    hash.update(strValue());
   }
 
   @Override
@@ -105,45 +104,4 @@ class LikeExpression extends AbstractValueExpression {
     }
   }
 
-  @Override
-  public <F extends QueryDsl<?,F>> void visitDsl(BeanDescriptor<?> desc, QueryDsl<?, F> target) {
-    if (caseInsensitive) {
-      switch (type) {
-      case CONTAINS:
-        target.icontains(propName, strValue());
-        return;
-      case STARTS_WITH:
-        target.istartsWith(propName, strValue());
-        return;
-      case ENDS_WITH:
-        target.iendsWith(propName, strValue());
-        return;
-      case EQUAL_TO:
-        target.ieq(propName, strValue());
-        return;
-      case RAW:
-        target.ilike(propName, strValue());
-        return;
-      }
-    } else {
-      switch (type) {
-      case CONTAINS:
-        target.contains(propName, strValue());
-        return;
-      case STARTS_WITH:
-        target.startsWith(propName, strValue());
-        return;
-      case ENDS_WITH:
-        target.endsWith(propName, strValue());
-        return;
-      case EQUAL_TO:
-        target.eq(propName, strValue());
-        return;
-      case RAW:
-        target.like(propName, strValue());
-        return;
-      }
-    }
-    throw new UnsupportedOperationException(type + " not supported");
-  }
 }

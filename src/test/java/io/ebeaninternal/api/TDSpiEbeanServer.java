@@ -12,7 +12,6 @@ import io.ebean.Filter;
 import io.ebean.FutureIds;
 import io.ebean.FutureList;
 import io.ebean.FutureRowCount;
-import io.ebean.FutureSingleAttributeList;
 import io.ebean.MergeOptions;
 import io.ebean.PagedList;
 import io.ebean.PersistenceContextScope;
@@ -47,6 +46,7 @@ import io.ebean.plugin.Property;
 import io.ebean.plugin.SpiServer;
 import io.ebean.text.csv.CsvReader;
 import io.ebean.text.json.JsonContext;
+import io.ebeaninternal.api.SpiQuery.Type;
 import io.ebeaninternal.dbmigration.ddlgeneration.DdlHandler;
 import io.ebeaninternal.server.core.SpiResultSet;
 import io.ebeaninternal.server.core.timezone.DataTimeZone;
@@ -56,7 +56,6 @@ import io.ebeaninternal.server.transaction.RemoteTransactionEvent;
 
 import javax.persistence.OptimisticLockException;
 import javax.persistence.PersistenceException;
-import java.lang.reflect.Type;
 import java.time.Clock;
 import java.util.Collection;
 import java.util.Collections;
@@ -257,7 +256,7 @@ public class TDSpiEbeanServer implements SpiEbeanServer {
   }
 
   @Override
-  public <T> CQuery<T> compileQuery(Query<T> query, Transaction t) {
+  public <T> CQuery<T> compileQuery(Type type, Query<T> query, Transaction t) {
     return null;
   }
 
@@ -317,7 +316,7 @@ public class TDSpiEbeanServer implements SpiEbeanServer {
   }
 
   @Override
-  public boolean isSupportedType(Type genericType) {
+  public boolean isSupportedType(java.lang.reflect.Type genericType) {
     return false;
   }
 
@@ -680,11 +679,6 @@ public class TDSpiEbeanServer implements SpiEbeanServer {
 
   @Override
   public <T> FutureIds<T> findFutureIds(Query<T> query, Transaction transaction) {
-    return null;
-  }
-  
-  @Override
-  public <T, A> FutureSingleAttributeList<T, A> findFutureSingleAttributeList(Query<T> query, Transaction t) {
     return null;
   }
 

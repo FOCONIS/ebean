@@ -4,6 +4,7 @@ import io.ebean.BaseTestCase;
 import io.ebean.CacheMode;
 import io.ebean.DB;
 import io.ebean.Ebean;
+import io.ebean.ExpressionList;
 import io.ebean.bean.BeanCollection;
 import io.ebean.cache.ServerCache;
 import org.ebeantest.LoggedSqlCollector;
@@ -14,6 +15,7 @@ import org.tests.model.basic.ResetBasicData;
 import org.tests.model.cache.EColAB;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -335,5 +337,38 @@ public class TestQueryCache extends BaseTestCase {
 
     assertThat(sql).hasSize(1);
   }
+
+
+  @Test
+  public void findCountDifferentQueriesBit() {
+    DB.getDefault().getPluginApi().getServerCacheManager().clearAll();
+    differentFindCount(q->q.bitwiseAny("id",1), q->q.bitwiseAny("id",0));
+    differentFindCount(q->q.bitwiseAll("id",1), q->q.bitwiseAll("id",0));
+    // differentFindCount(q->q.bitwiseNot("id",1), q->q.bitwiseNot("id",0)); NOT 1 == AND 1 = 0
+    differentFindCount(q->q.bitwiseAnd("id",1, 0), q->q.bitwiseAnd("id",1, 1));
+
+    differentFindCount(q->q.bitwiseAnd("id",2, 0), q->q.bitwiseAnd("id",4, 0));
+    differentFindCount(q->q.bitwiseAnd("id",2, 1), q->q.bitwiseAnd("id",4, 1));
+    // Will produce hash collision
+    differentFindCount(q->q.bitwiseAnd("id",10, 0), q->q.bitwiseAnd("id",0, 928210));
+
+  }
+
+  void differentFindCount(Consumer<ExpressionList<EColAB>> q0, Consumer<ExpressionList<EColAB>> q1) {
+    LoggedSqlCollector.start();
+
+    ExpressionList<EColAB> el0 = Ebean.find(EColAB.class).setUseQueryCache(CacheMode.ON).where();
+    q0.accept(el0);
+    el0.findCount();
+
+    ExpressionList<EColAB> el1 = Ebean.find(EColAB.class).setUseQueryCache(CacheMode.ON).where();
+    q1.accept(el1);
+    el1.findCount();
+
+    List<String> sql = LoggedSqlCollector.stop();
+
+    assertThat(sql).hasSize(2); // different queries
+  }
+
 
 }

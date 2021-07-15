@@ -63,6 +63,14 @@ public class MnyNode {
   @Where(clause = "BITAND(${mta}.flags, 2) != 0", platforms = Platform.H2)
   List<MnyNode> bit2ReverseRelations;
 
+
+  @ManyToMany
+  @JoinTable(name = "mny_edge",
+    joinColumns = @JoinColumn(name = "to_id", referencedColumnName = "id"),
+    inverseJoinColumns = @JoinColumn(name = "from_id", referencedColumnName = "id"))
+  @Where(clause = "'${dbTableName}' = ${ta}.name")
+  List<MnyNode> withDbTableName;
+
   public MnyNode() {
 
   }
@@ -111,5 +119,12 @@ public class MnyNode {
     return bit2ReverseRelations;
   }
 
+  public List<MnyNode> getWithDbTableName() {
+    return withDbTableName;
+  }
+
+  public void setWithDbTableName(List<MnyNode> withDbTableName) {
+    this.withDbTableName = withDbTableName;
+  }
 
 }

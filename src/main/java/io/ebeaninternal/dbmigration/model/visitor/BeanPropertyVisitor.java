@@ -5,7 +5,7 @@ import io.ebeaninternal.server.deploy.BeanPropertyAssocMany;
 import io.ebeaninternal.server.deploy.BeanPropertyAssocOne;
 
 /**
- * Used to visit a BeanProperty given the type of bean property it is.
+ * Used to visitExpression a BeanProperty given the type of bean property it is.
  */
 public interface BeanPropertyVisitor {
 

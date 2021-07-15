@@ -15,7 +15,6 @@ import io.ebean.OrderBy;
 import io.ebean.PagedList;
 import io.ebean.Pairs;
 import io.ebean.Query;
-import io.ebean.QueryDsl;
 import io.ebean.QueryIterator;
 import io.ebean.Transaction;
 import io.ebean.UpdateQuery;
@@ -26,13 +25,13 @@ import io.ebean.search.MultiMatch;
 import io.ebean.search.TextCommonTerms;
 import io.ebean.search.TextQueryString;
 import io.ebean.search.TextSimple;
+import io.ebeaninternal.api.BindHash;
 import io.ebeaninternal.api.ManyWhereJoins;
 import io.ebeaninternal.api.NaturalKeyQueryData;
 import io.ebeaninternal.api.SpiExpression;
 import io.ebeaninternal.api.SpiExpressionRequest;
 import io.ebeaninternal.api.SpiExpressionValidation;
 import io.ebeaninternal.api.SpiJunction;
-import io.ebeaninternal.api.SpiQuery;
 import io.ebeaninternal.server.deploy.BeanDescriptor;
 
 import java.io.IOException;
@@ -222,13 +221,12 @@ class JunctionExpression<T> implements SpiJunction<T>, SpiExpression, Expression
   }
 
   @Override
-  public int queryBindHash() {
+  public void queryBindHash(BindHash hash) {
     int hc = JunctionExpression.class.getName().hashCode();
     List<SpiExpression> list = exprList.internalList();
     for (SpiExpression aList : list) {
-      hc = hc * 92821 + aList.queryBindHash();
+      aList.queryBindHash(hash);
     }
-    return hc;
   }
 
   @Override
@@ -1001,35 +999,5 @@ class JunctionExpression<T> implements SpiJunction<T>, SpiExpression, Expression
       return nestedPath;
     }
     return null;
-  }
-
-  @Override
-  public <F extends QueryDsl<?,F>> void visitDsl(BeanDescriptor<?> desc, QueryDsl<?, F> target) {
-    switch (type) {
-    case AND:
-      target = target.and();
-      exprList.visitDsl(desc, target);
-      target.endAnd();
-      break;
-    case OR:
-      target = target.or();
-      exprList.visitDsl(desc, target);
-      target.endOr();
-      break;
-    case NOT:
-      target = target.not();
-      exprList.visitDsl(desc, target);
-      target.endNot();
-      break;
-    default:
-      throw new UnsupportedOperationException(type + " not supported");
-    }
-  }
-
-  @Override
-  public <F extends QueryDsl<T, F>> ExpressionList<T> applyTo(QueryDsl<T, F> target) {
-    BeanDescriptor<T> desc = exprList.query instanceof SpiQuery ? ((SpiQuery)exprList.query).getBeanDescriptor() : null;
-    visitDsl(desc, target);
-    return this;
   }
 }

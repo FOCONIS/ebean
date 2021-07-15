@@ -1,7 +1,6 @@
 package io.ebeaninternal.api;
 
 import io.ebean.Expression;
-import io.ebean.QueryDsl;
 import io.ebean.event.BeanQueryRequest;
 import io.ebeaninternal.server.deploy.BeanDescriptor;
 import io.ebeaninternal.server.expression.DocQueryContext;
@@ -57,7 +56,7 @@ public interface SpiExpression extends Expression {
   /**
    * Return the hash value for the values that will be bound.
    */
-  int queryBindHash();
+  void queryBindHash(BindHash hash);
 
   /**
    * Return true if the expression is the same with respect to bind values.
@@ -106,11 +105,4 @@ public interface SpiExpression extends Expression {
    * Check for match to a natural key query returning false if it doesn't match.
    */
   boolean naturalKey(NaturalKeyQueryData<?> data);
-
-  /**
-   * Applies given list to an other QueryDsl.
-   */
-  default <F extends QueryDsl<?,F>> void visitDsl(BeanDescriptor<?> desc, QueryDsl<?,F> target) {
-    throw new UnsupportedOperationException("Not supported: " +getClass().getName());
-  }
 }

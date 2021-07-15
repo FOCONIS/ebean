@@ -18,6 +18,7 @@ import io.ebean.config.dbplatform.DatabasePlatform;
 import io.ebean.event.readaudit.ReadAuditLogger;
 import io.ebean.event.readaudit.ReadAuditPrepare;
 import io.ebean.meta.MetricVisitor;
+import io.ebeaninternal.api.SpiQuery.Type;
 import io.ebeaninternal.dbmigration.ddlgeneration.DdlHandler;
 import io.ebeaninternal.server.core.SpiResultSet;
 import io.ebeaninternal.server.core.timezone.DataTimeZone;
@@ -164,7 +165,7 @@ public interface SpiEbeanServer extends ExtendedServer, EbeanServer, BeanLoader,
   /**
    * Compile a query.
    */
-  <T> CQuery<T> compileQuery(Query<T> query, Transaction t);
+  <T> CQuery<T> compileQuery(Type type, Query<T> query, Transaction t);
 
   /**
    * Execute the findId's query but without copying the query.

@@ -1,9 +1,8 @@
 package io.ebeaninternal.server.expression;
 
-import io.ebean.QueryDsl;
+import io.ebeaninternal.api.BindHash;
 import io.ebeaninternal.api.SpiExpression;
 import io.ebeaninternal.api.SpiExpressionRequest;
-import io.ebeaninternal.server.deploy.BeanDescriptor;
 
 import java.io.IOException;
 
@@ -49,20 +48,13 @@ class InRangeExpression extends AbstractExpression {
   }
 
   @Override
-  public int queryBindHash() {
-    int hc = low().hashCode();
-    hc = hc * 92821 + high().hashCode();
-    return hc;
+  public void queryBindHash(BindHash hash) {
+    hash.update(low()).update(high());
   }
 
   @Override
   public boolean isSameByBind(SpiExpression other) {
     InRangeExpression that = (InRangeExpression) other;
     return low().equals(that.low()) && high().equals(that.high());
-  }
-
-  @Override
-  public <F extends QueryDsl<?,F>> void visitDsl(BeanDescriptor<?> desc, QueryDsl<?, F> target) {
-    target.inRange(propName, valueLow, valueHigh);
   }
 }

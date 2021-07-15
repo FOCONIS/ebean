@@ -132,7 +132,7 @@ class AnnotationAssocManys extends AnnotationParser {
 
     Where where = get(prop, Where.class);
     if (where != null) {
-      prop.setExtraWhere(where.clause());
+      prop.setExtraWhere(processFormula(where.clause()));
     }
 
     FetchPreference fetchPreference = get(prop, FetchPreference.class);

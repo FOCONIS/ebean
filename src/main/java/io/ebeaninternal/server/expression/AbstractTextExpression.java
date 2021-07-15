@@ -1,5 +1,6 @@
 package io.ebeaninternal.server.expression;
 
+import io.ebeaninternal.api.BindHash;
 import io.ebeaninternal.api.SpiExpression;
 import io.ebeaninternal.api.SpiExpressionRequest;
 
@@ -37,13 +38,12 @@ public abstract class AbstractTextExpression extends AbstractExpression {
   }
 
   @Override
-  public int queryBindHash() {
-    return 0;
-  }
+  public void queryBindHash(BindHash hash) {}
 
   @Override
   public boolean isSameByBind(SpiExpression other) {
     // do not compare by plan / bind values (this way)
     return false;
   }
+
 }

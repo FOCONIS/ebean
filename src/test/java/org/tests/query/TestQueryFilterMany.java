@@ -94,7 +94,7 @@ public class TestQueryFilterMany extends BaseTestCase {
 
     List<String> sqlList = LoggedSqlCollector.stop();
     assertEquals(2, sqlList.size());
-    assertThat(sqlList.get(0)).contains("where exists (select 1 from o_order x where x.kcustomer_id = t0.id)");
+    assertThat(sqlList.get(0)).contains("where exists (select 1 from o_order x where x.kcustomer_id = t0.id and x.order_date is not null)");
     assertThat(sqlList.get(1)).contains("and 1=0");
   }
 

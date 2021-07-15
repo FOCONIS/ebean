@@ -9,11 +9,9 @@ import io.ebean.ExpressionList;
 import io.ebean.FetchConfig;
 import io.ebean.FetchGroup;
 import io.ebean.FetchPath;
-import io.ebean.Filter;
 import io.ebean.FutureIds;
 import io.ebean.FutureList;
 import io.ebean.FutureRowCount;
-import io.ebean.FutureSingleAttributeList;
 import io.ebean.OrderBy;
 import io.ebean.OrderBy.Property;
 import io.ebean.PagedList;
@@ -35,6 +33,7 @@ import io.ebean.event.BeanQueryRequest;
 import io.ebean.event.readaudit.ReadEvent;
 import io.ebean.plugin.BeanType;
 import io.ebean.plugin.LoadErrorHandler;
+import io.ebeaninternal.api.BindHash;
 import io.ebeaninternal.api.BindParams;
 import io.ebeaninternal.api.CQueryPlanKey;
 import io.ebeaninternal.api.CacheIdLookup;
@@ -282,6 +281,8 @@ public class DefaultOrmQuery<T> extends AbstractQuery implements SpiQuery<T> {
 
   private boolean orderById;
 
+  private final String bindHashAlgorith;
+
   /**
    * Identity the query for profiling purposes (expected to be unique for a bean type).
    */
@@ -289,14 +290,13 @@ public class DefaultOrmQuery<T> extends AbstractQuery implements SpiQuery<T> {
 
   private ProfileLocation profileLocation;
 
-  private Class<?> countDistinctDto;
-
   public DefaultOrmQuery(BeanDescriptor<T> desc, SpiEbeanServer server, ExpressionFactory expressionFactory) {
     this.beanDescriptor = desc;
     this.rootBeanDescriptor = desc;
     this.beanType = desc.getBeanType();
     this.server = server;
     this.orderById = server.getServerConfig().isDefaultOrderById();
+    this.bindHashAlgorith = "MD5"; // TODO: server.getServerConfig().isUseMd5BindHash();
     this.disableLazyLoading = server.getServerConfig().isDisableLazyLoading();
     this.expressionFactory = expressionFactory;
     this.detail = new OrmQueryDetail();
@@ -628,7 +628,8 @@ public class DefaultOrmQuery<T> extends AbstractQuery implements SpiQuery<T> {
    * Limit the number of fetch joins to Many properties, mark as query joins as needed.
    */
   private void markQueryJoins() {
-    detail.markQueryJoins(beanDescriptor, lazyLoadManyPath, isAllowOneManyFetch(), type != Type.ATTRIBUTE);
+    detail.markQueryJoins(beanDescriptor, lazyLoadManyPath, isAllowOneManyFetch(),
+        type != Type.ATTRIBUTE && type != Type.SQ_EXISTS && type != Type.SQ_IN);
   }
 
   private boolean isAllowOneManyFetch() {
@@ -643,7 +644,7 @@ public class DefaultOrmQuery<T> extends AbstractQuery implements SpiQuery<T> {
 
   @Override
   public void setDefaultSelectClause() {
-    if (type != Type.ATTRIBUTE) {
+    if (type != Type.ATTRIBUTE && type != Type.SQ_EXISTS && type != Type.SQ_IN) {
       detail.setDefaultSelectClause(beanDescriptor);
     } else if (!detail.hasSelectClause()) {
       // explicit empty select when single attribute query on non-root fetch path
@@ -844,7 +845,6 @@ public class DefaultOrmQuery<T> extends AbstractQuery implements SpiQuery<T> {
     copy.rootTableAlias = rootTableAlias;
     copy.distinct = distinct;
     copy.countDistinctOrder = countDistinctOrder;
-    copy.countDistinctDto = countDistinctDto;
     copy.allowLoadErrors = allowLoadErrors;
     copy.timeout = timeout;
     copy.mapKey = mapKey;
@@ -1277,15 +1277,12 @@ public class DefaultOrmQuery<T> extends AbstractQuery implements SpiQuery<T> {
    * </p>
    */
   @Override
-  public int queryBindHash() {
-    int hc = (id == null ? 0 : id.hashCode());
-    hc = hc * 92821 + (whereExpressions == null ? 0 : whereExpressions.queryBindHash());
-    hc = hc * 92821 + (havingExpressions == null ? 0 : havingExpressions.queryBindHash());
-    hc = hc * 92821 + (bindParams == null ? 0 : bindParams.queryBindHash());
-    hc = hc * 92821 + (asOf == null ? 0 : asOf.hashCode());
-    hc = hc * 92821 + (versionsStart == null ? 0 : versionsStart.hashCode());
-    hc = hc * 92821 + (versionsEnd == null ? 0 : versionsEnd.hashCode());
-    return hc;
+  public void queryBindHash(BindHash hash) {
+    hash.update(id);
+    if (whereExpressions != null) whereExpressions.queryBindHash(hash);
+    if (havingExpressions != null) havingExpressions.queryBindHash(hash);
+    if (bindParams != null) bindParams.queryBindHash(hash);
+    hash.update(asOf).update(versionsStart).update(versionsEnd);
   }
 
   /**
@@ -1299,8 +1296,10 @@ public class DefaultOrmQuery<T> extends AbstractQuery implements SpiQuery<T> {
   public HashQuery queryHash() {
     // calculateQueryPlanHash is called just after potential AutoTune tuning
     // so queryPlanHash is calculated well before this method is called
-    int hc = queryBindHash();
-    return new HashQuery(queryPlanKey, hc);
+    BindHash hash = bindHashAlgorith == null ? new HashCodeBindHash() : new MdBindHash(bindHashAlgorith);
+    queryBindHash(hash);
+    hash.finish();
+    return new HashQuery(queryPlanKey, hash);
   }
 
   @Override
@@ -1575,17 +1574,6 @@ public class DefaultOrmQuery<T> extends AbstractQuery implements SpiQuery<T> {
   }
 
   @Override
-  public Query<T> setCountDistinctDto(Class<?> countDistinctDto) {
-    this.countDistinctDto = countDistinctDto;
-    return this;
-  }
-
-  @Override
-  public Class<?> getCountDistinctDto() {
-    return countDistinctDto;
-  }
-
-  @Override
   public <A> A findSingleAttribute() {
     List<A> list = findSingleAttributeList();
     return !list.isEmpty() ? list.get(0) : null;
@@ -1609,11 +1597,6 @@ public class DefaultOrmQuery<T> extends AbstractQuery implements SpiQuery<T> {
   @Override
   public FutureList<T> findFutureList() {
     return server.findFutureList(this, transaction);
-  }
-
-  @Override
-  public <A> FutureSingleAttributeList<T, A> findFutureSingleAttributeList() {
-    return server.findFutureSingleAttributeList(this, transaction);
   }
 
   @Override
@@ -1783,10 +1766,7 @@ public class DefaultOrmQuery<T> extends AbstractQuery implements SpiQuery<T> {
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("query ").append(beanDescriptor.getBaseTable());
-    sb.append(", plan: ").append(queryPlanKey);
-    return sb.toString();
+    return "Query [" + whereExpressions + "]";
   }
 
   @Override
@@ -2079,65 +2059,5 @@ public class DefaultOrmQuery<T> extends AbstractQuery implements SpiQuery<T> {
 
   public boolean isOrderById() {
     return orderById;
-  }
-
-  @Override
-  public Filter<T> filter() {
-    if (temporalMode != TemporalMode.CURRENT) {
-      throw new UnsupportedOperationException("TemporalMode." + temporalMode + " is not supported.");
-    }
-    if (rawSql != null) {
-      throw new UnsupportedOperationException("RawSql is not supported.");
-    }
-
-    if (nativeSql != null) {
-      throw new UnsupportedOperationException("NativeSql is not supported.");
-    }
-
-    Filter<T> filter = server.filter(beanType);
-    if (id != null) {
-      filter.eq(beanDescriptor.getIdProperty().getName(), id);
-    }
-    if (whereExpressions != null) {
-      whereExpressions.applyTo(filter);
-    }
-    if (havingExpressions != null) {
-      havingExpressions.applyTo(filter);
-    }
-    if (textExpressions != null) {
-      textExpressions.applyTo(filter);
-    }
-    if (firstRow != 0) {
-      filter.firstRow(firstRow);
-    }
-    if (maxRows != 0) {
-      filter.maxRows(maxRows);
-    }
-    if (orderById) {
-      filter.sort(beanDescriptor.getIdProperty().getName());
-    }
-    if (orderBy != null && !orderBy.getProperties().isEmpty()) {
-      StringBuilder sb = new StringBuilder();
-      for (Property prop : orderBy.getProperties()) {
-        sb.append(prop.getProperty());
-        if (prop.hasNulls()) {
-          // FIXME: Why is the nulls syntax different?
-          // query uses "nulls first" / "nulls last"
-          // filter uses "nullsLow" / "nullsHigh"
-          if (prop.nullsFirst()) {
-            sb.append(" nullsLow");
-          } else {
-            sb.append(" nullsHigh");
-          }
-        }
-        if (!prop.isAscending()) {
-          sb.append(" desc");
-        }
-        sb.append(',');
-      }
-      sb.setLength(sb.length() - 1); // remove last ','
-      filter.sort(sb.toString());
-    }
-    return filter;
   }
 }

@@ -183,7 +183,7 @@ class SqlTreeNodeBean implements SqlTreeNode {
   @Override
   public void buildRawSqlSelectChain(List<String> selectChain) {
     if (readId) {
-      if (inheritInfo != null && inheritInfo.hasChildren()) {
+      if (inheritInfo != null) {
         // discriminator column always proceeds id column
         selectChain.add(getPath(prefix, inheritInfo.getDiscriminatorColumn()));
       }
@@ -227,7 +227,7 @@ class SqlTreeNodeBean implements SqlTreeNode {
 
     @Override
     void initBeanType() throws SQLException {
-      InheritInfo localInfo = !inheritInfo.hasChildren() ? inheritInfo : inheritInfo.readType(ctx);
+      InheritInfo localInfo = inheritInfo.readType(ctx);
       if (localInfo == null) {
         // the bean must be null
         localIdBinder = idBinder;
@@ -627,7 +627,7 @@ class SqlTreeNodeBean implements SqlTreeNode {
   public void appendFrom(DbSqlContext ctx, SqlJoinType joinType) {
     if (nodeBeanProp != null && nodeBeanProp.isFormula()) {
       // add joins for formula beans
-      nodeBeanProp.appendFrom(ctx, joinType, null);
+      nodeBeanProp.appendFrom(ctx, joinType);
     }
     ctx.pushJoin(prefix);
     ctx.pushTableAlias(prefix);
@@ -639,7 +639,7 @@ class SqlTreeNodeBean implements SqlTreeNode {
 
     for (STreeProperty property : properties) {
       // usually nothing... except for 1-1 Exported
-      property.appendFrom(ctx, joinType, null);
+      property.appendFrom(ctx, joinType);
     }
 
     for (SqlTreeNode aChildren : children) {

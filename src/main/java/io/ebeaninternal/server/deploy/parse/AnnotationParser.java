@@ -138,4 +138,11 @@ public abstract class AnnotationParser extends AnnotationBase {
     }
     return groups.length == 0 || groups.length == 1 && Default.class.isAssignableFrom(groups[0]);
   }
+
+  /**
+   * Process any formula from &#64;Formula or &#64;Where.
+   */
+  protected String processFormula(String source) {
+    return source == null ? null : source.replace("${dbTableName}", descriptor.getBaseTable());
+  }
 }

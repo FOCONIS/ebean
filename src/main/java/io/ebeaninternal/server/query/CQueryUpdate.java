@@ -12,10 +12,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import javax.persistence.PersistenceException;
-
 /**
- * Executes the delete query.
+ * Executes the update query.
  */
 class CQueryUpdate implements SpiProfileTransactionEvent, CancelableQuery {
 
@@ -129,14 +127,7 @@ class CQueryUpdate implements SpiProfileTransactionEvent, CancelableQuery {
   @Override
   public void cancel() {
     synchronized (this) {
-      if (pstmt != null) {
-        try {
-          pstmt.cancel();
-        } catch (SQLException e) {
-          String msg = "Error cancelling query";
-          throw new PersistenceException(msg, e);
-        }
-      }
+      JdbcClose.cancel(pstmt);
     }
   }
 }

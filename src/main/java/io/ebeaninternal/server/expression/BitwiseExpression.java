@@ -1,9 +1,8 @@
 package io.ebeaninternal.server.expression;
 
-import io.ebean.QueryDsl;
+import io.ebeaninternal.api.BindHash;
 import io.ebeaninternal.api.SpiExpression;
 import io.ebeaninternal.api.SpiExpressionRequest;
-import io.ebeaninternal.server.deploy.BeanDescriptor;
 
 import java.io.IOException;
 
@@ -41,8 +40,8 @@ class BitwiseExpression extends AbstractExpression {
   }
 
   @Override
-  public int queryBindHash() {
-    return Long.hashCode(flags);
+  public void queryBindHash(BindHash hash) {
+    hash.update(flags).update(match);
   }
 
   @Override
@@ -61,23 +60,5 @@ class BitwiseExpression extends AbstractExpression {
   public void addBindValues(SpiExpressionRequest request) {
     request.addBindValue(flags);
     request.addBindValue(match);
-  }
-
-  @Override
-  public <F extends QueryDsl<?, F>> void visitDsl(BeanDescriptor<?> desc, QueryDsl<?, F> target) {
-    switch (operator) {
-    case ALL:
-      target.bitwiseAll(propName, flags);
-      break;
-    case AND:
-      target.bitwiseAnd(propName, flags, match);
-      break;
-    case ANY:
-      target.bitwiseAny(propName, flags);
-      break;
-    default:
-      throw new UnsupportedOperationException(operator + " not supported");
-
-    }
   }
 }

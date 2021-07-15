@@ -71,9 +71,4 @@ public interface SpiJsonWriter extends JsonWriter {
    * Write the bean properties.
    */
   <T> void writeBean(BeanDescriptor<T> desc, EntityBean bean);
-
-  /**
-   * Writes the (optional) dataversion of the bean
-   */
-  void writeBeanVersion(BeanDescriptor<?> desc);
 }

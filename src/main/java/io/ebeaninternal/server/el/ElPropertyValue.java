@@ -2,9 +2,6 @@ package io.ebeaninternal.server.el;
 
 import io.ebean.plugin.ExpressionPath;
 import io.ebeaninternal.api.SpiExpressionRequest;
-import io.ebeaninternal.api.filter.Expression3VL;
-import io.ebeaninternal.api.filter.ExpressionTest;
-import io.ebeaninternal.api.filter.FilterContext;
 
 /**
  * The expression language object that can get values.
@@ -65,9 +62,4 @@ public interface ElPropertyValue extends ElPropertyDeploy, ExpressionPath {
    * automatically populated.
    */
   Object pathGetNested(Object bean);
-
-  /**
-   * Applies a pathTest for filtering.
-   */
-  Expression3VL pathTest(Object bean, FilterContext ctx, ExpressionTest test);
 }

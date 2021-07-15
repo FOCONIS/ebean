@@ -21,7 +21,7 @@ public class TestDataSourceMaxWithEntity extends BaseTestCase {
     EbeanServer server = Ebean.getServer(null);
 
 
-    DefaultBackgroundExecutor bg = new DefaultBackgroundExecutor(1, 30, "testDs", null);
+    DefaultBackgroundExecutor bg = new DefaultBackgroundExecutor(1, 30, "testDs");
 
     try {
       for (int i = 0; i < 12; i++) {

@@ -728,7 +728,7 @@ public interface Query<T> extends CancelableQuery {
    *     .findEach((Customer customer) -> {
    *
    *       // do something with customer
-   *       System.out.println("-- visit " + customer);
+   *       System.out.println("-- visitExpression " + customer);
    *     });
    *
    * }</pre>
@@ -759,7 +759,7 @@ public interface Query<T> extends CancelableQuery {
    *     .findEachWhile((Customer customer) -> {
    *
    *       // do something with customer
-   *       System.out.println("-- visit " + customer);
+   *       System.out.println("-- visitExpression " + customer);
    *
    *       // return true to continue processing or false to stop
    *       return (customer.getId() < 40);
@@ -875,16 +875,6 @@ public interface Query<T> extends CancelableQuery {
    * Return true if this is countDistinct query.
    */
   boolean isCountDistinct();
-
-  /**
-   * Sets the class to use for counting distinct values.
-   */
-  Query<T> setCountDistinctDto(Class<?> dtoClass);
-  
-  /**
-   * Returns the class to use for counting distinct values.
-   */
-  Class<?> getCountDistinctDto();
 
   /**
    * Execute the query returning true if a row is found.
@@ -1060,9 +1050,6 @@ public interface Query<T> extends CancelableQuery {
   @Nonnull
   FutureIds<T> findFutureIds();
 
-  @Nonnull
-  <A> FutureSingleAttributeList<T, A> findFutureSingleAttributeList();
-  
   /**
    * Execute find list query in a background thread.
    * <p>
@@ -1679,14 +1666,5 @@ public interface Query<T> extends CancelableQuery {
    * this query provides a deterministic result.
    */
   Query<T> orderById(boolean orderById);
-
-
-  /**
-   * Returns the query as filter. This can be used for in memory filtering.
-   *
-   * Note, that this function is very limited. It cannot convert complex queries, that use aggregation
-   * or raw sql.
-   */
-  Filter<T> filter();
 
 }

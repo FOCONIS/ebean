@@ -39,7 +39,7 @@ import java.util.function.Predicate;
  *
  * @see Query#where()
  */
-public interface ExpressionList<T> extends QueryDsl<T, ExpressionList<T>> {
+public interface ExpressionList<T> {
 
   /**
    * Return the query that owns this expression list.
@@ -804,8 +804,9 @@ public interface ExpressionList<T> extends QueryDsl<T, ExpressionList<T>> {
    */
   ExpressionList<T> addAll(ExpressionList<T> exprList);
 
-
-  @Override
+  /**
+   * Equal To - property is equal to a given value.
+   */
   ExpressionList<T> eq(String propertyName, Object value);
 
   /**
@@ -816,17 +817,18 @@ public interface ExpressionList<T> extends QueryDsl<T, ExpressionList<T>> {
   /**
    * Not Equal To - property not equal to the given value.
    */
-  @Override
   ExpressionList<T> ne(String propertyName, Object value);
 
-  @Override
+  /**
+   * Case Insensitive Equal To - property equal to the given value (typically
+   * using a lower() function to make it case insensitive).
+   */
   ExpressionList<T> ieq(String propertyName, String value);
 
   /**
    * Case Insensitive Not Equal To - property not equal to the given value (typically
    * using a lower() function to make it case insensitive).
    */
-  @Override
   ExpressionList<T> ine(String propertyName, String value);
 
   /**
@@ -854,13 +856,11 @@ public interface ExpressionList<T> extends QueryDsl<T, ExpressionList<T>> {
    * Unlike Between inRange is "half open" and usually more useful for use with dates or timestamps.
    * </p>
    */
-  @Override
   ExpressionList<T> inRange(String propertyName, Object value1, Object value2);
 
   /**
    * Between - property between the two given values.
    */
-  @Override
   ExpressionList<T> between(String propertyName, Object value1, Object value2);
 
   /**
@@ -868,8 +868,9 @@ public interface ExpressionList<T> extends QueryDsl<T, ExpressionList<T>> {
    */
   ExpressionList<T> betweenProperties(String lowProperty, String highProperty, Object value);
 
-
-  @Override
+  /**
+   * Greater Than - property greater than the given value.
+   */
   ExpressionList<T> gt(String propertyName, Object value);
 
   /**
@@ -881,10 +882,11 @@ public interface ExpressionList<T> extends QueryDsl<T, ExpressionList<T>> {
    * Greater Than or Equal to - property greater than or equal to the given
    * value.
    */
-  @Override
   ExpressionList<T> ge(String propertyName, Object value);
 
-  @Override
+  /**
+   * Less Than - property less than the given value.
+   */
   ExpressionList<T> lt(String propertyName, Object value);
 
   /**
@@ -895,13 +897,16 @@ public interface ExpressionList<T> extends QueryDsl<T, ExpressionList<T>> {
   /**
    * Less Than or Equal to - property less than or equal to the given value.
    */
-  @Override
   ExpressionList<T> le(String propertyName, Object value);
 
-  @Override
+  /**
+   * Is Null - property is null.
+   */
   ExpressionList<T> isNull(String propertyName);
 
-  @Override
+  /**
+   * Is Not Null - property is not null.
+   */
   ExpressionList<T> isNotNull(String propertyName);
 
   /**
@@ -955,40 +960,70 @@ public interface ExpressionList<T> extends QueryDsl<T, ExpressionList<T>> {
    */
   ExpressionList<T> iexampleLike(Object example);
 
-  @Override
+  /**
+   * Like - property like value where the value contains the SQL wild card
+   * characters % (percentage) and _ (underscore).
+   */
   ExpressionList<T> like(String propertyName, String value);
 
-  @Override
+  /**
+   * Case insensitive Like - property like value where the value contains the
+   * SQL wild card characters % (percentage) and _ (underscore). Typically uses
+   * a lower() function to make the expression case insensitive.
+   */
   ExpressionList<T> ilike(String propertyName, String value);
 
-  @Override
+  /**
+   * Starts With - property like value%.
+   */
   ExpressionList<T> startsWith(String propertyName, String value);
 
-  @Override
+  /**
+   * Case insensitive Starts With - property like value%. Typically uses a
+   * lower() function to make the expression case insensitive.
+   */
   ExpressionList<T> istartsWith(String propertyName, String value);
 
-  @Override
+  /**
+   * Ends With - property like %value.
+   */
   ExpressionList<T> endsWith(String propertyName, String value);
 
-  @Override
+  /**
+   * Case insensitive Ends With - property like %value. Typically uses a lower()
+   * function to make the expression case insensitive.
+   */
   ExpressionList<T> iendsWith(String propertyName, String value);
 
-  @Override
+  /**
+   * Contains - property like %value%.
+   */
   ExpressionList<T> contains(String propertyName, String value);
 
-  @Override
+  /**
+   * Case insensitive Contains - property like %value%. Typically uses a lower()
+   * function to make the expression case insensitive.
+   */
   ExpressionList<T> icontains(String propertyName, String value);
 
-  @Override
+  /**
+   * In expression using pairs of value objects.
+   */
   ExpressionList<T> inPairs(Pairs pairs);
 
-  @Override
+  /**
+   * In - using a subQuery.
+   */
   ExpressionList<T> in(String propertyName, Query<?> subQuery);
 
-  @Override
+  /**
+   * In - property has a value in the array of values.
+   */
   ExpressionList<T> in(String propertyName, Object... values);
 
-  @Override
+  /**
+   * In - property has a value in the collection of values.
+   */
   ExpressionList<T> in(String propertyName, Collection<?> values);
 
   /**
@@ -1032,28 +1067,43 @@ public interface ExpressionList<T> extends QueryDsl<T, ExpressionList<T>> {
    * This is exactly the same as in() and provided due to "in" being a Kotlin keyword
    * (and hence to avoid the slightly ugly escaping when using in() in Kotlin)
    */
-  @Override
   default ExpressionList<T> isIn(String propertyName, Query<?> subQuery) {
     return in(propertyName, subQuery);
   }
 
-  @Override
+  /**
+   * In - property has a value in the array of values.
+   * <p>
+   * This is exactly the same as in() and provided due to "in" being a Kotlin keyword
+   * (and hence to avoid the slightly ugly escaping when using in() in Kotlin)
+   */
   default ExpressionList<T> isIn(String propertyName, Object... values) {
     return in(propertyName, values);
   }
 
-  @Override
+  /**
+   * In - property has a value in the collection of values.
+   * <p>
+   * This is exactly the same as in() and provided due to "in" being a Kotlin keyword
+   * (and hence to avoid the slightly ugly escaping when using in() in Kotlin)
+   */
   default ExpressionList<T> isIn(String propertyName, Collection<?> values) {
     return in(propertyName, values);
   }
 
-  @Override
+  /**
+   * Not In - property has a value in the array of values.
+   */
   ExpressionList<T> notIn(String propertyName, Object... values);
 
-  @Override
+  /**
+   * Not In - property has a value in the collection of values.
+   */
   ExpressionList<T> notIn(String propertyName, Collection<?> values);
 
-  @Override
+  /**
+   * Not In - using a subQuery.
+   */
   ExpressionList<T> notIn(String propertyName, Query<?> subQuery);
 
   /**
@@ -1065,6 +1115,16 @@ public interface ExpressionList<T> extends QueryDsl<T, ExpressionList<T>> {
    * Is not empty expression for collection properties.
    */
   ExpressionList<T> isNotEmpty(String propertyName);
+
+  /**
+   * Exists expression
+   */
+  ExpressionList<T> exists(Query<?> subQuery);
+
+  /**
+   * Not exists expression
+   */
+  ExpressionList<T> notExists(Query<?> subQuery);
 
   /**
    * Id IN a list of id values.
@@ -1090,7 +1150,6 @@ public interface ExpressionList<T> extends QueryDsl<T, ExpressionList<T>> {
    *
    * @param propertyMap a map keyed by property names.
    */
-  @Override
   ExpressionList<T> allEq(Map<String, Object> propertyMap);
 
   /**
@@ -1133,7 +1192,6 @@ public interface ExpressionList<T> extends QueryDsl<T, ExpressionList<T>> {
    * @param propertyName The property that holds the flags value
    * @param flags        The flags we are looking for
    */
-  @Override
   ExpressionList<T> bitwiseAny(String propertyName, long flags);
 
   /**
@@ -1147,7 +1205,6 @@ public interface ExpressionList<T> extends QueryDsl<T, ExpressionList<T>> {
    * @param propertyName The property that holds the flags value
    * @param flags        The flags we are looking for
    */
-  @Override
   ExpressionList<T> bitwiseAll(String propertyName, long flags);
 
   /**
@@ -1161,7 +1218,6 @@ public interface ExpressionList<T> extends QueryDsl<T, ExpressionList<T>> {
    * @param propertyName The property that holds the flags value
    * @param flags        The flags we are looking for
    */
-  @Override
   ExpressionList<T> bitwiseNot(String propertyName, long flags);
 
   /**
@@ -1182,7 +1238,6 @@ public interface ExpressionList<T> extends QueryDsl<T, ExpressionList<T>> {
    * @param propertyName The property that holds the flags value
    * @param flags        The flags we are looking for
    */
-  @Override
   ExpressionList<T> bitwiseAnd(String propertyName, long flags, long match);
 
   /**
@@ -1400,7 +1455,6 @@ public interface ExpressionList<T> extends QueryDsl<T, ExpressionList<T>> {
    *      .findList();
    * }</pre>
    */
-  @Override
   Junction<T> and();
 
   /**
@@ -1443,7 +1497,6 @@ public interface ExpressionList<T> extends QueryDsl<T, ExpressionList<T>> {
    *
    * }</pre>
    */
-  @Override
   Junction<T> or();
 
   /**
@@ -1479,7 +1532,6 @@ public interface ExpressionList<T> extends QueryDsl<T, ExpressionList<T>> {
    *
    * }</pre>
    */
-  @Override
   Junction<T> not();
 
   /**
@@ -1546,14 +1598,19 @@ public interface ExpressionList<T> extends QueryDsl<T, ExpressionList<T>> {
    */
   ExpressionList<T> endJunction();
 
-
-  @Override
+  /**
+   * End a AND junction - synonym for endJunction().
+   */
   ExpressionList<T> endAnd();
 
-  @Override
+  /**
+   * End a AND junction - synonym for endJunction().
+   */
   ExpressionList<T> endOr();
 
-  @Override
+  /**
+   * End a NOT junction - synonym for endJunction().
+   */
   ExpressionList<T> endNot();
 
 }

@@ -2,7 +2,6 @@ package io.ebeaninternal.api;
 
 import io.ebean.bean.BeanCollection;
 import io.ebean.bean.EntityBean;
-import io.ebean.util.StringHelper;
 import io.ebeaninternal.server.core.BindPadding;
 import io.ebeaninternal.server.core.OrmQueryRequest;
 import io.ebeaninternal.server.deploy.BeanDescriptor;
@@ -125,9 +124,7 @@ public class LoadManyRequest extends LoadRequest {
     if (extraWhere != null) {
       // replace special ${ta}/${mta} placeholder with the base table alias
       // which is always t0/$int_ and add the extra where clause
-      String ew = StringHelper.replaceString(extraWhere, "${ta}", "t0");
-      ew = StringHelper.replaceString(ew, "${mta}", "int_");
-      query.where().raw(ew);
+      query.where().raw(extraWhere.replace("${ta}", "t0").replace("${mta}", "int_"));
     }
 
     query.setLazyLoadForParents(many);

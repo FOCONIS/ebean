@@ -1,13 +1,13 @@
 package io.ebeaninternal.server.expression;
 
 import io.ebean.util.SplitName;
+import io.ebeaninternal.api.BindHash;
 import io.ebeaninternal.api.ManyWhereJoins;
 import io.ebeaninternal.api.SpiExpression;
 import io.ebeaninternal.api.SpiExpressionRequest;
 import io.ebeaninternal.api.SpiExpressionValidation;
 import io.ebeaninternal.server.deploy.BeanDescriptor;
 import io.ebeaninternal.server.el.ElPropertyDeploy;
-import io.ebean.QueryDsl;
 
 import java.io.IOException;
 
@@ -90,18 +90,13 @@ class BetweenPropertyExpression extends NonPrepareExpression {
   }
 
   @Override
-  public int queryBindHash() {
-    return val().hashCode();
+  public void queryBindHash(BindHash hash) {
+    hash.update(val());
   }
 
   @Override
   public boolean isSameByBind(SpiExpression other) {
     BetweenPropertyExpression that = (BetweenPropertyExpression) other;
     return val().equals(that.val());
-  }
-
-  @Override
-  public <F extends QueryDsl<?, F>> void visitDsl(BeanDescriptor<?> desc, QueryDsl<?, F> target) {
-    target.and().le(lowProperty, val()).gt(highProperty, val()).endAnd();
   }
 }

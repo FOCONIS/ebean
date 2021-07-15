@@ -1,12 +1,11 @@
 package io.ebeaninternal.server.expression;
 
-import io.ebean.QueryDsl;
 import io.ebean.bean.EntityBean;
 import io.ebean.event.BeanQueryRequest;
+import io.ebeaninternal.api.BindHash;
 import io.ebeaninternal.api.NaturalKeyQueryData;
 import io.ebeaninternal.api.SpiExpression;
 import io.ebeaninternal.api.SpiExpressionRequest;
-import io.ebeaninternal.server.deploy.BeanDescriptor;
 import io.ebeaninternal.server.el.ElPropertyValue;
 import io.ebeaninternal.server.persist.MultiValueWrapper;
 
@@ -180,12 +179,11 @@ class InExpression extends AbstractExpression {
   }
 
   @Override
-  public int queryBindHash() {
-    int hc = 92821;
+  public void queryBindHash(BindHash hash) {
+    hash.update(bindValues.size());
     for (Object bindValue : bindValues) {
-      hc = 92821 * hc + bindValue.hashCode();
+      hash.update(bindValue);
     }
-    return hc;
   }
 
   @Override
@@ -200,14 +198,5 @@ class InExpression extends AbstractExpression {
       }
     }
     return true;
-  }
-
-  @Override
-  public <F extends QueryDsl<?,F>> void visitDsl(BeanDescriptor<?> desc, QueryDsl<?, F> target) {
-   if (not) {
-     target.notIn(propName, sourceValues);
-   } else {
-     target.in(propName, sourceValues);
-   }
   }
 }

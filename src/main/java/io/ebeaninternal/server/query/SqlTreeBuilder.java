@@ -6,7 +6,6 @@ import io.ebeaninternal.api.PropertyJoin;
 import io.ebeaninternal.api.SpiQuery;
 import io.ebeaninternal.api.SpiQuery.Type;
 import io.ebeaninternal.server.core.OrmQueryRequest;
-import io.ebeaninternal.server.deploy.DbSqlContextColumn;
 import io.ebeaninternal.server.deploy.InheritInfo;
 import io.ebeaninternal.server.deploy.TableJoin;
 import io.ebeaninternal.server.querydefn.OrmQueryDetail;
@@ -105,7 +104,11 @@ public final class SqlTreeBuilder {
     this.query = request.getQuery();
     this.temporalMode = SpiQuery.TemporalMode.of(query);
     this.disableLazyLoad = query.isDisableLazyLoading();
-    this.subQuery = Type.SUBQUERY == query.getType() || Type.ID_LIST == query.getType() || Type.DELETE == query.getType() || query.isCountDistinct();
+    this.subQuery = Type.SQ_EXISTS == query.getType()
+        || Type.SQ_IN == query.getType()
+        || Type.ID_LIST == query.getType()
+        || Type.DELETE == query.getType()
+        || query.isCountDistinct();
     this.includeJoin = query.getM2mIncludeJoin();
     this.manyWhereJoins = query.getManyWhereJoins();
     this.queryDetail = query.getDetail();
@@ -135,7 +138,6 @@ public final class SqlTreeBuilder {
     String inheritanceWhereSql = null;
     String groupBy = null;
     STreeProperty[] encryptedProps = null;
-    DbSqlContextColumn[] columns = null;
     if (!rawSql) {
       selectSql = buildSelectClause();
       fromSql = buildFromClause();
@@ -143,17 +145,20 @@ public final class SqlTreeBuilder {
       groupBy = buildGroupByClause();
       distinctOn = buildDistinctOn();
       encryptedProps = ctx.getEncryptedProps();
-      columns = ctx.getColumns();
     }
 
     boolean includeJoins = alias != null && alias.isIncludeJoins();
-    return new SqlTree(rootNode, distinctOn, selectSql, fromSql, columns, groupBy, inheritanceWhereSql, encryptedProps, manyProperty, includeJoins);
+    return new SqlTree(rootNode, distinctOn, selectSql, fromSql, groupBy, inheritanceWhereSql, encryptedProps, manyProperty, includeJoins);
   }
 
   private String buildSelectClause() {
 
     if (rawSql) {
       return "Not Used";
+    }
+    if (query.getType() ==Type.SQ_EXISTS) {
+      // where exists (select 1 from ...)
+      return "1";
     }
     rootNode.appendSelect(ctx, subQuery);
     return trimComma(ctx.getContent());
@@ -336,12 +341,12 @@ public final class SqlTreeBuilder {
 
     } else if (prop instanceof STreePropertyAssocMany) {
       // do not read Id on child beans (e.g. when used with fetch())
-      boolean withId = isNotSingleAttribute();
+      boolean withId = isNotSingleAttribute() && !subQuery;
       return new SqlTreeNodeManyRoot(prefix, (STreePropertyAssocMany) prop, props, myList, withId, temporalMode, disableLazyLoad);
 
     } else {
       // do not read Id on child beans (e.g. when used with fetch())
-      boolean withId = isNotSingleAttribute();
+      boolean withId = isNotSingleAttribute() && !subQuery;
       return new SqlTreeNodeBean(prefix, prop, props, myList, withId, temporalMode, disableLazyLoad);
     }
   }

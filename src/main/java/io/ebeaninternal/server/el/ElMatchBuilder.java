@@ -1,911 +1,299 @@
 package io.ebeaninternal.server.el;
 
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
-
-import io.ebean.DB;
-import io.ebean.Filter;
-import io.ebean.Pairs;
-import io.ebean.Query;
-import io.ebean.QueryDsl;
-import io.ebean.bean.EntityBean;
-import io.ebeaninternal.api.filter.Expression3VL;
-import io.ebeaninternal.api.filter.ExpressionTest;
-import io.ebeaninternal.api.filter.FilterContext;
-
 
 /**
  * Contains the various ElMatcher implementations.
  */
 class ElMatchBuilder {
 
-  abstract static class Base<T,V> implements ElMatcher<T>, ExpressionTest {
+  /**
+   * Case insensitive equals.
+   */
+  static class RegularExpr<T> implements ElMatcher<T> {
 
     final ElPropertyValue elGetValue;
+    final String value;
+    final Pattern pattern;
 
-    public Base(ElPropertyValue elGetValue) {
+    RegularExpr(ElPropertyValue elGetValue, String value, int options) {
       this.elGetValue = elGetValue;
+      this.value = value;
+      this.pattern = Pattern.compile(value, options);
     }
 
     @Override
-    public Expression3VL isMatch(T bean, FilterContext ctx) {
-      return elGetValue.pathTest(bean, ctx, this);
-    }
-
-    @Override
-    public Expression3VL test(Object value) {
-      return match((V) value) ? Expression3VL.TRUE : Expression3VL.FALSE;
-    }
-
-    /**
-     * Test the value, if it matches the filter
-     */
-    abstract boolean match(V value);
-
-
-  }
-
-  static abstract class BaseValue<T,V> extends Base<T,V> {
-
-    final V testValue;
-
-    public BaseValue(ElPropertyValue elGetValue, V testValue) {
-      super(elGetValue);
-      this.testValue = testValue;
-    }
-
-    String getLiteral() {
-      return "UNKNOWN";
-    }
-
-
-    @Override
-    public void toString(StringBuilder sb) {
-      sb.append(elGetValue.getElName()).append(' ').append(getLiteral()).append(" '").append(testValue).append('\'');
-    }
-  }
-
-  static abstract class BaseStringValue<T,V> extends Base<T,V> {
-
-    final String testValue;
-
-    public BaseStringValue(ElPropertyValue elGetValue, String testValue) {
-      super(elGetValue);
-      this.testValue = testValue;
-    }
-
-    String getLiteral() {
-      return "UNKNOWN";
-    }
-
-
-    @Override
-    public void toString(StringBuilder sb) {
-      sb.append(elGetValue.getElName()).append(' ').append(getLiteral()).append(" '").append(testValue).append('\'');
-    }
-
-    String valueToString(V value) {
-      return value.toString();
-    }
-  }
-
-  /**
-   * Internal helper class, to append patterns and literals to a regexp.
-   */
-  static class RegexAppender {
-
-    final StringBuilder pattern;
-    final StringBuilder literalBuffer;
-
-    RegexAppender(int size) {
-      pattern = new StringBuilder(size);
-      literalBuffer = new StringBuilder(size);
-    }
-
-    private void flush() {
-      if (literalBuffer.length() != 0) {
-        String literal = literalBuffer.toString();
-        if (literal.indexOf("\\E") == -1) {
-          pattern.append("\\Q").append(literal).append("\\E");
-        } else {
-          pattern.append(Pattern.quote(literal));
-        }
-        literalBuffer.setLength(0);
-      }
-    }
-
-    void appendPattern(String value) {
-      flush();
-      pattern.append(value);
-    }
-
-    void appendLiteral(char ch) {
-      literalBuffer.append(ch);
-    }
-
-    void appendLiteral(String s) {
-      literalBuffer.append(s);
-    }
-    @Override
-    public String toString() {
-      flush();
-      return pattern.toString();
+    public boolean isMatch(T bean) {
+      String v = (String) elGetValue.pathGet(bean);
+      return pattern.matcher(v).matches();
     }
   }
 
   /**
    * Case insensitive equals.
    */
-  static class RegularExpr<T, V> extends BaseStringValue<T, V> {
+  static abstract class BaseString<T> implements ElMatcher<T> {
 
-    final Pattern pattern;
+    final ElPropertyValue elGetValue;
+    final String value;
 
-    RegularExpr(ElPropertyValue elGetValue, String value, int options) {
-      super(elGetValue, value);
-      this.pattern = Pattern.compile(value, options);
+    public BaseString(ElPropertyValue elGetValue, String value) {
+      this.elGetValue = elGetValue;
+      this.value = value;
     }
 
     @Override
-    public void toString(StringBuilder sb) {
-      sb.append("regexp(").append(elGetValue.getElName()).append(", '").append(pattern).append("')");
-    }
-
-    @Override
-    public boolean match(V v) {
-      return pattern.matcher(valueToString(v)).matches();
-    }
-
-    @Override
-    public <F extends QueryDsl<T, F>> void visitDsl(QueryDsl<T, F> target) {
-      throw new UnsupportedOperationException("regexp not supported");
-    }
+    public abstract boolean isMatch(T bean);
   }
 
-  static class Like<T> extends RegularExpr<T, String> {
-
-    private final String like;
-    private final boolean ignoreCase;
-
-    private static String asPattern(String like) {
-      RegexAppender regex = new RegexAppender(like.length()+32);
-      for (int i = 0; i < like.length(); i++) {
-        char ch = like.charAt(i);
-        // currently no escaping is done!
-        // if (ch == '|') {
-        // if (i < like.length()) {
-        // i++;
-        // ch = like.charAt(i);
-        // }
-        // regex.appendLiteral(ch);
-        // } else
-        if (ch == '%') {
-          regex.appendPattern(".*");
-        } else if (ch == '_') {
-          regex.appendPattern(".");
-        } else {
-          regex.appendLiteral(ch);
-        }
-      }
-      return regex.toString();
-    }
-
-    private static int getOptions(boolean ignoreCase) {
-      if (ignoreCase) {
-        return Pattern.DOTALL + Pattern.CASE_INSENSITIVE;
-      } else {
-        return Pattern.DOTALL;
-      }
-    }
-
-    Like(ElPropertyValue elGetValue, String like, boolean ignoreCase) {
-      super(elGetValue, asPattern(like), getOptions(ignoreCase));
-      this.like = like;
-      this.ignoreCase = ignoreCase;
-    }
-
-    @Override
-    public void toString(StringBuilder sb) {
-      if (ignoreCase) {
-        sb.append("iLike(");
-      } else {
-        sb.append("like");
-      }
-      sb.append(elGetValue.getElName()).append(", '").append(pattern).append("')");
-    }
-
-    @Override
-    public <F extends QueryDsl<T, F>> void visitDsl(QueryDsl<T, F> target) {
-      if (ignoreCase) {
-        target.ilike(elGetValue.getElName(), like);
-      } else {
-        target.like(elGetValue.getElName(), like);
-      }
-    }
-  }
-
-  static class Ieq<T, V> extends BaseStringValue<T, V> {
+  static class Ieq<T> extends BaseString<T> {
     Ieq(ElPropertyValue elGetValue, String value) {
       super(elGetValue, value);
     }
 
     @Override
-    public boolean match(V v) {
-      return valueToString(v).equalsIgnoreCase(testValue);
-    }
-
-    @Override
-    String getLiteral() {
-      return "=~";
-    }
-
-    @Override
-    public <F extends QueryDsl<T, F>> void visitDsl(QueryDsl<T, F> target) {
-      target.ieq(elGetValue.getElName(), testValue);
+    public boolean isMatch(T bean) {
+      String v = (String) elGetValue.pathGet(bean);
+      return value.equalsIgnoreCase(v);
     }
   }
-
-  static class Ine<T, V> extends BaseStringValue<T, V> {
-    Ine(ElPropertyValue elGetValue, String value) {
-      super(elGetValue, value);
-    }
-
-    @Override
-    public boolean match(V v) {
-      return !valueToString(v).equalsIgnoreCase(testValue);
-    }
-
-    @Override
-    String getLiteral() {
-      return "!=~";
-    }
-
-    @Override
-    public <F extends QueryDsl<T, F>> void visitDsl(QueryDsl<T, F> target) {
-      target.ine(elGetValue.getElName(), testValue);
-    }
-  }
-
 
   /**
    * Case insensitive starts with matcher.
    */
-  static class IStartsWith<T, V> extends BaseStringValue<T, V> {
+  static class IStartsWith<T> implements ElMatcher<T> {
 
-    private final CharMatch charMatch;
+    final ElPropertyValue elGetValue;
+    final CharMatch charMatch;
 
     IStartsWith(ElPropertyValue elGetValue, String value) {
-      super(elGetValue, value);
+      this.elGetValue = elGetValue;
       this.charMatch = new CharMatch(value);
     }
 
     @Override
-    public boolean match(V v) {
-      return charMatch.startsWith(valueToString(v));
-    }
+    public boolean isMatch(T bean) {
 
-    @Override
-    public void toString(StringBuilder sb) {
-      sb.append("iStartsWith(").append(elGetValue.getElName()).append(", '").append(testValue).append("')");
-    }
-
-    @Override
-    public <F extends QueryDsl<T, F>> void visitDsl(QueryDsl<T, F> target) {
-      target.istartsWith(elGetValue.getElName(), testValue);
+      String v = (String) elGetValue.pathGet(bean);
+      return charMatch.startsWith(v);
     }
   }
 
   /**
    * Case insensitive ends with matcher.
    */
-  static class IEndsWith<T, V> extends BaseStringValue<T, V> {
+  static class IEndsWith<T> implements ElMatcher<T> {
 
+    final ElPropertyValue elGetValue;
     final CharMatch charMatch;
 
     IEndsWith(ElPropertyValue elGetValue, String value) {
-      super(elGetValue, value);
+      this.elGetValue = elGetValue;
       this.charMatch = new CharMatch(value);
     }
 
     @Override
-    public boolean match(V v) {
-      return charMatch.endsWith(valueToString(v));
-    }
+    public boolean isMatch(T bean) {
 
-    @Override
-    public void toString(StringBuilder sb) {
-      sb.append("iEndsWith(").append(elGetValue.getElName()).append(", '").append(testValue).append("')");
-    }
-
-    @Override
-    public <F extends QueryDsl<T, F>> void visitDsl(QueryDsl<T, F> target) {
-      target.iendsWith(elGetValue.getElName(), testValue);
+      String v = (String) elGetValue.pathGet(bean);
+      return charMatch.endsWith(v);
     }
   }
 
-  /**
-   * Case insensitive ends with matcher.
-   */
-  static class IContains<T, V> extends BaseStringValue<T, V> {
-
-    final CharMatch charMatch;
-
-    IContains(ElPropertyValue elGetValue, String value) {
-      super(elGetValue, value);
-      this.charMatch = new CharMatch(value);
-    }
-
-    @Override
-    public boolean match(V v) {
-      return charMatch.contains(valueToString(v));
-    }
-
-    @Override
-    public void toString(StringBuilder sb) {
-      sb.append("iContains(").append(elGetValue.getElName()).append(", '").append(testValue).append("')");
-    }
-
-    @Override
-    public <F extends QueryDsl<T, F>> void visitDsl(QueryDsl<T, F> target) {
-      target.icontains(elGetValue.getElName(), testValue);
-    }
-  }
-
-  static class StartsWith<T, V> extends BaseStringValue<T, V> {
+  static class StartsWith<T> extends BaseString<T> {
     StartsWith(ElPropertyValue elGetValue, String value) {
       super(elGetValue, value);
     }
 
     @Override
-    public boolean match(V v) {
-      return valueToString(v).startsWith(testValue);
-    }
-
-    @Override
-    public void toString(StringBuilder sb) {
-      sb.append("startsWith(").append(elGetValue.getElName()).append(", '").append(testValue).append("')");
-    }
-
-    @Override
-    public <F extends QueryDsl<T, F>> void visitDsl(QueryDsl<T, F> target) {
-      target.startsWith(elGetValue.getElName(), testValue);
+    public boolean isMatch(T bean) {
+      String v = (String) elGetValue.pathGet(bean);
+      return value.startsWith(v);
     }
   }
 
-  static class EndsWith<T, V> extends BaseStringValue<T, V> {
+  static class EndsWith<T> extends BaseString<T> {
     EndsWith(ElPropertyValue elGetValue, String value) {
       super(elGetValue, value);
     }
 
     @Override
-    public boolean match(V v) {
-      return valueToString(v).endsWith(testValue);
-    }
-
-    @Override
-    public void toString(StringBuilder sb) {
-      sb.append("endsWith(").append(elGetValue.getElName()).append(", '").append(testValue).append("')");
-    }
-
-    @Override
-    public <F extends QueryDsl<T, F>> void visitDsl(QueryDsl<T, F> target) {
-      target.endsWith(elGetValue.getElName(), testValue);
+    public boolean isMatch(T bean) {
+      String v = (String) elGetValue.pathGet(bean);
+      return value.endsWith(v);
     }
   }
 
-  static class Contains<T, V> extends BaseStringValue<T, V> {
+  static class IsNull<T> implements ElMatcher<T> {
 
-    Contains(ElPropertyValue elGetValue, String value) {
-      super(elGetValue, value);
-    }
-
-    @Override
-    public boolean match(V v) {
-      return valueToString(v).contains(testValue);
-    }
-
-    @Override
-    public void toString(StringBuilder sb) {
-      sb.append("contains(").append(elGetValue.getElName()).append(", '").append(testValue).append("')");
-    }
-
-    @Override
-    public <F extends QueryDsl<T, F>> void visitDsl(QueryDsl<T, F> target) {
-      target.contains(elGetValue.getElName(), testValue);
-    }
-  }
-
-
-  static class IsNull<T> extends Base<T, Object> {
+    final ElPropertyValue elGetValue;
 
     public IsNull(ElPropertyValue elGetValue) {
-      super(elGetValue);
+      this.elGetValue = elGetValue;
     }
 
     @Override
-    public boolean match(Object v) {
-      return false;
-    }
-
-    @Override
-    public Expression3VL testNull() {
-      return Expression3VL.TRUE;
-    }
-
-    @Override
-    public void toString(StringBuilder sb) {
-      sb.append(elGetValue).append(" is null");
-    }
-
-    @Override
-    public <F extends QueryDsl<T, F>> void visitDsl(QueryDsl<T, F> target) {
-      target.isNull(elGetValue.getElName());
+    public boolean isMatch(T bean) {
+      return (null == elGetValue.pathGet(bean));
     }
   }
 
-  static class IsNotNull<T> extends Base<T, Object> {
+  static class IsNotNull<T> implements ElMatcher<T> {
+
+    final ElPropertyValue elGetValue;
 
     public IsNotNull(ElPropertyValue elGetValue) {
-      super(elGetValue);
+      this.elGetValue = elGetValue;
     }
 
     @Override
-    public boolean match(Object value) {
-      return true;
-    }
-
-    @Override
-    public Expression3VL testNull() {
-      return Expression3VL.FALSE;
-    }
-
-    @Override
-    public void toString(StringBuilder sb) {
-      sb.append(elGetValue).append(" is not null");
-    }
-
-    @Override
-    public <F extends QueryDsl<T, F>> void visitDsl(QueryDsl<T, F> target) {
-      target.isNotNull(elGetValue.getElName());
+    public boolean isMatch(T bean) {
+      return (null != elGetValue.pathGet(bean));
     }
   }
 
-  static class InSet<T, V> extends Base<T, V> {
+  static abstract class Base<T> implements ElMatcher<T> {
 
-    final Set<V> set;
+    final Object filterValue;
 
-    public InSet(ElPropertyValue elGetValue, Set<V> set) {
-      super(elGetValue);
-      this.set = set;
+    final ElComparator<T> comparator;
+
+    public Base(Object filterValue, ElComparator<T> comparator) {
+      this.filterValue = filterValue;
+      this.comparator = comparator;
     }
 
     @Override
-    public boolean match(V value) {
-      return set.contains(value);
-    }
-
-    @Override
-    public void toString(StringBuilder sb) {
-      sb.append(elGetValue).append(" in ").append(set);
-    }
-
-    @Override
-    public <F extends QueryDsl<T, F>> void visitDsl(QueryDsl<T, F> target) {
-      target.in(elGetValue.getElName(), set);
-    }
+    public abstract boolean isMatch(T value);
   }
 
-  static class InPairs<T> implements ElMatcher<T> {
+  static class InSet<T> implements ElMatcher<T> {
 
+    final Set<?> set;
+    final ElPropertyValue elGetValue;
 
-    private Pairs pairs;
-    private ElFilterNode<T> convertedPairs;
-
-    public InPairs(Pairs pairs, ElFilterNode<T> convertedPairs) {
-      this.pairs = pairs;
-      this.convertedPairs = convertedPairs;
+    @SuppressWarnings({"unchecked"})
+    public InSet(Set<?> set, ElPropertyValue elGetValue) {
+      this.set = new HashSet(set);
+      this.elGetValue = elGetValue;
     }
 
     @Override
-    public Expression3VL isMatch(T bean, FilterContext ctx) {
-      if (convertedPairs == null) {
-        return Expression3VL.FALSE;
-      } else {
-        return convertedPairs.isMatch(bean, ctx);
-      }
-    }
+    public boolean isMatch(T bean) {
 
-    @Override
-    public void toString(StringBuilder sb) {
-      sb.append("iPairs(").append(pairs).append(')');
-    }
-
-    @Override
-    public <F extends QueryDsl<T, F>> void visitDsl(QueryDsl<T, F> target) {
-      target.inPairs(pairs);
-    }
-  }
-
-
-  static class NotInSet<T, V> extends Base<T, V> {
-    final Set<V> set;
-
-    public NotInSet(ElPropertyValue elGetValue, Set<V> set) {
-      super(elGetValue);
-      this.set = set;
-    }
-
-    @Override
-    public boolean match(V value) {
-      return !set.contains(value);
-    }
-
-    @Override
-    public void toString(StringBuilder sb) {
-      sb.append(elGetValue).append(" not in ").append(set);
-    }
-
-    @Override
-    public <F extends QueryDsl<T, F>> void visitDsl(QueryDsl<T, F> target) {
-      target.notIn(elGetValue.getElName(), set);
-    }
-  }
-
-  /**
-   * Special case: In-Query. The subquery must not be executed at construction, as this may return the wrong data.
-   */
-  static class InQuery<X, T, V> extends Base<T, V> {
-
-    private final Query<?> query;
-    private final String sqString;
-
-    private class Tester implements ExpressionTest {
-      final Set<V> set = new HashSet<>(query.findSingleAttributeList());
-      @Override
-      public Expression3VL test(Object value) {
-        if (elGetValue.isAssocId()) {
-          value = elGetValue.getAssocIdValues((EntityBean) value)[0];
-        }
-        return set.contains(value) ? Expression3VL.TRUE : Expression3VL.FALSE;
-      }
-    }
-
-    public InQuery(ElPropertyValue elGetValue, Query<?> query) {
-      super(elGetValue);
-      this.query = query;
-      this.sqString = String.valueOf(System.identityHashCode(query));
-    }
-
-    @Override
-    public Expression3VL isMatch(T bean, FilterContext ctx) {
-      ExpressionTest test = ctx.computeIfAbsent(this, Tester::new);
-      return elGetValue.pathTest(bean, ctx, test);
-    }
-
-    @Override
-    boolean match(V value) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void toString(StringBuilder sb) {
-      sb.append(elGetValue).append(" in [").append(sqString).append(']');
-    }
-    @Override
-    public <F extends QueryDsl<T, F>> void visitDsl(QueryDsl<T, F> target) {
-      target.in(elGetValue.getElName(), query);
-    }
-  }
-
-  static class Exists<T, V> implements ElMatcher<T> {
-
-    private final Query<?> query;
-    private final boolean exists;
-    private final String sqString;
-
-    public Exists(boolean exists, Query<?> query) {
-      this.exists = exists;
-      this.query = query;
-      this.sqString = String.valueOf(System.identityHashCode(query));
-    }
-
-    @Override
-    public Expression3VL isMatch(T bean, FilterContext ctx) {
-      throw new UnsupportedOperationException("exists query are not for in memory");
-    }
-
-    @Override
-    public void toString(StringBuilder sb) {
-      if (!exists) {
-        sb.append(" not");
-      }
-      sb.append(" exists [").append(sqString).append(']');
-    }
-
-    @Override
-    public <F extends QueryDsl<T, F>> void visitDsl(QueryDsl<T, F> target) {
-      if (exists) {
-        target.exists(query);
-      } else {
-        target.notExists(query);
-      }
+      Object value = elGetValue.pathGet(bean);
+      return value != null && set.contains(value);
     }
   }
 
   /**
    * Equal To.
    */
-  static class Eq<T, V> extends BaseValue<T, V> {
+  static class Eq<T> extends Base<T> {
 
-    public Eq(ElPropertyValue elGetValue, V value) {
-      super(elGetValue, value);
+    public Eq(Object filterValue, ElComparator<T> comparator) {
+      super(filterValue, comparator);
     }
 
     @Override
-    String getLiteral() {
-      return "=";
-    }
-
-    @Override
-    public boolean match(V v) {
-      return Objects.equals(v, testValue);
-    }
-
-    @Override
-    public Expression3VL testNull() {
-      return testValue == null ? Expression3VL.TRUE : Expression3VL.UNKNOWN;
-    }
-
-    @Override
-    public <F extends QueryDsl<T, F>> void visitDsl(QueryDsl<T, F> target) {
-      target.eq(elGetValue.getElName(), testValue);
+    public boolean isMatch(T value) {
+      return comparator.compareValue(filterValue, value) == 0;
     }
   }
 
   /**
    * Not Equal To.
    */
-  static class Ne<T, V> extends BaseValue<T, V>  {
+  static class Ne<T> extends Base<T> {
 
-    public Ne(ElPropertyValue elGetValue, V value) {
-      super(elGetValue, value);
+    public Ne(Object filterValue, ElComparator<T> comparator) {
+      super(filterValue, comparator);
     }
 
     @Override
-    String getLiteral() {
-      return "!=";
-    }
-
-    @Override
-    public boolean match(V v) {
-      return !Objects.equals(testValue, v);
-    }
-
-    @Override
-    public <F extends QueryDsl<T, F>> void visitDsl(QueryDsl<T, F> target) {
-      target.ne(elGetValue.getElName(), testValue);
+    public boolean isMatch(T value) {
+      return comparator.compareValue(filterValue, value) != 0;
     }
   }
-
 
   /**
    * Between.
    */
-  static class Between<T,V> extends Base<T,V> {
+  static class Between<T> implements ElMatcher<T> {
 
-    final Comparable<V> min;
-    final Comparable<V> max;
+    final Object min;
+    final Object max;
+    final ElComparator<T> comparator;
 
-    Between(ElPropertyValue elGetValue, Comparable<V> min, Comparable<V> max) {
-      super(elGetValue);
+    Between(Object min, Object max, ElComparator<T> comparator) {
       this.min = min;
       this.max = max;
+      this.comparator = comparator;
     }
 
     @Override
-    public boolean match(V value) {
-      return min.compareTo(value) <= 0
-          && max.compareTo(value) >= 0;
-    }
+    public boolean isMatch(T value) {
 
-    @Override
-    public void toString(StringBuilder sb) {
-      sb.append(elGetValue).append(" between '").append(min).append("' and '").append(max).append('\'');
-    }
-
-    @Override
-    public <F extends QueryDsl<T, F>> void visitDsl(QueryDsl<T, F> target) {
-      target.between(elGetValue.getElName(), min, max);
+      return (comparator.compareValue(min, value) <= 0
+        && comparator.compareValue(max, value) >= 0);
     }
   }
 
-  /**
-   * In Range (half open).
-   */
-  static class InRange<T,V> extends Base<T,V> {
-
-    final Comparable<V> min;
-    final Comparable<V> max;
-
-    InRange(ElPropertyValue elGetValue, Comparable<V> min, Comparable<V> max) {
-      super(elGetValue);
-      this.min = min;
-      this.max = max;
-    }
-
-    @Override
-    public boolean match(V value) {
-      return min.compareTo(value) <= 0
-          && max.compareTo(value) > 0;
-    }
-
-    @Override
-    public void toString(StringBuilder sb) {
-      sb.append(elGetValue).append(" inrange '").append(min).append("' and '").append(max).append('\'');
-    }
-
-    @Override
-    public <F extends QueryDsl<T, F>> void visitDsl(QueryDsl<T, F> target) {
-      target.inRange(elGetValue.getElName(), min, max);
-    }
-  }
   /**
    * Greater Than.
    */
-  static class Gt<T,V extends Comparable<V>> extends BaseValue<T,V> {
-    Gt(ElPropertyValue elGetValue, V testValue) {
-      super(elGetValue, testValue);
+  static class Gt<T> extends Base<T> {
+    Gt(Object filterValue, ElComparator<T> comparator) {
+      super(filterValue, comparator);
     }
 
     @Override
-    String getLiteral() {
-      return ">";
-    }
-
-    @Override
-    public boolean match(V value) {
-      return value.compareTo(testValue) > 0;
-    }
-
-    @Override
-    public <F extends QueryDsl<T, F>> void visitDsl(QueryDsl<T, F> target) {
-      target.gt(elGetValue.getElName(), testValue);
+    public boolean isMatch(T value) {
+      return comparator.compareValue(filterValue, value) == -1;
     }
   }
 
   /**
    * Greater Than or Equal To.
    */
-  static class Ge<T,V extends Comparable<V>> extends BaseValue<T,V> {
-    Ge(ElPropertyValue elGetValue, V testValue) {
-      super(elGetValue, testValue);
+  static class Ge<T> extends Base<T> {
+    Ge(Object filterValue, ElComparator<T> comparator) {
+      super(filterValue, comparator);
     }
 
     @Override
-    String getLiteral() {
-      return ">=";
-    }
-
-    @Override
-    public boolean match(V value) {
-      return value.compareTo(testValue) >= 0;
-    }
-    @Override
-    public <F extends QueryDsl<T, F>> void visitDsl(QueryDsl<T, F> target) {
-      target.ge(elGetValue.getElName(), testValue);
+    public boolean isMatch(T value) {
+      return comparator.compareValue(filterValue, value) >= 0;
     }
   }
 
   /**
    * Less Than or Equal To.
    */
-  static class Le<T, V extends Comparable<V>> extends BaseValue<T, V> {
-    Le(ElPropertyValue elGetValue, V testValue) {
-      super(elGetValue, testValue);
+  static class Le<T> extends Base<T> {
+    Le(Object filterValue, ElComparator<T> comparator) {
+      super(filterValue, comparator);
     }
 
     @Override
-    String getLiteral() {
-      return "<=";
-    }
-
-    @Override
-    public boolean match(V value) {
-      return value.compareTo(testValue) <= 0;
-    }
-
-    @Override
-    public <F extends QueryDsl<T, F>> void visitDsl(QueryDsl<T, F> target) {
-      target.le(elGetValue.getElName(), testValue);
+    public boolean isMatch(T value) {
+      return comparator.compareValue(filterValue, value) <= 0;
     }
   }
 
   /**
    * Less Than.
    */
-  static class Lt<T, V extends Comparable<V>> extends BaseValue<T, V> {
-    Lt(ElPropertyValue elGetValue, V testValue) {
-      super(elGetValue, testValue);
+  static class Lt<T> extends Base<T> {
+    Lt(Object filterValue, ElComparator<T> comparator) {
+      super(filterValue, comparator);
     }
 
     @Override
-    String getLiteral() {
-      return "<";
-    }
-
-    @Override
-    public boolean match(V value) {
-      return value.compareTo(testValue) < 0;
-    }
-
-    @Override
-    public <F extends QueryDsl<T, F>> void visitDsl(QueryDsl<T, F> target) {
-      target.lt(elGetValue.getElName(), testValue);
-    }
-  }
-
-  /**
-   * Bitwise And.
-   */
-  static class BitAnd<T> extends Base<T, Long> {
-
-    public enum Type {
-      ALL, AND, ANY, NOT;
-    }
-    private long flags;
-    private boolean eq;
-    private long match;
-    private Type type;
-
-    public BitAnd(ElPropertyValue elGetValue, long flags, boolean eq, long match, Type type) {
-      super(elGetValue);
-      this.flags = flags;
-      this.eq = eq;
-      this.match = match;
-      this.type = type;
-    }
-
-    @Override
-    public boolean match(Long v) {
-      if (eq) {
-        return (v.longValue() & flags) == match;
-      } else {
-        return (v.longValue() & flags) != match;
-      }
-    }
-    @Override
-    public void toString(StringBuilder sb) {
-      sb.append(elGetValue).append(" & ").append(flags);
-      if (eq) {
-        sb.append(" = ");
-      } else {
-        sb.append(" != ");
-      }
-      sb.append(match);
-    }
-
-    @Override
-    public <F extends QueryDsl<T, F>> void visitDsl(QueryDsl<T, F> target) {
-      switch (type) {
-      case ALL:
-        target.bitwiseAll(elGetValue.getElName(), flags);
-        break;
-
-      case AND:
-        target.bitwiseAnd(elGetValue.getElName(), flags, match);
-        break;
-
-      case ANY:
-        target.bitwiseAny(elGetValue.getElName(), flags);
-        break;
-
-      case NOT:
-        target.bitwiseNot(elGetValue.getElName(), flags);
-        break;
-      default:
-        throw new UnsupportedOperationException();
-      }
+    public boolean isMatch(T value) {
+      return comparator.compareValue(filterValue, value) == 1;
     }
   }
 }

@@ -9,7 +9,7 @@
 
   <groupId>io.ebean</groupId>
   <artifactId>ebean</artifactId>
-  <version>11.45.2-FOC39-SNAPSHOT</version>
+  <version>11.45.2-FOC51-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>ebean</name>
@@ -19,7 +19,7 @@
     <jackson-core.version>2.10.0</jackson-core.version>
     <jackson-databind.version>2.10.0</jackson-databind.version>
     <snakeyaml.version>1.21</snakeyaml.version>
-    <agent.version>11.45.2-FOC2</agent.version>
+    <agent.version>11.45.2-FOC3</agent.version>
   </properties>
 
   <scm>
@@ -333,7 +333,7 @@
 
 
   <build>
-    
+
     <resources>
       <resource>
         <directory>src/main/resources</directory>
@@ -454,13 +454,13 @@
       </plugin>      
     </plugins>
 
-	<extensions>
-		<extension>
-			<groupId>org.apache.maven.wagon</groupId>
-			<artifactId>wagon-ssh</artifactId>
-			<version>2.10</version>
-		</extension>
-	</extensions>     
+    <extensions>
+      <extension>
+        <groupId>org.apache.maven.wagon</groupId>
+        <artifactId>wagon-ssh</artifactId>
+        <version>2.10</version>
+      </extension>
+    </extensions>
   </build>
   
   <repositories>
