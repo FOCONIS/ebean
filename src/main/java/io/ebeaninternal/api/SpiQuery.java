@@ -98,9 +98,14 @@ public interface SpiQuery<T> extends Query<T>, TxnProfileEventCodes, SpiCancelab
     COUNT(FIND_COUNT, "findCount"),
 
     /**
-     * A subquery used as part of a where clause.
+     * A subquery used as part of a exists where clause.
      */
-    SUBQUERY(FIND_SUBQUERY, "subquery"),
+    SQ_EXISTS(FIND_SUBQUERY, "exists"),
+
+    /**
+     * A subquery used as part of a in where clause.
+     */
+    SQ_IN(FIND_SUBQUERY, "in"),
 
     /**
      * Delete query.

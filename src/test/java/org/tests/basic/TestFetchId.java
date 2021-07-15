@@ -44,7 +44,6 @@ public class TestFetchId extends BaseTestCase {
     ResetBasicData.reset();
 
     Query<OrderDetail> subQuery = Ebean.find(OrderDetail.class)
-        .select("id")
         .alias("sq")
         .where().raw("details.id = sq.id").query();
     Query<Order> query = Ebean.find(Order.class)
