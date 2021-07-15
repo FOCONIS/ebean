@@ -719,7 +719,16 @@ public final class DefaultPersister implements Persister {
    * Delete by Id or a List of Id's.
    */
   private int delete(BeanDescriptor<?> descriptor, Object id, List<Object> idList, Transaction transaction, DeleteMode deleteMode) {
-
+    int rows = 0;
+    // SqlServer has a 2100 parameter limit
+    while (idList != null && idList.size() > 2000) {
+      rows += deleteBatch(descriptor, id, idList.subList(0, 2000), transaction, deleteMode);
+      idList = idList.subList(2000, idList.size());
+    }
+    rows += deleteBatch(descriptor, id, idList, transaction, deleteMode);
+    return rows;
+  }
+  private int deleteBatch(BeanDescriptor<?> descriptor, Object id, List<Object> idList, Transaction transaction, DeleteMode deleteMode) {
     SpiTransaction t = (SpiTransaction) transaction;
     if (t.isPersistCascade()) {
       BeanPropertyAssocOne<?>[] propImportDelete = descriptor.propertiesOneImportedDelete();

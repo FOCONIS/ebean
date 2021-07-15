@@ -145,6 +145,13 @@ class CQueryBuilder {
     }
     // wrap as - delete from table where id in (select id ...)
     String sql = buildSql(null, request, predicates, sqlTree).getSql();
+    if (dbPlatform.isPlatform(Platform.MYSQL)) {
+      // Workaround for "Table is specified twice" bug:
+      // https://mariadb.com/kb/en/update/#update-statements-with-the-same-source-and-target
+      if (sql.contains(" " + request.getBeanDescriptor().getBaseTable() + " ")) {
+        sql = "select * from (" + sql + ") _t";
+      }
+    }
     sql = request.getBeanDescriptor().getDeleteByIdInSql() + "in (" + sql + ")";
     sql = aliasReplace(sql, alias);
     return sql;
@@ -174,6 +181,13 @@ class CQueryBuilder {
     }
     // wrap as - update table set ... where id in (select id ...)
     String sql = buildSqlUpdate(null, request, predicates, sqlTree).getSql();
+    if (dbPlatform.isPlatform(Platform.MYSQL)) {
+      // Workaround for "Table is specified twice" bug:
+      // https://mariadb.com/kb/en/update/#update-statements-with-the-same-source-and-target
+      if (sql.contains(" " + request.getBeanDescriptor().getBaseTable() + " ")) {
+        sql = "select * from (" + sql + ") _t";
+      }
+    }
     sql = updateClause + " " + request.getBeanDescriptor().getWhereIdInSql() + "in (" + sql + ")";
     sql = aliasReplace(sql, alias(rootTableAlias));
     return sql;

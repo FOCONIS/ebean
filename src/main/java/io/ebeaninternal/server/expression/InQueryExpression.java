@@ -1,5 +1,6 @@
 package io.ebeaninternal.server.expression;
 
+import io.ebean.annotation.Platform;
 import io.ebean.event.BeanQueryRequest;
 import io.ebeaninternal.api.BindHash;
 import io.ebeaninternal.api.SpiEbeanServer;
@@ -7,6 +8,7 @@ import io.ebeaninternal.api.SpiExpression;
 import io.ebeaninternal.api.SpiExpressionRequest;
 import io.ebeaninternal.api.SpiQuery;
 import io.ebeaninternal.api.SpiQuery.Type;
+import io.ebeaninternal.server.core.SpiOrmQueryRequest;
 import io.ebeaninternal.server.query.CQuery;
 
 import java.io.IOException;
@@ -86,8 +88,25 @@ class InQueryExpression extends AbstractExpression implements UnsupportedDocStor
       request.append(" not");
     }
     request.append(" in (");
-    request.append(sql);
+    if (requiresMariaDbWorkaroundrequest(sql, request.getQueryRequest())) {
+      request.append("select * from (");
+      request.append(sql);
+      request.append(") _t");
+    } else {
+      request.append(sql);
+    }
     request.append(")");
+  }
+
+  /**
+   * @param sql2
+   * @param queryRequest
+   * @return
+   */
+  private boolean requiresMariaDbWorkaroundrequest(String sql, SpiOrmQueryRequest<?> queryRequest) {
+    return (queryRequest.getQuery().getType() == Type.UPDATE || queryRequest.getQuery().getType() == Type.DELETE)
+        && queryRequest.getEbeanServer().getPluginApi().getDatabasePlatform().isPlatform(Platform.MYSQL)
+        && sql.contains(" " + queryRequest.getBeanDescriptor().getBaseTable() + " ");
   }
 
   @Override

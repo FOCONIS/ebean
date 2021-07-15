@@ -15,6 +15,7 @@ import org.tests.model.basic.Country;
 import org.tests.model.basic.Customer;
 import org.tests.model.basic.ResetBasicData;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -201,6 +202,19 @@ public class TestDeleteByQuery extends BaseTestCase {
     contact.setCustomer(all.get(0));
 
     Ebean.save(contact);
+
+    if (isSqlServer()) {
+      // check if we can delete more than 2100 in a batch on SqlServer
+      List<Contact> moreContacts = new ArrayList<>();
+      for (int i = 0; i < 2200; i++) {
+        Contact c = new Contact();
+        c.setFirstName("DelByQueryFirstName");
+        c.setLastName("deleteMe");
+        c.setCustomer(all.get(0));
+        moreContacts.add(c);
+      }
+      Ebean.saveAll(moreContacts);
+    }
 
     Ebean.find(Contact.class).where().eq("firstName", "DelByQueryFirstName").delete();
 
