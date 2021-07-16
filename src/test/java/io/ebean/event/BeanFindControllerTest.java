@@ -43,8 +43,19 @@ public class BeanFindControllerTest extends BaseTestCase {
     EbeanServer ebeanServer = EbeanServerFactory.create(config);
 
     assertFalse(findController.calledInterceptFind);
+    assertFalse(findController.calledPostProcess);
     ebeanServer.find(EBasic.class, 42);
     assertTrue(findController.calledInterceptFind);
+    assertTrue(findController.calledPostProcess);
+    assertFalse(findController.calledPostProcessMany);
+
+    findController.calledInterceptFind = false;
+    findController.calledPostProcess = false;
+    ebeanServer.find(EBasic.class).findList();
+    assertTrue(findController.calledInterceptFindMany);
+    assertFalse(findController.calledPostProcess);
+    assertTrue(findController.calledPostProcessMany);
+    findController.calledInterceptFindMany = false;
 
     findController.findIntercept = true;
     EBasic eBasic = ebeanServer.find(EBasic.class, 42);
@@ -78,6 +89,9 @@ public class BeanFindControllerTest extends BaseTestCase {
     boolean findManyIntercept;
     boolean calledInterceptFind;
     boolean calledInterceptFindMany;
+    boolean calledPostProcess;
+    boolean calledPostProcessMany;
+
 
     @Override
     public boolean isRegisterFor(Class<?> cls) {
@@ -109,6 +123,16 @@ public class BeanFindControllerTest extends BaseTestCase {
       BeanList<T> list = new BeanList<>();
       list.add((T) createBean());
       return list;
+    }
+
+    @Override
+    public <T> void postProcess(T result) {
+      calledPostProcess = true;
+    }
+
+    @Override
+    public <T> void postProcessMany(BeanCollection<T> result) {
+      calledPostProcessMany = true;
     }
   }
 

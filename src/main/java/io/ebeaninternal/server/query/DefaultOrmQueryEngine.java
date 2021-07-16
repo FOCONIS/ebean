@@ -133,6 +133,9 @@ public class DefaultOrmQueryEngine implements OrmQueryEngine {
       result = queryEngine.findMany(request);
     }
 
+    if (finder != null) {
+      finder.postProcessMany(result);
+    }
     SpiQuery<T> query = request.getQuery();
 
     if (request.isBeanCachePut()) {
@@ -171,6 +174,10 @@ public class DefaultOrmQueryEngine implements OrmQueryEngine {
       result = finder.find(request);
     } else {
       result = queryEngine.find(request);
+    }
+
+    if (finder != null) {
+      finder.postProcess(result);
     }
 
     if (result != null && request.isBeanCachePut()) {
