@@ -5,6 +5,8 @@ import io.ebean.CacheMode;
 import io.ebean.DB;
 import io.ebean.Ebean;
 import io.ebean.ExpressionList;
+import io.ebean.annotation.ForPlatform;
+import io.ebean.annotation.Platform;
 import io.ebean.bean.BeanCollection;
 import io.ebean.cache.ServerCache;
 import org.ebeantest.LoggedSqlCollector;
@@ -340,6 +342,7 @@ public class TestQueryCache extends BaseTestCase {
 
 
   @Test
+  @ForPlatform(Platform.H2)
   public void findCountDifferentQueriesBit() {
     DB.getDefault().getPluginApi().getServerCacheManager().clearAll();
     differentFindCount(q->q.bitwiseAny("id",1), q->q.bitwiseAny("id",0));

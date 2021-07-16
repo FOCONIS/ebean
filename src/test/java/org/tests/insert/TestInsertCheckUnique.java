@@ -89,7 +89,11 @@ public class TestInsertCheckUnique extends BaseTestCase {
     assertThat(DB.checkUniqueness(edge)).isEmpty();
     List<String> sql = LoggedSql.stop();
     assertThat(sql).hasSize(1);
-    assertThat(sql.get(0)).startsWith("select t0.id from mny_edge t0 where t0.id <> ? and t0.from_id = ? and t0.to_id = ? limit 1");
+    if (isSqlServer()) {
+      assertThat(sql.get(0)).startsWith("select top 1 t0.id from mny_edge t0 where t0.id <> ? and t0.from_id = ? and t0.to_id = ?");
+    } else {
+      assertThat(sql.get(0)).startsWith("select t0.id from mny_edge t0 where t0.id <> ? and t0.from_id = ? and t0.to_id = ? limit 1");
+    }
 
     edge = new MnyEdge();
     edge.setFrom(from);
@@ -98,7 +102,11 @@ public class TestInsertCheckUnique extends BaseTestCase {
     assertThat(DB.checkUniqueness(edge)).extracting(Property::getName).containsExactly("from", "to");
     sql = LoggedSql.stop();
     assertThat(sql).hasSize(1);
-    assertThat(sql.get(0)).startsWith("select t0.id from mny_edge t0 where t0.from_id = ? and t0.to_id = ? limit 1");
+    if (isSqlServer()) {
+      assertThat(sql.get(0)).startsWith("select top 1 t0.id from mny_edge t0 where t0.from_id = ? and t0.to_id = ?");
+    } else {
+      assertThat(sql.get(0)).startsWith("select t0.id from mny_edge t0 where t0.from_id = ? and t0.to_id = ? limit 1");
+    }
   }
 
   @Test
