@@ -53,11 +53,15 @@ public interface BeanFindController {
   /**
    * Allows post processing of the find result.
    */
-  default <T> void postProcessMany(BeanCollection<T> result) {}
+  default <T> BeanCollection<T> postProcessMany(BeanQueryRequest<T> request, BeanCollection<T> result) {
+    return result;
+  }
 
   /**
    * Allows post processing of the find result.
    */
-  default <T> void postProcess(T result) {};
+  default <T> T postProcess(BeanQueryRequest<T> request, T result) {
+    return result;
+  };
 
 }

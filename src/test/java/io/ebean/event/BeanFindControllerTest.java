@@ -126,13 +126,15 @@ public class BeanFindControllerTest extends BaseTestCase {
     }
 
     @Override
-    public <T> void postProcess(T result) {
+    public <T> T postProcess(BeanQueryRequest<T> request, T result) {
       calledPostProcess = true;
+      return result;
     }
 
     @Override
-    public <T> void postProcessMany(BeanCollection<T> result) {
+    public <T> BeanCollection<T> postProcessMany(BeanQueryRequest<T> request, BeanCollection<T> result) {
       calledPostProcessMany = true;
+      return result;
     }
   }
 
