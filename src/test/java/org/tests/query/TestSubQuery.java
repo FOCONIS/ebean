@@ -3,6 +3,7 @@ package org.tests.query;
 import io.ebean.BaseTestCase;
 import io.ebean.DB;
 import io.ebean.Query;
+import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import org.tests.model.basic.CKeyParent;
 import org.tests.model.basic.Order;
@@ -47,6 +48,16 @@ public class TestSubQuery extends BaseTestCase {
       .isIn("details.product.id", productIds).query();
 
     DB.find(Order.class).where().isIn("id", sq).findList();
+  }
+
+  @Test
+  public void test_IsInNoWhere() {
+    ResetBasicData.reset();
+
+    Query<Order> sq = DB.createQuery(Order.class).select("id");
+    int expectedSize = DB.find(Order.class).findCount(); // expect everything
+
+    Assertions.assertThat(DB.find(Order.class).where().isIn("id", sq).findList()).hasSize(expectedSize);
   }
 
   /**
