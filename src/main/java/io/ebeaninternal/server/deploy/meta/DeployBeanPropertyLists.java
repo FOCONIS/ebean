@@ -355,6 +355,16 @@ public class DeployBeanPropertyLists {
     return getMany2Many();
   }
 
+  public boolean hasM2MDelete() {
+    for (BeanPropertyAssocMany<?> prop : manys) {
+      if (prop.isIncludeCascadeDelete() && prop.isManyToMany()) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   public BeanProperty getDraftDirty() {
     return draftDirty;
   }
