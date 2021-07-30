@@ -799,19 +799,14 @@ public final class DefaultPersister implements Persister {
               }
             }
           }
+        } else if (deleteMode.isHard()) {
+          // ManyToMany's ... delete from intersection table
+          SqlUpdate sqlDelete = many.deleteByParentId(id, idList);
+          if (t.isLogSummary()) {
+            t.logSummary("-- Deleting intersection table entries: " + many.getFullBeanName());
+          }
+          executeSqlUpdate(sqlDelete, t);
         }
-      }
-    }
-
-    if (deleteMode.isHard()) {
-      // ManyToMany's ... delete from intersection table
-      BeanPropertyAssocMany<?>[] manys = descriptor.propertiesManyToMany();
-      for (BeanPropertyAssocMany<?> many : manys) {
-        SqlUpdate sqlDelete = many.deleteByParentId(id, idList);
-        if (t.isLogSummary()) {
-          t.logSummary("-- Deleting intersection table entries: " + many.getFullBeanName());
-        }
-        executeSqlUpdate(sqlDelete, t);
       }
     }
 

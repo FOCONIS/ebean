@@ -411,6 +411,8 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
    * If true then only changed properties get updated.
    */
   private final boolean updateChangesOnly;
+  
+  private final boolean hasM2MDelete;
 
   private final boolean cacheSharableBeans;
 
@@ -523,6 +525,7 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
     this.propertiesManyToMany = listHelper.getManyToMany();
     this.propertiesGenInsert = listHelper.getGeneratedInsert();
     this.propertiesGenUpdate = listHelper.getGeneratedUpdate();
+    this.hasM2MDelete = listHelper.hasM2MDelete();
 
     boolean noRelationships = propertiesOne.length + propertiesMany.length == 0;
 
@@ -1743,7 +1746,7 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
   public boolean isDeleteByBulk() {
     return persistListener == null
       && persistController == null
-      && propertiesManyToMany.length == 0;
+      && !hasM2MDelete;
   }
 
   /**
