@@ -1,14 +1,19 @@
 package io.ebean.config.dbplatform.mysql;
 
+import io.ebean.BackgroundExecutor;
 import io.ebean.Query;
 import io.ebean.annotation.Platform;
 import io.ebean.config.dbplatform.DatabasePlatform;
 import io.ebean.config.dbplatform.DbPlatformType;
 import io.ebean.config.dbplatform.DbType;
 import io.ebean.config.dbplatform.IdType;
+import io.ebean.config.dbplatform.PlatformIdGenerator;
 import io.ebean.config.dbplatform.SqlErrorCodes;
+import io.ebean.config.dbplatform.db2.DB2SequenceIdGenerator;
 
 import java.sql.Types;
+
+import javax.sql.DataSource;
 
 /**
  * MySQL specific platform.
@@ -70,6 +75,16 @@ public class MySqlPlatform extends DatabasePlatform {
   protected String withForUpdate(String sql, Query.ForUpdate forUpdateMode) {
     // NOWAIT and SKIP LOCKED currently not supported with MySQL
     return sql + " for update";
+  }
+  
+  /**
+   * Return a mariadb specific sequence IdGenerator that supports batch fetching
+   * sequence values.
+   */
+  @Override
+  public PlatformIdGenerator createSequenceIdGenerator(BackgroundExecutor be, DataSource ds, int stepSize, String seqName) {
+
+    return new MySqlSequenceIdGenerator(be, ds, seqName, sequenceBatchSize);
   }
 
 }
