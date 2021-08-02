@@ -16,18 +16,20 @@ import java.sql.Statement;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 
 public class TestGeneratedKeys extends BaseTestCase {
 
   @Test
-  @ForPlatform(Platform.H2) // readSequenceValue is H2 specific
+  @ForPlatform({Platform.H2, Platform.DB2, Platform.MYSQL, Platform.SQLSERVER})
   public void testSequence() throws SQLException {
     SpiEbeanServer server = spiEbeanServer();
 
     if (idType() != IdType.SEQUENCE) {
+      throw new IllegalStateException();
       // only run this test when SEQUENCE is being used
-      return;
+//      return;
     }
 
     try (Transaction tx = server.beginTransaction()) {
@@ -44,24 +46,43 @@ public class TestGeneratedKeys extends BaseTestCase {
       assertNotNull(al.getId());
       assertFalse(sequenceStart == sequenceCurrent);
       assertEquals(sequenceStart + 20, sequenceCurrent);
+
+      // Test second entity
+      GenKeySequence al2 = new GenKeySequence();
+      al2.setDescription("my second description");
+      server.save(al2);
+
+      sequenceCurrent = readSequenceValue(tx, GenKeySequence.SEQUENCE_NAME);
+
+      assertNotEquals(al.getId(), al2.getId());
+      // current sequence number must not be incremented
+      assertEquals(sequenceStart + 20, sequenceCurrent);
     }
 
   }
 
   private long readSequenceValue(Transaction tx, String sequence) throws SQLException {
-    Statement stm = null;
-    try {
-      stm = tx.getConnection().createStatement();
-      ResultSet rs = stm.executeQuery("select currval('" + sequence + "')");
-      rs.next();
-
-      return rs.getLong(1);
-    } finally {
-      if (stm != null) {
-        try {
-          stm.close();
-        } catch (SQLException e) {
-        }
+    try (Statement stm = tx.getConnection().createStatement()) {
+      ResultSet rs;
+      
+      switch (spiEbeanServer().getDatabasePlatform().getPlatform()) {
+        case H2 :
+          rs = stm.executeQuery("select currval('" + sequence + "')");
+          rs.next();
+          return rs.getLong(1);
+          
+        case DB2 :
+          rs = stm.executeQuery("values previous value for " + sequence);
+          rs.next();
+          return rs.getLong(1);
+          
+        case MYSQL :
+          rs = stm.executeQuery("select previous value for " + sequence);
+          rs.next();
+          return rs.getLong(1);
+          
+        default :
+          throw new UnsupportedOperationException("reading sequence value from " + spiEbeanServer().getDatabasePlatform().getPlatform() + " is not supported.");
       }
     }
   }
