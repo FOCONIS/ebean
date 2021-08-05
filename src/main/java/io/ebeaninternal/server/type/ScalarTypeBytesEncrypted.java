@@ -9,7 +9,6 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.Arrays;
 
 /**
  * Encrypted ScalarType that wraps a byte[] types.
@@ -37,17 +36,12 @@ public class ScalarTypeBytesEncrypted implements ScalarType<byte[]> {
 
   @Override
   public boolean isMutable() {
-    return true;
+    return false;
   }
 
   @Override
-  public byte[] deepCopy(byte[] in) {
-    return Arrays.copyOf(in, in.length);
-  }
-
-  @Override
-  public boolean isModified(byte[] originalValue, byte[] currentValue) {
-    return !Arrays.equals(originalValue, currentValue);
+  public boolean isDirty(Object value) {
+    return false;
   }
 
   @Override
@@ -88,7 +82,7 @@ public class ScalarTypeBytesEncrypted implements ScalarType<byte[]> {
 
   @Override
   public void jsonWrite(JsonGenerator writer, byte[] value) throws IOException {
-    writer.writeBinary(value); // FIXME: JsonRead & JsonWrite does not encrypt the value
+    writer.writeBinary(value);
   }
 
   @Override

@@ -1,7 +1,6 @@
 package io.ebeaninternal.server.query;
 
 import io.ebean.bean.EntityBean;
-import io.ebean.bean.EntityBeanIntercept;
 import io.ebean.bean.PersistenceContext;
 import io.ebeaninternal.api.SpiQuery;
 import io.ebeaninternal.server.deploy.DbReadContext;
@@ -142,9 +141,4 @@ public interface STreeType {
    */
   void markAsDeleted(EntityBean bean);
 
-  /**
-   * Sets the original values in ebi.origValues of all mutable properties. This must be done,
-   * after each load/lazyLoad to ensure that the original value is preserved correctly.
-   */
-  void setMutableOrigValues(EntityBeanIntercept ebi);
 }

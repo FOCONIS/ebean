@@ -2438,7 +2438,6 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
       BeanPropertyAssocMany<?> manyProp = (BeanPropertyAssocMany<?>) lazyLoadBeanProp;
       manyProp.createReference(ebi.getOwner());
       ebi.setLoadedLazy();
-      setMutableOrigValues(ebi);
       return true;
     }
     return false;
@@ -2966,7 +2965,6 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
       setSoftDeleteValue(bean);
       bean._ebean_getIntercept().setLoaded();
       setAllLoaded(bean);
-      setMutableOrigValues(bean._ebean_getIntercept());
     }
   }
 
@@ -3312,32 +3310,14 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType {
   }
 
   /**
-   * Copies all mutable properties and saves the copy in ebi.originalValue to detect modification.
-   * We also need the copy to properly detect modifications.
-   */
-  @Override
-  public void setMutableOrigValues(EntityBeanIntercept ebi) {
-    for (BeanProperty beanProperty : propertiesMutable) {
-      int propertyIndex = beanProperty.getPropertyIndex();
-      if (ebi.isLoadedProperty(propertyIndex)
-          && !ebi.hasOrigValueSet(propertyIndex)) {
-
-        Object copy = beanProperty.getMutableSafeValue(ebi.getOwner());
-        ebi.setOriginalValue(propertyIndex, copy, true);
-      }
-    }
-  }
-
-  /**
    * Check for mutable scalar types and mark as dirty if necessary.
    */
   public void checkMutableProperties(EntityBeanIntercept ebi) {
     for (BeanProperty beanProperty : propertiesMutable) {
       int propertyIndex = beanProperty.getPropertyIndex();
       if (!ebi.isDirtyProperty(propertyIndex) && ebi.isLoadedProperty(propertyIndex)) {
-        Object oldValue = ebi.getOrigValue(propertyIndex);
         Object value = beanProperty.getValue(ebi.getOwner());
-        if (beanProperty.isModified(oldValue, value)) {
+        if (value == null || beanProperty.isDirtyValue(value)) {
           // mutable scalar value which is considered dirty so mark
           // it as such so that it is included in an update
           ebi.markPropertyAsChanged(propertyIndex);

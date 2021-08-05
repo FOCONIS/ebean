@@ -47,16 +47,10 @@ public interface ScalarType<T> extends StringParser, StringFormatter, ScalarData
   boolean isMutable();
 
   /**
-   * Performs a deepCopy of a mutalble scalar type.
-   * When type is non mutable, <code>in</code> is returned.
+   * For mutable scalarType's return true if the value is dirty.
+   * Non-dirty properties may be excluded from updates.
    */
-  T deepCopy(T in);
-
-  /**
-   * Check if <code>currentValue</code> has been modified. This is especially required,
-   * to check if a mutable property needs an update.
-   */
-  boolean isModified(T originalValue, T currentValue);
+  boolean isDirty(Object value);
 
   /**
    * Return the default DB column length for this type.

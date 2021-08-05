@@ -37,19 +37,11 @@ public abstract class ScalarTypeBase<T> implements ScalarType<T> {
   }
 
   /**
-   * No need to copy non-mutables.
+   * Default to true.
    */
   @Override
-  public T deepCopy(T in) {
-    return in;
-  }
-
-  /**
-   * Rely on default equals method for non-mutables.
-   */
-  @Override
-  public boolean isModified(T originalValue, T currentValue) {
-    return !originalValue.equals(currentValue);
+  public boolean isDirty(Object value) {
+    return true;
   }
 
   /**

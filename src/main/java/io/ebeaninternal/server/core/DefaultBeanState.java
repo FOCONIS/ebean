@@ -4,7 +4,6 @@ import io.ebean.BeanState;
 import io.ebean.ValuePair;
 import io.ebean.bean.EntityBean;
 import io.ebean.bean.EntityBeanIntercept;
-import io.ebeaninternal.server.deploy.BeanDescriptor;
 
 import java.util.Map;
 import java.util.Set;
@@ -16,12 +15,8 @@ public class DefaultBeanState implements BeanState {
 
   private final EntityBeanIntercept intercept;
 
-  private final BeanDescriptor<?> descriptor;
-
-
-  public DefaultBeanState(EntityBean entityBean, BeanDescriptor<?> beanType) {
+  public DefaultBeanState(EntityBean entityBean) {
     this.intercept = entityBean._ebean_getIntercept();
-    this.descriptor = beanType;
   }
 
   @Override
@@ -41,17 +36,11 @@ public class DefaultBeanState implements BeanState {
 
   @Override
   public boolean isNewOrDirty() {
-    if (!intercept.isNew()) {
-      descriptor.checkMutableProperties(intercept);
-    }
     return intercept.isNewOrDirty();
   }
 
   @Override
   public boolean isDirty() {
-    if (!intercept.isNew()) {
-      descriptor.checkMutableProperties(intercept);
-    }
     return intercept.isDirty();
   }
 
@@ -67,9 +56,6 @@ public class DefaultBeanState implements BeanState {
 
   @Override
   public Map<String, ValuePair> getDirtyValues() {
-    if (!intercept.isNew()) {
-      descriptor.checkMutableProperties(intercept);
-    }
     return intercept.getDirtyValues();
   }
 
@@ -86,7 +72,6 @@ public class DefaultBeanState implements BeanState {
   @Override
   public void setLoaded() {
     intercept.setLoaded();
-    descriptor.setMutableOrigValues(intercept);
   }
 
   @Override

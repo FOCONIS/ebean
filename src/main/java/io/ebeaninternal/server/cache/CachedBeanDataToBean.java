@@ -40,7 +40,6 @@ public class CachedBeanDataToBean {
     }
 
     ebi.setLoadedLazy();
-    desc.setMutableOrigValues(ebi);
   }
 
   private static void loadProperty(EntityBean bean, CachedBeanData cacheBeanData, EntityBeanIntercept ebi, BeanProperty prop, PersistenceContext context) {

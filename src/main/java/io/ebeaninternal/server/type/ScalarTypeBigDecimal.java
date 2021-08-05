@@ -100,10 +100,4 @@ public class ScalarTypeBigDecimal extends ScalarTypeBase<BigDecimal> {
     return DocPropertyType.DOUBLE;
   }
 
-  @Override
-  public boolean isModified(BigDecimal originalValue, BigDecimal currentValue) {
-    // Use comparable for BigDecimal as equals
-    // uses scale in comparison...
-    return originalValue.compareTo(currentValue) != 0;
-  }
 }

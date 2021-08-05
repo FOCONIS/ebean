@@ -718,9 +718,7 @@ public class BeanPropertyAssocOne<T> extends BeanPropertyAssoc<T> implements STr
     Object dbVal = sqlBeanLoad.load(this);
     if (embedded && sqlBeanLoad.isLazyLoad()) {
       if (dbVal instanceof EntityBean) {
-        EntityBeanIntercept ebi = ((EntityBean) dbVal)._ebean_getIntercept();
-        ebi.setLoaded();
-        descriptor.setMutableOrigValues(ebi);
+        ((EntityBean) dbVal)._ebean_getIntercept().setLoaded();
       }
     }
   }
