@@ -6,12 +6,14 @@ import io.ebean.bean.BeanCollection;
 import io.ebean.bean.EntityBean;
 import io.ebean.bean.EntityBeanIntercept;
 import io.ebean.bean.OwnerBeanAware;
+import io.ebean.bean.MutableValueInfo;
 import io.ebean.bean.PersistenceContext;
 import io.ebean.config.EncryptKey;
 import io.ebean.config.dbplatform.DbEncryptFunction;
 import io.ebean.config.dbplatform.DbPlatformType;
 import io.ebean.plugin.Property;
 import io.ebean.text.StringParser;
+import io.ebean.text.TextException;
 import io.ebean.util.SplitName;
 import io.ebean.util.StringHelper;
 import io.ebeaninternal.api.SpiExpressionRequest;
@@ -670,6 +672,8 @@ public class BeanProperty implements ElPropertyValue, Property, STreeProperty {
         setValue(bean, value);
       }
       return value;
+    } catch (TextException e) {
+      throw e;
     } catch (Exception e) {
       throw new PersistenceException("Error readSet on " + descriptor + "." + name, e);
     }
@@ -680,16 +684,7 @@ public class BeanProperty implements ElPropertyValue, Property, STreeProperty {
   }
 
   public Object readSet(DbReadContext ctx, EntityBean bean) throws SQLException {
-
-    try {
-      Object value = scalarType.read(ctx.getDataReader());
-      if (bean != null) {
-        setValue(bean, value);
-      }
-      return value;
-    } catch (Exception e) {
-      throw new PersistenceException("Error readSet on " + descriptor + "." + name, e);
-    }
+    return readSet(ctx.getDataReader(), bean);
   }
 
   @SuppressWarnings("unchecked")
@@ -858,17 +853,7 @@ public class BeanProperty implements ElPropertyValue, Property, STreeProperty {
    * </p>
    */
   public Object getCacheDataValue(EntityBean bean) {
-    return cacheDataConvert(getValue(bean));
-  }
-
-  /**
-   * Return the bean cache value for this property using original values.
-   */
-  public Object getCacheDataValueOrig(EntityBeanIntercept ebi) {
-    return cacheDataConvert(ebi.getOrigValue(propertyIndex));
-  }
-
-  private Object cacheDataConvert(Object value) {
+    Object value = getValue(bean);
     if (value == null || scalarType.isBinaryType()) {
       return value;
     } else {
@@ -889,6 +874,13 @@ public class BeanProperty implements ElPropertyValue, Property, STreeProperty {
    */
   public Object parse(String value) {
     return scalarType.parse(value);
+  }
+
+  /**
+   * creates a mutableHash for the given JSON value.
+   */
+  public MutableValueInfo createMutableInfo(String json) {
+    throw new UnsupportedOperationException();
   }
 
   /**
@@ -966,7 +958,8 @@ public class BeanProperty implements ElPropertyValue, Property, STreeProperty {
   /**
    * Return the name of the property.
    */
-  @Override @Nonnull
+  @Override
+  @Nonnull
   public String getName() {
     return name;
   }
@@ -1075,8 +1068,8 @@ public class BeanProperty implements ElPropertyValue, Property, STreeProperty {
    * Return true if the mutable value is considered dirty.
    * This is only used for 'mutable' scalar types like hstore etc.
    */
-  public boolean isDirtyValue(Object value) {
-    return scalarType.isDirty(value);
+  boolean checkMutable(Object value, boolean alreadyDirty, EntityBeanIntercept ebi) {
+    return alreadyDirty || value != null && scalarType.isDirty(value);
   }
 
   /**
@@ -1335,7 +1328,7 @@ public class BeanProperty implements ElPropertyValue, Property, STreeProperty {
 
   @Override
   public Object localEncrypt(Object value) {
-    return ((LocalEncryptedType)scalarType).localEncrypt(value);
+    return ((LocalEncryptedType) scalarType).localEncrypt(value);
   }
 
   /**
@@ -1448,7 +1441,8 @@ public class BeanProperty implements ElPropertyValue, Property, STreeProperty {
   /**
    * Return the property type.
    */
-  @Override @Nonnull
+  @Override
+  @Nonnull
   public Class<?> getPropertyType() {
     return propertyType;
   }
@@ -1581,7 +1575,7 @@ public class BeanProperty implements ElPropertyValue, Property, STreeProperty {
    * Populate diff map comparing the property values.
    */
   void diffVal(String prefix, Map<String, ValuePair> map, Object newVal, Object oldVal) {
-    if (XXX) {
+    if (!ValueUtil.areEqual(newVal, oldVal)) {
       String propName = (prefix == null) ? name : prefix + "." + name;
       map.put(propName, new ValuePair(newVal, oldVal));
     }

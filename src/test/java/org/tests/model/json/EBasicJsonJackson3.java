@@ -1,7 +1,7 @@
 package org.tests.model.json;
 
+import io.ebean.Model;
 import io.ebean.annotation.DbJson;
-import com.fasterxml.jackson.databind.JsonNode;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -9,23 +9,19 @@ import javax.persistence.Version;
 
 
 @Entity
-public class EBasicJsonNode {
+public class EBasicJsonJackson3 extends Model {
 
   @Id
   Long id;
 
-  @Version
-  Long version;
-
   String name;
-
-  @DbJson
-  JsonNode content;
 
   @DbJson(length = 500)
   PlainBeanDirtyAware plainValue;
 
 
+  @Version
+  long version;
 
   public Long getId() {
     return id;
@@ -33,14 +29,6 @@ public class EBasicJsonNode {
 
   public void setId(Long id) {
     this.id = id;
-  }
-
-  public Long getVersion() {
-    return version;
-  }
-
-  public void setVersion(Long version) {
-    this.version = version;
   }
 
   public String getName() {
@@ -51,11 +39,19 @@ public class EBasicJsonNode {
     this.name = name;
   }
 
-  public JsonNode getContent() {
-    return content;
+  public PlainBeanDirtyAware getPlainValue() {
+    return plainValue;
   }
 
-  public void setContent(JsonNode content) {
-    this.content = content;
+  public void setPlainValue(PlainBeanDirtyAware plainValue) {
+    this.plainValue = plainValue;
+  }
+
+  public long getVersion() {
+    return version;
+  }
+
+  public void setVersion(long version) {
+    this.version = version;
   }
 }

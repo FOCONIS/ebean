@@ -35,6 +35,7 @@ public class DataBind {
   private List<InputStream> inputStreams;
 
   protected int pos;
+  private String json;
 
   public DataBind(DataTimeZone dataTimeZone, PreparedStatement pstmt, Connection connection) {
     this.dataTimeZone = dataTimeZone;
@@ -45,6 +46,17 @@ public class DataBind {
   /**
    * Append an entry to the bind log.
    */
+  public void pushJson(String json) {
+    assert this.json == null; // we can only push one value
+    this.json = json;
+  }
+
+  public String popJson() {
+    String ret = json;
+    json = null;
+    return ret;
+  }
+
   public StringBuilder append(Object entry) {
     return bindLog.append(entry);
   }

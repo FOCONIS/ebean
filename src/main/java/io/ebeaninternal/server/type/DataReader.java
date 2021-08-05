@@ -50,4 +50,14 @@ public interface DataReader {
   Object getObject() throws SQLException;
 
   InputStream getBinaryStream() throws SQLException;
+
+  /**
+   * Push json from dirty detection to be available for binding.
+   */
+  void pushJson(String json);
+
+  /**
+   * Pop json made during dirty detection for scalarType binding.
+   */
+  String popJson();
 }

@@ -2,6 +2,7 @@ package io.ebeaninternal.server.type;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
+
 import io.ebean.text.StringFormatter;
 import io.ebean.text.StringParser;
 import io.ebeanservice.docstore.api.mapping.DocPropertyType;
@@ -34,6 +35,10 @@ import java.sql.SQLException;
  * </p>
  */
 public interface ScalarType<T> extends StringParser, StringFormatter, ScalarDataReader<T> {
+
+  default boolean isJsonMapper() {
+    return false;
+  }
 
   /**
    * Return true if this is a binary type and can not support parse() and format() from/to string.

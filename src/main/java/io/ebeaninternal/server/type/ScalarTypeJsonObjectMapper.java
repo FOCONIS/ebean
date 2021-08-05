@@ -11,12 +11,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializationConfig;
 import com.fasterxml.jackson.databind.introspect.AnnotatedField;
+import io.ebean.annotation.MutationDetection;
 import io.ebean.config.dbplatform.DbPlatformType;
 import io.ebean.text.TextException;
-import io.ebeaninternal.json.ModifyAwareList;
-import io.ebeaninternal.json.ModifyAwareMap;
-import io.ebeaninternal.json.ModifyAwareOwner;
-import io.ebeaninternal.json.ModifyAwareSet;
+import io.ebeaninternal.server.deploy.meta.DeployBeanProperty;
 import io.ebeanservice.docstore.api.mapping.DocPropertyType;
 
 import javax.persistence.PersistenceException;
@@ -25,33 +23,23 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.sql.Types;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Supports @DbJson properties using Jackson ObjectMapper.
  */
-public class ScalarTypeJsonObjectMapper {
+class ScalarTypeJsonObjectMapper {
 
   /**
    * Create and return the appropriate ScalarType.
    */
   public static ScalarType<?> createTypeFor(boolean postgres, AnnotatedField field, ObjectMapper objectMapper,
-                                            int dbType, DocPropertyType docType) {
+      DeployBeanProperty prop, int dbType, DocPropertyType docType) {
 
-    Class<?> type = field.getRawType();
+    prop.setMutationDetection(MutationDetection.SOURCE);
+
     String pgType = getPostgresType(postgres, dbType);
-    if (Set.class.equals(type)) {
-      return new OmSet(objectMapper, field, dbType, pgType, docType);
-    }
-    if (List.class.equals(type)) {
-      return new OmList(objectMapper, field, dbType, pgType, docType);
-    }
-    if (Map.class.equals(type)) {
-      return new OmMap(objectMapper, field, dbType, pgType);
-    }
-    return new GenericObject(objectMapper, field, dbType, pgType);
+
+    return new GenericObject(objectMapper, field, dbType, pgType, docType);
   }
 
   private static String getPostgresType(boolean postgres, int dbType) {
@@ -67,66 +55,71 @@ public class ScalarTypeJsonObjectMapper {
   }
 
   /**
-   * Maps any type (Object) using Jackson ObjectMapper.
+   * No mutation detection on this json property.
+   */
+  private static class NoMutationDetection extends Base<Object> {
+
+    NoMutationDetection(ObjectMapper objectMapper, AnnotatedField field, int dbType, String pgType, DocPropertyType docType) {
+      super(Object.class, objectMapper, field, dbType, pgType, docType);
+    }
+
+    @Override
+    public boolean isMutable() {
+      return false;
+    }
+
+    @Override
+    public boolean isDirty(Object value) {
+      return false;
+    }
+  }
+
+  /**
+   * Supports HASH and SOURCE dirty detection modes.
    */
   private static class GenericObject extends Base<Object> {
 
-    public GenericObject(ObjectMapper objectMapper, AnnotatedField field, int dbType, String pgType) {
-      super(Object.class, objectMapper, field, dbType, pgType, DocPropertyType.OBJECT);
-    }
-  }
-
-  /**
-   * Type for Sets wrapping the ObjectMapper Set as a ModifyAwareSet.
-   */
-  @SuppressWarnings("rawtypes")
-  private static class OmSet extends Base<Set> {
-
-    public OmSet(ObjectMapper objectMapper, AnnotatedField field, int dbType, String pgType, DocPropertyType docType) {
-      super(Set.class, objectMapper, field, dbType, pgType, docType);
+    GenericObject(ObjectMapper objectMapper, AnnotatedField field, int dbType, String pgType, DocPropertyType docType) {
+      super(Object.class, objectMapper, field, dbType, pgType, docType);
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public Set read(DataReader reader) throws SQLException {
-      Set value = super.read(reader);
-      return value == null ? null : new ModifyAwareSet(value);
-    }
-  }
-
-  /**
-   * Type for Lists wrapping the ObjectMapper List as a ModifyAwareList.
-   */
-  @SuppressWarnings("rawtypes")
-  private static class OmList extends Base<List> {
-
-    public OmList(ObjectMapper objectMapper, AnnotatedField field, int dbType, String pgType, DocPropertyType docType) {
-      super(List.class, objectMapper, field, dbType, pgType, docType);
+    public boolean isJsonMapper() {
+      return true;
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public List read(DataReader reader) throws SQLException {
-      List value = super.read(reader);
-      return value == null ? null : new ModifyAwareList(value);
-    }
-  }
-
-  /**
-   * Type for Map wrapping the ObjectMapper Map as a ModifyAwareMap.
-   */
-  @SuppressWarnings("rawtypes")
-  private static class OmMap extends Base<Map> {
-
-    public OmMap(ObjectMapper objectMapper, AnnotatedField field, int dbType, String pgType) {
-      super(Map.class, objectMapper, field, dbType, pgType, DocPropertyType.OBJECT);
+    public Object read(DataReader reader) throws SQLException {
+      String json = reader.getString();
+      if (json == null || json.isEmpty()) {
+        return null;
+      }
+      // pushJson such that we MD5 and store on EntityBeanIntercept later
+      reader.pushJson(json);
+      try {
+        return objectReader.readValue(json, deserType);
+      } catch (IOException e) {
+        throw new TextException("Failed to parse JSON [{}] as " + deserType, json, e);
+      }
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public Map read(DataReader reader) throws SQLException {
-      Map value = super.read(reader);
-      return value == null ? null : new ModifyAwareMap(value);
+    public void bind(DataBind bind, Object value) throws SQLException {
+      // popJson as dirty detection already converted to json string
+      String rawJson = bind.popJson();
+      if (rawJson == null && value != null) {
+        rawJson = formatValue(value); // not expected, need to check?
+      }
+      if (pgType != null) {
+        bind.setObject(PostgresHelper.asObject(pgType, rawJson));
+      } else {
+        if (value == null) {
+          // use varchar, otherwise SqlServer/db2 will fail with 'Invalid JDBC data type 5.001.'
+          bind.setNull(Types.VARCHAR);
+        } else {
+          bind.setString(rawJson);
+        }
+      }
     }
   }
 
@@ -136,14 +129,10 @@ public class ScalarTypeJsonObjectMapper {
    */
   private static abstract class Base<T> extends ScalarTypeBase<T> {
 
-    private final ObjectWriter objectWriter;
-
-    private final ObjectMapper objectReader;
-
-    private JavaType deserType;
-
-    private final String pgType;
-
+    protected final ObjectWriter objectWriter;
+    protected final ObjectMapper objectReader;
+    protected final JavaType deserType;
+    protected final String pgType;
     private final DocPropertyType docType;
 
     /**
@@ -184,20 +173,9 @@ public class ScalarTypeJsonObjectMapper {
        }
     }
 
-    /**
-     * Consider as a mutable type. Use the isDirty() method to check for dirty state.
-     */
     @Override
     public boolean isMutable() {
       return true;
-    }
-
-    /**
-     * Return true if the value should be considered dirty (and included in an update).
-     */
-    @Override
-    public boolean isDirty(Object value) {
-      return !(value instanceof ModifyAwareOwner) || ((ModifyAwareOwner) value).isMarkedDirty();
     }
 
     @Override
@@ -222,12 +200,7 @@ public class ScalarTypeJsonObjectMapper {
         if (value == null) {
           bind.setNull(Types.VARCHAR); // use varchar, otherwise SqlServer/db2 will fail with 'Invalid JDBC data type 5.001.'
         } else {
-          try {
-            String json = objectWriter.writeValueAsString(value);
-            bind.setString(json);
-          } catch (JsonProcessingException e) {
-            throw new SQLException("Unable to create JSON", e);
-          }
+          bind.setString(formatValue(value));
         }
       }
     }

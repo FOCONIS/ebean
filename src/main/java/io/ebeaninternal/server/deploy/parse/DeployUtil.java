@@ -2,6 +2,7 @@ package io.ebeaninternal.server.deploy.parse;
 
 import io.ebean.annotation.DbArray;
 import io.ebean.annotation.DbMap;
+import io.ebean.annotation.MutationDetection;
 import io.ebean.annotation.DbJson;
 import io.ebean.annotation.DbJsonB;
 import io.ebean.annotation.DbJsonType;
@@ -215,22 +216,21 @@ public class DeployUtil {
    * This property is marked as a Lob object.
    */
   void setDbJsonType(DeployBeanProperty prop, DbJson dbJsonType) {
-
     int dbType = getDbJsonStorage(dbJsonType.storage());
-    setDbJsonType(prop, dbType, dbJsonType.length());
+    setDbJsonType(prop, dbType, dbJsonType.length(), MutationDetection.SOURCE);
   }
 
   void setDbJsonBType(DeployBeanProperty prop, DbJsonB dbJsonB) {
-    setDbJsonType(prop, DbPlatformType.JSONB, dbJsonB.length());
+    setDbJsonType(prop, DbPlatformType.JSONB, dbJsonB.length(), MutationDetection.SOURCE);
   }
 
-  private void setDbJsonType(DeployBeanProperty prop, int dbType, int dbLength) {
-
+  private void setDbJsonType(DeployBeanProperty prop, int dbType, int dbLength, MutationDetection mutationDetection) {
+    prop.setDbType(dbType);
+    prop.setMutationDetection(mutationDetection);
     ScalarType<?> scalarType = typeManager.getJsonScalarType(prop, dbType, dbLength);
     if (scalarType == null) {
       throw new RuntimeException("No ScalarType for JSON property [" + prop + "] [" + dbType + "]");
     }
-    prop.setDbType(dbType);
     prop.setScalarType(scalarType);
     if (dbType == Types.VARCHAR || dbLength > 0) {
       // determine the db column size
