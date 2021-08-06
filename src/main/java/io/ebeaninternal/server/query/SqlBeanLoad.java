@@ -6,9 +6,6 @@ import io.ebeaninternal.api.SpiQuery.Mode;
 import io.ebeaninternal.server.deploy.BeanProperty;
 import io.ebeaninternal.server.deploy.DbReadContext;
 
-import java.util.Collection;
-import java.util.Map;
-
 /**
  * Controls the loading of property data into a bean.
  * <p>
@@ -75,14 +72,6 @@ public class SqlBeanLoad {
    * Load the given value into the property.
    */
   public void load(BeanProperty target, Object dbVal) {
-    if (dbVal == null) {
-      Object current = target.getValue(bean);
-      if ((current instanceof Collection) && ((Collection<?>) current).isEmpty()) {
-        dbVal = current; // do not modify
-      } else if ((current instanceof Map) && ((Map<?, ?>) current).isEmpty()) {
-        dbVal = current; // do not modify
-      }
-    }
     target.setValue(bean, dbVal);
   }
 }

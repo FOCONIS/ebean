@@ -19,7 +19,10 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 public class TestDbJson_List extends BaseTestCase {
 
@@ -232,8 +235,10 @@ public class TestDbJson_List extends BaseTestCase {
     DB.save(bean);
 
     bean = DB.find(EBasicJsonList.class)
-        .setId(bean.getId()).findOne();
+      .setId(bean.getId()).findOne();
 
     assertThat(bean.getFlags()).isEmpty();
+    assertThat(bean.getBeanMap()).isEmpty();
+    assertThat(bean.getTags()).isEmpty();
   }
 }
