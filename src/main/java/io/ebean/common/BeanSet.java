@@ -48,10 +48,6 @@ public final class BeanSet<E> extends AbstractBeanCollection<E> implements Set<E
     this.set = null;
   }
 
-  void reset() {
-    this.set = null;
-  }
-
   @Override
   public boolean isSkipSave() {
     return set == null || (set.isEmpty() && !holdsModifications());

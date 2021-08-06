@@ -54,10 +54,6 @@ public final class BeanList<E> extends AbstractBeanCollection<E> implements List
     this.list = null;
   }
 
-  void reset() {
-    this.list = null;
-  }
-
   @Override
   public boolean isSkipSave() {
     return list == null || (list.isEmpty() && !holdsModifications());

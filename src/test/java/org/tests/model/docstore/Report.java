@@ -24,7 +24,6 @@ public abstract class Report implements OwnerBeanAware {
   private List<Report> embeddedReports;
 
   @OneToMany
-  //@DbJson
   private List<ReportComment> comments = new ArrayList<>();
 
   @Transient

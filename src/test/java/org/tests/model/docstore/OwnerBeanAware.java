@@ -3,6 +3,8 @@ package org.tests.model.docstore;
 import java.util.Collection;
 import java.util.Map;
 
+import io.ebean.bean.BeanCollection;
+
 /**
  * Interface for beans that need to know it's parent.
  * @author Roland Praml, FOCONIS AG
@@ -13,9 +15,13 @@ public interface OwnerBeanAware {
     void setOwnerBeanInfo(Object parent, String propertyName, Object additionalKey);
 
     public static void postJsonGet(Object bean, Object obj, String fieldName) {
+
       if (obj instanceof OwnerBeanAware) {
         ((OwnerBeanAware) obj).setOwnerBeanInfo(bean, fieldName, null);
       } else if (obj instanceof Collection) {
+        if (obj instanceof BeanCollection && !((BeanCollection) obj).isPopulated()) {
+          return; // skip unpopulated!
+        }
         int i = 0;
         for (Object el:(Collection)obj) {
           if (el != null) {
@@ -27,6 +33,9 @@ public interface OwnerBeanAware {
           }
         }
       } else if (obj instanceof Map) {
+        if (obj instanceof BeanCollection && !((BeanCollection) obj).isPopulated()) {
+          return;
+        }
         int i = 0;
         for (Map.Entry<?,?> el:((Map<?,?>)obj).entrySet()) {
           if (el != null) {

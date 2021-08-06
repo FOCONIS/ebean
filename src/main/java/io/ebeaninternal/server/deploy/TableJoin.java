@@ -62,9 +62,9 @@ public final class TableJoin {
 
   private TableJoin(TableJoin source, String overrideColumn) {
     this.foreignKey = null;
+    this.extraWhere = source.extraWhere;
     this.table = source.table;
     this.type = source.type;
-    this.extraWhere = source.extraWhere;
     this.inheritInfo = source.inheritInfo;
     this.columns = new TableJoinColumn[1];
     this.columns[0] = source.columns[0].withOverrideColumn(overrideColumn);
