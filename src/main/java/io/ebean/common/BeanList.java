@@ -63,8 +63,7 @@ public final class BeanList<E> extends AbstractBeanCollection<E> implements List
     this.list = null;
   }
 
-  @Override
-  public void reset() {
+  void reset() {
     this.list = null;
   }
 

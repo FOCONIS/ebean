@@ -57,8 +57,7 @@ public final class BeanSet<E> extends AbstractBeanCollection<E> implements Set<E
     this.set = null;
   }
 
-  @Override
-  public void reset() {
+  void reset() {
     this.set = null;
   }
 

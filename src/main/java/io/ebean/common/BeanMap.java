@@ -56,8 +56,7 @@ public final class BeanMap<K, E> extends AbstractBeanCollection<E> implements Ma
     this.map = null;
   }
 
-  @Override
-  public void reset() {
+  void reset() {
     this.map = null;
   }
 

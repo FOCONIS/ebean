@@ -39,6 +39,7 @@ import io.ebeaninternal.server.type.ScalarType;
 import io.ebeaninternal.server.type.ScalarTypeBoolean;
 import io.ebeaninternal.server.type.ScalarTypeEnum;
 import io.ebeaninternal.server.type.ScalarTypeLogicalType;
+import io.ebeaninternal.util.ValueUtil;
 import io.ebeanservice.docstore.api.mapping.DocMappingBuilder;
 import io.ebeanservice.docstore.api.mapping.DocPropertyMapping;
 import io.ebeanservice.docstore.api.mapping.DocPropertyOptions;
