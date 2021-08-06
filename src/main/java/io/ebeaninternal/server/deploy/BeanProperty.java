@@ -640,11 +640,6 @@ public class BeanProperty implements ElPropertyValue, Property, STreeProperty {
   }
 
   @Override
-  public void loadOptional(SqlBeanLoad sqlBeanLoad) {
-    loadIgnore(sqlBeanLoad.ctx());
-  }
-
-  @Override
   public void load(SqlBeanLoad sqlBeanLoad) {
     sqlBeanLoad.load(this);
   }
