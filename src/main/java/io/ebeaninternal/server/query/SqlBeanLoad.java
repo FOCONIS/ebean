@@ -1,14 +1,13 @@
 package io.ebeaninternal.server.query;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-
 import io.ebean.bean.EntityBean;
 import io.ebean.bean.EntityBeanIntercept;
 import io.ebeaninternal.api.SpiQuery.Mode;
 import io.ebeaninternal.server.deploy.BeanProperty;
 import io.ebeaninternal.server.deploy.DbReadContext;
+
+import java.util.Collection;
+import java.util.Map;
 
 /**
  * Controls the loading of property data into a bean.
@@ -72,14 +71,6 @@ public class SqlBeanLoad {
     }
   }
 
-  public void loadInMap(BeanProperty target, String mapKey, Object dbVal) {
-    Map<String, Object> map = (Map<String, Object>) target.getValue(bean);
-    if (map == null) {
-      map = new HashMap<>();
-      target.setValue(bean, map);
-    }
-    map.put(mapKey, dbVal);
-  }
   /**
    * Load the given value into the property.
    */

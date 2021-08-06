@@ -33,11 +33,10 @@ import javax.persistence.IdClass;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+import java.util.Set;
 
 import static io.ebean.util.AnnotationUtil.findAnnotationRecursive;
 import static io.ebean.util.AnnotationUtil.findAnnotationsRecursive;
-
-import java.util.Set;
 
 /**
  * Read the class level deployment annotations.
@@ -216,12 +215,7 @@ public class AnnotationClass extends AnnotationParser {
       descriptor.addNamedQuery(namedQuery.name(), namedQuery.query());
     }
 
-    Set<EntityImplements> entityImplements;
-    if (descriptor.getInheritInfo() == null || descriptor.getInheritInfo().isRoot()) {
-      entityImplements = AnnotationUtil.findAnnotationsRecursive(cls, EntityImplements.class);
-    } else {
-      entityImplements = AnnotationUtil.findAnnotations(cls, EntityImplements.class);
-    }
+    Set<EntityImplements> entityImplements = AnnotationUtil.findAnnotationsRecursive(cls, EntityImplements.class);
     for (EntityImplements ann : entityImplements) {
       for (Class<?> iface : ann.value()) {
         descriptor.addInterface(iface);

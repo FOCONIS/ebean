@@ -2,9 +2,9 @@ package io.ebeaninternal.server.deploy.parse;
 
 import io.ebean.Model;
 import io.ebean.annotation.DbArray;
-import io.ebean.annotation.DbMap;
 import io.ebean.annotation.DbJson;
 import io.ebean.annotation.DbJsonB;
+import io.ebean.annotation.DbMap;
 import io.ebean.annotation.UnmappedJson;
 import io.ebean.util.AnnotationUtil;
 import io.ebeaninternal.server.deploy.DetermineManyType;

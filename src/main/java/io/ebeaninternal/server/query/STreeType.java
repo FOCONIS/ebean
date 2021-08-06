@@ -113,14 +113,9 @@ public interface STreeType {
   STreeProperty findProperty(String propName);
 
   /**
-   * Checks, if the given name is a dynamic property.
+   * Find and return property allowing for dynamic formula properties.
    */
-  boolean isDynamicPropertyName(String propName);
-
-  /**
-   * Creates a dynamic property allowing for dynamic formula properties.
-   */
-  STreeProperty createDynamicProperty(String formula, String path);
+  STreeProperty findPropertyWithDynamic(String baseName, String path);
 
   /**
    * Return an extra join if the property path requires it.

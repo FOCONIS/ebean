@@ -435,12 +435,6 @@ public final class SqlTreeBuilder {
       return;
     }
 
-    if (desc.isDynamicPropertyName(propName)) {
-      STreeProperty p = desc.createDynamicProperty(propName, queryProps.getPath());
-      selectProps.add(p);
-      return;
-    }
-
     int basePos = propName.indexOf('.');
     if (basePos > -1) {
       // property on an embedded bean. Embedded beans do not yet
@@ -450,9 +444,15 @@ public final class SqlTreeBuilder {
 
       // make sure we only included the base/embedded bean once
       if (!selectProps.containsProperty(baseName)) {
-        STreeProperty p = desc.findProperty(baseName);
+        STreeProperty p = desc.findPropertyWithDynamic(baseName, null);
         if (p == null) {
-          logger.error("property [" + propName + "] not found on " + desc + " for query - excluding it.");
+          // maybe dynamic formula with schema prefix
+          p = desc.findPropertyWithDynamic(propName, null);
+          if (p != null) {
+            selectProps.add(p);
+          } else {
+            logger.error("property [" + propName + "] not found on " + desc + " for query - excluding it.");
+          }
         } else if (p.isEmbedded() || (p instanceof STreePropertyAssoc && !queryProps.isIncludedBeanJoin(p.getName()))) {
           // add the embedded bean or the *ToOne assoc bean.  We skip the check that the *ToOne propName maps to Id property ...
           selectProps.add(p);
@@ -464,7 +464,7 @@ public final class SqlTreeBuilder {
     } else {
       // find the property including searching the
       // sub class hierarchy if required
-      STreeProperty p = desc.findProperty(propName);
+      STreeProperty p = desc.findPropertyWithDynamic(propName, queryProps.getPath());
       if (p == null) {
         logger.error("property [" + propName + "] not found on " + desc + " for query - excluding it.");
         p = desc.findProperty("id");
