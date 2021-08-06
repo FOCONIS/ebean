@@ -4,8 +4,6 @@ import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.Transient;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import java.sql.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,7 +17,6 @@ public class Dog extends Animal {
   Date dateOfBirth;
 
   @Transient
-  @JsonIgnore
   private Map<String, Object> otherProps = new HashMap<>();
 
   public String getRegistrationNumber() {
