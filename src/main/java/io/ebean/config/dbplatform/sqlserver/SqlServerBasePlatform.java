@@ -35,7 +35,7 @@ abstract class SqlServerBasePlatform extends DatabasePlatform {
     this.dbIdentity.setSupportsGetGeneratedKeys(true);
     this.dbIdentity.setSupportsIdentity(true);
     this.dbIdentity.setSupportsSequence(true);
-    this.sequenceBatchMode = false;
+    this.sequenceBatchMode = true;
 
     this.exceptionTranslator =
       new SqlErrorCodes()
@@ -99,7 +99,7 @@ abstract class SqlServerBasePlatform extends DatabasePlatform {
    */
   @Override
   public PlatformIdGenerator createSequenceIdGenerator(BackgroundExecutor be, DataSource ds, int stepSize, String seqName) {
-    return new SqlServerStepSequence(be, ds, seqName, stepSize);
+    return new SqlServerSequenceIdGenerator(be, ds, seqName, sequenceBatchSize);
   }
 
   /**

@@ -6,10 +6,14 @@ import io.ebean.annotation.ForPlatform;
 import io.ebean.annotation.Platform;
 import io.ebean.config.dbplatform.IdType;
 import io.ebeaninternal.api.SpiEbeanServer;
+import jdk.nashorn.internal.ir.GetSplitState;
+
 import org.junit.Test;
 import org.tests.idkeys.db.GenKeyIdentity;
 import org.tests.idkeys.db.GenKeySequence;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -80,6 +84,11 @@ public class TestGeneratedKeys extends BaseTestCase {
           rs = stm.executeQuery("select previous value for " + sequence);
           rs.next();
           return rs.getLong(1);
+          
+        case SQLSERVER17 :
+          rs = stm.executeQuery("SELECT current_value FROM sys.sequences WHERE name = '" + sequence + "'");
+          rs.next();
+          return rs.getLong(1) - 1; // curr_val is the next used variable
           
         default :
           throw new UnsupportedOperationException("reading sequence value from " + spiEbeanServer().getDatabasePlatform().getPlatform() + " is not supported.");
