@@ -365,6 +365,10 @@ public class InternalConfiguration {
   Persister createPersister(SpiEbeanServer server) {
     return new DefaultPersister(server, binder, beanDescriptorManager);
   }
+  
+  public DataSourceSupplier getDataSourceSupplier() {
+    return dataSourceSupplier;
+  }
 
   public SpiCacheManager getCacheManager() {
     return cacheManager;
@@ -485,13 +489,6 @@ public class InternalConfiguration {
     }
   }
   
-  /**
-   * @return the dataSourceSupplier
-   */
-  public DataSourceSupplier getDataSourceSupplier() {
-    return dataSourceSupplier;
-  }
-
   /**
    * Return true if autoCommit mode is on.
    */

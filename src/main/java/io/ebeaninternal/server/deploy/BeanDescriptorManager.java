@@ -1540,40 +1540,44 @@ public class BeanDescriptorManager implements BeanDescriptorMap {
       }
       
       int stepSize = desc.getSequenceAllocationSize();
-      desc.setIdGenerator(new PlatformIdGenerator() {
-        
-        Map<DataSource, PlatformIdGenerator> map = Collections.synchronizedMap(new WeakHashMap<>());
-        
-        private PlatformIdGenerator create() {
-          return createSequenceIdGenerator(seqName, stepSize);
-        }
-        
-        private PlatformIdGenerator get() {
-          return map.computeIfAbsent(dataSourceSupplier.getDataSource(), k -> create());
-        }
-        
-        @Override
-        public void preAllocateIds(int allocateSize) {
-          get().preAllocateIds(allocateSize);
-          
-        }
-        
-        @Override
-        public Object nextId(Transaction transaction) {
-          return get().nextId(transaction);
-        }
-        
-        @Override
-        public boolean isDbSequence() {
-          return get().isDbSequence();
-        }
-        
-        @Override
-        public String getName() {
-          return get().getName();
-        }
-      });
+      desc.setIdGenerator(createIdGenerator(seqName, stepSize));
     }
+  }
+  
+  private PlatformIdGenerator createIdGenerator(String seqName, int stepSize) {
+    return new PlatformIdGenerator() {
+      
+      private Map<DataSource, PlatformIdGenerator> map = Collections.synchronizedMap(new WeakHashMap<>());
+      
+      private PlatformIdGenerator create() {
+        return createSequenceIdGenerator(seqName, stepSize);
+      }
+      
+      private PlatformIdGenerator get() {
+        return map.computeIfAbsent(dataSourceSupplier.getDataSource(), k -> create());
+      }
+      
+      @Override
+      public void preAllocateIds(int allocateSize) {
+        get().preAllocateIds(allocateSize);
+        
+      }
+      
+      @Override
+      public Object nextId(Transaction transaction) {
+        return get().nextId(transaction);
+      }
+      
+      @Override
+      public boolean isDbSequence() {
+        return get().isDbSequence();
+      }
+      
+      @Override
+      public String getName() {
+        return get().getName();
+      }
+    };
   }
 
   private PlatformIdGenerator createSequenceIdGenerator(String seqName, int stepSize) {
