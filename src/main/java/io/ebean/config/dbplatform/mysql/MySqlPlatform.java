@@ -1,14 +1,18 @@
 package io.ebean.config.dbplatform.mysql;
 
+import io.ebean.BackgroundExecutor;
 import io.ebean.Query;
 import io.ebean.annotation.Platform;
 import io.ebean.config.dbplatform.DatabasePlatform;
 import io.ebean.config.dbplatform.DbPlatformType;
 import io.ebean.config.dbplatform.DbType;
 import io.ebean.config.dbplatform.IdType;
+import io.ebean.config.dbplatform.PlatformIdGenerator;
 import io.ebean.config.dbplatform.SqlErrorCodes;
 
 import java.sql.Types;
+
+import javax.sql.DataSource;
 
 /**
  * MySQL specific platform.
@@ -35,6 +39,7 @@ public class MySqlPlatform extends DatabasePlatform {
     this.dbIdentity.setSupportsGetGeneratedKeys(true);
     this.dbIdentity.setSupportsIdentity(true);
     this.dbIdentity.setSupportsSequence(false);
+    this.sequenceBatchMode = false;
 
     this.dbDefaultValue.setNow("now(6)"); // must have same precision as TIMESTAMP
     this.dbDefaultValue.setFalse("0");
@@ -70,6 +75,18 @@ public class MySqlPlatform extends DatabasePlatform {
   protected String withForUpdate(String sql, Query.ForUpdate forUpdateMode) {
     // NOWAIT and SKIP LOCKED currently not supported with MySQL
     return sql + " for update";
+  }
+  
+  @Override
+  protected void configureIdType(IdType idType) {
+    if (idType == IdType.SEQUENCE) {
+      this.dbIdentity.setSupportsSequence(true);
+    }
+    super.configureIdType(idType);
+  }
+  
+  public PlatformIdGenerator createSequenceIdGenerator(BackgroundExecutor be, DataSource ds, int stepSize, String seqName) {
+    return new MySqlSequence(be, ds, seqName, stepSize);
   }
 
 }
