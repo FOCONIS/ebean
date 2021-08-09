@@ -3,6 +3,7 @@ package io.ebeaninternal.server.deploy;
 import io.ebean.BackgroundExecutor;
 import io.ebean.Model;
 import io.ebean.RawSqlBuilder;
+import io.ebean.Transaction;
 import io.ebean.annotation.ConstraintMode;
 import io.ebean.bean.BeanCollection;
 import io.ebean.bean.EntityBean;
@@ -56,6 +57,7 @@ import io.ebeaninternal.server.properties.BeanPropertiesReader;
 import io.ebeaninternal.server.properties.BeanPropertyAccess;
 import io.ebeaninternal.server.properties.EnhanceBeanPropertyAccess;
 import io.ebeaninternal.server.query.CQueryPlan;
+import io.ebeaninternal.server.transaction.DataSourceSupplier;
 import io.ebeaninternal.server.type.ScalarType;
 import io.ebeaninternal.server.type.ScalarTypeInteger;
 import io.ebeaninternal.server.type.TypeManager;
@@ -86,6 +88,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.WeakHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -171,7 +174,7 @@ public class BeanDescriptorManager implements BeanDescriptorMap {
 
   private final DbIdentity dbIdentity;
 
-  private final DataSource dataSource;
+  private final DataSourceSupplier dataSourceSupplier;
 
   private final DatabasePlatform databasePlatform;
 
@@ -215,7 +218,7 @@ public class BeanDescriptorManager implements BeanDescriptorMap {
     this.cacheManager = config.getCacheManager();
     this.docStoreFactory = config.getDocStoreFactory();
     this.backgroundExecutor = config.getBackgroundExecutor();
-    this.dataSource = serverConfig.getDataSource();
+    this.dataSourceSupplier = config.getDataSourceSupplier();
     this.encryptKeyManager = serverConfig.getEncryptKeyManager();
     this.databasePlatform = serverConfig.getDatabasePlatform();
     this.multiValueBind = config.getMultiValueBind();
@@ -1521,8 +1524,9 @@ public class BeanDescriptorManager implements BeanDescriptorMap {
     }
 
     if (IdType.SEQUENCE == desc.getIdType()) {
-      String seqName = desc.getIdGeneratorName();
-      if (seqName != null) {
+      String seqName;
+      if (desc.getIdGeneratorName() != null) {
+        seqName = desc.getIdGeneratorName();
         logger.debug("explicit sequence {} on {}", seqName, desc.getFullName());
       } else {
         String primaryKeyColumn = desc.getSinglePrimaryKeyColumn();
@@ -1534,13 +1538,46 @@ public class BeanDescriptorManager implements BeanDescriptorMap {
         // use sequence next step 1 as we are going to batch fetch them instead
         desc.setSequenceAllocationSize(1);
       }
+      
       int stepSize = desc.getSequenceAllocationSize();
-      desc.setIdGenerator(createSequenceIdGenerator(seqName, stepSize));
+      desc.setIdGenerator(new PlatformIdGenerator() {
+        
+        Map<DataSource, PlatformIdGenerator> map = Collections.synchronizedMap(new WeakHashMap<>());
+        
+        private PlatformIdGenerator create() {
+          return createSequenceIdGenerator(seqName, stepSize);
+        }
+        
+        private PlatformIdGenerator get() {
+          return map.computeIfAbsent(dataSourceSupplier.getDataSource(), k -> create());
+        }
+        
+        @Override
+        public void preAllocateIds(int allocateSize) {
+          get().preAllocateIds(allocateSize);
+          
+        }
+        
+        @Override
+        public Object nextId(Transaction transaction) {
+          return get().nextId(transaction);
+        }
+        
+        @Override
+        public boolean isDbSequence() {
+          return get().isDbSequence();
+        }
+        
+        @Override
+        public String getName() {
+          return get().getName();
+        }
+      });
     }
   }
 
   private PlatformIdGenerator createSequenceIdGenerator(String seqName, int stepSize) {
-    return databasePlatform.createSequenceIdGenerator(backgroundExecutor, dataSource, stepSize, seqName);
+    return databasePlatform.createSequenceIdGenerator(backgroundExecutor, dataSourceSupplier.getDataSource(), stepSize, seqName);
   }
 
   private void createByteCode(DeployBeanDescriptor<?> deploy) {

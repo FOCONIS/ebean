@@ -2,7 +2,7 @@ package org.multitenant.partition;
 
 import io.ebean.config.CurrentTenantProvider;
 
-class CurrentTenant implements CurrentTenantProvider {
+public class CurrentTenant implements CurrentTenantProvider {
 
   /**
    * Return the current tenantId from the user context.

@@ -167,6 +167,8 @@ public class InternalConfiguration {
 
   private final SpiLogManager logManager;
 
+  private final DataSourceSupplier dataSourceSupplier;
+
   InternalConfiguration(boolean online, ClusterManager clusterManager, SpiBackgroundExecutor backgroundExecutor,
                                ServerConfig serverConfig, BootupClasses bootupClasses) {
 
@@ -198,6 +200,7 @@ public class InternalConfiguration {
     InternalConfigXmlRead xmlRead = new InternalConfigXmlRead(serverConfig);
 
     this.dtoBeanManager = new DtoBeanManager(typeManager, xmlRead.readDtoMapping());
+    this.dataSourceSupplier = createDataSourceSupplier();
     this.beanDescriptorManager = new BeanDescriptorManager(this);
     Map<String, String> asOfTableMapping = beanDescriptorManager.deploy(xmlRead.xmlDeployment());
     Map<String, String> draftTableMap = beanDescriptorManager.getDraftTableMap();
@@ -437,8 +440,8 @@ public class InternalConfiguration {
 
     TransactionManagerOptions options =
       new TransactionManagerOptions(notifyL2CacheInForeground, serverConfig, scopeManager, clusterManager, backgroundExecutor,
-                                    indexUpdateProcessor, beanDescriptorManager, dataSource(), profileHandler(), logManager,
-                                    tableModState, cacheNotify, clockService);
+                                    indexUpdateProcessor, beanDescriptorManager, getDataSourceSupplier(), profileHandler(), 
+                                    logManager, tableModState, cacheNotify, clockService);
 
     if (serverConfig.isExplicitTransactionBeginMode()) {
       return new ExplicitTransactionManager(options);
@@ -468,7 +471,7 @@ public class InternalConfiguration {
   /**
    * Return the DataSource supplier based on the tenancy mode.
    */
-  private DataSourceSupplier dataSource() {
+  private DataSourceSupplier createDataSourceSupplier() {
     switch (serverConfig.getTenantMode()) {
       case DB:
       case DB_WITH_MASTER:
@@ -480,6 +483,13 @@ public class InternalConfiguration {
       default:
         return new SimpleDataSourceProvider(serverConfig.getDataSource(), serverConfig.getReadOnlyDataSource());
     }
+  }
+  
+  /**
+   * @return the dataSourceSupplier
+   */
+  public DataSourceSupplier getDataSourceSupplier() {
+    return dataSourceSupplier;
   }
 
   /**
