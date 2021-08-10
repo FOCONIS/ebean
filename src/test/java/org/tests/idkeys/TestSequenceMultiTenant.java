@@ -83,7 +83,6 @@ public class TestSequenceMultiTenant {
 
     config.setName("h2multitenantseq");
     config.loadFromProperties();
-    config.setDdlGenerate(false);
     config.setDdlRun(true);
     config.setDdlExtra(false);
     config.setRegister(false);
