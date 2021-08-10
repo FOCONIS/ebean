@@ -1540,17 +1540,17 @@ public class BeanDescriptorManager implements BeanDescriptorMap {
       }
       
       int stepSize = desc.getSequenceAllocationSize();
-      desc.setIdGenerator(createIdGenerator(seqName, stepSize));
+      desc.setIdGenerator(createSequenceIdGenerator(seqName, stepSize));
     }
   }
   
-  private PlatformIdGenerator createIdGenerator(String seqName, int stepSize) {
+  private PlatformIdGenerator createSequenceIdGenerator(String seqName, int stepSize) {
     return new PlatformIdGenerator() {
       
       private Map<DataSource, PlatformIdGenerator> map = Collections.synchronizedMap(new WeakHashMap<>());
       
       private PlatformIdGenerator create() {
-        return createSequenceIdGenerator(seqName, stepSize);
+        return databasePlatform.createSequenceIdGenerator(backgroundExecutor, dataSourceSupplier.getDataSource(), stepSize, seqName);
       }
       
       private PlatformIdGenerator get() {
@@ -1578,10 +1578,6 @@ public class BeanDescriptorManager implements BeanDescriptorMap {
         return get().getName();
       }
     };
-  }
-
-  private PlatformIdGenerator createSequenceIdGenerator(String seqName, int stepSize) {
-    return databasePlatform.createSequenceIdGenerator(backgroundExecutor, dataSourceSupplier.getDataSource(), stepSize, seqName);
   }
 
   private void createByteCode(DeployBeanDescriptor<?> deploy) {
