@@ -413,6 +413,14 @@ public final class EntityBeanIntercept implements Serializable {
     this.owner._ebean_setEmbeddedLoaded();
     this.lazyLoadProperty = -1;
     this.origValues = null;
+    if (mutableNext != null) {
+      for (int i = 0; i < mutableNext.length; i++) {
+        MutableValueNext next = mutableNext[i];
+        if (next != null) {
+          mutableInfo(i, next.info());
+        }
+      }
+    }
     this.mutableNext = null;
     for (int i = 0; i < flags.length; i++) {
       flags[i] &= ~(FLAG_CHANGED_PROP | FLAG_ORIG_VALUE_SET);
@@ -1271,7 +1279,6 @@ public final class EntityBeanIntercept implements Serializable {
       return null;
     }
     final MutableValueNext next = mutableNext[propertyIndex];
-    mutableInfo(propertyIndex, next.info());
     return next.content();
   }
 
