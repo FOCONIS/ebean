@@ -24,25 +24,25 @@ import io.ebean.config.dbplatform.h2.H2Platform;
 public class TestSequenceMultiTenant {
 
   /**
-   *  Tests sequences using multi tenancy per database
+   * Tests sequences using multi tenancy per database
    */
   @Test
   public void test_multi_tenant_sequences() {
-    
+
     EbeanServer db = init();
-    
+
     UserContext.set("4711", "1");
     assertEquals(1L, db.nextId(GenKeySequence.class));
     assertEquals(2L, db.nextId(GenKeySequence.class));
-    
+
     UserContext.set("5711", "2");
     assertEquals(1L, db.nextId(GenKeySequence.class));
-    
+
     UserContext.set("4711", "1");
     assertEquals(3L, db.nextId(GenKeySequence.class));
-    
+
   }
-  
+
   private static EbeanServer init() {
 
     ServerConfig config = new ServerConfig();
@@ -58,26 +58,26 @@ public class TestSequenceMultiTenant {
     config.setTenantMode(TenantMode.DB);
     config.setDatabasePlatform(new H2Platform());
     config.setTenantDataSourceProvider(new TenantDataSourceProvider() {
-      
+
       Map<Object, DataSource> map = new ConcurrentHashMap<>();
-      
+
       @Override
       public DataSource dataSource(Object tenantId) {
         if (tenantId == null) {
           tenantId = "1";
         }
-        return map.computeIfAbsent(tenantId, TestSequenceMultiTenant::createDataSource);
+        return map.computeIfAbsent(tenantId,
+            TestSequenceMultiTenant::createDataSource);
       }
     });
-    
+
     config.getClasses().add(GenKeySequence.class);
-    
 
     return EbeanServerFactory.create(config);
   }
-  
+
   private static DataSource createDataSource(Object tenantId) {
-    
+
     ServerConfig config = new ServerConfig();
 
     config.setName("h2multitenantseq");
@@ -86,11 +86,12 @@ public class TestSequenceMultiTenant {
     config.setDdlExtra(false);
     config.setRegister(false);
     config.setDefaultServer(false);
-    config.getDataSourceConfig().setUrl("jdbc:h2:mem:h2multitenantseq-" + tenantId);
-      
+    config.getDataSourceConfig()
+        .setUrl("jdbc:h2:mem:h2multitenantseq-" + tenantId);
+
     EbeanServer server = EbeanServerFactory.create(config);
-    
+
     return server.getPluginApi().getDataSource();
   }
-  
+
 }
