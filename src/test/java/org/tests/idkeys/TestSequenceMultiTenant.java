@@ -8,7 +8,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.sql.DataSource;
 
 import org.junit.Test;
-import org.multitenant.partition.CurrentTenant;
 import org.multitenant.partition.UserContext;
 import org.tests.idkeys.db.GenKeySequence;
 
@@ -55,7 +54,7 @@ public class TestSequenceMultiTenant {
     config.setDdlExtra(false);
     config.setRegister(false);
     config.setDefaultServer(false);
-    config.setCurrentTenantProvider(new CurrentTenant());
+    config.setCurrentTenantProvider(() -> UserContext.get().getTenantId());
     config.setTenantMode(TenantMode.DB);
     config.setDatabasePlatform(new H2Platform());
     config.setTenantDataSourceProvider(new TenantDataSourceProvider() {
