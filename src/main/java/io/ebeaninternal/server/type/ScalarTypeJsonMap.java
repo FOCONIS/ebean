@@ -14,83 +14,86 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.Map;
 
 /**
- * Type which maps Map<String,Object> to various DB types (Clob, Varchar, Blob) in JSON format.
+ * Type which maps Map<String,Object> to various DB types (Clob, Varchar, Blob)
+ * in JSON format.
  */
 @SuppressWarnings("rawtypes")
 public abstract class ScalarTypeJsonMap extends ScalarTypeBase<Map> {
 
-  private static final ScalarTypeJsonMap CLOB = new ScalarTypeJsonMap.Clob();
-  private static final ScalarTypeJsonMap BLOB = new ScalarTypeJsonMap.Blob();
-  private static final ScalarTypeJsonMap VARCHAR = new ScalarTypeJsonMap.Varchar();
-  private static final ScalarTypeJsonMap JSON = new ScalarTypeJsonMapPostgres.JSON();
-  private static final ScalarTypeJsonMap JSONB = new ScalarTypeJsonMapPostgres.JSONB();
-
   /**
    * Return the ScalarType for the requested dbType and postgres.
    */
-  public static ScalarTypeJsonMap typeFor(boolean postgres, int dbType) {
-
+  public static ScalarTypeJsonMap typeFor(boolean postgres, int dbType, boolean keepSource) {
     switch (dbType) {
-      case Types.VARCHAR:
-        return VARCHAR;
-      case Types.BLOB:
-        return BLOB;
-      case Types.CLOB:
-        return CLOB;
-      case DbPlatformType.JSONB:
-        return postgres ? JSONB : CLOB;
-      case DbPlatformType.JSON:
-        return postgres ? JSON : CLOB;
-      default:
-        throw new IllegalStateException("Unknown dbType " + dbType);
+    case Types.VARCHAR:
+      return new ScalarTypeJsonMap.Varchar(keepSource);
+    case Types.BLOB:
+      return new ScalarTypeJsonMap.Blob(keepSource);
+    case Types.CLOB:
+      return new ScalarTypeJsonMap.Clob(keepSource);
+    case DbPlatformType.JSONB:
+      return postgres ? new ScalarTypeJsonMapPostgres.JSONB(keepSource) : new ScalarTypeJsonMap.Clob(keepSource);
+    case DbPlatformType.JSON:
+      return postgres ? new ScalarTypeJsonMapPostgres.JSON(keepSource) : new ScalarTypeJsonMap.Clob(keepSource);
+    default:
+      throw new IllegalStateException("Unknown dbType " + dbType);
     }
   }
 
   public static class Clob extends ScalarTypeJsonMap {
 
-    public Clob() {
-      super(Types.CLOB);
+    public Clob(boolean keepSource) {
+      super(Types.CLOB, keepSource);
     }
 
     @Override
-    public Map read(DataReader dataReader) throws SQLException {
-
-      String content = dataReader.getStringFromStream();
-      if (content == null) {
-        return null;
-      }
-      return parse(content);
+    protected String readJson(DataReader reader) throws SQLException {
+      return reader.getStringFromStream();
     }
   }
 
   public static class Varchar extends ScalarTypeJsonMap {
 
-    public Varchar() {
-      super(Types.VARCHAR);
+    public Varchar(boolean keepSource) {
+      super(Types.VARCHAR, keepSource);
     }
   }
 
   public static class Blob extends ScalarTypeJsonMap {
-    public Blob() {
-      super(Types.BLOB);
+    public Blob(boolean keepSource) {
+      super(Types.BLOB, keepSource);
     }
 
     @Override
-    public Map read(DataReader dataReader) throws SQLException {
+    public Map read(DataReader reader) throws SQLException {
 
-      InputStream is = dataReader.getBinaryStream();
+      InputStream is = reader.getBinaryStream();
       if (is == null) {
+        if (isJsonMapper()) {
+          reader.pushJson(null);
+        }
         return null;
       }
       try {
-        try (InputStreamReader reader = new InputStreamReader(is)) {
-          return parse(reader);
+        if (isJsonMapper()) {
+          StringWriter rawJson = new StringWriter();
+          try (InputStreamReader inputStreamReader = new InputStreamReader(is, StandardCharsets.UTF_8)) {
+            throw new UnsupportedOperationException(); // gibts bei uns noch nicht und wir verwenden keine Maps
+          }
+//           reader.pushJson(rawJson.toString());
+//           return parse(rawJson.toString());
+
+        } else {
+          try (InputStreamReader inputStreamReader = new InputStreamReader(is, StandardCharsets.UTF_8)) {
+            return parse(inputStreamReader);
+          }
         }
       } catch (IOException e) {
         throw new SQLException("Error reading Blob stream from DB", e);
@@ -98,19 +101,22 @@ public abstract class ScalarTypeJsonMap extends ScalarTypeBase<Map> {
     }
 
     @Override
-    public void bind(DataBind b, Map value) throws SQLException {
-
-      if (value == null) {
-        b.setNull(Types.BLOB);
-      } else {
-        String rawJson = formatValue(value);
-        b.setBytes(rawJson.getBytes(StandardCharsets.UTF_8));
-      }
+    protected void bindNull(DataBind binder) throws SQLException {
+      binder.setNull(Types.BLOB);
     }
+
+    @Override
+    protected void bindJson(DataBind binder, String rawJson) throws SQLException {
+      binder.setBytes(rawJson.getBytes(StandardCharsets.UTF_8));
+    }
+
   }
 
-  public ScalarTypeJsonMap(int jdbcType) {
+  private final boolean keepSource;
+
+  public ScalarTypeJsonMap(int jdbcType, boolean keepSource) {
     super(Map.class, false, jdbcType);
+    this.keepSource = keepSource;
   }
 
   /**
@@ -122,7 +128,8 @@ public abstract class ScalarTypeJsonMap extends ScalarTypeBase<Map> {
   }
 
   /**
-   * Return true if the value should be considered dirty (and included in an update).
+   * Return true if the value should be considered dirty (and included in an
+   * update).
    */
   @Override
   public boolean isDirty(Object value) {
@@ -130,24 +137,50 @@ public abstract class ScalarTypeJsonMap extends ScalarTypeBase<Map> {
   }
 
   @Override
-  public Map read(DataReader dataReader) throws SQLException {
-
-    String rawJson = dataReader.getString();
-    if (rawJson == null) {
-      return null;
-    }
-    return parse(rawJson);
+  public boolean isJsonMapper() {
+    return keepSource;
   }
 
   @Override
-  public void bind(DataBind b, Map value) throws SQLException {
+
+  public Map read(DataReader reader) throws SQLException {
+    String rawJson = readJson(reader);
+    if (isJsonMapper()) {
+      reader.pushJson(rawJson);
+    }
+
+    if (rawJson == null) {
+      return null;
+    }
+
+    return parse(rawJson);
+  }
+
+  protected String readJson(DataReader reader) throws SQLException {
+    return reader.getString();
+  }
+
+  @Override
+
+  public final void bind(DataBind binder, Map value) throws SQLException {
+    String rawJson = isJsonMapper() ? binder.popJson() : null;
+    if (rawJson == null && value != null) {
+      rawJson = formatValue(value);
+    }
 
     if (value == null) {
-      b.setNull(Types.VARCHAR);
+      bindNull(binder);
     } else {
-      String rawJson = formatValue(value);
-      b.setString(rawJson);
+      bindJson(binder, rawJson);
     }
+  }
+
+  protected void bindNull(DataBind binder) throws SQLException {
+    binder.setNull(Types.VARCHAR);
+  }
+
+  protected void bindJson(DataBind binder, String rawJson) throws SQLException {
+    binder.setString(rawJson);
   }
 
   @Override
