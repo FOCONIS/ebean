@@ -14,7 +14,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.sql.Types;
@@ -35,7 +34,7 @@ public abstract class ScalarTypeJsonMap extends ScalarTypeBase<Map> {
     case Types.VARCHAR:
       return new ScalarTypeJsonMap.Varchar(keepSource);
     case Types.BLOB:
-      return new ScalarTypeJsonMap.Blob(keepSource);
+      return new ScalarTypeJsonMap.Blob();
     case Types.CLOB:
       return new ScalarTypeJsonMap.Clob(keepSource);
     case DbPlatformType.JSONB:
@@ -67,8 +66,8 @@ public abstract class ScalarTypeJsonMap extends ScalarTypeBase<Map> {
   }
 
   public static class Blob extends ScalarTypeJsonMap {
-    public Blob(boolean keepSource) {
-      super(Types.BLOB, keepSource);
+    public Blob() {
+      super(Types.BLOB, false); // in ebean 11 no KeepSource!
     }
 
     @Override
@@ -76,24 +75,11 @@ public abstract class ScalarTypeJsonMap extends ScalarTypeBase<Map> {
 
       InputStream is = reader.getBinaryStream();
       if (is == null) {
-        if (isJsonMapper()) {
-          reader.pushJson(null);
-        }
         return null;
       }
       try {
-        if (isJsonMapper()) {
-          StringWriter rawJson = new StringWriter();
-          try (InputStreamReader inputStreamReader = new InputStreamReader(is, StandardCharsets.UTF_8)) {
-            throw new UnsupportedOperationException(); // gibts bei uns noch nicht und wir verwenden keine Maps
-          }
-//           reader.pushJson(rawJson.toString());
-//           return parse(rawJson.toString());
-
-        } else {
-          try (InputStreamReader inputStreamReader = new InputStreamReader(is, StandardCharsets.UTF_8)) {
-            return parse(inputStreamReader);
-          }
+        try (InputStreamReader inputStreamReader = new InputStreamReader(is, StandardCharsets.UTF_8)) {
+          return parse(inputStreamReader);
         }
       } catch (IOException e) {
         throw new SQLException("Error reading Blob stream from DB", e);
