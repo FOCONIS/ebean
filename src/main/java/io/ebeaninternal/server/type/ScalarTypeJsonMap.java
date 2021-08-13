@@ -67,8 +67,8 @@ public abstract class ScalarTypeJsonMap extends ScalarTypeBase<Map> {
   }
 
   public static class Blob extends ScalarTypeJsonMap {
-    public Blob() {
-      super(Types.BLOB, false); // in ebean 11 no KeepSource!
+    public Blob(boolean keepSource) {
+      super(Types.BLOB, keepSource);
     }
 
     @Override
@@ -76,11 +76,24 @@ public abstract class ScalarTypeJsonMap extends ScalarTypeBase<Map> {
 
       InputStream is = reader.getBinaryStream();
       if (is == null) {
+        if (isJsonMapper()) {
+          reader.pushJson(null);
+        }
         return null;
       }
       try {
-        try (InputStreamReader inputStreamReader = new InputStreamReader(is, StandardCharsets.UTF_8)) {
-          return parse(inputStreamReader);
+        if (isJsonMapper()) {
+          StringWriter rawJson = new StringWriter();
+          try (InputStreamReader inputStreamReader = new InputStreamReader(is, StandardCharsets.UTF_8)) {
+            throw new UnsupportedOperationException(); // gibts bei uns noch nicht und wir verwenden keine Maps
+          }
+//           reader.pushJson(rawJson.toString());
+//           return parse(rawJson.toString());
+
+        } else {
+          try (InputStreamReader inputStreamReader = new InputStreamReader(is, StandardCharsets.UTF_8)) {
+            return parse(inputStreamReader);
+          }
         }
       } catch (IOException e) {
         throw new SQLException("Error reading Blob stream from DB", e);

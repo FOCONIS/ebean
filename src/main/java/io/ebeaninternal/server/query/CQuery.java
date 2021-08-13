@@ -364,9 +364,7 @@ public class CQuery<T> implements DbReadContext, CancelableQuery, SpiProfileTran
     }
 
     ResultSet ret = pstmt.executeQuery();
-    synchronized (this) {
-      query.checkCancelled();
-    }
+    query.checkCancelled();
     return ret;
   }
 

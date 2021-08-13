@@ -1,5 +1,7 @@
 package io.ebeaninternal.server.querydefn;
 
+import java.util.concurrent.locks.ReentrantLock;
+
 import javax.persistence.PersistenceException;
 
 import io.ebean.CancelableQuery;
@@ -17,15 +19,20 @@ public class AbstractQuery implements SpiCancelableQuery {
 
   private CancelableQuery cancelableQuery;
 
+  private final ReentrantLock lock = new ReentrantLock();
+  
   @Override
   public void cancel() {
-    synchronized (this) {
+    lock.lock();
+    try {
       if (!cancelled) {
         cancelled = true;
         if (cancelableQuery != null) {
           cancelableQuery.cancel();
         }
       }
+    } finally {
+      lock.unlock();
     }
   }
 
@@ -38,9 +45,12 @@ public class AbstractQuery implements SpiCancelableQuery {
 
   @Override
   public void setCancelableQuery(CancelableQuery cancelableQuery) {
-    synchronized (this) {
+    lock.lock();
+    try {
       checkCancelled();
       this.cancelableQuery = cancelableQuery;
+    } finally {
+      lock.unlock();
     }
   }
 }
