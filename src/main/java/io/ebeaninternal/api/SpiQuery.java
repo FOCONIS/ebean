@@ -83,11 +83,6 @@ public interface SpiQuery<T> extends Query<T>, TxnProfileEventCodes, SpiCancelab
     ID_LIST(FIND_ID_LIST, "findIds"),
 
     /**
-     * Find exists.
-     */
-    EXISTS(FIND_EXISTS, "exists"),
-
-    /**
      * Find single attribute.
      */
     ATTRIBUTE(FIND_ATTRIBUTE, "findAttribute"),
@@ -98,14 +93,14 @@ public interface SpiQuery<T> extends Query<T>, TxnProfileEventCodes, SpiCancelab
     COUNT(FIND_COUNT, "findCount"),
 
     /**
-     * A subquery used as part of a exists where clause.
+     * A subquery used as part of an exists where clause.
      */
-    SQ_EXISTS(FIND_SUBQUERY, "exists"),
+    SQ_EXISTS(FIND_SUBQUERY, "sqExists"),
 
     /**
-     * A subquery used as part of a in where clause.
+     * A subquery used as part of an in where clause.
      */
-    SQ_IN(FIND_SUBQUERY, "in"),
+    SQ_IN(FIND_SUBQUERY, "sqIn"),
 
     /**
      * Delete query.
