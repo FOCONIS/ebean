@@ -5,6 +5,7 @@ import io.ebean.bean.EntityBean;
 import io.ebean.bean.EntityBeanIntercept;
 import io.ebean.bean.MutableValueInfo;
 import io.ebean.bean.MutableValueNext;
+import io.ebean.bean.PersistenceContext;
 import io.ebean.text.TextException;
 import io.ebeaninternal.server.deploy.meta.DeployBeanProperty;
 import io.ebeaninternal.server.type.DataReader;
@@ -94,6 +95,18 @@ public class BeanPropertyJsonMapper extends BeanProperty {
       throw new PersistenceException("Error readSet on " + descriptor + "." + name, e);
     }
   }
+
+  @Override
+  public void setCacheDataValue(EntityBean bean, Object cacheData, PersistenceContext context) {
+    if (cacheData instanceof String) {
+      // parse back from string to support optimisation of java object serialisation
+      final MutableValueInfo hash = createMutableInfo((String)cacheData);
+      bean._ebean_getIntercept().mutableInfo(propertyIndex, hash);
+      cacheData = scalarType.parse((String) cacheData);
+    }
+    setValue(bean, cacheData);
+  }
+
 
   private static final class NextPair implements MutableValueNext {
 
