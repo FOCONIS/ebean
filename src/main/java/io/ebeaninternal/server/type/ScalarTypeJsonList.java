@@ -114,7 +114,7 @@ public class ScalarTypeJsonList {
 
     @Override
     public String formatValue(List value) {
-      if (value.isEmpty()) {
+      if (value == null || value.isEmpty()) {
         return "[]";
       }
       try {
