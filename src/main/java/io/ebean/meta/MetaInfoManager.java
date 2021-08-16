@@ -27,7 +27,7 @@ public interface MetaInfoManager {
   void visitMetrics(MetricVisitor visitor);
 
   /**
-   * Run a visitExpression collecting all the metrics and returning BasicMetricVisitor
+   * Run a visit collecting all the metrics and returning BasicMetricVisitor
    * which holds all the metrics in simple lists.
    */
   BasicMetricVisitor visitBasic();

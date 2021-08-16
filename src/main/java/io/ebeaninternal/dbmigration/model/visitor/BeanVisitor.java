@@ -10,7 +10,7 @@ import io.ebeaninternal.server.deploy.BeanDescriptor;
 public interface BeanVisitor {
 
   /**
-   * Visit a BeanDescriptor and return a PropertyVisitor to use to visitExpression each
+   * Visit a BeanDescriptor and return a PropertyVisitor to use to visit each
    * property on the entity bean (return null to skip visiting this bean).
    */
   ModelBuildPropertyVisitor visitBean(BeanDescriptor<?> descriptor);
