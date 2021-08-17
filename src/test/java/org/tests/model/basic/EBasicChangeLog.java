@@ -2,6 +2,7 @@ package org.tests.model.basic;
 
 import io.ebean.annotation.Cache;
 import io.ebean.annotation.ChangeLog;
+import io.ebean.annotation.DbJson;
 import io.ebean.annotation.ReadAudit;
 import io.ebean.annotation.WhenCreated;
 import io.ebean.annotation.WhenModified;
@@ -12,6 +13,9 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Version;
 import javax.validation.constraints.Size;
+
+import org.tests.model.json.PlainBean;
+
 import java.sql.Timestamp;
 
 @Cache(enableQueryCache = true)
@@ -46,6 +50,9 @@ public class EBasicChangeLog {
 
   @Version
   Long version;
+
+  @DbJson(length = 500) // such that we can rebuild old values
+  PlainBean plainBean;
 
   public Long getId() {
     return id;
@@ -117,5 +124,13 @@ public class EBasicChangeLog {
 
   public void setVersion(Long version) {
     this.version = version;
+  }
+
+  public PlainBean getPlainBean() {
+    return plainBean;
+  }
+
+  public void setPlainBean(PlainBean plainBean) {
+    this.plainBean = plainBean;
   }
 }

@@ -6,7 +6,7 @@ import java.util.Map;
 /**
  * Provides for custom handling of json content as it is read.
  * <p>
- * This visitExpression method is called after all the known properties of the bean have
+ * This visit method is called after all the known properties of the bean have
  * been processed. Any JSON elements that could not be mapped to known bean
  * properties are available in the unmapped Map.
  * </p>

@@ -111,14 +111,19 @@ class CQueryRowCount implements SpiProfileTransactionEvent, CancelableQuery {
       SpiTransaction t = getTransaction();
       profileOffset = t.profileOffset();
       Connection conn = t.getInternalConnection();
-      pstmt = conn.prepareStatement(sql);
+      synchronized (this) {
+        query.checkCancelled();
+        pstmt = conn.prepareStatement(sql);
 
-      if (query.getTimeout() > 0) {
-        pstmt.setQueryTimeout(query.getTimeout());
+        if (query.getTimeout() > 0) {
+          pstmt.setQueryTimeout(query.getTimeout());
+        }
+
+        bindLog = predicates.bind(pstmt, conn);
       }
-
-      bindLog = predicates.bind(pstmt, conn);
       rset = pstmt.executeQuery();
+      query.checkCancelled();
+
       if (!rset.next()) {
         throw new PersistenceException("Expecting 1 row but got none?");
       }

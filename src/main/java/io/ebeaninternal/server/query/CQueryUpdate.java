@@ -83,14 +83,18 @@ class CQueryUpdate implements SpiProfileTransactionEvent, CancelableQuery {
       SpiTransaction t = getTransaction();
       profileOffset = t.profileOffset();
       Connection conn = t.getInternalConnection();
-      pstmt = conn.prepareStatement(sql);
+      synchronized (this) {
+        query.checkCancelled();
+        pstmt = conn.prepareStatement(sql);
 
-      if (query.getTimeout() > 0) {
-        pstmt.setQueryTimeout(query.getTimeout());
+        if (query.getTimeout() > 0) {
+          pstmt.setQueryTimeout(query.getTimeout());
+        }
+
+        bindLog = predicates.bind(pstmt, conn);
       }
-
-      bindLog = predicates.bind(pstmt, conn);
       rowCount = pstmt.executeUpdate();
+      query.checkCancelled();
 
       long executionTimeMicros = (System.nanoTime() - startNano) / 1000L;
       request.slowQueryCheck(executionTimeMicros, rowCount);

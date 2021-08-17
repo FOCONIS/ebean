@@ -350,7 +350,7 @@ public final class DefaultTypeManager implements TypeManager {
 
   @Override
   public ScalarType<?> getDbMapScalarType() {
-    return (postgres) ? hstoreType : ScalarTypeJsonMap.typeFor(false, Types.VARCHAR);
+    return (postgres) ? hstoreType : ScalarTypeJsonMap.typeFor(false, Types.VARCHAR, false);
   }
 
   @Override
@@ -365,7 +365,7 @@ public final class DefaultTypeManager implements TypeManager {
         return arrayTypeListFactory.typeFor(valueType);
       }
       // fallback to JSON storage in VARCHAR column
-      return new ScalarTypeJsonList.Varchar(getDocType(valueType));
+      return new ScalarTypeJsonList.Varchar(getDocType(valueType), true);
     } else if (type.equals(Set.class)) {
       if (arrayTypeSetFactory != null) {
         if (isEnumType(valueType)) {
@@ -374,7 +374,7 @@ public final class DefaultTypeManager implements TypeManager {
         return arrayTypeSetFactory.typeFor(valueType);
       }
       // fallback to JSON storage in VARCHAR column
-      return new ScalarTypeJsonSet.Varchar(getDocType(valueType));
+      return new ScalarTypeJsonSet.Varchar(getDocType(valueType), true);
     }
     throw new IllegalStateException("Type [" + type + "] not supported for @DbArray");
   }
@@ -415,7 +415,7 @@ public final class DefaultTypeManager implements TypeManager {
 
     if (type.equals(Map.class)) {
       if (!hasJacksonAnnotations && isMapValueTypeObject(genericType)) {
-        return ScalarTypeJsonMap.typeFor(postgres, dbType);
+        return ScalarTypeJsonMap.typeFor(postgres, dbType, true);
       } else {
         return createJsonObjectMapperType(prop, dbType, DocPropertyType.OBJECT);
       }

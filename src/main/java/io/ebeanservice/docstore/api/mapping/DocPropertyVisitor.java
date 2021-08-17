@@ -1,7 +1,7 @@
 package io.ebeanservice.docstore.api.mapping;
 
 /**
- * Used to visitExpression the properties in a document structure.
+ * Used to visit the properties in a document structure.
  */
 public interface DocPropertyVisitor {
 

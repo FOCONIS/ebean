@@ -19,9 +19,10 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.tests.model.basic.EBasicChangeLog;
+import org.tests.model.json.PlainBean;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 public class TestChangeLog extends BaseTestCase {
 
@@ -118,6 +119,24 @@ public class TestChangeLog extends BaseTestCase {
     assertThat(change.getEvent()).isEqualTo(ChangeType.DELETE);
     assertThat(change.getData()).isNull();
 
+  }
+
+  @Test
+  public void testMutationWithCache() throws Exception {
+    EBasicChangeLog bean = new EBasicChangeLog();
+    bean.setName("Name1");
+    bean.setPlainBean(new PlainBean("foo", 42));
+    server.save(bean);
+    BeanChange change = changeLogListener.changes.getChanges().get(0);
+    assertThat(change.getData()).contains("\"plainBean\"");
+
+    server.find(EBasicChangeLog.class, bean.getId()); // load cache
+    bean = server.find(EBasicChangeLog.class, bean.getId()); // hit cache
+    bean.setShortDescription("Desc");
+    server.save(bean);
+
+    change = changeLogListener.changes.getChanges().get(0);
+    assertThat(change.getData()).doesNotContain("\"plainBean\"");
   }
 
 

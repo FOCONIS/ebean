@@ -150,21 +150,24 @@ class CQueryFetchSingleAttribute implements SpiProfileTransactionEvent, Cancelab
   }
 
   private void prepareExecute() throws SQLException {
+    synchronized (this) {
+      query.checkCancelled();
+      SpiTransaction t = getTransaction();
+      profileOffset = t.profileOffset();
+      Connection conn = t.getInternalConnection();
+      pstmt = conn.prepareStatement(sql);
 
-    SpiTransaction t = getTransaction();
-    profileOffset = t.profileOffset();
-    Connection conn = t.getInternalConnection();
-    pstmt = conn.prepareStatement(sql);
-
-    if (query.getBufferFetchSizeHint() > 0) {
+      if (query.getBufferFetchSizeHint() > 0) {
       pstmt.setFetchSize(query.getBufferFetchSizeHint());
-    }
-    if (query.getTimeout() > 0) {
-      pstmt.setQueryTimeout(query.getTimeout());
-    }
+      }
+      if (query.getTimeout() > 0) {
+        pstmt.setQueryTimeout(query.getTimeout());
+      }
 
-    bindLog = predicates.bind(pstmt, conn);
+      bindLog = predicates.bind(pstmt, conn);
+    }
     dataReader = new RsetDataReader(request.getDataTimeZone(), pstmt.executeQuery());
+    query.checkCancelled();
   }
 
   /**

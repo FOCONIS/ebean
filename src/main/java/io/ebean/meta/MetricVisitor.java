@@ -11,17 +11,17 @@ public interface MetricVisitor {
   boolean isReset();
 
   /**
-   * Return true if we should visitExpression the transaction metrics.
+   * Return true if we should visit the transaction metrics.
    */
   boolean isCollectTransactionMetrics();
 
   /**
-   * Return true if we should visitExpression the ORM and SQL query metrics.
+   * Return true if we should visit the ORM and SQL query metrics.
    */
   boolean isCollectQueryMetrics();
 
   /**
-   * Return true if we should visitExpression the L2 cache metrics.
+   * Return true if we should visit the L2 cache metrics.
    */
   boolean isCollectL2Metrics();
 

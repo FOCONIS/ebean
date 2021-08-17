@@ -139,7 +139,7 @@ public class VisitAllUsing {
 
 
   /**
-   * Helper used to visitExpression all the inheritInfo/BeanDescriptor in
+   * Helper used to visit all the inheritInfo/BeanDescriptor in
    * the inheritance hierarchy (to add their 'local' properties).
    */
   protected static class InheritChildVisitor implements InheritInfoVisitor {
