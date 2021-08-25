@@ -62,4 +62,5 @@ public interface ElPropertyValue extends ElPropertyDeploy, ExpressionPath {
    * automatically populated.
    */
   Object pathGetNested(Object bean);
+
 }

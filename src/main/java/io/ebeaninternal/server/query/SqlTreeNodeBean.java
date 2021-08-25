@@ -372,7 +372,6 @@ class SqlTreeNodeBean implements SqlTreeNode {
       return contextBean;
     }
 
-
     void postLoad() {
       if (!lazyLoadMany && localBean != null) {
         ctx.setCurrentPrefix(prefix, pathMap);
@@ -393,7 +392,6 @@ class SqlTreeNodeBean implements SqlTreeNode {
           // normal bean loading
           ebi.setLoaded();
         }
-
 
         if (disableLazyLoad) {
           // bean does not have an Id or is SqlSelect based

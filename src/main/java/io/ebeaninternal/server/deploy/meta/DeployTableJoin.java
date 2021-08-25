@@ -35,7 +35,6 @@ public class DeployTableJoin {
 
   private String extraWhere;
 
-
   /**
    * Create a DeployTableJoin.
    */
@@ -137,6 +136,11 @@ public class DeployTableJoin {
     this.type = type;
   }
 
+  /**
+   * Returns the clause of an extra &#64;Where annotation.
+   *
+   * @return
+   */
   public String getExtraWhere() {
     return extraWhere;
   }
