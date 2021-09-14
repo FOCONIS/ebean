@@ -1279,6 +1279,9 @@ public final class EntityBeanIntercept implements Serializable {
       return null;
     }
     final MutableValueNext next = mutableNext[propertyIndex];
+    if (next == null) {
+      return null;
+    }
     return next.content();
   }
 

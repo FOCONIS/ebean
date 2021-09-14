@@ -101,7 +101,6 @@ class CQueryFetchSingleAttribute implements SpiProfileTransactionEvent, Cancelab
    */
   List<Object> findList() throws SQLException {
 
-
     long startNano = System.nanoTime();
     try {
       prepareExecute();
@@ -158,7 +157,7 @@ class CQueryFetchSingleAttribute implements SpiProfileTransactionEvent, Cancelab
       pstmt = conn.prepareStatement(sql);
 
       if (query.getBufferFetchSizeHint() > 0) {
-      pstmt.setFetchSize(query.getBufferFetchSizeHint());
+        pstmt.setFetchSize(query.getBufferFetchSizeHint());
       }
       if (query.getTimeout() > 0) {
         pstmt.setQueryTimeout(query.getTimeout());

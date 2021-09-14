@@ -1,7 +1,7 @@
 package io.ebeaninternal.server.core;
 
-import io.ebean.EbeanServer;
 import io.ebean.CancelableQuery;
+import io.ebean.EbeanServer;
 import io.ebean.Transaction;
 import io.ebean.util.JdbcClose;
 import io.ebeaninternal.api.BindParams;
@@ -152,7 +152,8 @@ public abstract class AbstractSqlQueryRequest implements CancelableQuery {
   }
 
   protected void executeAsSql(Binder binder) throws SQLException {
-    synchronized(this) {
+
+    synchronized (this) {
       query.checkCancelled();
       prepareSql();
       Connection conn = trans.getInternalConnection();
