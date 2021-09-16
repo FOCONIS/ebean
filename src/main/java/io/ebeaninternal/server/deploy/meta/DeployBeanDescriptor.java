@@ -15,7 +15,6 @@ import io.ebean.event.BeanPostConstructListener;
 import io.ebean.event.BeanPostLoad;
 import io.ebean.event.BeanQueryAdapter;
 import io.ebean.event.changelog.ChangeLogFilter;
-import io.ebean.plugin.DeployBeanDescriptorMeta;
 import io.ebean.text.PathProperties;
 import io.ebean.util.AnnotationUtil;
 import io.ebeaninternal.api.ConcurrencyMode;
@@ -53,7 +52,7 @@ import java.util.Set;
 /**
  * Describes Beans including their deployment information.
  */
-public class DeployBeanDescriptor<T> implements DeployBeanDescriptorMeta {
+public class DeployBeanDescriptor<T> {
 
   private static final Map<String, String> EMPTY_NAMED_QUERY = new HashMap<>();
 
@@ -269,7 +268,7 @@ public class DeployBeanDescriptor<T> implements DeployBeanDescriptorMeta {
   /**
    * Return the DeployBeanInfo for the given bean class.
    */
-  public DeployBeanInfo<?> getDeploy(Class<?> cls) {
+  DeployBeanInfo<?> getDeploy(Class<?> cls) {
     return manager.getDeploy(cls);
   }
 
@@ -673,7 +672,6 @@ public class DeployBeanDescriptor<T> implements DeployBeanDescriptorMeta {
    * Return the base table. Only properties mapped to the base table are by
    * default persisted.
    */
-  @Override
   public String getBaseTable() {
     return baseTable;
   }
@@ -767,7 +765,6 @@ public class DeployBeanDescriptor<T> implements DeployBeanDescriptorMeta {
   /**
    * Get a BeanProperty by its name.
    */
-  @Override
   public DeployBeanProperty getBeanProperty(String propName) {
     return propMap.get(propName);
   }
@@ -950,7 +947,6 @@ public class DeployBeanDescriptor<T> implements DeployBeanDescriptorMeta {
   /**
    * Return a collection of all BeanProperty deployment information.
    */
-  @Override
   public Collection<DeployBeanProperty> propertiesAll() {
     return propMap.values();
   }
@@ -1021,7 +1017,6 @@ public class DeployBeanDescriptor<T> implements DeployBeanDescriptorMeta {
   /**
    * Return the BeanProperty that is the Id.
    */
-  @Override
   public DeployBeanProperty idProperty() {
     if (idProperty != null) {
       return idProperty;
@@ -1253,14 +1248,8 @@ public class DeployBeanDescriptor<T> implements DeployBeanDescriptorMeta {
     return (property == null) ? null : "${ta}." + property.getDbColumn();
   }
 
-  @Override
   public String getDiscriminatorColumn() {
     return inheritInfo == null ? null : inheritInfo.getDiscriminatorColumn();
-  }
-
-  @Override
-  public DeployBeanDescriptorMeta getDeployBeanDescriptorMeta(Class<?> propertyType) {
-    return getDeploy(propertyType).getDescriptor();
   }
 
   /**

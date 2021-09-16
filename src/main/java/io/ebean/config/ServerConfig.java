@@ -31,7 +31,6 @@ import io.ebean.event.readaudit.ReadAuditLogger;
 import io.ebean.event.readaudit.ReadAuditPrepare;
 import io.ebean.meta.MetaInfoManager;
 import io.ebean.migration.MigrationRunner;
-import io.ebean.plugin.CustomDeployParser;
 import io.ebean.plugin.LoadErrorHandler;
 import io.ebean.util.StringHelper;
 
@@ -402,7 +401,6 @@ public class ServerConfig {
   private List<BeanQueryAdapter> queryAdapters = new ArrayList<>();
   private List<BulkTableEventListener> bulkTableEventListeners = new ArrayList<>();
   private List<ServerConfigStartup> configStartupListeners = new ArrayList<>();
-  private List<CustomDeployParser> customDeployParsers = new ArrayList<>();
 
   /**
    * By default inserts are included in the change log.
@@ -2788,17 +2786,6 @@ public class ServerConfig {
    */
   public List<ServerConfigStartup> getServerConfigStartupListeners() {
     return configStartupListeners;
-  }
-
-  /**
-   * Add a CustomDeployParser.
-   */
-  public void addCustomDeployParser(CustomDeployParser customDeployParser) {
-    customDeployParsers.add(customDeployParser);
-  }
-
-  public List<CustomDeployParser> getCustomDeployParsers() {
-    return customDeployParsers;
   }
 
   /**

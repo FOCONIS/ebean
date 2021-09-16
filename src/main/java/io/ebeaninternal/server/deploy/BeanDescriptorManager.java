@@ -123,8 +123,6 @@ public class BeanDescriptorManager implements BeanDescriptorMap {
 
   private final BeanQueryAdapterManager beanQueryAdapterManager;
 
-  private final CustomDeployParserManager customDeployParserManager;
-
   private final NamingConvention namingConvention;
 
   private final DeployCreateProperties createProperties;
@@ -244,7 +242,6 @@ public class BeanDescriptorManager implements BeanDescriptorMap {
     this.persistListenerManager = new PersistListenerManager(bootupClasses);
     this.beanQueryAdapterManager = new BeanQueryAdapterManager(bootupClasses);
     this.beanFinderManager = new BeanFinderManager(bootupClasses);
-    this.customDeployParserManager = new CustomDeployParserManager(bootupClasses);
 
     this.transientProperties = new TransientProperties();
     this.changeLogPrepare = config.changeLogPrepare(bootupClasses.getChangeLogPrepare());
@@ -387,9 +384,6 @@ public class BeanDescriptorManager implements BeanDescriptorMap {
       readEntityBeanTable();
       readEntityDeploymentAssociations();
       readInheritedIdGenerators();
-      for (DeployBeanInfo<?> entry : deployInfoMap.values()) {
-        customDeployParserManager.parse(entry);
-      }
       setProfileIds();
       // creates the BeanDescriptors
       readEntityRelationships();
