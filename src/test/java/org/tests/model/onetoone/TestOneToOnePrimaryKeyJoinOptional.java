@@ -8,6 +8,8 @@ import org.junit.Test;
 
 import java.util.List;
 
+import javax.persistence.PrimaryKeyJoinColumn;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestOneToOnePrimaryKeyJoinOptional extends BaseTestCase {
@@ -36,6 +38,29 @@ public class TestOneToOnePrimaryKeyJoinOptional extends BaseTestCase {
 
     if (found.getExtra() != null) {
       found.getExtra().getExtra(); // fails here, because getExtra should be null
+    }
+    assertThat(found.getExtra()).isNull();
+  }
+  
+  /**
+   * We try to access the extra properties after a null check of the extra property annotated with 
+   * {@link PrimaryKeyJoinColumn}.. 
+   * If accessed with fetch as in {@link #insertWithoutExtra()} the test passes. 
+   * Otherwise a lazy loading failed EntityNotFoundException occurs.
+   */
+  @Test
+  public void accessNullExtra() {
+    
+    OtoUPrime p1 = new OtoUPrime("testOtoUPrimeWithNullExtra");
+    Ebean.save(p1);
+    
+    OtoUPrime found = Ebean.find(OtoUPrime.class, p1.getPid());
+    // found = Ebean.find(OtoUPrime.class).fetch("extra").findOne();
+    
+    if (found.getExtra() != null) {
+      // normally the UI code display the extra content here ...
+      // which should not be possible because extra is supposed to be null
+      found.getExtra().getExtra();  
     }
     assertThat(found.getExtra()).isNull();
   }
