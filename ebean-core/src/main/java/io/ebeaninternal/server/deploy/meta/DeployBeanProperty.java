@@ -1,11 +1,14 @@
 package io.ebeaninternal.server.deploy.meta;
 
+import io.ebean.Pairs;
 import io.ebean.annotation.*;
 import io.ebean.config.ScalarTypeConverter;
 import io.ebean.config.dbplatform.DbDefaultValue;
 import io.ebean.config.dbplatform.DbEncrypt;
 import io.ebean.config.dbplatform.DbEncryptFunction;
 import io.ebean.core.type.ScalarType;
+import io.ebean.plugin.DeployBeanPropertyMeta;
+import io.ebean.plugin.FormulaComputation;
 import io.ebean.util.AnnotationUtil;
 import io.ebeaninternal.server.core.InternString;
 import io.ebeaninternal.server.deploy.BeanProperty;
@@ -26,16 +29,13 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.sql.Types;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Description of a property of a bean. Includes its deployment information such
  * as database column mapping information.
  */
-public class DeployBeanProperty {
+public class DeployBeanProperty implements DeployBeanPropertyMeta {
 
   private static final int ID_ORDER = 1000000;
   private static final int UNIDIRECTIONAL_ORDER = 100000;
@@ -1135,6 +1135,15 @@ public class DeployBeanProperty {
       }
     }
     return fallback;
+  }
+
+  public Annotation getFormulaComputationAnnotation() {
+    for (Annotation ann : metaAnnotations) {
+      if (AnnotationUtil.has(ann.annotationType(), FormulaAlias.class)) {
+        return ann;
+      }
+    }
+    return null;
   }
 
   private boolean matchPlatform(Platform[] platforms, Platform match) {

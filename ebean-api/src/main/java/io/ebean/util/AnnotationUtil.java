@@ -1,5 +1,7 @@
 package io.ebean.util;
 
+import io.ebean.annotation.FormulaAlias;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.util.HashSet;
@@ -86,13 +88,12 @@ public class AnnotationUtil {
 
   private static void metaAdd(Annotation ann, Set<Class<?>> filter, Set<Annotation> visited, Set<Annotation> result) {
     if (notJavaLang(ann) && visited.add(ann)) {
-      if (filter.contains(ann.annotationType())) {
-        result.add(ann);
-      } else {
+      if (!filter.contains(ann.annotationType())) {
         for (Annotation metaAnn : ann.annotationType().getAnnotations()) {
           metaAdd(metaAnn, filter, visited, result);
         }
       }
+      result.add(ann);
     }
   }
 }

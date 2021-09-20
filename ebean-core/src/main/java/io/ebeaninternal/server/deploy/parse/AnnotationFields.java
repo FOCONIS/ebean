@@ -1,38 +1,6 @@
 package io.ebeaninternal.server.deploy.parse;
 
-import io.ebean.annotation.Aggregation;
-import io.ebean.annotation.CreatedTimestamp;
-import io.ebean.annotation.DbArray;
-import io.ebean.annotation.DbComment;
-import io.ebean.annotation.DbDefault;
-import io.ebean.annotation.DbJson;
-import io.ebean.annotation.DbJsonB;
-import io.ebean.annotation.DbMap;
-import io.ebean.annotation.DbMigration;
-import io.ebean.annotation.DocCode;
-import io.ebean.annotation.DocEmbedded;
-import io.ebean.annotation.DocProperty;
-import io.ebean.annotation.DocSortable;
-import io.ebean.annotation.Draft;
-import io.ebean.annotation.DraftDirty;
-import io.ebean.annotation.DraftOnly;
-import io.ebean.annotation.DraftReset;
-import io.ebean.annotation.Encrypted;
-import io.ebean.annotation.Expose;
-import io.ebean.annotation.Formula;
-import io.ebean.annotation.HistoryExclude;
-import io.ebean.annotation.Identity;
-import io.ebean.annotation.Index;
-import io.ebean.annotation.JsonIgnore;
-import io.ebean.annotation.Length;
-import io.ebean.annotation.SoftDelete;
-import io.ebean.annotation.TenantId;
-import io.ebean.annotation.UnmappedJson;
-import io.ebean.annotation.UpdatedTimestamp;
-import io.ebean.annotation.WhenCreated;
-import io.ebean.annotation.WhenModified;
-import io.ebean.annotation.WhoCreated;
-import io.ebean.annotation.WhoModified;
+import io.ebean.annotation.*;
 import io.ebean.config.EncryptDeploy;
 import io.ebean.config.EncryptDeploy.Mode;
 import io.ebean.config.dbplatform.DbEncrypt;
@@ -314,6 +282,14 @@ final class AnnotationFields extends AnnotationParser {
     if (formula != null) {
       prop.setSqlFormula(processFormula(formula.select()), processFormula(formula.join()));
     }
+
+    final FormulaAlias formulaAlias = prop.getMetaAnnotation(FormulaAlias.class);
+    if (formulaAlias != null) {
+      prop.setDbInsertable(false);
+      prop.setDbUpdateable(false);
+      prop.setDbRead(true);
+    }
+
     final Aggregation aggregation = prop.getMetaAnnotation(Aggregation.class);
     if (aggregation != null) {
       prop.setAggregation(aggregation.value().replace("$1", prop.getName()));

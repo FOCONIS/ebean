@@ -1,6 +1,7 @@
 package org.tests.model.tevent;
 
 import io.ebean.annotation.Aggregation;
+import org.tests.model.tevent.CountFormulaComputation.Count;
 
 import javax.persistence.*;
 import java.util.List;
@@ -41,6 +42,11 @@ public class TEventOne {
   @OneToMany(mappedBy = "event", cascade = CascadeType.ALL)
   List<TEventMany> logs;
 
+  @Count("logs")
+  //@Formula(select = "f1.child_count",
+  //join = "left join (select event_id, count(*) as child_count from tevent_many GROUP BY event_id ) as f1 on f1.event_id = ${ta}.id")
+  Long customFormula;
+
   public TEventOne(String name, Status status) {
     this.name = name;
     this.status = status;
@@ -61,6 +67,10 @@ public class TEventOne {
 
   public Long getCount() {
     return count;
+  }
+
+  public Long getCustomFormula() {
+    return customFormula;
   }
 
   public Double getTotalUnits() {

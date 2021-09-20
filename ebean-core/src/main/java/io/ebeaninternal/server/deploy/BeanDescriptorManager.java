@@ -4,6 +4,7 @@ import io.ebean.BackgroundExecutor;
 import io.ebean.Model;
 import io.ebean.RawSqlBuilder;
 import io.ebean.annotation.ConstraintMode;
+import io.ebean.annotation.FormulaAlias;
 import io.ebean.bean.BeanCollection;
 import io.ebean.bean.EntityBean;
 import io.ebean.config.*;
@@ -17,6 +18,7 @@ import io.ebean.meta.MetaQueryPlan;
 import io.ebean.meta.MetricVisitor;
 import io.ebean.meta.QueryPlanInit;
 import io.ebean.plugin.BeanType;
+import io.ebean.plugin.FormulaComputation;
 import io.ebean.util.AnnotationUtil;
 import io.ebeaninternal.api.*;
 import io.ebeaninternal.server.cache.CacheChangeSet;
@@ -49,7 +51,9 @@ import javax.persistence.PersistenceException;
 import javax.persistence.Transient;
 import javax.sql.DataSource;
 import java.io.Serializable;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -292,6 +296,27 @@ public final class BeanDescriptorManager implements BeanDescriptorMap, SpiBeanTy
       readEntityBeanTable();
       readEntityDeploymentAssociations();
       readInheritedIdGenerators();
+
+      // TODO
+      deployInfoMap.forEach((clazz, deployBeanInfo) -> {
+        deployBeanInfo.getDescriptor().propertiesAll().forEach(prop -> {
+          final FormulaAlias formulaAlias = prop.getMetaAnnotation(FormulaAlias.class);
+          if (formulaAlias != null) {
+//            prop.getMetaAnnotationFormula()
+            final Annotation customAnnotation = prop.getFormulaComputationAnnotation();
+            final Class<?> aClass = formulaAlias.value();
+            assert FormulaComputation.class.isAssignableFrom(aClass) : "";
+            final FormulaComputation computation;
+            try {
+              computation = (FormulaComputation) aClass.getDeclaredConstructor().newInstance();
+            } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+              throw new IllegalStateException("Cannot instantiate FormulaComputation " + aClass.getName(), e);
+            }
+            computation.compute(customAnnotation, deployBeanInfo.getDescriptor(), prop, databasePlatform);
+          }
+        });
+      });
+
       // creates the BeanDescriptors
       readEntityRelationships();
       List<BeanDescriptor<?>> list = new ArrayList<>(descMap.values());

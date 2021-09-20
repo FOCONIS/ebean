@@ -8,30 +8,15 @@ import io.ebean.config.DatabaseConfig;
 import io.ebean.config.TableName;
 import io.ebean.config.dbplatform.IdType;
 import io.ebean.config.dbplatform.PlatformIdGenerator;
-import io.ebean.event.BeanFindController;
-import io.ebean.event.BeanPersistController;
-import io.ebean.event.BeanPersistListener;
-import io.ebean.event.BeanPostConstructListener;
-import io.ebean.event.BeanPostLoad;
-import io.ebean.event.BeanQueryAdapter;
+import io.ebean.event.*;
 import io.ebean.event.changelog.ChangeLogFilter;
+import io.ebean.plugin.DeployBeanDescriptorMeta;
 import io.ebean.text.PathProperties;
 import io.ebean.util.SplitName;
 import io.ebeaninternal.api.ConcurrencyMode;
 import io.ebeaninternal.server.core.CacheOptions;
 import io.ebeaninternal.server.deploy.BeanDescriptor.EntityType;
-import io.ebeaninternal.server.deploy.BeanDescriptorManager;
-import io.ebeaninternal.server.deploy.ChainedBeanPersistController;
-import io.ebeaninternal.server.deploy.ChainedBeanPersistListener;
-import io.ebeaninternal.server.deploy.ChainedBeanPostConstructListener;
-import io.ebeaninternal.server.deploy.ChainedBeanPostLoad;
-import io.ebeaninternal.server.deploy.ChainedBeanQueryAdapter;
-import io.ebeaninternal.server.deploy.DeployPropertyParserMap;
-import io.ebeaninternal.server.deploy.IdentityMode;
-import io.ebeaninternal.server.deploy.IndexDefinition;
-import io.ebeaninternal.server.deploy.InheritInfo;
-import io.ebeaninternal.server.deploy.PartitionMeta;
-import io.ebeaninternal.server.deploy.TableJoin;
+import io.ebeaninternal.server.deploy.*;
 import io.ebeaninternal.server.deploy.parse.DeployBeanInfo;
 import io.ebeaninternal.server.idgen.UuidV1IdGenerator;
 import io.ebeaninternal.server.idgen.UuidV1RndIdGenerator;
@@ -40,18 +25,12 @@ import io.ebeaninternal.server.rawsql.SpiRawSql;
 
 import javax.persistence.Entity;
 import javax.persistence.MappedSuperclass;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Describes Beans including their deployment information.
  */
-public class DeployBeanDescriptor<T> {
+public class DeployBeanDescriptor<T> implements DeployBeanDescriptorMeta {
 
   private static final Map<String, String> EMPTY_NAMED_QUERY = new HashMap<>();
 
@@ -688,6 +667,7 @@ public class DeployBeanDescriptor<T> {
   /**
    * Get a BeanProperty by its name.
    */
+  @Override
   public DeployBeanProperty getBeanProperty(String propName) {
     return propMap.get(propName);
   }
@@ -807,6 +787,7 @@ public class DeployBeanDescriptor<T> {
   /**
    * Return a collection of all BeanProperty deployment information.
    */
+  @Override
   public Collection<DeployBeanProperty> propertiesAll() {
     return propMap.values();
   }
@@ -876,6 +857,7 @@ public class DeployBeanDescriptor<T> {
   /**
    * Return the BeanProperty that is the Id.
    */
+  @Override
   public DeployBeanProperty idProperty() {
     if (idProperty != null) {
       return idProperty;
@@ -1118,6 +1100,11 @@ public class DeployBeanDescriptor<T> {
       }
       return null;
     }
+  }
+
+  @Override
+  public DeployBeanDescriptorMeta getDeployBeanDescriptorMeta(Class<?> propertyType) {
+    return getDeploy(propertyType).getDescriptor();
   }
 
   /**
