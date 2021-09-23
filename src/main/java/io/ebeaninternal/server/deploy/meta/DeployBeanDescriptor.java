@@ -15,6 +15,7 @@ import io.ebean.event.BeanPostConstructListener;
 import io.ebean.event.BeanPostLoad;
 import io.ebean.event.BeanQueryAdapter;
 import io.ebean.event.changelog.ChangeLogFilter;
+import io.ebean.plugin.DeployBeanDescriptorMeta;
 import io.ebean.text.PathProperties;
 import io.ebean.util.AnnotationUtil;
 import io.ebeaninternal.api.ConcurrencyMode;
@@ -52,7 +53,7 @@ import java.util.Set;
 /**
  * Describes Beans including their deployment information.
  */
-public class DeployBeanDescriptor<T> {
+public class DeployBeanDescriptor<T> implements DeployBeanDescriptorMeta {
 
   private static final Map<String, String> EMPTY_NAMED_QUERY = new HashMap<>();
 
@@ -765,6 +766,7 @@ public class DeployBeanDescriptor<T> {
   /**
    * Get a BeanProperty by its name.
    */
+  @Override
   public DeployBeanProperty getBeanProperty(String propName) {
     return propMap.get(propName);
   }
@@ -947,6 +949,7 @@ public class DeployBeanDescriptor<T> {
   /**
    * Return a collection of all BeanProperty deployment information.
    */
+  @Override
   public Collection<DeployBeanProperty> propertiesAll() {
     return propMap.values();
   }
@@ -1017,6 +1020,7 @@ public class DeployBeanDescriptor<T> {
   /**
    * Return the BeanProperty that is the Id.
    */
+  @Override
   public DeployBeanProperty idProperty() {
     if (idProperty != null) {
       return idProperty;
@@ -1292,6 +1296,11 @@ public class DeployBeanDescriptor<T> {
    */
   public Integer getOverridePriority() {
     return overridePriority;
+  }
+
+  @Override
+  public DeployBeanDescriptorMeta getDeployBeanDescriptorMeta(Class<?> propertyType) {
+    return getDeploy(propertyType).getDescriptor();
   }
 
   /**

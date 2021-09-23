@@ -5,6 +5,7 @@ import io.ebean.config.ScalarTypeConverter;
 import io.ebean.config.dbplatform.DbDefaultValue;
 import io.ebean.config.dbplatform.DbEncrypt;
 import io.ebean.config.dbplatform.DbEncryptFunction;
+import io.ebean.plugin.DeployBeanPropertyMeta;
 import io.ebean.util.AnnotationUtil;
 import io.ebeaninternal.server.core.InternString;
 import io.ebeaninternal.server.deploy.BeanProperty;
@@ -23,6 +24,7 @@ import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.Version;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
@@ -36,7 +38,7 @@ import java.util.Set;
  * Description of a property of a bean. Includes its deployment information such
  * as database column mapping information.
  */
-public class DeployBeanProperty {
+public class DeployBeanProperty implements DeployBeanPropertyMeta {
 
   private static final int ID_ORDER = 1000000;
   private static final int UNIDIRECTIONAL_ORDER = 100000;

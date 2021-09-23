@@ -1,5 +1,6 @@
 package io.ebeaninternal.server.deploy.meta;
 
+import io.ebean.plugin.DeployBeanPropertyAssocMeta;
 import io.ebeaninternal.server.deploy.BeanCascadeInfo;
 import io.ebeaninternal.server.deploy.BeanTable;
 import io.ebeaninternal.server.deploy.PropertyForeignKey;
@@ -7,7 +8,7 @@ import io.ebeaninternal.server.deploy.PropertyForeignKey;
 /**
  * Abstract base for properties mapped to an associated bean, list, set or map.
  */
-public abstract class DeployBeanPropertyAssoc<T> extends DeployBeanProperty {
+public abstract class DeployBeanPropertyAssoc<T> extends DeployBeanProperty implements DeployBeanPropertyAssocMeta {
 
   /**
    * The type of the joined bean.
@@ -112,6 +113,11 @@ public abstract class DeployBeanPropertyAssoc<T> extends DeployBeanProperty {
   public void setBeanTable(BeanTable beanTable) {
     this.beanTable = beanTable;
     getTableJoin().setTable(beanTable.getBaseTable());
+  }
+
+  @Override
+  public String getBaseTable() {
+    return getBeanTable().getBaseTable();
   }
 
   /**

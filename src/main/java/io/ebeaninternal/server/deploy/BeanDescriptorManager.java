@@ -4,18 +4,11 @@ import io.ebean.BackgroundExecutor;
 import io.ebean.Model;
 import io.ebean.RawSqlBuilder;
 import io.ebean.annotation.ConstraintMode;
+import io.ebean.annotation.FormulaAlias;
 import io.ebean.bean.BeanCollection;
 import io.ebean.bean.EntityBean;
-import io.ebean.config.BeanNotEnhancedException;
-import io.ebean.config.EncryptKey;
-import io.ebean.config.EncryptKeyManager;
-import io.ebean.config.NamingConvention;
-import io.ebean.config.ServerConfig;
-import io.ebean.config.dbplatform.DatabasePlatform;
-import io.ebean.config.dbplatform.DbHistorySupport;
-import io.ebean.config.dbplatform.DbIdentity;
-import io.ebean.config.dbplatform.IdType;
-import io.ebean.config.dbplatform.PlatformIdGenerator;
+import io.ebean.config.*;
+import io.ebean.config.dbplatform.*;
 import io.ebean.event.changelog.ChangeLogFilter;
 import io.ebean.event.changelog.ChangeLogListener;
 import io.ebean.event.changelog.ChangeLogPrepare;
@@ -23,6 +16,7 @@ import io.ebean.event.changelog.ChangeLogRegister;
 import io.ebean.meta.MetricVisitor;
 import io.ebean.meta.QueryPlanRequest;
 import io.ebean.plugin.BeanType;
+import io.ebean.plugin.FormulaComputation;
 import io.ebean.util.AnnotationUtil;
 import io.ebeaninternal.api.ConcurrencyMode;
 import io.ebeaninternal.api.SpiEbeanServer;
@@ -37,20 +31,8 @@ import io.ebeaninternal.server.deploy.BeanDescriptor.EntityType;
 import io.ebeaninternal.server.deploy.id.IdBinder;
 import io.ebeaninternal.server.deploy.id.IdBinderEmbedded;
 import io.ebeaninternal.server.deploy.id.IdBinderFactory;
-import io.ebeaninternal.server.deploy.meta.DeployBeanDescriptor;
-import io.ebeaninternal.server.deploy.meta.DeployBeanProperty;
-import io.ebeaninternal.server.deploy.meta.DeployBeanPropertyAssoc;
-import io.ebeaninternal.server.deploy.meta.DeployBeanPropertyAssocMany;
-import io.ebeaninternal.server.deploy.meta.DeployBeanPropertyAssocOne;
-import io.ebeaninternal.server.deploy.meta.DeployBeanTable;
-import io.ebeaninternal.server.deploy.meta.DeployOrderColumn;
-import io.ebeaninternal.server.deploy.meta.DeployTableJoin;
-import io.ebeaninternal.server.deploy.parse.DeployBeanInfo;
-import io.ebeaninternal.server.deploy.parse.DeployCreateProperties;
-import io.ebeaninternal.server.deploy.parse.DeployInherit;
-import io.ebeaninternal.server.deploy.parse.DeployUtil;
-import io.ebeaninternal.server.deploy.parse.ReadAnnotations;
-import io.ebeaninternal.server.deploy.parse.TransientProperties;
+import io.ebeaninternal.server.deploy.meta.*;
+import io.ebeaninternal.server.deploy.parse.*;
 import io.ebeaninternal.server.persist.platform.MultiValueBind;
 import io.ebeaninternal.server.properties.BeanPropertiesReader;
 import io.ebeaninternal.server.properties.BeanPropertyAccess;
@@ -59,12 +41,7 @@ import io.ebeaninternal.server.query.CQueryPlan;
 import io.ebeaninternal.server.type.ScalarType;
 import io.ebeaninternal.server.type.ScalarTypeInteger;
 import io.ebeaninternal.server.type.TypeManager;
-import io.ebeaninternal.xmlmapping.model.XmAliasMapping;
-import io.ebeaninternal.xmlmapping.model.XmColumnMapping;
-import io.ebeaninternal.xmlmapping.model.XmEbean;
-import io.ebeaninternal.xmlmapping.model.XmEntity;
-import io.ebeaninternal.xmlmapping.model.XmNamedQuery;
-import io.ebeaninternal.xmlmapping.model.XmRawSql;
+import io.ebeaninternal.xmlmapping.model.*;
 import io.ebeanservice.docstore.api.DocStoreBeanAdapter;
 import io.ebeanservice.docstore.api.DocStoreFactory;
 import org.slf4j.Logger;
@@ -75,17 +52,11 @@ import javax.persistence.PersistenceException;
 import javax.persistence.Transient;
 import javax.sql.DataSource;
 import java.io.Serializable;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -384,6 +355,8 @@ public class BeanDescriptorManager implements BeanDescriptorMap {
       readEntityBeanTable();
       readEntityDeploymentAssociations();
       readInheritedIdGenerators();
+      readFormulaAlias();
+
       setProfileIds();
       // creates the BeanDescriptors
       readEntityRelationships();
@@ -413,6 +386,33 @@ public class BeanDescriptorManager implements BeanDescriptorMap {
       logger.error("Error in deployment", e);
       throw e;
     }
+  }
+
+  private <M extends Annotation> void readFormulaAlias() {
+    deployInfoMap.forEach((clazz, deployBeanInfo) -> {
+      deployBeanInfo.getDescriptor().propertiesAll().forEach(prop -> {
+        final FormulaAlias formulaAlias = AnnotationUtil.findAnnotation(prop.getField(), FormulaAlias.class);
+        if (formulaAlias != null) {
+          final Class<?> clz = formulaAlias.value();
+          if (!FormulaComputation.class.isAssignableFrom(clz)) {
+            throw new IllegalArgumentException("Property " + deployBeanInfo.getDescriptor().getBeanType().getName() + "#"
+              + prop.getName() + " annotated with @FormulaAlias, but annotation doesn't have a value implementing FormulaComputation set.");
+          }
+
+          @SuppressWarnings("unchecked") final Class<FormulaComputation<M>> computationClass = (Class<FormulaComputation<M>>) clz;
+          final FormulaComputation<M> computation;
+          try {
+            computation = computationClass.newInstance();
+          } catch (InstantiationException | IllegalAccessException e) {
+            throw new IllegalStateException("Cannot instantiate FormulaComputation " + clz.getName(), e);
+          }
+
+          final List<M> annotations = new ArrayList<>(AnnotationUtil.findAnnotations(prop.getField(), computation.supportedAnnotation()));
+
+          computation.compute(annotations, deployBeanInfo.getDescriptor(), prop, databasePlatform);
+        }
+      });
+    });
   }
 
   private void readXmlMapping(List<XmEbean> mappings) {
@@ -513,7 +513,7 @@ public class BeanDescriptorManager implements BeanDescriptorMap {
   @Override
   public boolean isTableManaged(String tableName) {
     return tableToDescMap.get(tableName.toLowerCase()) != null
-        || tableToViewDescMap.get(tableName.toLowerCase()) != null;
+      || tableToViewDescMap.get(tableName.toLowerCase()) != null;
   }
 
   /**
@@ -737,7 +737,7 @@ public class BeanDescriptorManager implements BeanDescriptorMap {
       DeployBeanInfo<?> info = createDeployBeanInfo(entityClass);
       deployInfoMap.put(entityClass.getName(), info);
       Class<?> embeddedIdType = info.getEmbeddedIdType();
-      if (embeddedIdType != null){
+      if (embeddedIdType != null) {
         embeddedIdTypes.add(embeddedIdType);
       }
     }
@@ -893,8 +893,8 @@ public class BeanDescriptorManager implements BeanDescriptorMap {
             overrides.put(base, info);
           } else if (delta == 0) {
             throw new IllegalStateException("There are two or more implementations for " + base.getName()
-                + " with priority " + prio + ". Conflicting entity: " + desc.getBeanType().getName() + " - "
-                + override.getDescriptor().getBeanType().getName());
+              + " with priority " + prio + ". Conflicting entity: " + desc.getBeanType().getName() + " - "
+              + override.getDescriptor().getBeanType().getName());
           }
         }
       }
@@ -917,7 +917,7 @@ public class BeanDescriptorManager implements BeanDescriptorMap {
         String conflict = descAliases.put(iface.getName(), info.getDescriptor().getBeanType().getName());
         if (conflict != null) {
           throw new IllegalStateException("There are two or more implementations for " + iface
-              + ". Conflicting entity: " + conflict + " - " + info.getDescriptor().getBeanType().getName());
+            + ". Conflicting entity: " + conflict + " - " + info.getDescriptor().getBeanType().getName());
         }
       }
     }
@@ -929,7 +929,6 @@ public class BeanDescriptorManager implements BeanDescriptorMap {
       }
     }
   }
-
 
 
   /**
