@@ -295,26 +295,7 @@ public final class BeanDescriptorManager implements BeanDescriptorMap, SpiBeanTy
       readEntityBeanTable();
       readEntityDeploymentAssociations();
       readInheritedIdGenerators();
-
-      // TODO
-      deployInfoMap.forEach((clazz, deployBeanInfo) -> {
-        deployBeanInfo.getDescriptor().propertiesAll().forEach(prop -> {
-          final FormulaAlias formulaAlias = prop.getMetaAnnotation(FormulaAlias.class);
-          if (formulaAlias != null) {
-//            prop.getMetaAnnotationFormula()
-            final Annotation customAnnotation = prop.getFormulaComputationAnnotation();
-            final Class<?> aClass = formulaAlias.value();
-            assert FormulaComputation.class.isAssignableFrom(aClass) : "";
-            final FormulaComputation computation;
-            try {
-              computation = (FormulaComputation) aClass.getDeclaredConstructor().newInstance();
-            } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-              throw new IllegalStateException("Cannot instantiate FormulaComputation " + aClass.getName(), e);
-            }
-            computation.compute(customAnnotation, deployBeanInfo.getDescriptor(), prop, databasePlatform);
-          }
-        });
-      });
+      readFormulaAlias();
 
       // creates the BeanDescriptors
       readEntityRelationships();
@@ -337,6 +318,35 @@ public final class BeanDescriptorManager implements BeanDescriptorMap, SpiBeanTy
       log.error("Error in deployment", e);
       throw e;
     }
+  }
+
+  private <M extends Annotation> void readFormulaAlias() {
+    deployInfoMap.forEach((clazz, deployBeanInfo) -> {
+      deployBeanInfo.getDescriptor().propertiesAll().forEach(prop -> {
+        final Set<FormulaAlias> formulaAlias = AnnotationUtil.metaFindAllFor(prop.getField(), Collections.singleton(FormulaAlias.class));
+        if (!formulaAlias.isEmpty()) {
+          assert formulaAlias.size() == 1;
+          final Class<?> clz = formulaAlias.iterator().next().value();
+          if (!FormulaComputation.class.isAssignableFrom(clz)) {
+            throw new IllegalArgumentException("Property " + deployBeanInfo.getDescriptor().getBeanType().getName() + "#"
+              + prop.getName() + " annotated with @FormulaAlias, but annotation doesn't have a value implementing FormulaComputation set.");
+          }
+
+          @SuppressWarnings("unchecked") final Class<FormulaComputation<M>> computationClass = (Class<FormulaComputation<M>>) clz;
+          final FormulaComputation<M> computation;
+          try {
+            computation = computationClass.newInstance();
+          } catch (InstantiationException | IllegalAccessException e) {
+            throw new IllegalStateException("Cannot instantiate FormulaComputation " + clz.getName(), e);
+          }
+
+          final List<M> annotations = new ArrayList<>(AnnotationUtil
+            .metaFindAllFor(prop.getField(), Collections.singleton(computation.supportedAnnotation())));
+
+          computation.compute(annotations, deployBeanInfo.getDescriptor(), prop, databasePlatform);
+        }
+      });
+    });
   }
 
   private void readXmlMapping(List<XmapEbean> mappings) {

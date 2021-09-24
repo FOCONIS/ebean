@@ -1,12 +1,10 @@
 package io.ebean.util;
 
-import io.ebean.annotation.FormulaAlias;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.lang.reflect.Method;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Annotation utility methods to find annotations.
@@ -77,23 +75,51 @@ public class AnnotationUtil {
   /**
    * Find all the annotations for the filter searching meta-annotations.
    */
-  public static Set<Annotation> metaFindAllFor(AnnotatedElement element, Set<Class<?>> filter) {
-    Set<Annotation> visited = new HashSet<>();
-    Set<Annotation> result = new LinkedHashSet<>();
+  public static <A extends Annotation> Set<A> metaFindAllFor(AnnotatedElement element, Set<Class<?>> filter) {
+    Set<A> visited = new HashSet<>();
+    Set<A> result = new LinkedHashSet<>();
     for (Annotation ann : element.getAnnotations()) {
-      metaAdd(ann, filter, visited, result);
+      metaAdd((A) ann, filter, visited, result);
     }
     return result;
   }
 
-  private static void metaAdd(Annotation ann, Set<Class<?>> filter, Set<Annotation> visited, Set<Annotation> result) {
+  private static <A extends Annotation> void metaAdd(A ann, Set<Class<?>> filter, Set<A> visited, Set<A> result) {
     if (notJavaLang(ann) && visited.add(ann)) {
       if (!filter.contains(ann.annotationType())) {
         for (Annotation metaAnn : ann.annotationType().getAnnotations()) {
-          metaAdd(metaAnn, filter, visited, result);
+          metaAdd((A) metaAnn, filter, visited, result);
         }
       }
-      result.add(ann);
+
+      final Set<Annotation> repeatableAnnotations = getRepeatableAnnotations(ann);
+      if (!repeatableAnnotations.isEmpty()) {
+        for (Annotation repeatableAnnotation : repeatableAnnotations) {
+          metaAdd((A) repeatableAnnotation, filter, visited, result);
+        }
+      } else {
+        if (filter.contains(ann.annotationType())) {
+          result.add(ann);
+        }
+      }
     }
   }
+
+  private static Set<Annotation> getRepeatableAnnotations(Annotation ann) {
+    try {
+      Method method = ann.annotationType().getMethod("value");
+      if (method.getReturnType().isArray() &&
+        Annotation.class.isAssignableFrom(method.getReturnType().getComponentType())) {
+        Annotation[] repeatableAnnotations = (Annotation[]) method.invoke(ann);
+
+        return Arrays.stream(repeatableAnnotations).collect(Collectors.toSet());
+      }
+    } catch (NoSuchMethodException e) {
+      // nop
+    } catch (Exception e) {
+      throw new RuntimeException("Unable to call value method on annotation: " + ann.annotationType(), e);
+    }
+    return Collections.emptySet();
+  }
+
 }

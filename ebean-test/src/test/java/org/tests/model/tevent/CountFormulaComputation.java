@@ -7,17 +7,14 @@ import io.ebean.plugin.DeployBeanPropertyMeta;
 import io.ebean.plugin.FormulaComputation;
 import io.ebeaninternal.server.deploy.meta.DeployBeanPropertyAssocMany;
 
-import java.lang.annotation.Annotation;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
+import java.util.List;
 
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-/**
- * @author Jonas P&ouml;hler, FOCONIS AG
- */
-public class CountFormulaComputation implements FormulaComputation {
+public class CountFormulaComputation implements FormulaComputation<CountFormulaComputation.Count> {
 
   @Target(FIELD)
   @Retention(RUNTIME)
@@ -28,16 +25,19 @@ public class CountFormulaComputation implements FormulaComputation {
 
   }
 
+  @Override
+  public Class<Count> supportedAnnotation() {
+    return Count.class;
+  }
 
   @Override
-  public void compute(final Annotation annotation, final DeployBeanDescriptorMeta descriptor, final DeployBeanPropertyMeta prop,
+  public void compute(final List<Count> annotations, final DeployBeanDescriptorMeta descriptor, final DeployBeanPropertyMeta prop,
                       final DatabasePlatform platform) {
-    if (!Count.class.isAssignableFrom(annotation.annotationType())) {
-      throw new IllegalStateException("Annotation is not @FormulaAlias");
-    }
-    Count countAnnot = (Count) annotation;
+    assert annotations.size() == 1;
+    final Count annotation = annotations.get(0);
+
     // @Count found, so build the (complex) count formula
-    DeployBeanPropertyAssocMany<?> countProp = (DeployBeanPropertyAssocMany<?>) descriptor.getBeanProperty(countAnnot.value());
+    DeployBeanPropertyAssocMany<?> countProp = (DeployBeanPropertyAssocMany<?>) descriptor.getBeanProperty(annotation.value());
 
     String tmpTable = "f_" + prop.getName();
     String sqlSelect = "coalesce(" + tmpTable + ".child_count, 0)";

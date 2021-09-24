@@ -44,11 +44,12 @@ public class TestAggregationCount extends BaseTestCase {
   @Test
   public void testBaseSelect() {
 
-    Query<TEventOne> query = DB.find(TEventOne.class);
+    Query<TEventOne> query = DB.find(TEventOne.class)
+      .select("name,status,version,event");
     List<TEventOne> list = query.findList();
 
     String sql = sqlOf(query, 5);
-    assertThat(sql).contains("select t0.id, t0.name, t0.status, coalesce(f_customFormula.child_count, 0), t0.version, t0.event_id from tevent_one t0");
+    assertThat(sql).contains("select t0.id, t0.name, t0.status, t0.version, t0.event_id from tevent_one t0");
 
     for (TEventOne eventOne : list) {
       // lazy loading on Aggregation properties
@@ -111,7 +112,7 @@ public class TestAggregationCount extends BaseTestCase {
   public void testFull() {
 
     Query<TEventOne> query2 = DB.find(TEventOne.class)
-      .select("name, count, totalUnits, totalAmount, customFormula")
+      .select("name, count, totalUnits, totalAmount")
       .where()
       .startsWith("logs.description", "a")
       .having()
@@ -120,25 +121,65 @@ public class TestAggregationCount extends BaseTestCase {
 
     List<TEventOne> list = query2.findList();
     for (TEventOne eventOne : list) {
-      System.out.println(eventOne.getId() + " " + eventOne.getName() + " count:" + eventOne.getCount() + " units:" + eventOne.getTotalUnits() + " amount:" + eventOne.getTotalAmount()  + " custom: " + eventOne.getCustomFormula());
+      System.out.println(eventOne.getId() + " " + eventOne.getName() + " count:" + eventOne.getCount() + " units:" + eventOne.getTotalUnits() + " amount:" + eventOne.getTotalAmount());
     }
 
     assertThat(list).isNotEmpty();
 
     String sql = sqlOf(query2, 5);
-
-    assertThat(sql).contains("select t0.id, t0.name, count(u1.id), sum(u1.my_units), sum(u1.my_units * u1.amount), coalesce(f_customFormula.child_count, 0) from tevent_one t0");
-
-
-    assertThat(sql).contains("from tevent_one t0");
-    assertThat(sql).contains("left join (select event_id, count(*) as child_count from tevent_many GROUP BY event_id ) f_customFormula on f_customFormula.event_id = t0.id");
-    assertThat(sql).contains("join tevent_many u1 on u1.event_id = t0.id ");
+    assertThat(sql).contains("select t0.id, t0.name, count(u1.id), sum(u1.my_units), sum(u1.my_units * u1.amount) from tevent_one t0");
+    assertThat(sql).contains("from tevent_one t0 join tevent_many u1 on u1.event_id = t0.id ");
     assertThat(sql).contains("where u1.description like ");
-    assertThat(sql).contains(" group by t0.id, t0.name, coalesce(f_customFormula.child_count, 0) having count(u1.id) >= ? order by t0.name");
+    assertThat(sql).contains(" group by t0.id, t0.name having count(u1.id) >= ? order by t0.name");
 
     // invoke lazy loading
     Long version = list.get(0).getVersion();
     assertThat(version).isNotNull();
+  }
+
+  @Test
+  public void testCustomCount() {
+    TEventOne value = DB.find(TEventOne.class)
+      .where()
+      .eq("status", TEventOne.Status.BB)
+      .findOne();
+
+    assertThat(value).isNotNull();
+    assertThat(value.getCustomLogCount()).isEqualTo(0);
+    assertThat(value.getCustomLogFormula()).isEqualTo(0);
+
+    value = DB.find(TEventOne.class)
+      .where()
+      .eq("status", TEventOne.Status.AA)
+      .orderBy("id")
+      .setMaxRows(1)
+      .findOne();
+
+    assertThat(value).isNotNull();
+    assertThat(value.getCustomLogCount()).isEqualTo(3);
+    assertThat(value.getCustomLogFormula()).isEqualTo(3);
+  }
+
+  @Test
+  public void testCustomWhen() {
+    TEventOne value = DB.find(TEventOne.class)
+      .where()
+      .eq("status", TEventOne.Status.BB)
+      .findOne();
+
+    assertThat(value).isNotNull();
+    assertThat(value.getComputedStatusWhen()).isEqualTo("BB");
+    assertThat(value.getComputedStatusFormula()).isEqualTo("BB");
+
+    value = DB.find(TEventOne.class)
+      .where()
+      .eq("status", TEventOne.Status.AA)
+      .setMaxRows(1)
+      .findOne();
+
+    assertThat(value).isNotNull();
+    assertThat(value.getComputedStatusWhen()).isEqualTo("AA");
+    assertThat(value.getComputedStatusFormula()).isEqualTo("AA");
   }
 
   @Test

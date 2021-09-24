@@ -1,7 +1,9 @@
 package org.tests.model.tevent;
 
 import io.ebean.annotation.Aggregation;
+import io.ebean.annotation.Formula;
 import org.tests.model.tevent.CountFormulaComputation.Count;
+import org.tests.model.tevent.WhenFormulaComputation.When;
 
 import javax.persistence.*;
 import java.util.List;
@@ -43,9 +45,20 @@ public class TEventOne {
   List<TEventMany> logs;
 
   @Count("logs")
-  //@Formula(select = "f1.child_count",
-  //join = "left join (select event_id, count(*) as child_count from tevent_many GROUP BY event_id ) as f1 on f1.event_id = ${ta}.id")
-  Long customFormula;
+  Long customLogCount;
+
+  @Formula(
+    select = "coalesce(for_customLogFormula.child_count, 0)",
+    join = "left join (select event_id, count(*) as child_count from tevent_many group by event_id) for_customLogFormula on for_customLogFormula.event_id = ${ta}.id"
+  )
+  Long customLogFormula;
+
+  @When(field = "status", op = "=", compareValue = "0", then = "'AA'")
+  @When(field = "status", op = "=", compareValue = "1", then = "'BB'")
+  String computedStatusWhen;
+
+  @Formula(select = "(CASE WHEN ${ta}.status = 0 THEN 'AA' WHEN ${ta}.status = 1 THEN 'BB' ELSE NULL END)")
+  String computedStatusFormula;
 
   public TEventOne(String name, Status status) {
     this.name = name;
@@ -69,8 +82,20 @@ public class TEventOne {
     return count;
   }
 
-  public Long getCustomFormula() {
-    return customFormula;
+  public Long getCustomLogCount() {
+    return customLogCount;
+  }
+
+  public Long getCustomLogFormula() {
+    return customLogFormula;
+  }
+
+  public String getComputedStatusWhen() {
+    return computedStatusWhen;
+  }
+
+  public String getComputedStatusFormula() {
+    return computedStatusFormula;
   }
 
   public Double getTotalUnits() {
