@@ -1,14 +1,26 @@
 package io.ebeaninternal.server.deploy.meta;
 
-import io.ebean.Pairs;
-import io.ebean.annotation.*;
+import io.ebean.annotation.CreatedTimestamp;
+import io.ebean.annotation.DocCode;
+import io.ebean.annotation.DocProperty;
+import io.ebean.annotation.DocSortable;
+import io.ebean.annotation.Formula;
+import io.ebean.annotation.FormulaAlias;
+import io.ebean.annotation.MutationDetection;
+import io.ebean.annotation.Platform;
+import io.ebean.annotation.SoftDelete;
+import io.ebean.annotation.UpdatedTimestamp;
+import io.ebean.annotation.WhenCreated;
+import io.ebean.annotation.WhenModified;
+import io.ebean.annotation.Where;
+import io.ebean.annotation.WhoCreated;
+import io.ebean.annotation.WhoModified;
 import io.ebean.config.ScalarTypeConverter;
 import io.ebean.config.dbplatform.DbDefaultValue;
 import io.ebean.config.dbplatform.DbEncrypt;
 import io.ebean.config.dbplatform.DbEncryptFunction;
 import io.ebean.core.type.ScalarType;
 import io.ebean.plugin.DeployBeanPropertyMeta;
-import io.ebean.plugin.FormulaComputation;
 import io.ebean.util.AnnotationUtil;
 import io.ebeaninternal.server.core.InternString;
 import io.ebeaninternal.server.deploy.BeanProperty;
@@ -29,7 +41,10 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.sql.Types;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Description of a property of a bean. Includes its deployment information such
