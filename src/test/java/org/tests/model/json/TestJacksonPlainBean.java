@@ -2,9 +2,12 @@ package org.tests.model.json;
 
 import io.ebean.DB;
 import io.ebeantest.LoggedSql;
+import org.assertj.core.api.AbstractCharSequenceAssert;
+import org.assertj.core.api.Condition;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.StrictAssertions.anyOf;
 
 public class TestJacksonPlainBean {
 
@@ -45,7 +48,12 @@ public class TestJacksonPlainBean {
     bean.setPlainBean(content);
 
     DB.save(bean);
-    expectedSql(0, "insert into ebasic_plain (attr, plain_bean, version) values (?,?,?)");
+    assertThat(LoggedSql.collect().get(0)).has(
+      anyOf(
+        contains("insert into ebasic_plain (id, attr, plain_bean, version) values (?,?,?,?)"),
+        contains("insert into ebasic_plain (attr, plain_bean, version) values (?,?,?)")
+      )
+    );
 
     // inserted plainBean has not been mutated
     bean.setAttr("attr1");
@@ -85,4 +93,7 @@ public class TestJacksonPlainBean {
     assertThat(LoggedSql.collect().get(i)).contains(s);
   }
 
+  private static Condition<String> contains(String s) {
+    return new Condition<>(it -> it.contains(s), "contains " + s);
+  }
 }
