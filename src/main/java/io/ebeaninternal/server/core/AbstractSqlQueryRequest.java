@@ -1,7 +1,7 @@
 package io.ebeaninternal.server.core;
 
-import io.ebean.CancelableQuery;
 import io.ebean.EbeanServer;
+import io.ebean.CancelableQuery;
 import io.ebean.Transaction;
 import io.ebean.util.JdbcClose;
 import io.ebeaninternal.api.BindParams;
