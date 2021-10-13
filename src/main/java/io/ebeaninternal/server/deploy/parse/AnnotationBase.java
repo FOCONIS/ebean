@@ -11,7 +11,6 @@ import javax.persistence.JoinColumns;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
@@ -107,7 +106,6 @@ abstract class AnnotationBase {
     Method method = prop.getReadMethod();
     if (method != null) {
       if (ret != null) {
-        ret = new LinkedHashSet<>(ret);
         ret.addAll(AnnotationUtil.findAnnotations(method, annClass));
       } else {
         ret = AnnotationUtil.findAnnotations(method, annClass);
