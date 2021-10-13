@@ -5,6 +5,7 @@ import static org.assertj.core.api.StrictAssertions.assertThat;
 
 import java.util.List;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.tests.model.m2m.MnyEdge;
 import org.tests.model.m2m.MnyNode;
@@ -20,6 +21,12 @@ import io.ebeantest.LoggedSql;
  *
  */
 public class TestM2MWithWhere extends BaseTestCase {
+
+  @Before
+  public void before() {
+    DB.find(MnyEdge.class).delete();
+    DB.find(MnyNode.class).delete();
+  }
 
   @Test
   public void testQuery() throws Exception {
