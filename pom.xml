@@ -453,14 +453,6 @@
         </configuration>
       </plugin>
     </plugins>
-
-    <extensions>
-      <extension>
-        <groupId>org.apache.maven.wagon</groupId>
-        <artifactId>wagon-ssh</artifactId>
-        <version>2.10</version>
-      </extension>
-    </extensions>
   </build>
 
   <repositories>
@@ -490,14 +482,14 @@
    -->
   <distributionManagement>
     <repository>
-      <id>foconis-snapshot</id>
-      <name>Default Deploy Repository</name>
-      <url>sftp://bamboo@repo.foconis.de/var/www/html/repo/maven-release/</url>
+      <id>foconis-release</id>
+      <name>FOCONIS Release Repository</name>
+      <url>https://mvnrepo.foconis.de/repository/release/</url>
     </repository>
     <snapshotRepository>
       <id>foconis-snapshot</id>
-      <name>Default Deploy Repository</name>
-      <url>sftp://bamboo@repo.foconis.de/var/www/html/repo/maven-snapshot/</url>
+      <name>FOCONIS Snapshot Repository</name>
+      <url>https://mvnrepo.foconis.de/repository/snapshot/</url>
     </snapshotRepository>
   </distributionManagement>
 
