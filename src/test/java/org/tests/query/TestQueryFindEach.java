@@ -6,6 +6,9 @@ import io.ebean.Ebean;
 import io.ebean.EbeanServer;
 import io.ebean.FetchConfig;
 import io.ebean.Query;
+import io.ebean.Transaction;
+import io.ebeaninternal.api.SpiTransaction;
+
 import org.tests.model.basic.Customer;
 import org.tests.model.basic.Order;
 import org.tests.model.basic.ResetBasicData;
@@ -60,27 +63,31 @@ public class TestQueryFindEach extends BaseTestCase {
       AtomicInteger count = new AtomicInteger(customerCount);
 
       WeakHashMap<Customer, Integer> customers = new WeakHashMap<>();
-
-      DB.find(Customer.class)
-      .fetch("orders")
-      .findEach(customer -> {
-        customers.put(customer, customer.getId());
-        if (count.decrementAndGet() == 0) {
-          // Trigger garbage collection on last iteration and check if beans disappear
-          // from memory
-          try {
-            System.gc();
-            Thread.sleep(100);
-            System.gc();
-            Thread.sleep(100);
-          } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-          }
-          customers.size(); // expunge stale entries
-          System.out.println("Total instances: " + customerCount + ", instances left in memory: " + customers.size());
-        }
-      });
+      try (Transaction txn = DB.beginTransaction()) {
+        DB.find(Customer.class).setMaxRows(3).findList();
+        DB.find(Customer.class)
+            // .fetch("orders")
+            .findEach(customer -> {
+              customers.put(customer, customer.getId());
+              if (count.decrementAndGet() == 0) {
+                // Trigger garbage collection on last iteration and check if beans disappear
+                // from memory
+                try {
+                  System.gc();
+                  Thread.sleep(100);
+                  System.gc();
+                  Thread.sleep(100);
+                } catch (InterruptedException e) {
+                  // TODO Auto-generated catch block
+                  e.printStackTrace();
+                }
+                // System.out.println(((SpiTransaction)txn).getPersistenceContext());
+                System.out.println(((SpiTransaction) txn).getPersistenceContext());
+                System.out
+                    .println("Total instances: " + customerCount + ", instances left in memory: " + customers.size());
+              }
+            });
+      }
     }
 
   }

@@ -62,6 +62,16 @@ public interface PersistenceContext {
   int size(Class<?> rootType);
 
   /**
+   * Signalizes the PersistenceContext, the begin for large query iteration.
+   */
+  void beginIterate();
+
+  /**
+   * Signalizes the PersistenceContext, the end for large query iteration.
+   */
+  void endIterate();
+
+  /**
    * Wrapper on a bean to also indicate if a bean has been deleted.
    * <p>
    * If a bean has been deleted then for the same persistence context is should

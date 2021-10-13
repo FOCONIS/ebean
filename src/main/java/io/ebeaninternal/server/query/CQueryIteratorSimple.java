@@ -14,7 +14,7 @@ class CQueryIteratorSimple<T> implements QueryIterator<T> {
   private final CQuery<T> cquery;
 
   private final OrmQueryRequest<T> request;
-  
+
   private boolean closed;
 
   CQueryIteratorSimple(CQuery<T> cquery, OrmQueryRequest<T> request) {
@@ -26,7 +26,6 @@ class CQueryIteratorSimple<T> implements QueryIterator<T> {
   public boolean hasNext() {
     boolean ret = false;
     try {
-      request.flushPersistenceContextOnIterate();
       ret = cquery.hasNext();
       return ret;
     } catch (SQLException e) {
