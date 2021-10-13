@@ -13,6 +13,7 @@ public interface BeanDeleteIdRequest {
    * Return the server processing the request.
    * @deprecated use {@link #getDatabase()}
    */
+  @Deprecated
   EbeanServer getEbeanServer();
 
   /**
@@ -21,16 +22,11 @@ public interface BeanDeleteIdRequest {
   default Database getDatabase() {
     return getEbeanServer();
   }
-  
+
   /**
    * Return the Transaction associated with this request.
    */
   Transaction getTransaction();
-  
-  /**
-   * Returns the bean type of the bean being deleted.
-   */
-  Class<?> getBeanType();
 
   /**
    * Returns the bean type of the bean being deleted.

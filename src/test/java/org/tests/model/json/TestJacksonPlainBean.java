@@ -2,7 +2,6 @@ package org.tests.model.json;
 
 import io.ebean.DB;
 import io.ebeantest.LoggedSql;
-import org.assertj.core.api.AbstractCharSequenceAssert;
 import org.assertj.core.api.Condition;
 import org.junit.Test;
 

@@ -8,7 +8,6 @@ import org.tests.model.json.EBasicOldValue;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 
 public class TestJsonNullValues extends BaseTestCase {
 
@@ -41,25 +40,25 @@ public class TestJsonNullValues extends BaseTestCase {
     assertThat(bean.getIntSet()).isEmpty();
     assertThat(bean.getIntMap()).isEmpty();
   }
-  
+
   @Test
   public void testSetOneToNullAnotherToEmpty() {
     EBasicOldValue bean = new EBasicOldValue();
     DB.save(bean);
     bean = DB.find(EBasicOldValue.class, bean.getId());
-    
+
     bean.setStringList(null);
     bean.setStringSet(null);
-    
+
     DB.save(bean);
     bean = DB.find(EBasicOldValue.class, bean.getId());
-    
+
     bean.setStringList(new ArrayList<>());
     bean.setStringSet(null);
-    
+
     DB.save(bean);
     bean = DB.find(EBasicOldValue.class, bean.getId());
-    
+
     assertThat(bean.getStringList()).isEmpty();
     assertThat(bean.getStringSet()).isEmpty();
   }

@@ -32,17 +32,12 @@ class DeleteIdRequest implements BeanDeleteIdRequest {
   public Transaction getTransaction() {
     return transaction;
   }
-  
-  @Override 
-  public Class<?> getBeanType() {
-    return beanType;
-  }
 
   @Override
   public Class<?> getBeanType() {
     return beanType;
   }
-  
+
   @Override
   public Object getId() {
     return id;
