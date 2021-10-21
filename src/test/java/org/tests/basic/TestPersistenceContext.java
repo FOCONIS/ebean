@@ -1,10 +1,18 @@
 package org.tests.basic;
 
 import io.ebean.BaseTestCase;
+import io.ebean.DB;
 import io.ebean.Ebean;
+import io.ebean.Transaction;
+
 import org.tests.model.basic.Customer;
 import org.tests.model.basic.Order;
 import org.tests.model.basic.ResetBasicData;
+
+import static org.assertj.core.api.StrictAssertions.assertThat;
+
+import java.util.List;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -76,5 +84,18 @@ public class TestPersistenceContext extends BaseTestCase {
       Ebean.endTransaction();
     }
   }
+
+
+  @Test
+  public void testReload() {
+    ResetBasicData.reset();
+    try (Transaction txn = DB.beginTransaction()) {
+      List<Order> notes = DB.find(Order.class).select("customerName").findList();
+      notes.get(0).setCustomerName("FooBar");
+      DB.find(Order.class).findList();
+      assertThat(notes.get(0).getCustomerName()).isEqualTo("FooBar");
+    }
+  }
+
 
 }
