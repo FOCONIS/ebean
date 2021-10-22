@@ -56,7 +56,7 @@ public final class DefaultTypeManager implements TypeManager {
 
   private final DefaultTypeFactory extraTypeFactory;
 
-  private final ScalarType<?> fileType = new ScalarTypeFile();
+  private final ScalarType<?> fileType;
   private final ScalarType<?> hstoreType = new ScalarTypePostgresHstore();
 
   private final JsonConfig.DateTime jsonDateTime;
@@ -94,6 +94,7 @@ public final class DefaultTypeManager implements TypeManager {
     this.arrayTypeSetFactory = arrayTypeSetFactory(config.getDatabasePlatform());
     this.offlineMigrationGeneration = DbOffline.isGenerateMigration();
     this.defaultEnumType = config.getDefaultEnumType();
+    this.fileType = new ScalarTypeFile(config.getTempFileProvider());
 
     ServiceLoader<ScalarJsonMapper> mappers = ServiceLoader.load(ScalarJsonMapper.class);
     jsonMapper = mappers.findFirst().orElse(null);
