@@ -244,11 +244,20 @@ public final class DefaultPersistenceContext implements PersistenceContext {
     }
 
     private void put(Object id, Object b) {
+      Object existing;
       if (useReferences) {
         weakCount++;
-        map.put(id, new BeanRef(this, id, b, queue));
+        existing = map.put(id, new BeanRef(this, id, b, queue));
       } else {
-        map.put(id, b);
+        existing = map.put(id, b);
+      }
+      // when existing BeanRef is replaced, it must not be processed by the queue.
+      // Removing from queue is not possible, so we set it to "dead" and skip
+      // this reference in expunge. This prevents us from removing wrong keys.
+
+      if (existing instanceof BeanRef) {
+        ((BeanRef) existing).setDead();
+        weakCount--;
       }
     }
 
@@ -281,6 +290,7 @@ public final class DefaultPersistenceContext implements PersistenceContext {
 
     private final ClassContext classContext;
     private final Object key;
+    private boolean alive = true;
 
     private BeanRef(ClassContext classContext, Object key, Object referent, ReferenceQueue<? super Object> q) {
       super(referent, q);
@@ -288,10 +298,15 @@ public final class DefaultPersistenceContext implements PersistenceContext {
       this.key = key;
     }
 
-    private void expunge() {
-      classContext.remove(key);
+    private void setDead() {
+      alive = false;
     }
 
+    private void expunge() {
+      if (alive) {
+        classContext.remove(key);
+      }
+    }
   }
 
 }
