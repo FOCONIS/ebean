@@ -151,7 +151,7 @@ public class RsetDataReader implements DataReader {
 
   @Override
   public Time getTime() throws SQLException {
-    Calendar cal = dataTimeZone.getTimeZone();
+    Calendar cal = dataTimeZone.getDateTimeZone();
     if (cal != null) {
       return rset.getTime(pos(), cal);
     } else {
@@ -161,7 +161,7 @@ public class RsetDataReader implements DataReader {
 
   @Override
   public Timestamp getTimestamp() throws SQLException {
-    Calendar cal = dataTimeZone.getTimeZone();
+    Calendar cal = dataTimeZone.getDateTimeZone();
     if (cal != null) {
       return rset.getTimestamp(pos(), cal);
     } else {
