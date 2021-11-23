@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.io.Writer;
 import java.sql.Date;
 import java.sql.Timestamp;
+import java.time.DateTimeException;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -23,12 +24,21 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import java.util.TimeZone;
+import java.util.stream.Stream;
 
+import org.assertj.core.api.SoftAssertions;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.ExtensionContext;
+import org.junit.jupiter.api.extension.TestInstanceFactory;
+import org.junit.jupiter.api.extension.TestInstanceFactoryContext;
+import org.junit.jupiter.api.extension.TestInstantiationException;
+import org.junit.jupiter.api.extension.TestTemplateInvocationContext;
+import org.junit.jupiter.api.extension.TestTemplateInvocationContextProvider;
 import org.tests.model.basic.MDateTime;
 
 import io.ebean.BaseTestCase;
@@ -38,6 +48,7 @@ import io.ebean.FetchPath;
 import io.ebean.config.DatabaseConfig;
 import io.ebean.config.dbplatform.mariadb.MariaDbPlatform;
 import io.ebean.config.dbplatform.sqlserver.SqlServer17Platform;
+import io.ebean.core.type.ScalarType;
 import io.ebean.plugin.ExpressionPath;
 import io.ebean.plugin.Property;
 import io.ebean.text.PathProperties;
@@ -45,14 +56,47 @@ import io.ebean.text.json.JsonWriteOptions;
 import io.ebean.util.CamelCaseHelper;
 import io.ebeaninternal.server.deploy.BeanProperty;
 
-public class DatesAndTimesTest  {
+public class DatesAndTimesTest {
 
+  public static class DatesAndTimesTestWithNanos extends DatesAndTimesTest {
+
+    @Override
+    protected void reconfigure(DatabaseConfig config) {
+      config.setLocalTimeWithNanos(true);
+    }
+
+  }
+
+  public static class DatesAndTimesWithMillis extends DatesAndTimesTest {
+
+    @Override
+    protected void reconfigure(DatabaseConfig config) {
+      config.setJsonDate(io.ebean.config.JsonConfig.Date.MILLIS);
+      config.setJsonDateTime(io.ebean.config.JsonConfig.DateTime.MILLIS);
+    }
+
+  }
+  
+  
+  public static class DatesAndTimesWithNanos extends DatesAndTimesTest {
+
+    @Override
+    protected void reconfigure(DatabaseConfig config) {
+      config.setJsonDateTime(io.ebean.config.JsonConfig.DateTime.NANOS);
+    }
+
+  }
+  
   private Database db;
   private TimeZone tz;
   private String json;
+  private DatabaseConfig config;
+  private SoftAssertions softly;
+  private String formatted;
 
   @BeforeEach
   public void setup() {
+    softly = new SoftAssertions();
     tz = TimeZone.getDefault();
     db = createServer("GMT"); // test uses GMT database
   }
@@ -62,6 +106,7 @@ public class DatesAndTimesTest  {
     db.find(MDateTime.class).delete();
     db.shutdown();
     setJavaTimeZone(tz);
+    softly.assertAll();
   }
 
   private void restartServer(String javaTimeZone, String dbTimeZone) {
@@ -79,7 +124,7 @@ public class DatesAndTimesTest  {
   
   private Database createServer(String dbTimeZone) {
 
-    DatabaseConfig config = new DatabaseConfig();
+    config = new DatabaseConfig();
     config.setName("h2other");
     config.loadFromProperties();
     config.setDdlGenerate(true);
@@ -92,11 +137,11 @@ public class DatesAndTimesTest  {
     
     config.setDumpMetricsOnShutdown(false);
     
-    //config.setLocalTimeWithNanos(true);
+    
 
     // no matter what timezones are set. LocalDate / LocalDateTime and LocalTime are never converted
     config.setDataTimeZone(dbTimeZone);
-    
+    reconfigure(config);
 
     // Mariadb
     // config.setDdlCreateOnly(false);
@@ -125,11 +170,21 @@ public class DatesAndTimesTest  {
     return DatabaseFactory.create(config);
   }
 
+  protected void reconfigure(DatabaseConfig config) {
+    
+  }
+
   @Test
   public void testLocalTime() {
+    if (config.isLocalTimeWithNanos()) {
+      LocalTime lt = LocalTime.of(5, 15, 15,123456789);
+      doTest("localTime", lt, String.valueOf(lt.toNanoOfDay())); 
+      softly.assertThat(json).isEqualTo("{\"localTime\":\"05:15:15.123456789\"}");
+      return;
+    }
     // localTimes are never converted, when read or written to database
     doTest("localTime", LocalTime.of(5, 15, 15), "05:15:15");
-    assertThat(json).isEqualTo("{\"localTime\":\"05:15:15\"}");
+    softly.assertThat(json).isEqualTo("{\"localTime\":\"05:15:15\"}");
     
     doTest("localTime", LocalTime.of(0, 0, 0), "00:00:00");
     doTest("localTime", LocalTime.of(23, 59, 59), "23:59:59");
@@ -151,7 +206,7 @@ public class DatesAndTimesTest  {
   public void testJodaLocalTime() {
     // localTimes are never converted, when read or written to database
     doTest("jodaLocalTime", org.joda.time.LocalTime.parse("05:15:15"), "05:15:15");
-    assertThat(json).isEqualTo("{\"jodaLocalTime\":\"05:15:15.000\"}");
+    softly.assertThat(json).isEqualTo("{\"jodaLocalTime\":\"05:15:15.000\"}");
     
     doTest("jodaLocalTime", org.joda.time.LocalTime.parse("00:00:00"), "00:00:00");
     doTest("jodaLocalTime", org.joda.time.LocalTime.parse("23:59:59"), "23:59:59");
@@ -174,8 +229,12 @@ public class DatesAndTimesTest  {
 
     // Test with DST and no DST date (in germany)
     doTest("localDate", LocalDate.parse("2021-11-21"), "2021-11-21");
-    assertThat(json).isEqualTo("{\"localDate\":\"2021-11-21\"}");
-    
+    if (config.getJsonDate() == io.ebean.config.JsonConfig.Date.ISO8601) {
+      softly.assertThat(json).isEqualTo("{\"localDate\":\"2021-11-21\"}");
+    } else {
+      softly.assertThat(json).isEqualTo("{\"localDate\":1637452800000}"); // 21-nov 00:00 GMT
+    }
+
     doTest("localDate", LocalDate.parse("2021-08-21"), "2021-08-21");
 
     restartServer("PST", "Europe/Berlin");
@@ -193,7 +252,12 @@ public class DatesAndTimesTest  {
 
     // Test with DST and no DST date (in germany)
     doTest("jodaLocalDate", org.joda.time.LocalDate.parse("2021-11-21"), "2021-11-21");
-    assertThat(json).isEqualTo("{\"jodaLocalDate\":\"2021-11-21\"}");
+    if (config.getJsonDate() == io.ebean.config.JsonConfig.Date.ISO8601) {
+      softly.assertThat(json).isEqualTo("{\"jodaLocalDate\":\"2021-11-21\"}");
+    } else {
+      softly.assertThat(json).isEqualTo("{\"jodaLocalDate\":1637452800000}"); // GMT: 00:00
+    }
+
     
     doTest("jodaLocalDate", org.joda.time.LocalDate.parse("2021-08-21"), "2021-08-21");
 
@@ -215,11 +279,16 @@ public class DatesAndTimesTest  {
     cal.setTimeInMillis(0); // clear
     cal.set(2021, 8 - 1, 21, 5, 15, 15); // month 0-based!
 
-    assertThat(cal.toInstant()).isEqualTo(Instant.parse("2021-08-21T05:15:15Z"));
+    softly.assertThat(cal.toInstant()).isEqualTo(Instant.parse("2021-08-21T05:15:15Z"));
 
-    System.out.println(cal.toInstant());
     doTest("calendar", cal, "2021-08-21 05:15:15");
-    assertThat(json).isEqualTo("{\"calendar\":\"2021-08-21T05:15:15.000Z\"}");
+    if (config.getJsonDateTime() == io.ebean.config.JsonConfig.DateTime.ISO8601) {
+      softly.assertThat(json).isEqualTo("{\"calendar\":\"2021-08-21T05:15:15.000Z\"}");
+    } else if (config.getJsonDateTime() == io.ebean.config.JsonConfig.DateTime.MILLIS) {
+      softly.assertThat(json).isEqualTo("{\"calendar\":1629522915000}");
+    } else {
+      softly.assertThat(json).isEqualTo("{\"calendar\":1629522915.000000000}"); // 05:15 GMT
+    }
     // test in PST time zone
 
     restartServer("PST", "GMT");
@@ -227,10 +296,16 @@ public class DatesAndTimesTest  {
     cal.setTimeInMillis(0); // clear
     cal.set(2021, 8 - 1, 20, 22, 15, 15); // month 0-based!
 
-    assertThat(cal.toInstant()).isEqualTo(Instant.parse("2021-08-21T05:15:15Z"));
+    softly.assertThat(cal.toInstant()).isEqualTo(Instant.parse("2021-08-21T05:15:15Z"));
 
     doTest("calendar", cal, "2021-08-21 05:15:15");
-    assertThat(json).isEqualTo("{\"calendar\":\"2021-08-21T05:15:15.000Z\"}");
+    if (config.getJsonDateTime() == io.ebean.config.JsonConfig.DateTime.ISO8601) {
+      softly.assertThat(json).isEqualTo("{\"calendar\":\"2021-08-21T05:15:15.000Z\"}");
+    } else if (config.getJsonDateTime() == io.ebean.config.JsonConfig.DateTime.MILLIS) {
+      softly.assertThat(json).isEqualTo("{\"calendar\":1629522915000}");
+    } else {
+      softly.assertThat(json).isEqualTo("{\"calendar\":1629522915.000000000}");
+    }
   }
 
   @Test
@@ -238,7 +313,14 @@ public class DatesAndTimesTest  {
 
     // Test with DST and no DST date (in germany)
     doTest("instant", Instant.parse("2021-11-21T05:15:15Z"), "2021-11-21 05:15:15");
-    assertThat(json).isEqualTo("{\"instant\":\"2021-11-21T05:15:15Z\"}"); // uses instant precision
+    if (config.getJsonDateTime() == io.ebean.config.JsonConfig.DateTime.ISO8601) {
+      softly.assertThat(json).isEqualTo("{\"instant\":\"2021-11-21T05:15:15Z\"}");
+    } else if (config.getJsonDateTime()  == io.ebean.config.JsonConfig.DateTime.MILLIS) {
+      softly.assertThat(json).isEqualTo("{\"instant\":1637471715000}");
+    } else {
+      softly.assertThat(json).isEqualTo("{\"instant\":1637471715.000000000}"); // 05:15 GMT
+    }
+
     
     doTest("instant", Instant.parse("2021-08-21T05:15:15Z"), "2021-08-21 05:15:15");
 
@@ -253,7 +335,11 @@ public class DatesAndTimesTest  {
 
     // Test with DST and no DST date (in germany)
     doTest("jodaDateTime", org.joda.time.DateTime.parse("2021-11-21T05:15:15Z"), "2021-11-21 05:15:15");
-    assertThat(json).isEqualTo("{\"jodaDateTime\":\"2021-11-21T05:15:15.000Z\"}");
+    if (config.getJsonDateTime() == io.ebean.config.JsonConfig.DateTime.ISO8601) {
+      softly.assertThat(json).isEqualTo("{\"jodaDateTime\":\"2021-11-21T05:15:15.000Z\"}");
+    } else {
+      softly.assertThat(json).isEqualTo("{\"jodaDateTime\":1637471715000}");
+    }
     
     doTest("jodaDateTime", org.joda.time.DateTime.parse("2021-08-21T05:15:15Z"), "2021-08-21 05:15:15");
 
@@ -268,7 +354,13 @@ public class DatesAndTimesTest  {
 
     // Test with DST and no DST date (in germany)
     doTest("localDateTime", LocalDateTime.parse("2021-11-21T05:15:15"), "2021-11-21 05:15:15");
-    assertThat(json).isEqualTo("{\"localDateTime\":\"2021-11-21T05:15:15\"}");
+    if (config.getJsonDateTime() == io.ebean.config.JsonConfig.DateTime.ISO8601) {
+      softly.assertThat(json).isEqualTo("{\"localDateTime\":\"2021-11-21T05:15:15\"}");
+    } else if (config.getJsonDateTime() == io.ebean.config.JsonConfig.DateTime.MILLIS) {
+      softly.assertThat(json).isEqualTo("{\"localDateTime\":1637471715000}");
+    } else {
+      softly.assertThat(json).isEqualTo("{\"localDateTime\":1637471715.000000000}");
+    }
     
     doTest("localDateTime", LocalDateTime.parse("2021-08-21T05:15:15"), "2021-08-21 05:15:15");
 
@@ -287,7 +379,11 @@ public class DatesAndTimesTest  {
 
     // Test with DST and no DST date (in germany)
     doTest("jodaLocalDateTime", org.joda.time.LocalDateTime.parse("2021-11-21T05:15:15"), "2021-11-21 05:15:15");
-    assertThat(json).isEqualTo("{\"jodaLocalDateTime\":\"2021-11-21T05:15:15.000\"}");
+    if (config.getJsonDateTime() == io.ebean.config.JsonConfig.DateTime.ISO8601) {
+      softly.assertThat(json).isEqualTo("{\"jodaLocalDateTime\":\"2021-11-21T05:15:15.000\"}");
+    } else {
+      softly.assertThat(json).isEqualTo("{\"jodaLocalDateTime\":1637471715000}"); // 05:15:15 GMT
+    }
     
     doTest("jodaLocalDateTime", org.joda.time.LocalDateTime.parse("2021-08-21T05:15:15"), "2021-08-21 05:15:15");
 
@@ -306,7 +402,11 @@ public class DatesAndTimesTest  {
 
     // Test with DST and no DST date (in germany)
     doTest("jodaDateMidnight", org.joda.time.DateMidnight.parse("2021-11-21"), "2021-11-21");
-    assertThat(json).isEqualTo("{\"jodaDateMidnight\":\"2021-11-21\"}");
+    if (config.getJsonDate() == io.ebean.config.JsonConfig.Date.ISO8601) {
+      softly.assertThat(json).isEqualTo("{\"jodaDateMidnight\":\"2021-11-21\"}");
+    } else {
+      softly.assertThat(json).isEqualTo("{\"jodaDateMidnight\":1637449200000}");
+    }
     
     doTest("jodaDateMidnight", org.joda.time.DateMidnight.parse("2021-08-21"), "2021-08-21");
 
@@ -324,7 +424,11 @@ public class DatesAndTimesTest  {
 
     // Test with DST and no DST date (in germany)
     doTest("yearMonth", YearMonth.of(2020, 2), "2020-02-01");
-    assertThat(json).isEqualTo("{\"yearMonth\":\"2020-02-01\"}");
+    if (config.getJsonDate() == io.ebean.config.JsonConfig.Date.ISO8601) {
+      softly.assertThat(json).isEqualTo("{\"yearMonth\":\"2020-02-01\"}");
+    } else {
+      softly.assertThat(json).isEqualTo("{\"yearMonth\":1580515200000}"); // 00:00 GMT
+    }
     doTest("yearMonth", YearMonth.of(2020, 3), "2020-03-01");
     doTest("yearMonth", YearMonth.of(2020, 4), "2020-04-01");
 
@@ -341,7 +445,7 @@ public class DatesAndTimesTest  {
 
     // Test with DST and no DST date (in germany)
     doTest("monthDay", MonthDay.of(11, 21), "2000-11-21");
-    assertThat(json).isEqualTo("{\"monthDay\":\"--11-21\"}");
+    softly.assertThat(json).isEqualTo("{\"monthDay\":\"--11-21\"}");
     doTest("monthDay", MonthDay.of(8, 21), "2000-08-21");
     doTest("monthDay", MonthDay.of(2, 29), "2000-02-29"); // leap year check
 
@@ -360,8 +464,12 @@ public class DatesAndTimesTest  {
   public void testSqlDate() {
     // localTimes are never converted, when read or written to database
     doTest("sqlDate", new java.sql.Date(2021 - 1900, 11 - 1, 21), "2021-11-21");
-    assertThat(json).isEqualTo("{\"sqlDate\":\"2021-11-21\"}");
-    
+    if (config.getJsonDate() == io.ebean.config.JsonConfig.Date.ISO8601) {
+      softly.assertThat(json).isEqualTo("{\"sqlDate\":\"2021-11-21\"}");
+    } else {
+      softly.assertThat(json).isEqualTo("{\"sqlDate\":1629504000000}"); // 00:00 GMT
+    }
+
     doTest("sqlDate", new java.sql.Date(2021 - 1900, 8 - 1, 21), "2021-08-21");
 
     // it does not matter in which timezone the server or java is!
@@ -380,7 +488,7 @@ public class DatesAndTimesTest  {
 
     // Test with DST and no DST date (in germany)
     doTest("sqlTime", new java.sql.Time(5, 15, 15), "05:15:15");
-    assertThat(json).isEqualTo("{\"sqlTime\":\"05:15:15\"}");
+    softly.assertThat(json).isEqualTo("{\"sqlTime\":\"05:15:15\"}");
     
     doTest("sqlTime", new java.sql.Time(0, 0, 0), "00:00:00");
     doTest("sqlTime", new java.sql.Time(23, 59, 59), "23:59:59");
@@ -400,7 +508,14 @@ public class DatesAndTimesTest  {
   public void testTimestamp() {
     restartServer("PST", "PST"); // java & db in same TZ
     doTest("timestamp", new Timestamp(2021 - 1900, 11 - 1, 21, 5, 15, 15, 0), "2021-11-21 05:15:15");
-    assertThat(json).isEqualTo("{\"timestamp\":\"2021-11-21T13:15:15Z\"}");
+    if (config.getJsonDateTime() == io.ebean.config.JsonConfig.DateTime.ISO8601) {
+      softly.assertThat(json).isEqualTo("{\"timestamp\":\"2021-11-21T13:15:15Z\"}");
+    } else if (config.getJsonDateTime()  == io.ebean.config.JsonConfig.DateTime.MILLIS) {
+      softly.assertThat(json).isEqualTo("{\"timestamp\":1637500515000}");
+    } else {
+      softly.assertThat(json).isEqualTo("{\"timestamp\":1637500515.000000000}");
+    }
+
     
     restartServer("Europe/Berlin", "GMT"); // go to germany
     doTest("timestamp", new Timestamp(2021 - 1900, 11 - 1, 21, 6, 15, 15, 0), "2021-11-21 05:15:15");
@@ -427,7 +542,14 @@ public class DatesAndTimesTest  {
   public void testUtilDate() {
     restartServer("PST", "PST"); // java & db in same TZ
     doTest("utilDate", new java.util.Date(2021 - 1900, 11 - 1, 21, 5, 15, 15), "2021-11-21 05:15:15");
-    assertThat(json).isEqualTo("{\"utilDate\":\"2021-11-21T13:15:15.000Z\"}");
+    if (config.getJsonDateTime() == io.ebean.config.JsonConfig.DateTime.ISO8601) {
+      softly.assertThat(json).isEqualTo("{\"utilDate\":\"2021-11-21T13:15:15.000Z\"}");
+    } else if (config.getJsonDateTime()  == io.ebean.config.JsonConfig.DateTime.MILLIS) {
+      softly.assertThat(json).isEqualTo("{\"utilDate\":1637500515000}");
+    } else {
+      softly.assertThat(json).isEqualTo("{\"utilDate\":1637500515.000000000}");
+    }
+
     
     restartServer("Europe/Berlin", "GMT"); // go to germany
     doTest("utilDate", new java.util.Date(2021 - 1900, 11 - 1, 21, 6, 15, 15), "2021-11-21 05:15:15");
@@ -455,7 +577,13 @@ public class DatesAndTimesTest  {
 
     restartServer("PST", "PST"); // be in the same TZ
     doTest("offsetDateTime", OffsetDateTime.parse("2021-11-20T21:15:15-08:00"), "2021-11-20 21:15:15");
-    assertThat(json).isEqualTo("{\"offsetDateTime\":\"2021-11-21T05:15:15Z\"}");
+    if (config.getJsonDateTime() == io.ebean.config.JsonConfig.DateTime.ISO8601) {
+      softly.assertThat(json).isEqualTo("{\"offsetDateTime\":\"2021-11-21T05:15:15Z\"}");
+    } else if (config.getJsonDateTime()  == io.ebean.config.JsonConfig.DateTime.MILLIS) {
+      softly.assertThat(json).isEqualTo("{\"offsetDateTime\":1637471715000}");
+    } else {
+      softly.assertThat(json).isEqualTo("{\"offsetDateTime\":1637471715.000000000}");
+    }
     
     restartServer("PST", "GMT"); // pass PST offsetDateTime to GMT DB
     doTest("offsetDateTime", OffsetDateTime.parse("2021-11-20T21:15:15-08:00"), "2021-11-21 05:15:15");
@@ -467,7 +595,13 @@ public class DatesAndTimesTest  {
 
     restartServer("PST", "PST"); // be in the same TZ
     doTest("zonedDateTime", ZonedDateTime.parse("2021-11-20T21:15:15-08:00"), "2021-11-20 21:15:15");
-    assertThat(json).isEqualTo("{\"zonedDateTime\":\"2021-11-21T05:15:15Z\"}");
+    if (config.getJsonDateTime() == io.ebean.config.JsonConfig.DateTime.ISO8601) {
+      softly.assertThat(json).isEqualTo("{\"zonedDateTime\":\"2021-11-21T05:15:15Z\"}");
+    } else if (config.getJsonDateTime()  == io.ebean.config.JsonConfig.DateTime.MILLIS) {
+      softly.assertThat(json).isEqualTo("{\"zonedDateTime\":1637471715000}"); // 05:15 GMT
+    } else {
+      softly.assertThat(json).isEqualTo("{\"zonedDateTime\":1637471715.000000000}");
+    }
     
     restartServer("PST", "GMT"); // pass PST offsetDateTime to GMT DB
     doTest("zonedDateTime", ZonedDateTime.parse("2021-11-20T21:15:15-08:00"), "2021-11-21 05:15:15");
@@ -477,52 +611,70 @@ public class DatesAndTimesTest  {
 //  zonedDateTime : ZonedDateTime
   private <T extends Comparable<? super T>> void doTest(String property,T javaValue, String sqlValue ) {
     db.find(MDateTime.class).delete(); // clear database
-    String sqlColumn  = CamelCaseHelper.toUnderscoreFromCamel(property);
+    String sqlColumn = CamelCaseHelper.toUnderscoreFromCamel(property);
     // insert with raw sql
-    db.sqlUpdate("insert into mdate_time (id, "+sqlColumn+") values (1, '" + sqlValue +"')").execute();
-    
+    db.sqlUpdate("insert into mdate_time (id, " + sqlColumn + ") values (1, '" + sqlValue + "')").execute();
+
     // check findSingleAttributeList
-    List<T> list = db.find(MDateTime.class)
-        .select(property)
-        .findSingleAttributeList();
-    assertThat(list).hasSize(1);
+    List<T> list = db.find(MDateTime.class).select(property).findSingleAttributeList();
+    softly.assertThat(list).as(sqlValue).hasSize(1);
     T attr = list.get(0);
-  
-    
+    assertTimeEquals("find attribute", attr, javaValue);
+
     // check find model
     MDateTime model = db.find(MDateTime.class).where().eq(property, javaValue).findOne();
     Property beanProp = db.pluginApi().beanType(MDateTime.class).property(property);
-    assertThat(model).isNotNull();
+    softly.assertThat(model).as(sqlValue).isNotNull();
     @SuppressWarnings("unchecked")
     T beanValue = (T) beanProp.value(model);
-    assertTimeEquals(beanValue, javaValue);
-    
+    assertTimeEquals("read from model", beanValue, javaValue);
+
     // insert with "save"
     model = new MDateTime();
     model.setId(2);
-    ((ExpressionPath)beanProp).pathSet(model, javaValue);
+    ((ExpressionPath) beanProp).pathSet(model, javaValue);
     db.save(model);
-    
+
     // check findCount
     int count = db.find(MDateTime.class).where().eq(property, javaValue).findCount();
-    assertThat(count).isEqualTo(2);
-    
+    softly.assertThat(count).as(sqlValue).isEqualTo(2);
+
     JsonWriteOptions opts = new JsonWriteOptions();
     opts.setPathProperties(PathProperties.parse(property));
     // check json roundtrip
-    json = db.json().toJson(model , opts );
+    json = db.json().toJson(model, opts);
+    System.out.println(json);
     model = db.json().toBean(MDateTime.class, json);
     beanValue = (T) beanProp.value(model);
-    assertTimeEquals(beanValue, javaValue);
+    assertTimeEquals(sqlValue + " -json roundtrip", beanValue, javaValue);
+
+    ScalarType<T> st = (ScalarType<T>) ((BeanProperty) beanProp).scalarType();
+    formatted = st.formatValue(javaValue);
+    assertTimeEquals(sqlValue + " - parse/format symmetry", st.parse(formatted), javaValue);
+    if (st instanceof ScalarTypeBaseDate) {
+      ScalarTypeBaseDate<T> st2 = (ScalarTypeBaseDate<T>) st;
+      Date date = st2.convertToDate(javaValue);
+      assertTimeEquals(sqlValue + " -date convert symmetry", st2.convertFromDate(date), javaValue);
+      long millis = st2.convertToMillis(javaValue);
+      assertTimeEquals(sqlValue + " -millis convert symmetry", st2.convertFromMillis(millis), javaValue);
+    }
+    if (st instanceof ScalarTypeBaseDateTime) {
+      ScalarTypeBaseDateTime<T> st2 = (ScalarTypeBaseDateTime<T>) st;
+      Timestamp ts = st2.convertToTimestamp(javaValue);
+      assertTimeEquals(sqlValue + " -timestamp convert symmetry", st2.convertFromTimestamp(ts), javaValue);
+      long millis = st2.convertToMillis(javaValue);
+      assertTimeEquals(sqlValue + " -millis convert symmetry", st2.convertFromMillis(millis), javaValue);
+      assertTimeEquals(sqlValue + " -instant convert symmetry", st2.convertFromInstant(ts.toInstant()), javaValue);
+    }
   }
 
-  private <T extends Comparable<? super T>> void assertTimeEquals(T value, T expected) {
+  private <T extends Comparable<? super T>> void assertTimeEquals(String msg, T value, T expected) {
     if (value instanceof OffsetDateTime) {
-      assertThat((OffsetDateTime) value).isAtSameInstantAs((OffsetDateTime) expected);
+      softly.assertThat((OffsetDateTime) value).as(msg).isAtSameInstantAs((OffsetDateTime) expected);
     } else if (value instanceof ZonedDateTime) {
-      assertThat(((ZonedDateTime) value).toInstant()).isEqualTo(((ZonedDateTime) expected).toInstant());
+      softly.assertThat(((ZonedDateTime) value).toInstant()).as(msg).isEqualTo(((ZonedDateTime) expected).toInstant());
     } else {
-      assertThat(value).isEqualByComparingTo(expected);
+      softly.assertThat(value).as(msg).isEqualByComparingTo(expected);
     }
   }
 

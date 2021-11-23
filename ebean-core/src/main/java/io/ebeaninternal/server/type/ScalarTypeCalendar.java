@@ -61,7 +61,8 @@ final class ScalarTypeCalendar extends ScalarTypeBaseDateTime<Calendar> {
 
   @Override
   protected String toJsonNanos(Calendar value) {
-    return String.valueOf(value.getTime());
+    Instant i = value.toInstant();
+    return toJsonNanos(i.getEpochSecond(), i.getNano());
   }
 
   @Override

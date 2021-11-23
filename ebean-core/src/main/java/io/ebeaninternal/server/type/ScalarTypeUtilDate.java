@@ -26,7 +26,7 @@ final class ScalarTypeUtilDate {
 
     @Override
     protected String toJsonNanos(Date value) {
-      return String.valueOf(value.getTime());
+      return toJsonNanos(value.getTime()); 
     }
 
     @Override

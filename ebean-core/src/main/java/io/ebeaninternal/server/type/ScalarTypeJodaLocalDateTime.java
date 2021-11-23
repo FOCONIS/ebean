@@ -3,6 +3,8 @@ package io.ebeaninternal.server.type;
 import io.ebean.config.JsonConfig;
 import io.ebean.config.dbplatform.DbPlatformType;
 import io.ebeaninternal.server.core.BasicTypeConverter;
+
+import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDateTime;
 
 import java.sql.Timestamp;
@@ -19,6 +21,7 @@ final class ScalarTypeJodaLocalDateTime extends ScalarTypeBaseDateTime<LocalDate
 
   @Override
   protected String toJsonNanos(LocalDateTime value) {
+    long ms = value.toDateTime(DateTimeZone.UTC).getMillis();
     return String.valueOf(value.toDateTime().getMillis());
   }
 
@@ -34,7 +37,7 @@ final class ScalarTypeJodaLocalDateTime extends ScalarTypeBaseDateTime<LocalDate
 
   @Override
   public long convertToMillis(LocalDateTime value) {
-    return value.toDateTime().getMillis();
+    return value.toDateTime(DateTimeZone.UTC).getMillis();
   }
 
   @Override
