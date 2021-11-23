@@ -107,7 +107,7 @@ abstract class ScalarTypeBaseDateTime<T> extends ScalarTypeBase<T> {
   }
 
   @Override
-  public T jsonRead(JsonParser parser) throws IOException {
+  public final T jsonRead(JsonParser parser) throws IOException {
     switch (parser.getCurrentToken()) {
       case VALUE_NUMBER_INT: {
         return convertFromMillis(parser.getLongValue());
@@ -124,7 +124,7 @@ abstract class ScalarTypeBaseDateTime<T> extends ScalarTypeBase<T> {
   }
 
   @Override
-  public void jsonWrite(JsonGenerator writer, T value) throws IOException {
+  public final void jsonWrite(JsonGenerator writer, T value) throws IOException {
     switch (mode) {
       case ISO8601: {
         writer.writeString(toJsonISO8601(value));

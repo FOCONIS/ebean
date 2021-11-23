@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.io.Writer;
 import java.sql.Date;
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -33,11 +34,14 @@ import org.tests.model.basic.MDateTime;
 import io.ebean.BaseTestCase;
 import io.ebean.Database;
 import io.ebean.DatabaseFactory;
+import io.ebean.FetchPath;
 import io.ebean.config.DatabaseConfig;
 import io.ebean.config.dbplatform.mariadb.MariaDbPlatform;
 import io.ebean.config.dbplatform.sqlserver.SqlServer17Platform;
 import io.ebean.plugin.ExpressionPath;
 import io.ebean.plugin.Property;
+import io.ebean.text.PathProperties;
+import io.ebean.text.json.JsonWriteOptions;
 import io.ebean.util.CamelCaseHelper;
 import io.ebeaninternal.server.deploy.BeanProperty;
 
@@ -45,6 +49,7 @@ public class DatesAndTimesTest  {
 
   private Database db;
   private TimeZone tz;
+  private String json;
 
   @BeforeEach
   public void setup() {
@@ -85,6 +90,8 @@ public class DatesAndTimesTest  {
     config.setChangeLogAsync(false);
     config.addClass(MDateTime.class);
     
+    config.setDumpMetricsOnShutdown(false);
+    
     //config.setLocalTimeWithNanos(true);
 
     // no matter what timezones are set. LocalDate / LocalDateTime and LocalTime are never converted
@@ -122,6 +129,8 @@ public class DatesAndTimesTest  {
   public void testLocalTime() {
     // localTimes are never converted, when read or written to database
     doTest("localTime", LocalTime.of(5, 15, 15), "05:15:15");
+    assertThat(json).isEqualTo("{\"localTime\":\"05:15:15\"}");
+    
     doTest("localTime", LocalTime.of(0, 0, 0), "00:00:00");
     doTest("localTime", LocalTime.of(23, 59, 59), "23:59:59");
 
@@ -142,6 +151,8 @@ public class DatesAndTimesTest  {
   public void testJodaLocalTime() {
     // localTimes are never converted, when read or written to database
     doTest("jodaLocalTime", org.joda.time.LocalTime.parse("05:15:15"), "05:15:15");
+    assertThat(json).isEqualTo("{\"jodaLocalTime\":\"05:15:15.000\"}");
+    
     doTest("jodaLocalTime", org.joda.time.LocalTime.parse("00:00:00"), "00:00:00");
     doTest("jodaLocalTime", org.joda.time.LocalTime.parse("23:59:59"), "23:59:59");
 
@@ -163,6 +174,8 @@ public class DatesAndTimesTest  {
 
     // Test with DST and no DST date (in germany)
     doTest("localDate", LocalDate.parse("2021-11-21"), "2021-11-21");
+    assertThat(json).isEqualTo("{\"localDate\":\"2021-11-21\"}");
+    
     doTest("localDate", LocalDate.parse("2021-08-21"), "2021-08-21");
 
     restartServer("PST", "Europe/Berlin");
@@ -180,6 +193,8 @@ public class DatesAndTimesTest  {
 
     // Test with DST and no DST date (in germany)
     doTest("jodaLocalDate", org.joda.time.LocalDate.parse("2021-11-21"), "2021-11-21");
+    assertThat(json).isEqualTo("{\"jodaLocalDate\":\"2021-11-21\"}");
+    
     doTest("jodaLocalDate", org.joda.time.LocalDate.parse("2021-08-21"), "2021-08-21");
 
     restartServer("PST", "Europe/Berlin");
@@ -204,7 +219,7 @@ public class DatesAndTimesTest  {
 
     System.out.println(cal.toInstant());
     doTest("calendar", cal, "2021-08-21 05:15:15");
-
+    assertThat(json).isEqualTo("{\"calendar\":\"2021-08-21T05:15:15.000Z\"}");
     // test in PST time zone
 
     restartServer("PST", "GMT");
@@ -215,6 +230,7 @@ public class DatesAndTimesTest  {
     assertThat(cal.toInstant()).isEqualTo(Instant.parse("2021-08-21T05:15:15Z"));
 
     doTest("calendar", cal, "2021-08-21 05:15:15");
+    assertThat(json).isEqualTo("{\"calendar\":\"2021-08-21T05:15:15.000Z\"}");
   }
 
   @Test
@@ -222,6 +238,8 @@ public class DatesAndTimesTest  {
 
     // Test with DST and no DST date (in germany)
     doTest("instant", Instant.parse("2021-11-21T05:15:15Z"), "2021-11-21 05:15:15");
+    assertThat(json).isEqualTo("{\"instant\":\"2021-11-21T05:15:15Z\"}"); // uses instant precision
+    
     doTest("instant", Instant.parse("2021-08-21T05:15:15Z"), "2021-08-21 05:15:15");
 
     restartServer("PST", "GMT");
@@ -235,6 +253,8 @@ public class DatesAndTimesTest  {
 
     // Test with DST and no DST date (in germany)
     doTest("jodaDateTime", org.joda.time.DateTime.parse("2021-11-21T05:15:15Z"), "2021-11-21 05:15:15");
+    assertThat(json).isEqualTo("{\"jodaDateTime\":\"2021-11-21T05:15:15.000Z\"}");
+    
     doTest("jodaDateTime", org.joda.time.DateTime.parse("2021-08-21T05:15:15Z"), "2021-08-21 05:15:15");
 
     restartServer("PST", "GMT");
@@ -248,6 +268,8 @@ public class DatesAndTimesTest  {
 
     // Test with DST and no DST date (in germany)
     doTest("localDateTime", LocalDateTime.parse("2021-11-21T05:15:15"), "2021-11-21 05:15:15");
+    assertThat(json).isEqualTo("{\"localDateTime\":\"2021-11-21T05:15:15\"}");
+    
     doTest("localDateTime", LocalDateTime.parse("2021-08-21T05:15:15"), "2021-08-21 05:15:15");
 
     restartServer("PST", "Europe/Berlin");
@@ -265,6 +287,8 @@ public class DatesAndTimesTest  {
 
     // Test with DST and no DST date (in germany)
     doTest("jodaLocalDateTime", org.joda.time.LocalDateTime.parse("2021-11-21T05:15:15"), "2021-11-21 05:15:15");
+    assertThat(json).isEqualTo("{\"jodaLocalDateTime\":\"2021-11-21T05:15:15.000\"}");
+    
     doTest("jodaLocalDateTime", org.joda.time.LocalDateTime.parse("2021-08-21T05:15:15"), "2021-08-21 05:15:15");
 
     restartServer("PST", "Europe/Berlin");
@@ -282,6 +306,8 @@ public class DatesAndTimesTest  {
 
     // Test with DST and no DST date (in germany)
     doTest("jodaDateMidnight", org.joda.time.DateMidnight.parse("2021-11-21"), "2021-11-21");
+    assertThat(json).isEqualTo("{\"jodaDateMidnight\":\"2021-11-21\"}");
+    
     doTest("jodaDateMidnight", org.joda.time.DateMidnight.parse("2021-08-21"), "2021-08-21");
 
     restartServer("PST", "Europe/Berlin");
@@ -298,6 +324,7 @@ public class DatesAndTimesTest  {
 
     // Test with DST and no DST date (in germany)
     doTest("yearMonth", YearMonth.of(2020, 2), "2020-02-01");
+    assertThat(json).isEqualTo("{\"yearMonth\":\"2020-02-01\"}");
     doTest("yearMonth", YearMonth.of(2020, 3), "2020-03-01");
     doTest("yearMonth", YearMonth.of(2020, 4), "2020-04-01");
 
@@ -314,6 +341,7 @@ public class DatesAndTimesTest  {
 
     // Test with DST and no DST date (in germany)
     doTest("monthDay", MonthDay.of(11, 21), "2000-11-21");
+    assertThat(json).isEqualTo("{\"monthDay\":\"--11-21\"}");
     doTest("monthDay", MonthDay.of(8, 21), "2000-08-21");
     doTest("monthDay", MonthDay.of(2, 29), "2000-02-29"); // leap year check
 
@@ -332,6 +360,8 @@ public class DatesAndTimesTest  {
   public void testSqlDate() {
     // localTimes are never converted, when read or written to database
     doTest("sqlDate", new java.sql.Date(2021 - 1900, 11 - 1, 21), "2021-11-21");
+    assertThat(json).isEqualTo("{\"sqlDate\":\"2021-11-21\"}");
+    
     doTest("sqlDate", new java.sql.Date(2021 - 1900, 8 - 1, 21), "2021-08-21");
 
     // it does not matter in which timezone the server or java is!
@@ -350,6 +380,8 @@ public class DatesAndTimesTest  {
 
     // Test with DST and no DST date (in germany)
     doTest("sqlTime", new java.sql.Time(5, 15, 15), "05:15:15");
+    assertThat(json).isEqualTo("{\"sqlTime\":\"05:15:15\"}");
+    
     doTest("sqlTime", new java.sql.Time(0, 0, 0), "00:00:00");
     doTest("sqlTime", new java.sql.Time(23, 59, 59), "23:59:59");
 
@@ -368,6 +400,7 @@ public class DatesAndTimesTest  {
   public void testTimestamp() {
     restartServer("PST", "PST"); // java & db in same TZ
     doTest("timestamp", new Timestamp(2021 - 1900, 11 - 1, 21, 5, 15, 15, 0), "2021-11-21 05:15:15");
+    assertThat(json).isEqualTo("{\"timestamp\":\"2021-11-21T13:15:15Z\"}");
     
     restartServer("Europe/Berlin", "GMT"); // go to germany
     doTest("timestamp", new Timestamp(2021 - 1900, 11 - 1, 21, 6, 15, 15, 0), "2021-11-21 05:15:15");
@@ -394,6 +427,7 @@ public class DatesAndTimesTest  {
   public void testUtilDate() {
     restartServer("PST", "PST"); // java & db in same TZ
     doTest("utilDate", new java.util.Date(2021 - 1900, 11 - 1, 21, 5, 15, 15), "2021-11-21 05:15:15");
+    assertThat(json).isEqualTo("{\"utilDate\":\"2021-11-21T13:15:15.000Z\"}");
     
     restartServer("Europe/Berlin", "GMT"); // go to germany
     doTest("utilDate", new java.util.Date(2021 - 1900, 11 - 1, 21, 6, 15, 15), "2021-11-21 05:15:15");
@@ -421,7 +455,8 @@ public class DatesAndTimesTest  {
 
     restartServer("PST", "PST"); // be in the same TZ
     doTest("offsetDateTime", OffsetDateTime.parse("2021-11-20T21:15:15-08:00"), "2021-11-20 21:15:15");
-
+    assertThat(json).isEqualTo("{\"offsetDateTime\":\"2021-11-21T05:15:15Z\"}");
+    
     restartServer("PST", "GMT"); // pass PST offsetDateTime to GMT DB
     doTest("offsetDateTime", OffsetDateTime.parse("2021-11-20T21:15:15-08:00"), "2021-11-21 05:15:15");
     
@@ -432,7 +467,8 @@ public class DatesAndTimesTest  {
 
     restartServer("PST", "PST"); // be in the same TZ
     doTest("zonedDateTime", ZonedDateTime.parse("2021-11-20T21:15:15-08:00"), "2021-11-20 21:15:15");
-
+    assertThat(json).isEqualTo("{\"zonedDateTime\":\"2021-11-21T05:15:15Z\"}");
+    
     restartServer("PST", "GMT"); // pass PST offsetDateTime to GMT DB
     doTest("zonedDateTime", ZonedDateTime.parse("2021-11-20T21:15:15-08:00"), "2021-11-21 05:15:15");
     
@@ -470,6 +506,14 @@ public class DatesAndTimesTest  {
     // check findCount
     int count = db.find(MDateTime.class).where().eq(property, javaValue).findCount();
     assertThat(count).isEqualTo(2);
+    
+    JsonWriteOptions opts = new JsonWriteOptions();
+    opts.setPathProperties(PathProperties.parse(property));
+    // check json roundtrip
+    json = db.json().toJson(model , opts );
+    model = db.json().toBean(MDateTime.class, json);
+    beanValue = (T) beanProp.value(model);
+    assertTimeEquals(beanValue, javaValue);
   }
 
   private <T extends Comparable<? super T>> void assertTimeEquals(T value, T expected) {

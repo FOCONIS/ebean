@@ -29,7 +29,7 @@ final class ScalarTypeOffsetDateTime extends ScalarTypeBaseDateTime<OffsetDateTi
 
   @Override
   protected String toJsonISO8601(OffsetDateTime value) {
-    return formatIso(value.toInstant());
+    return value.toInstant().toString();
   }
 
   @Override

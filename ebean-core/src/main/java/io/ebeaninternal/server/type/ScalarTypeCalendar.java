@@ -12,6 +12,7 @@ import java.time.Instant;
 import java.util.Calendar;
 
 import static io.ebeaninternal.server.type.IsoJsonDateTimeParser.formatIso;
+import static io.ebeaninternal.server.type.IsoJsonDateTimeParser.parseIso;
 
 /**
  * ScalarType for java.util.Calendar.
