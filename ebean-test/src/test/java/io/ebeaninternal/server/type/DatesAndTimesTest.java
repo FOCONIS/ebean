@@ -94,6 +94,7 @@ public class DatesAndTimesTest {
   private DatabaseConfig config;
   private SoftAssertions softly;
   private String formatted;
+  private long millis;
 
   @BeforeEach
   public void setup() {
@@ -126,7 +127,7 @@ public class DatesAndTimesTest {
   private Database createServer(String dbTimeZone) {
 
     config = new DatabaseConfig();
-    config.setName("h2");
+    config.setName("mariadb");
     config.loadFromProperties();
     config.setDdlGenerate(true);
     config.setDdlRun(true);
@@ -656,10 +657,11 @@ public class DatesAndTimesTest {
     MDateTime model = db.find(MDateTime.class).where().eq(property, javaValue).findOne();
     Property beanProp = db.pluginApi().beanType(MDateTime.class).property(property);
     softly.assertThat(model).as("find model " + testLoc).isNotNull();
-    @SuppressWarnings("unchecked")
-    T beanValue = (T) beanProp.value(model);
-    assertTimeEquals("read from model " + testLoc, beanValue, javaValue);
-
+    if (model != null) {
+      @SuppressWarnings("unchecked")
+      T beanValue = (T) beanProp.value(model);
+      assertTimeEquals("read from model " + testLoc, beanValue, javaValue);
+    }
     // insert with "save"
     model = new MDateTime();
     model.setId(2);
@@ -676,7 +678,7 @@ public class DatesAndTimesTest {
     json = db.json().toJson(model, opts);
     System.out.println(json);
     model = db.json().toBean(MDateTime.class, json);
-    beanValue = (T) beanProp.value(model);
+    T beanValue = (T) beanProp.value(model);
     assertTimeEquals("json roundtrip " + testLoc, beanValue, javaValue);
 
     ScalarType<T> st = (ScalarType) ((BeanProperty) beanProp).scalarType();
@@ -686,14 +688,14 @@ public class DatesAndTimesTest {
       ScalarTypeBaseDate<T> st2 = (ScalarTypeBaseDate<T>) st;
       Date date = st2.convertToDate(javaValue);
       assertTimeEquals("date convert symmetry " + testLoc, st2.convertFromDate(date), javaValue);
-      long millis = st2.convertToMillis(javaValue);
+      millis = st2.convertToMillis(javaValue);
       assertTimeEquals("millis convert symmetry " + testLoc, st2.convertFromMillis(millis), javaValue);
     }
     if (st instanceof ScalarTypeBaseDateTime) {
       ScalarTypeBaseDateTime<T> st2 = (ScalarTypeBaseDateTime<T>) st;
       Timestamp ts = st2.convertToTimestamp(javaValue);
       assertTimeEquals("timestamp convert symmetry " + testLoc, st2.convertFromTimestamp(ts), javaValue);
-      long millis = st2.convertToMillis(javaValue);
+       millis = st2.convertToMillis(javaValue);
       assertTimeEquals("millis convert symmetry " + testLoc, st2.convertFromMillis(millis), javaValue);
       assertTimeEquals("instant convert symmetry " + testLoc, st2.convertFromInstant(Instant.ofEpochMilli(millis)),
           javaValue);
