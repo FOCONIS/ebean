@@ -1,54 +1,46 @@
 package io.ebeaninternal.server.type;
 
 import static java.lang.String.format;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.within;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.DynamicTest.dynamicTest;
 
-import java.io.Writer;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.sql.Date;
 import java.sql.Timestamp;
-import java.time.DateTimeException;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.Month;
 import java.time.MonthDay;
 import java.time.OffsetDateTime;
 import java.time.Year;
 import java.time.YearMonth;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import java.util.TimeZone;
 import java.util.stream.Stream;
 
 import org.assertj.core.api.SoftAssertions;
-import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestFactory;
+import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.ExtensionContext;
-import org.junit.jupiter.api.extension.TestInstanceFactory;
-import org.junit.jupiter.api.extension.TestInstanceFactoryContext;
-import org.junit.jupiter.api.extension.TestInstantiationException;
 import org.junit.jupiter.api.extension.TestTemplateInvocationContext;
 import org.junit.jupiter.api.extension.TestTemplateInvocationContextProvider;
 import org.tests.model.basic.MDateTime;
 
-import io.ebean.BaseTestCase;
 import io.ebean.Database;
 import io.ebean.DatabaseFactory;
-import io.ebean.FetchPath;
 import io.ebean.config.DatabaseConfig;
-import io.ebean.config.dbplatform.mariadb.MariaDbPlatform;
-import io.ebean.config.dbplatform.sqlserver.SqlServer17Platform;
 import io.ebean.core.type.ScalarType;
 import io.ebean.plugin.ExpressionPath;
 import io.ebean.plugin.Property;
@@ -58,36 +50,29 @@ import io.ebean.util.CamelCaseHelper;
 import io.ebeaninternal.server.deploy.BeanProperty;
 
 public class DatesAndTimesTest {
-
+ 
   public static class DatesAndTimesWithNanosTest extends DatesAndTimesTest {
-
     @Override
     protected void reconfigure(DatabaseConfig config) {
       config.setLocalTimeWithNanos(true);
     }
-
   }
 
   public static class DatesAndTimesWithJsonMillisTest extends DatesAndTimesTest {
-
     @Override
     protected void reconfigure(DatabaseConfig config) {
       config.setJsonDate(io.ebean.config.JsonConfig.Date.MILLIS);
       config.setJsonDateTime(io.ebean.config.JsonConfig.DateTime.MILLIS);
     }
-
   }
-  
-  
-  public static class DatesAndTimesWithJsonNanosTest extends DatesAndTimesTest {
 
+  public static class DatesAndTimesWithJsonNanosTest extends DatesAndTimesTest {
     @Override
     protected void reconfigure(DatabaseConfig config) {
       config.setJsonDateTime(io.ebean.config.JsonConfig.DateTime.NANOS);
     }
-
   }
-  
+
   private Database db;
   private TimeZone tz;
   private String json;
@@ -119,7 +104,6 @@ public class DatesAndTimesTest {
 
   private void setJavaTimeZone(TimeZone newTz) {
     TimeZone.setDefault(newTz);
-    // set also joda TZ info
     DateTimeZone.setDefault(DateTimeZone.forTimeZone(newTz));
     org.h2.util.DateTimeUtils.resetCalendar();
   }
@@ -127,7 +111,7 @@ public class DatesAndTimesTest {
   private Database createServer(String dbTimeZone) {
 
     config = new DatabaseConfig();
-    config.setName("mariadb");
+    config.setName("h2");
     config.loadFromProperties();
     config.setDdlGenerate(true);
     config.setDdlRun(true);
@@ -138,10 +122,6 @@ public class DatesAndTimesTest {
     config.addClass(MDateTime.class);
     
     config.setDumpMetricsOnShutdown(false);
-    
-    
-
-    // no matter what timezones are set. LocalDate / LocalDateTime and LocalTime are never converted
     config.setDataTimeZone(dbTimeZone);
     reconfigure(config);
 

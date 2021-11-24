@@ -28,6 +28,7 @@ public class ScalarTypeDateTest {
 
 
     Date val = new Date(1557360000000L);
+    val = Date.valueOf(val.toLocalDate()); // erase tz dependent fraction.
 
     JsonTester<Date> jsonMillis = new JsonTester<>(type);
     assertThat(jsonMillis.test(val)).isEqualTo("{\"key\":1557360000000}");
