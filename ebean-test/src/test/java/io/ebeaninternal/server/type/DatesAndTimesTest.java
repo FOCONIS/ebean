@@ -66,6 +66,37 @@ public class DatesAndTimesTest {
     }
   }
 
+  public static class DatesAndTimesWithSqlServerTest extends DatesAndTimesTest {
+    public DatesAndTimesWithSqlServerTest() {
+      super("sqlserver");
+    }
+  }
+  
+  public static class DatesAndTimesWithMariaDbTest extends DatesAndTimesTest {
+    public DatesAndTimesWithMariaDbTest() {
+      super("mariadb");
+    }
+  }
+  
+  public static class DatesAndTimesWithMysqlTest extends DatesAndTimesTest {
+    public DatesAndTimesWithMysqlTest() {
+      super("mysql");
+    }
+  }
+  
+  public static class DatesAndTimesWithPgTest extends DatesAndTimesTest {
+    public DatesAndTimesWithPgTest() {
+      super("pg");
+    }
+  }
+  
+  public static class DatesAndTimesWithDb2Test extends DatesAndTimesTest {
+    public DatesAndTimesWithDb2Test() {
+      super("db2");
+    }
+  }
+  protected final String platform;
+  
   private Database db;
   private TimeZone tz;
   private DatabaseConfig config;
@@ -74,6 +105,14 @@ public class DatesAndTimesTest {
   private String json;
   private String formatted;
   private long millis;
+
+  public DatesAndTimesTest(String platform) {
+    this.platform = platform;
+  }
+
+  public DatesAndTimesTest() {
+    this("h2");
+  }
 
   @BeforeEach
   public void startTest() {
@@ -120,11 +159,11 @@ public class DatesAndTimesTest {
   private Database createServer(String dbTimeZone, DataSource existingDs, DataSource existingRoDs) {
 
     config = new DatabaseConfig();
+    config.setName(platform);
     config.loadFromProperties();
     config.setDdlGenerate(existingDs == null );
     config.setDdlRun(existingDs == null);
     config.setReadOnlyDataSource(existingDs);
-    config.setName("h2");
     config.setDdlExtra(false);
     config.setDefaultServer(false);
     config.setRegister(false);
@@ -149,7 +188,7 @@ public class DatesAndTimesTest {
       LocalTime lt = LocalTime.of(5, 15, 15,123456789);
       doTest("localTime", lt, String.valueOf(lt.toNanoOfDay())); 
       softly.assertThat(json).isEqualTo("{\"localTime\":\"05:15:15.123456789\"}");
-      softly.assertThat(formatted).isEqualTo("05:14:15");
+      softly.assertThat(formatted).isEqualTo("05:15:15.123456789");
       return;
     }
     // localTimes are never converted, when read or written to database
