@@ -126,7 +126,7 @@ public class DatesAndTimesTest {
   private Database createServer(String dbTimeZone) {
 
     config = new DatabaseConfig();
-    config.setName("h2other");
+    config.setName("h2");
     config.loadFromProperties();
     config.setDdlGenerate(true);
     config.setDdlRun(true);
@@ -288,24 +288,24 @@ public class DatesAndTimesTest {
 
     softly.assertThat(cal.toInstant()).isEqualTo(Instant.parse("2021-08-21T05:15:15Z"));
 
-    doTest("calendar", cal, "2021-08-21 05:15:15");
+    doTest("propCalendar", cal, "2021-08-21 05:15:15");
     if (config.getJsonDateTime() == io.ebean.config.JsonConfig.DateTime.ISO8601) {
-      softly.assertThat(json).isEqualTo("{\"calendar\":\"2021-08-21T05:15:15.000Z\"}");
+      softly.assertThat(json).isEqualTo("{\"propCalendar\":\"2021-08-21T05:15:15.000Z\"}");
     } else if (config.getJsonDateTime() == io.ebean.config.JsonConfig.DateTime.MILLIS) {
-      softly.assertThat(json).isEqualTo("{\"calendar\":1629522915000}");
+      softly.assertThat(json).isEqualTo("{\"propCalendar\":1629522915000}");
     } else {
-      softly.assertThat(json).isEqualTo("{\"calendar\":1629522915.000000000}"); // 05:15 GMT
+      softly.assertThat(json).isEqualTo("{\"propCalendar\":1629522915.000000000}"); // 05:15 GMT
     }
     
     cal.clear();
     cal.setTimeInMillis(-1);
-    doTest("calendar", cal, "1969-12-31 23:59:59.999");
+    doTest("propCalendar", cal, "1969-12-31 23:59:59.999");
     if (config.getJsonDateTime() == io.ebean.config.JsonConfig.DateTime.ISO8601) {
-      softly.assertThat(json).isEqualTo("{\"calendar\":\"1969-12-31T23:59:59.999Z\"}");
+      softly.assertThat(json).isEqualTo("{\"propCalendar\":\"1969-12-31T23:59:59.999Z\"}");
     } else if (config.getJsonDateTime() == io.ebean.config.JsonConfig.DateTime.MILLIS) {
-      softly.assertThat(json).isEqualTo("{\"calendar\":-1}");
+      softly.assertThat(json).isEqualTo("{\"propCalendar\":-1}");
     } else {
-      softly.assertThat(json).isEqualTo("{\"calendar\":-0.001000000}");
+      softly.assertThat(json).isEqualTo("{\"propCalendar\":-0.001000000}");
     }
     
     // test in PST time zone
@@ -316,13 +316,13 @@ public class DatesAndTimesTest {
 
     softly.assertThat(cal.toInstant()).isEqualTo(Instant.parse("2021-08-21T05:15:15Z"));
 
-    doTest("calendar", cal, "2021-08-21 05:15:15");
+    doTest("propCalendar", cal, "2021-08-21 05:15:15");
     if (config.getJsonDateTime() == io.ebean.config.JsonConfig.DateTime.ISO8601) {
-      softly.assertThat(json).isEqualTo("{\"calendar\":\"2021-08-21T05:15:15.000Z\"}");
+      softly.assertThat(json).isEqualTo("{\"propCalendar\":\"2021-08-21T05:15:15.000Z\"}");
     } else if (config.getJsonDateTime() == io.ebean.config.JsonConfig.DateTime.MILLIS) {
-      softly.assertThat(json).isEqualTo("{\"calendar\":1629522915000}");
+      softly.assertThat(json).isEqualTo("{\"propCalendar\":1629522915000}");
     } else {
-      softly.assertThat(json).isEqualTo("{\"calendar\":1629522915.000000000}");
+      softly.assertThat(json).isEqualTo("{\"propCalendar\":1629522915.000000000}");
     }
   }
 
@@ -330,22 +330,22 @@ public class DatesAndTimesTest {
   public void testInstant() {
 
     // Test with DST and no DST date (in germany)
-    doTest("instant", Instant.parse("2021-11-21T05:15:15Z"), "2021-11-21 05:15:15");
+    doTest("propInstant", Instant.parse("2021-11-21T05:15:15Z"), "2021-11-21 05:15:15");
     if (config.getJsonDateTime() == io.ebean.config.JsonConfig.DateTime.ISO8601) {
-      softly.assertThat(json).isEqualTo("{\"instant\":\"2021-11-21T05:15:15Z\"}");
+      softly.assertThat(json).isEqualTo("{\"propInstant\":\"2021-11-21T05:15:15Z\"}");
     } else if (config.getJsonDateTime()  == io.ebean.config.JsonConfig.DateTime.MILLIS) {
-      softly.assertThat(json).isEqualTo("{\"instant\":1637471715000}");
+      softly.assertThat(json).isEqualTo("{\"propInstant\":1637471715000}");
     } else {
-      softly.assertThat(json).isEqualTo("{\"instant\":1637471715.000000000}"); // 05:15 GMT
+      softly.assertThat(json).isEqualTo("{\"propInstant\":1637471715.000000000}"); // 05:15 GMT
     }
 
     
-    doTest("instant", Instant.parse("2021-08-21T05:15:15Z"), "2021-08-21 05:15:15");
+    doTest("propInstant", Instant.parse("2021-08-21T05:15:15Z"), "2021-08-21 05:15:15");
 
     restartServer("PST", "GMT");
 
-    doTest("instant", Instant.parse("2021-11-21T05:15:15Z"), "2021-11-21 05:15:15");
-    doTest("instant", Instant.parse("2021-08-21T05:15:15Z"), "2021-08-21 05:15:15");
+    doTest("propInstant", Instant.parse("2021-11-21T05:15:15Z"), "2021-11-21 05:15:15");
+    doTest("propInstant", Instant.parse("2021-08-21T05:15:15Z"), "2021-08-21 05:15:15");
   }
 
   @Test
@@ -443,20 +443,20 @@ public class DatesAndTimesTest {
   public void testYearMonth() {
 
     // Test with DST and no DST date (in germany)
-    doTest("yearMonth", YearMonth.of(2020, 2), "2020-02-01");
+    doTest("propYearMonth", YearMonth.of(2020, 2), "2020-02-01");
     if (config.getJsonDate() == io.ebean.config.JsonConfig.Date.ISO8601) {
-      softly.assertThat(json).isEqualTo("{\"yearMonth\":\"2020-02-01\"}");
+      softly.assertThat(json).isEqualTo("{\"propYearMonth\":\"2020-02-01\"}");
     } else {
-      softly.assertThat(json).isEqualTo("{\"yearMonth\":1580515200000}"); // 00:00 GMT
+      softly.assertThat(json).isEqualTo("{\"propYearMonth\":1580515200000}"); // 00:00 GMT
     }
-    doTest("yearMonth", YearMonth.of(2020, 3), "2020-03-01");
-    doTest("yearMonth", YearMonth.of(2020, 4), "2020-04-01");
+    doTest("propYearMonth", YearMonth.of(2020, 3), "2020-03-01");
+    doTest("propYearMonth", YearMonth.of(2020, 4), "2020-04-01");
 
   }
   @Test
   public void testYear() {
 
-    doTest("year", Year.of(2020), "2020");
+    doTest("propYear", Year.of(2020), "2020");
 
   }
   
@@ -464,20 +464,20 @@ public class DatesAndTimesTest {
   public void testMonthDay() {
 
     // Test with DST and no DST date (in germany)
-    doTest("monthDay", MonthDay.of(11, 21), "2000-11-21");
-    softly.assertThat(json).isEqualTo("{\"monthDay\":\"--11-21\"}");
-    doTest("monthDay", MonthDay.of(8, 21), "2000-08-21");
-    doTest("monthDay", MonthDay.of(2, 29), "2000-02-29"); // leap year check
+    doTest("propMonthDay", MonthDay.of(11, 21), "2000-11-21");
+    softly.assertThat(json).isEqualTo("{\"propMonthDay\":\"--11-21\"}");
+    doTest("propMonthDay", MonthDay.of(8, 21), "2000-08-21");
+    doTest("propMonthDay", MonthDay.of(2, 29), "2000-02-29"); // leap year check
 
     restartServer("PST", "Europe/Berlin");
-    doTest("monthDay", MonthDay.of(11, 21), "2000-11-21");
-    doTest("monthDay", MonthDay.of(8, 21), "2000-08-21");
-    doTest("monthDay", MonthDay.of(2, 29), "2000-02-29"); // leap year check
+    doTest("propMonthDay", MonthDay.of(11, 21), "2000-11-21");
+    doTest("propMonthDay", MonthDay.of(8, 21), "2000-08-21");
+    doTest("propMonthDay", MonthDay.of(2, 29), "2000-02-29"); // leap year check
 
     restartServer("Europe/Berlin", "PST");
-    doTest("monthDay", MonthDay.of(11, 21), "2000-11-21");
-    doTest("monthDay", MonthDay.of(8, 21), "2000-08-21");
-    doTest("monthDay", MonthDay.of(2, 29), "2000-02-29"); // leap year check
+    doTest("propMonthDay", MonthDay.of(11, 21), "2000-11-21");
+    doTest("propMonthDay", MonthDay.of(8, 21), "2000-08-21");
+    doTest("propMonthDay", MonthDay.of(2, 29), "2000-02-29"); // leap year check
   }
 
   @Test
@@ -527,35 +527,35 @@ public class DatesAndTimesTest {
   @Test
   public void testTimestamp() {
     restartServer("PST", "PST"); // java & db in same TZ
-    doTest("timestamp", new Timestamp(2021 - 1900, 11 - 1, 21, 5, 15, 15, 0), "2021-11-21 05:15:15");
+    doTest("propTimestamp", new Timestamp(2021 - 1900, 11 - 1, 21, 5, 15, 15, 0), "2021-11-21 05:15:15");
     if (config.getJsonDateTime() == io.ebean.config.JsonConfig.DateTime.ISO8601) {
-      softly.assertThat(json).isEqualTo("{\"timestamp\":\"2021-11-21T13:15:15Z\"}");
+      softly.assertThat(json).isEqualTo("{\"propTimestamp\":\"2021-11-21T13:15:15Z\"}");
     } else if (config.getJsonDateTime()  == io.ebean.config.JsonConfig.DateTime.MILLIS) {
-      softly.assertThat(json).isEqualTo("{\"timestamp\":1637500515000}");
+      softly.assertThat(json).isEqualTo("{\"propTimestamp\":1637500515000}");
     } else {
-      softly.assertThat(json).isEqualTo("{\"timestamp\":1637500515.000000000}");
+      softly.assertThat(json).isEqualTo("{\"propTimestamp\":1637500515.000000000}");
     }
 
     
     restartServer("Europe/Berlin", "GMT"); // go to germany
-    doTest("timestamp", new Timestamp(2021 - 1900, 11 - 1, 21, 6, 15, 15, 0), "2021-11-21 05:15:15");
-    doTest("timestamp", new Timestamp(2021 - 1900, 8 - 1, 21, 7, 15, 15, 0), "2021-08-21 05:15:15"); // Check DST
+    doTest("propTimestamp", new Timestamp(2021 - 1900, 11 - 1, 21, 6, 15, 15, 0), "2021-11-21 05:15:15");
+    doTest("propTimestamp", new Timestamp(2021 - 1900, 8 - 1, 21, 7, 15, 15, 0), "2021-08-21 05:15:15"); // Check DST
     
-    doTest("timestamp", new Timestamp(2021 - 1900, 3 - 1, 27, 23, 0, 0, 0), "2021-03-27 22:00:00");
-    doTest("timestamp", new Timestamp(2021 - 1900, 3 - 1, 28, 0, 0, 0, 0), "2021-03-27 23:00:00");
-    doTest("timestamp", new Timestamp(2021 - 1900, 3 - 1, 28, 1, 0, 0, 0), "2021-03-28 00:00:00");
-    doTest("timestamp", new Timestamp(2021 - 1900, 3 - 1, 28, 2, 0, 0, 0), "2021-03-28 01:00:00");
-    doTest("timestamp", new Timestamp(2021 - 1900, 3 - 1, 28, 3, 0, 1, 0), "2021-03-28 01:00:01");
-    doTest("timestamp", new Timestamp(2021 - 1900, 3 - 1, 28, 4, 0, 0, 0), "2021-03-28 02:00:00");
+    doTest("propTimestamp", new Timestamp(2021 - 1900, 3 - 1, 27, 23, 0, 0, 0), "2021-03-27 22:00:00");
+    doTest("propTimestamp", new Timestamp(2021 - 1900, 3 - 1, 28, 0, 0, 0, 0), "2021-03-27 23:00:00");
+    doTest("propTimestamp", new Timestamp(2021 - 1900, 3 - 1, 28, 1, 0, 0, 0), "2021-03-28 00:00:00");
+    doTest("propTimestamp", new Timestamp(2021 - 1900, 3 - 1, 28, 2, 0, 0, 0), "2021-03-28 01:00:00");
+    doTest("propTimestamp", new Timestamp(2021 - 1900, 3 - 1, 28, 3, 0, 1, 0), "2021-03-28 01:00:01");
+    doTest("propTimestamp", new Timestamp(2021 - 1900, 3 - 1, 28, 4, 0, 0, 0), "2021-03-28 02:00:00");
 
     restartServer("GMT", "Europe/Berlin"); 
-    doTest("timestamp", new Timestamp(2021 - 1900, 11 - 1, 21, 4, 15, 15, 0), "2021-11-21 05:15:15");
-    doTest("timestamp", new Timestamp(2021 - 1900, 8 - 1, 21, 3, 15, 15, 0), "2021-08-21 05:15:15"); // Check DST
+    doTest("propTimestamp", new Timestamp(2021 - 1900, 11 - 1, 21, 4, 15, 15, 0), "2021-11-21 05:15:15");
+    doTest("propTimestamp", new Timestamp(2021 - 1900, 8 - 1, 21, 3, 15, 15, 0), "2021-08-21 05:15:15"); // Check DST
     
-    doTest("timestamp", new Timestamp(2021 - 1900, 3 - 1, 27, 1, 0, 0, 0), "2021-03-27 02:00:00");
-    doTest("timestamp", new Timestamp(2021 - 1900, 3 - 1, 27, 23, 0, 0, 0), "2021-03-28 00:00:00");
-    doTest("timestamp", new Timestamp(2021 - 1900, 3 - 1, 28, 0, 0, 0, 0), "2021-03-28 01:00:00");
-    doTest("timestamp", new Timestamp(2021 - 1900, 3 - 1, 28, 1, 0, 0, 0), "2021-03-28 03:00:00");
+    doTest("propTimestamp", new Timestamp(2021 - 1900, 3 - 1, 27, 1, 0, 0, 0), "2021-03-27 02:00:00");
+    doTest("propTimestamp", new Timestamp(2021 - 1900, 3 - 1, 27, 23, 0, 0, 0), "2021-03-28 00:00:00");
+    doTest("propTimestamp", new Timestamp(2021 - 1900, 3 - 1, 28, 0, 0, 0, 0), "2021-03-28 01:00:00");
+    doTest("propTimestamp", new Timestamp(2021 - 1900, 3 - 1, 28, 1, 0, 0, 0), "2021-03-28 03:00:00");
   }
 
   @Test
