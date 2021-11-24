@@ -8,8 +8,6 @@ import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 
-import static io.ebeaninternal.server.type.IsoJsonDateTimeParser.formatIso;
-
 /**
  * ScalarType for java.sql.Timestamp.
  */

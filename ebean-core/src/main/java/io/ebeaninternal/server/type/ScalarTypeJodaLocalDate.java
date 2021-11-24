@@ -3,7 +3,6 @@ package io.ebeaninternal.server.type;
 import io.ebean.config.JsonConfig;
 import io.ebeaninternal.server.core.BasicTypeConverter;
 import org.joda.time.DateTimeZone;
-import org.joda.time.Instant;
 import org.joda.time.LocalDate;
 
 import java.sql.Date;

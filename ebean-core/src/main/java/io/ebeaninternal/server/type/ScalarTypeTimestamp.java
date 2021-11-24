@@ -10,8 +10,6 @@ import java.sql.Timestamp;
 import java.sql.Types;
 import java.time.Instant;
 
-import static io.ebeaninternal.server.type.IsoJsonDateTimeParser.formatIso;
-
 /**
  * ScalarType for java.sql.Timestamp.
  */
@@ -23,7 +21,7 @@ final class ScalarTypeTimestamp extends ScalarTypeBaseDateTime<Timestamp> {
 
   @Override
   protected String toJsonNanos(Timestamp value) {
-    return toJsonNanos(value.getTime(), value.getNanos());
+    return toJsonNanos(value.getTime()/1000, value.getNanos());
   }
 
   @Override

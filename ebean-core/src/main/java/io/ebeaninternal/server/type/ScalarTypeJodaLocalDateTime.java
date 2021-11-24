@@ -21,10 +21,14 @@ final class ScalarTypeJodaLocalDateTime extends ScalarTypeBaseDateTime<LocalDate
 
   @Override
   protected String toJsonNanos(LocalDateTime value) {
-    long ms = value.toDateTime(DateTimeZone.UTC).getMillis();
-    return String.valueOf(value.toDateTime().getMillis());
+    return toJsonNanos(value.toDateTime(DateTimeZone.UTC).getMillis());
   }
 
+  @Override
+  protected LocalDateTime fromJsonNanos(long seconds, int nanoseconds) {
+    return new LocalDateTime(seconds * 1000 + nanoseconds / 1_000_000, DateTimeZone.UTC);
+  }
+  
   @Override
   protected String toJsonISO8601(LocalDateTime value) {
     return value.toString();
@@ -42,7 +46,7 @@ final class ScalarTypeJodaLocalDateTime extends ScalarTypeBaseDateTime<LocalDate
 
   @Override
   public LocalDateTime convertFromMillis(long systemTimeMillis) {
-    return new LocalDateTime(systemTimeMillis);
+    return new LocalDateTime(systemTimeMillis, DateTimeZone.UTC);
   }
 
   @Override
@@ -52,7 +56,7 @@ final class ScalarTypeJodaLocalDateTime extends ScalarTypeBaseDateTime<LocalDate
 
   @Override
   public LocalDateTime convertFromInstant(Instant ts) {
-    return new LocalDateTime(ts.toEpochMilli());
+    return new LocalDateTime(ts.toEpochMilli(), DateTimeZone.UTC);
   }
 
   @Override

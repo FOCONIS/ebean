@@ -1,5 +1,6 @@
 package io.ebeaninternal.server.type;
 
+import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -58,7 +59,7 @@ import io.ebeaninternal.server.deploy.BeanProperty;
 
 public class DatesAndTimesTest {
 
-  public static class DatesAndTimesTestWithNanos extends DatesAndTimesTest {
+  public static class DatesAndTimesWithNanosTest extends DatesAndTimesTest {
 
     @Override
     protected void reconfigure(DatabaseConfig config) {
@@ -67,7 +68,7 @@ public class DatesAndTimesTest {
 
   }
 
-  public static class DatesAndTimesWithMillis extends DatesAndTimesTest {
+  public static class DatesAndTimesWithJsonMillisTest extends DatesAndTimesTest {
 
     @Override
     protected void reconfigure(DatabaseConfig config) {
@@ -78,7 +79,7 @@ public class DatesAndTimesTest {
   }
   
   
-  public static class DatesAndTimesWithNanos extends DatesAndTimesTest {
+  public static class DatesAndTimesWithJsonNanosTest extends DatesAndTimesTest {
 
     @Override
     protected void reconfigure(DatabaseConfig config) {
@@ -234,6 +235,12 @@ public class DatesAndTimesTest {
     } else {
       softly.assertThat(json).isEqualTo("{\"localDate\":1637452800000}"); // 21-nov 00:00 GMT
     }
+    doTest("localDate", LocalDate.parse("1969-12-31"), "1969-12-31");
+    if (config.getJsonDate() == io.ebean.config.JsonConfig.Date.ISO8601) {
+      softly.assertThat(json).isEqualTo("{\"localDate\":\"1969-12-31\"}");
+    } else {
+      softly.assertThat(json).isEqualTo("{\"localDate\":-86400000}");
+    }
 
     doTest("localDate", LocalDate.parse("2021-08-21"), "2021-08-21");
 
@@ -274,9 +281,9 @@ public class DatesAndTimesTest {
   @Test
   public void testCalendar() {
 
-    TimeZone.setDefault(TimeZone.getTimeZone("GMT"));
+    restartServer("GMT", "GMT");
     Calendar cal = Calendar.getInstance();
-    cal.setTimeInMillis(0); // clear
+    cal.clear();
     cal.set(2021, 8 - 1, 21, 5, 15, 15); // month 0-based!
 
     softly.assertThat(cal.toInstant()).isEqualTo(Instant.parse("2021-08-21T05:15:15Z"));
@@ -289,8 +296,19 @@ public class DatesAndTimesTest {
     } else {
       softly.assertThat(json).isEqualTo("{\"calendar\":1629522915.000000000}"); // 05:15 GMT
     }
+    
+    cal.clear();
+    cal.setTimeInMillis(-1);
+    doTest("calendar", cal, "1969-12-31 23:59:59.999");
+    if (config.getJsonDateTime() == io.ebean.config.JsonConfig.DateTime.ISO8601) {
+      softly.assertThat(json).isEqualTo("{\"calendar\":\"1969-12-31T23:59:59.999Z\"}");
+    } else if (config.getJsonDateTime() == io.ebean.config.JsonConfig.DateTime.MILLIS) {
+      softly.assertThat(json).isEqualTo("{\"calendar\":-1}");
+    } else {
+      softly.assertThat(json).isEqualTo("{\"calendar\":-0.001000000}");
+    }
+    
     // test in PST time zone
-
     restartServer("PST", "GMT");
     cal = Calendar.getInstance();
     cal.setTimeInMillis(0); // clear
@@ -381,8 +399,10 @@ public class DatesAndTimesTest {
     doTest("jodaLocalDateTime", org.joda.time.LocalDateTime.parse("2021-11-21T05:15:15"), "2021-11-21 05:15:15");
     if (config.getJsonDateTime() == io.ebean.config.JsonConfig.DateTime.ISO8601) {
       softly.assertThat(json).isEqualTo("{\"jodaLocalDateTime\":\"2021-11-21T05:15:15.000\"}");
-    } else {
+    } else if (config.getJsonDateTime() == io.ebean.config.JsonConfig.DateTime.MILLIS) {
       softly.assertThat(json).isEqualTo("{\"jodaLocalDateTime\":1637471715000}"); // 05:15:15 GMT
+    } else {
+      softly.assertThat(json).isEqualTo("{\"jodaLocalDateTime\":1637471715.000000000}"); // 05:15:15 GMT
     }
     
     doTest("jodaLocalDateTime", org.joda.time.LocalDateTime.parse("2021-08-21T05:15:15"), "2021-08-21 05:15:15");
@@ -467,7 +487,7 @@ public class DatesAndTimesTest {
     if (config.getJsonDate() == io.ebean.config.JsonConfig.Date.ISO8601) {
       softly.assertThat(json).isEqualTo("{\"sqlDate\":\"2021-11-21\"}");
     } else {
-      softly.assertThat(json).isEqualTo("{\"sqlDate\":1629504000000}"); // 00:00 GMT
+      softly.assertThat(json).isEqualTo("{\"sqlDate\":1637452800000}"); // 00:00 GMT
     }
 
     doTest("sqlDate", new java.sql.Date(2021 - 1900, 8 - 1, 21), "2021-08-21");
@@ -609,7 +629,18 @@ public class DatesAndTimesTest {
   }
 //  offsetDateTime : OffsetDateTime
 //  zonedDateTime : ZonedDateTime
-  private <T extends Comparable<? super T>> void doTest(String property,T javaValue, String sqlValue ) {
+  private String simpleClassNameOf(StackTraceElement testStackTraceElement) {
+    String className = testStackTraceElement.getClassName();
+    return className.substring(className.lastIndexOf('.') + 1);
+  }
+
+  private <T extends Comparable<? super T>> void doTest(String property, T javaValue, String sqlValue) {
+    StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+    String testClassName = simpleClassNameOf(stackTrace[2]);
+    String testName = stackTrace[2].getMethodName();
+    int lineNumber = stackTrace[2].getLineNumber();
+    String testLoc = format("at %s.%s(%s.java:%s)", testClassName, testName, testClassName, lineNumber);
+
     db.find(MDateTime.class).delete(); // clear database
     String sqlColumn = CamelCaseHelper.toUnderscoreFromCamel(property);
     // insert with raw sql
@@ -617,17 +648,17 @@ public class DatesAndTimesTest {
 
     // check findSingleAttributeList
     List<T> list = db.find(MDateTime.class).select(property).findSingleAttributeList();
-    softly.assertThat(list).as(sqlValue).hasSize(1);
+    softly.assertThat(list).as("find " + testLoc).hasSize(1);
     T attr = list.get(0);
-    assertTimeEquals("find attribute", attr, javaValue);
+    assertTimeEquals("find attribute " + testLoc, attr, javaValue);
 
     // check find model
     MDateTime model = db.find(MDateTime.class).where().eq(property, javaValue).findOne();
     Property beanProp = db.pluginApi().beanType(MDateTime.class).property(property);
-    softly.assertThat(model).as(sqlValue).isNotNull();
+    softly.assertThat(model).as("find model " + testLoc).isNotNull();
     @SuppressWarnings("unchecked")
     T beanValue = (T) beanProp.value(model);
-    assertTimeEquals("read from model", beanValue, javaValue);
+    assertTimeEquals("read from model " + testLoc, beanValue, javaValue);
 
     // insert with "save"
     model = new MDateTime();
@@ -637,7 +668,7 @@ public class DatesAndTimesTest {
 
     // check findCount
     int count = db.find(MDateTime.class).where().eq(property, javaValue).findCount();
-    softly.assertThat(count).as(sqlValue).isEqualTo(2);
+    softly.assertThat(count).as("find count " + testLoc).isEqualTo(2);
 
     JsonWriteOptions opts = new JsonWriteOptions();
     opts.setPathProperties(PathProperties.parse(property));
@@ -646,30 +677,34 @@ public class DatesAndTimesTest {
     System.out.println(json);
     model = db.json().toBean(MDateTime.class, json);
     beanValue = (T) beanProp.value(model);
-    assertTimeEquals(sqlValue + " -json roundtrip", beanValue, javaValue);
+    assertTimeEquals("json roundtrip " + testLoc, beanValue, javaValue);
 
-    ScalarType<T> st = (ScalarType<T>) ((BeanProperty) beanProp).scalarType();
+    ScalarType<T> st = (ScalarType) ((BeanProperty) beanProp).scalarType();
     formatted = st.formatValue(javaValue);
-    assertTimeEquals(sqlValue + " - parse/format symmetry", st.parse(formatted), javaValue);
+    assertTimeEquals("parse/format symmetry " + testLoc, st.parse(formatted), javaValue);
     if (st instanceof ScalarTypeBaseDate) {
       ScalarTypeBaseDate<T> st2 = (ScalarTypeBaseDate<T>) st;
       Date date = st2.convertToDate(javaValue);
-      assertTimeEquals(sqlValue + " -date convert symmetry", st2.convertFromDate(date), javaValue);
+      assertTimeEquals("date convert symmetry " + testLoc, st2.convertFromDate(date), javaValue);
       long millis = st2.convertToMillis(javaValue);
-      assertTimeEquals(sqlValue + " -millis convert symmetry", st2.convertFromMillis(millis), javaValue);
+      assertTimeEquals("millis convert symmetry " + testLoc, st2.convertFromMillis(millis), javaValue);
     }
     if (st instanceof ScalarTypeBaseDateTime) {
       ScalarTypeBaseDateTime<T> st2 = (ScalarTypeBaseDateTime<T>) st;
       Timestamp ts = st2.convertToTimestamp(javaValue);
-      assertTimeEquals(sqlValue + " -timestamp convert symmetry", st2.convertFromTimestamp(ts), javaValue);
+      assertTimeEquals("timestamp convert symmetry " + testLoc, st2.convertFromTimestamp(ts), javaValue);
       long millis = st2.convertToMillis(javaValue);
-      assertTimeEquals(sqlValue + " -millis convert symmetry", st2.convertFromMillis(millis), javaValue);
-      assertTimeEquals(sqlValue + " -instant convert symmetry", st2.convertFromInstant(ts.toInstant()), javaValue);
+      assertTimeEquals("millis convert symmetry " + testLoc, st2.convertFromMillis(millis), javaValue);
+      assertTimeEquals("instant convert symmetry " + testLoc, st2.convertFromInstant(Instant.ofEpochMilli(millis)),
+          javaValue);
     }
   }
 
   private <T extends Comparable<? super T>> void assertTimeEquals(String msg, T value, T expected) {
-    if (value instanceof OffsetDateTime) {
+    if (value instanceof java.sql.Date) {
+      // SQL Dates may not be aligned at 00:00 - so compare toString representation
+      softly.assertThat(value.toString()).as(msg).isEqualTo(expected.toString());
+    } else if (value instanceof OffsetDateTime) {
       softly.assertThat((OffsetDateTime) value).as(msg).isAtSameInstantAs((OffsetDateTime) expected);
     } else if (value instanceof ZonedDateTime) {
       softly.assertThat(((ZonedDateTime) value).toInstant()).as(msg).isEqualTo(((ZonedDateTime) expected).toInstant());
