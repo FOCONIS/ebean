@@ -1,54 +1,30 @@
 package io.ebeaninternal.server.type;
 
 import static java.lang.String.format;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.within;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import java.io.Writer;
 import java.sql.Date;
 import java.sql.Timestamp;
-import java.time.DateTimeException;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.Month;
 import java.time.MonthDay;
 import java.time.OffsetDateTime;
 import java.time.Year;
 import java.time.YearMonth;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import java.util.TimeZone;
-import java.util.stream.Stream;
-
 import org.assertj.core.api.SoftAssertions;
-import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.extension.ExtensionContext;
-import org.junit.jupiter.api.extension.TestInstanceFactory;
-import org.junit.jupiter.api.extension.TestInstanceFactoryContext;
-import org.junit.jupiter.api.extension.TestInstantiationException;
-import org.junit.jupiter.api.extension.TestTemplateInvocationContext;
-import org.junit.jupiter.api.extension.TestTemplateInvocationContextProvider;
 import org.tests.model.basic.MDateTime;
 
-import io.ebean.BaseTestCase;
 import io.ebean.Database;
 import io.ebean.DatabaseFactory;
-import io.ebean.FetchPath;
 import io.ebean.config.DatabaseConfig;
-import io.ebean.config.dbplatform.mariadb.MariaDbPlatform;
-import io.ebean.config.dbplatform.sqlserver.SqlServer17Platform;
 import io.ebean.core.type.ScalarType;
 import io.ebean.plugin.ExpressionPath;
 import io.ebean.plugin.Property;
@@ -95,6 +71,7 @@ public class DatesAndTimesTest {
   private SoftAssertions softly;
   private String formatted;
   private long millis;
+  private static boolean doDdl = true;
 
   @BeforeEach
   public void setup() {
@@ -129,8 +106,9 @@ public class DatesAndTimesTest {
     config = new DatabaseConfig();
     config.setName("mariadb");
     config.loadFromProperties();
-    config.setDdlGenerate(true);
-    config.setDdlRun(true);
+    config.setDdlGenerate(doDdl );
+    config.setDdlRun(doDdl);
+    doDdl = false;
     config.setDdlExtra(false);
     config.setDefaultServer(false);
     config.setRegister(false);
