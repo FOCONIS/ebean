@@ -7,6 +7,7 @@ import org.joda.time.DateTime;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.time.Instant;
+import static io.ebeaninternal.server.type.IsoJsonDateTimeParser.formatIso;
 
 /**
  * ScalarType for Joda DateTime. This maps to a JDBC Timestamp.
@@ -29,7 +30,7 @@ final class ScalarTypeJodaDateTime extends ScalarTypeBaseDateTime<DateTime> {
 
   @Override
   protected String toJsonISO8601(DateTime value) {
-    return value.toString();
+    return value.toInstant().toString();
   }
 
   @Override
