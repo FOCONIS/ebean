@@ -12,15 +12,9 @@ public class StartDb2 {
     config.setUser("unit");
     config.setPassword("unit");
 
-    // by default this mysql docker collation is case sensitive
-    // using utf8mb4_bin
-    //
-    // when changing to a CI collation (e.g. utf8mb4_unicode_ci) we also set
-    // ebean.<db>.caseSensitiveCollation=false
-    // ... such that tests now take that into account
-//    config.setCollation("default");
-//    config.setCollation("utf8mb4_unicode_ci");
-//    config.setCharacterSet("utf8mb4");
+    // to change collation, charset and other parameters like pagesize:
+    config.setCreateOptions("USING CODESET UTF-8 TERRITORY DE COLLATE USING IDENTITY PAGESIZE 32768");
+    config.setConfigOptions("USING STRING_UNITS CODEUNITS32");
 
     Db2Container container = new Db2Container(config);
     container.startWithDropCreate();
