@@ -44,58 +44,8 @@ import io.ebeaninternal.server.deploy.BeanProperty;
 @TestInstance(Lifecycle.PER_CLASS)
 public class DatesAndTimesTest {
  
-  public static class DatesAndTimesWithNanosTest extends DatesAndTimesTest {
-    @Override
-    protected void reconfigure(DatabaseConfig config) {
-      config.setLocalTimeWithNanos(true);
-    }
-  }
 
-  public static class DatesAndTimesWithJsonMillisTest extends DatesAndTimesTest {
-    @Override
-    protected void reconfigure(DatabaseConfig config) {
-      config.setJsonDate(io.ebean.config.JsonConfig.Date.MILLIS);
-      config.setJsonDateTime(io.ebean.config.JsonConfig.DateTime.MILLIS);
-    }
-  }
-
-  public static class DatesAndTimesWithJsonNanosTest extends DatesAndTimesTest {
-    @Override
-    protected void reconfigure(DatabaseConfig config) {
-      config.setJsonDateTime(io.ebean.config.JsonConfig.DateTime.NANOS);
-    }
-  }
-
-  public static class DatesAndTimesWithSqlServerTest extends DatesAndTimesTest {
-    public DatesAndTimesWithSqlServerTest() {
-      super("sqlserver");
-    }
-  }
-  
-  public static class DatesAndTimesWithMariaDbTest extends DatesAndTimesTest {
-    public DatesAndTimesWithMariaDbTest() {
-      super("mariadb");
-    }
-  }
-  
-  public static class DatesAndTimesWithMysqlTest extends DatesAndTimesTest {
-    public DatesAndTimesWithMysqlTest() {
-      super("mysql");
-    }
-  }
-  
-  public static class DatesAndTimesWithPgTest extends DatesAndTimesTest {
-    public DatesAndTimesWithPgTest() {
-      super("pg");
-    }
-  }
-  
-  public static class DatesAndTimesWithDb2Test extends DatesAndTimesTest {
-    public DatesAndTimesWithDb2Test() {
-      super("db2");
-    }
-  }
-  protected final String platform;
+  String platform="h2";
   
   private Database db;
   private TimeZone tz;
@@ -106,23 +56,15 @@ public class DatesAndTimesTest {
   private String formatted;
   private long millis;
 
-  public DatesAndTimesTest(String platform) {
-    this.platform = platform;
-  }
-
-  public DatesAndTimesTest() {
-    this("h2");
-  }
-
   @BeforeEach
   public void startTest() {
+    softly = new SoftAssertions();
+    tz = TimeZone.getDefault();
     if (db == null) {
       db = createServer("GMT", null, null); // test uses GMT database
     } else {
       restartServer(null, "GMT");
     }
-    softly = new SoftAssertions();
-    tz = TimeZone.getDefault();
     json = null;
     formatted = null;
     millis = 0;
@@ -136,8 +78,10 @@ public class DatesAndTimesTest {
 
   @AfterAll
   public void shutdown() {
-    db.find(MDateTime.class).delete();
-    db.shutdown();
+    if (db != null) {
+      db.find(MDateTime.class).delete();
+      db.shutdown();
+    }
   }
   
   private void restartServer(String javaTimeZone, String dbTimeZone) {
