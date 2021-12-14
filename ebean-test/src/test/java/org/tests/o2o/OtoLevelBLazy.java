@@ -16,19 +16,13 @@ public class OtoLevelBLazy {
   private Long id;
 
   private String name;
-  
-  
+
   @ManyToMany()
   private List<OtoLevelC> c;
-  
-  
-//  @ManyToOne()
-//  private OtoLevelA a2;
-  
 
   @OneToOne()
   private OtoLevelALazy a;
-  
+
   @Lob
   private String blob;
 
@@ -51,46 +45,33 @@ public class OtoLevelBLazy {
   public void setA(OtoLevelALazy a) {
     this.a = a;
   }
-  
+
   public String getName() {
-	return name;
-}
-  
-  public void setName(String name) {
-	this.name = name;
+    return name;
   }
-  
- public List<OtoLevelC> getC() {
-	return c;
- }
- 
-	public final void _ebean_onPersistTrigger(String trt) {
-		try {
-		
-		recalc();
-		} catch(Throwable th) {
-			th.printStackTrace();
-		}
-	}
-	protected void recalc() {
-			//this.getName();
-		this.getBlob();
-	}
-//	
-//	public void setA2(OtoLevelA a2) {
-//		this.a2 = a2;
-//	}
-//	
-//	public OtoLevelA getA2() {
-//		return a2;
-//	}
-	
-	public String getBlob() {
-		return blob;
-	}
-	
-	public void setBlob(String blob) {
-		this.blob = blob;
-	}
- 
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public List<OtoLevelC> getC() {
+    return c;
+  }
+
+  public final void _ebean_onPersistTrigger(String trt) {
+      recalc();
+  }
+
+  protected void recalc() {
+    this.getBlob();
+  }
+
+  public String getBlob() {
+    return blob;
+  }
+
+  public void setBlob(String blob) {
+    this.blob = blob;
+  }
+
 }

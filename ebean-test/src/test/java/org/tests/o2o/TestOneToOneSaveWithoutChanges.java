@@ -38,18 +38,11 @@ public class TestOneToOneSaveWithoutChanges {
     assertThat(sql).hasSize(0);
   }
   
-  
-  
   @Test
-  public void testSave2LevelsLazyPersistTrigger() throws NoSuchMethodException, SecurityException, IllegalAccessException,
-			IllegalArgumentException, InvocationTargetException {
-    OtoLevelC c = new OtoLevelC("arsch");
+  public void testSave2LevelsLazyPersistTrigger() {
     OtoLevelALazy a = new OtoLevelALazy("A");
     OtoLevelBLazy b = new OtoLevelBLazy("B");
-    b.setBlob("arschBlob");
     b.setA(a);
-    b.getC().add(c);
-    DB.save(c);
     DB.save(a);
     DB.save(b);
 
@@ -57,5 +50,6 @@ public class TestOneToOneSaveWithoutChanges {
     LoggedSql.start();
     DB.save(dbA);
     List<String> sql = LoggedSql.stop();
+    assertThat(sql).hasSize(0);
   }
 }
