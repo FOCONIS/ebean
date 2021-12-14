@@ -3,14 +3,11 @@ package org.tests.o2o;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
 import io.ebean.DB;
-import io.ebean.Transaction;
-import io.ebean.TxScope;
 import io.ebean.test.LoggedSql;
 
 public class TestOneToOneSaveWithoutChanges {
