@@ -4,14 +4,12 @@ import io.avaje.applog.AppLog;
 import io.ebean.DB;
 import io.ebean.Database;
 import io.ebean.annotation.Platform;
-import io.ebean.config.DatabaseConfig;
-import io.ebean.config.DbConstraintNaming;
-import io.ebean.config.PlatformConfig;
-import io.ebean.config.PropertiesWrapper;
+import io.ebean.config.*;
 import io.ebean.config.dbplatform.DatabasePlatform;
 import io.ebean.config.dbplatform.DatabasePlatformProvider;
 import io.ebean.dbmigration.DbMigration;
 import io.ebean.util.IOUtils;
+import io.ebean.util.StringHelper;
 import io.ebeaninternal.api.DbOffline;
 import io.ebeaninternal.api.SpiEbeanServer;
 import io.ebeaninternal.dbmigration.ddlgeneration.DdlOptions;
@@ -60,9 +58,8 @@ public class DefaultDbMigration implements DbMigration {
   protected static final System.Logger logger = AppLog.getLogger("io.ebean.GenerateMigration");
   private static final String initialVersion = "1.0";
   private static final String GENERATED_COMMENT = "THIS IS A GENERATED FILE - DO NOT MODIFY";
-
   private final List<DatabasePlatformProvider> platformProviders = new ArrayList<>();
-  protected final boolean online;
+  protected boolean online;
   private boolean logToSystemOut = true;
   protected SpiEbeanServer server;
   protected String pathToResources = "src/main/resources";
@@ -77,15 +74,17 @@ public class DefaultDbMigration implements DbMigration {
   protected List<Pair> platforms = new ArrayList<>();
   protected DatabaseConfig databaseConfig;
   protected DbConstraintNaming constraintNaming;
+  @Deprecated
   protected Boolean strictMode;
-  protected Boolean includeGeneratedFileComment;
+  protected boolean includeGeneratedFileComment;
+  @Deprecated
   protected String header;
   protected String applyPrefix = "";
   protected String version;
   protected String name;
   protected String generatePendingDrop;
   private boolean addForeignKeySkipCheck;
-  private int lockTimeoutSeconds;
+  private int lockTimeout;
   protected boolean includeBuiltInPartitioning = true;
   protected boolean includeIndex;
 
@@ -123,15 +122,70 @@ public class DefaultDbMigration implements DbMigration {
     if (constraintNaming == null) {
       this.constraintNaming = databaseConfig.getConstraintNaming();
     }
+    if (databasePlatform == null) {
+      this.databasePlatform = databaseConfig.getDatabasePlatform();
+    }
     Properties properties = config.getProperties();
     if (properties != null) {
-      PropertiesWrapper props = new PropertiesWrapper("ebean", config.getName(), properties, null);
+      PropertiesWrapper props = new PropertiesWrapper("ebean", config.getName(), properties, config.getClassLoadConfig());
+      pathToResources = props.get("migration.pathToResources", pathToResources);
       migrationPath = props.get("migration.migrationPath", migrationPath);
       migrationInitPath = props.get("migration.migrationInitPath", migrationInitPath);
-      pathToResources = props.get("migration.pathToResources", pathToResources);
+      addForeignKeySkipCheck = props.getBoolean("migration.addForeignKeySkipCheck", addForeignKeySkipCheck);
+      applyPrefix = props.get("migration.applyPrefix", applyPrefix);
+      databasePlatform = props.createInstance(DatabasePlatform.class, "migration.databasePlatform", databasePlatform);
+      generatePendingDrop = props.get("migration.generatePendingDrop", generatePendingDrop);
+      includeBuiltInPartitioning = props.getBoolean("migration.includeBuiltInPartitioning", includeBuiltInPartitioning);
+      includeGeneratedFileComment = props.getBoolean("migration.includeGeneratedFileComment", includeGeneratedFileComment);
+      includeIndex = props.getBoolean("migration.includeIndex", includeIndex);
+      lockTimeout = props.getInt("migration.lockTimeout", lockTimeout);
+      logToSystemOut = props.getBoolean("migration.logToSystemOut", logToSystemOut);
+      modelPath = props.get("migration.modelPath", modelPath);
+      modelSuffix = props.get("migration.modelSuffix", modelSuffix);
+      name = props.get("migration.name", name);
+      online = props.getBoolean("migration.online", online);
+      vanillaPlatform = props.getBoolean("migration.vanillaPlatform", vanillaPlatform);
+      version = props.get("migration.version", version);
+      // header & strictMode must be configured at DatabaseConfig level
+      parsePlatforms(props.get("migration.platforms"), config.getClassLoadConfig());
     }
   }
 
+  protected void parsePlatforms(String platforms, ClassLoadConfig loader) {
+    if (platforms == null || platforms.isEmpty()) {
+      return;
+    }
+    String[] tmp = StringHelper.splitNames(platforms);
+    for (String plat : tmp) {
+      DatabasePlatform dbPlatform;
+      String platformName = plat;
+      String platformPrefix = null;
+      int pos = plat.indexOf('=');
+      if (pos != -1) {
+        platformName = plat.substring(0, pos);
+        platformPrefix = plat.substring(pos + 1);
+      }
+
+      if (platformName.indexOf('.') == -1) {
+        // parse platform as enum value
+        Platform platform = Enum.valueOf(Platform.class, platformName.toUpperCase());
+        dbPlatform = platform(platform);
+      } else {
+        // parse platform as class
+        dbPlatform = (DatabasePlatform) loader.newInstance(platformName);
+      }
+      if (platformPrefix == null) {
+        platformPrefix = dbPlatform.platform().name().toLowerCase();
+      }
+
+      addDatabasePlatform(dbPlatform, platformPrefix);
+    }
+  }
+
+  /**
+   * @deprecated Use {@link DatabaseConfig#setDdlStrictMode(boolean)}
+   */
+  @Deprecated
   @Override
   public void setStrictMode(boolean strictMode) {
     this.strictMode = strictMode;
@@ -159,7 +213,7 @@ public class DefaultDbMigration implements DbMigration {
 
   @Override
   public void setLockTimeout(int seconds) {
-    this.lockTimeoutSeconds = seconds;
+    this.lockTimeout = seconds;
   }
 
   @Override
@@ -182,6 +236,10 @@ public class DefaultDbMigration implements DbMigration {
     this.includeBuiltInPartitioning = includeBuiltInPartitioning;
   }
 
+  /**
+   * @deprecated Use {@link DatabaseConfig#setDdlHeader(String)}
+   */
+  @Deprecated
   @Override
   public void setHeader(String header) {
     this.header = header;
@@ -645,7 +703,7 @@ public class DefaultDbMigration implements DbMigration {
   }
 
   private PlatformDdlWriter createDdlWriter(DatabasePlatform platform) {
-    return new PlatformDdlWriter(platform, databaseConfig, lockTimeoutSeconds);
+    return new PlatformDdlWriter(platform, databaseConfig, lockTimeout);
   }
 
   /**
@@ -657,7 +715,7 @@ public class DefaultDbMigration implements DbMigration {
     if (file.exists()) {
       return false;
     }
-    String comment = Boolean.TRUE.equals(includeGeneratedFileComment) ? GENERATED_COMMENT : null;
+    String comment = includeGeneratedFileComment ? GENERATED_COMMENT : null;
     MigrationXmlWriter xmlWriter = new MigrationXmlWriter(comment);
     xmlWriter.write(dbMigration, file);
     return true;
@@ -675,6 +733,9 @@ public class DefaultDbMigration implements DbMigration {
       databasePlatform = server.databasePlatform();
     }
     if (databaseConfig != null) {
+      // FIXME: StrictMode and header may be defined HERE and in DatabaseConfig.
+      //  We shoild change either DefaultDbMigration or databaseConfig, so that it is only
+      //  defined on one place
       if (strictMode != null) {
         databaseConfig.setDdlStrictMode(strictMode);
       }
