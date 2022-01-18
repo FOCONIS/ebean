@@ -30,22 +30,24 @@ alter table migtest_fk_none_via_join add constraint fk_migtest_fk_none_via_join_
 alter table migtest_fk_set_null drop constraint fk_migtest_fk_set_null_one_id;
 alter table migtest_fk_set_null add constraint fk_migtest_fk_set_null_one_id foreign key (one_id) references migtest_fk_one (id) on delete restrict;
 
+call sysproc.admin_cmd('reorg table migtest_e_basic') /*status reorg*/;
 update migtest_e_basic set status = 'A' where status is null;
 alter table migtest_e_basic drop constraint ck_migtest_e_basic_status;
 alter table migtest_e_basic alter column status set default 'A';
 alter table migtest_e_basic alter column status set not null;
 alter table migtest_e_basic add constraint ck_migtest_e_basic_status check ( status in ('N','A','I','?'));
 alter table migtest_e_basic drop constraint ck_migtest_e_basic_status2;
-alter table migtest_e_basic alter column status2 varchar(127);
+alter table migtest_e_basic alter column status2 set data type varchar(127);
 alter table migtest_e_basic alter column status2 drop default;
-alter table migtest_e_basic alter column status2 set null;
+alter table migtest_e_basic alter column status2 drop not null;
 
 -- rename all collisions;
+call sysproc.admin_cmd('reorg table migtest_e_basic') /* reorg #1 */;
 create unique index uq_migtest_e_basic_description on migtest_e_basic(description) exclude null keys;
 
 insert into migtest_e_user (id) select distinct user_id from migtest_e_basic;
 alter table migtest_e_basic add constraint fk_migtest_e_basic_user_id foreign key (user_id) references migtest_e_user (id) on delete restrict;
-alter table migtest_e_basic alter column user_id set null;
+alter table migtest_e_basic alter column user_id drop not null;
 alter table migtest_e_basic add column new_string_field varchar(255) default 'foo''bar' not null;
 alter table migtest_e_basic add column new_boolean_field boolean default true not null;
 update migtest_e_basic set new_boolean_field = old_boolean;
@@ -55,18 +57,20 @@ alter table migtest_e_basic add column progress integer default 0 not null;
 alter table migtest_e_basic add constraint ck_migtest_e_basic_progress check ( progress in (0,1,2));
 alter table migtest_e_basic add column new_integer integer default 42 not null;
 
-alter table migtest_e_basic drop constraint uq_migtest_e_basic_indextest2;
-alter table migtest_e_basic drop constraint uq_migtest_e_basic_indextest6;
+call sysproc.admin_cmd('reorg table migtest_e_basic') /* reorg #2 */;
+drop index uq_migtest_e_basic_indextest2;
+drop index uq_migtest_e_basic_indextest6;
 create unique index uq_migtest_e_basic_status_indextest1 on migtest_e_basic(status,indextest1) exclude null keys;
 create unique index uq_migtest_e_basic_name on migtest_e_basic(name) exclude null keys;
 create unique index uq_migtest_e_basic_indextest4 on migtest_e_basic(indextest4) exclude null keys;
 create unique index uq_migtest_e_basic_indextest5 on migtest_e_basic(indextest5) exclude null keys;
 alter table migtest_e_enum drop constraint ck_migtest_e_enum_test_status;
 comment on column migtest_e_history.test_string is 'Column altered to long now';
-alter table migtest_e_history alter column test_string bigint;
+alter table migtest_e_history alter column test_string set data type bigint;
 comment on table migtest_e_history is 'We have history now';
 
 -- NOTE: table has @History - special migration may be necessary
+call sysproc.admin_cmd('reorg table migtest_e_history2') /*test_string reorg*/;
 update migtest_e_history2 set test_string = 'unknown' where test_string is null;
 alter table migtest_e_history2 alter column test_string set default 'unknown';
 alter table migtest_e_history2 alter column test_string set not null;
@@ -74,15 +78,16 @@ alter table migtest_e_history2 add column test_string2 varchar(255);
 alter table migtest_e_history2 add column test_string3 varchar(255) default 'unknown' not null;
 alter table migtest_e_history2 add column new_column varchar(20);
 
-alter table migtest_e_history4 alter column test_number bigint;
+alter table migtest_e_history4 alter column test_number set data type bigint;
 alter table migtest_e_history5 add column test_boolean boolean default false not null;
 
 
 -- NOTE: table has @History - special migration may be necessary
+call sysproc.admin_cmd('reorg table migtest_e_history6') /*test_number1 reorg*/;
 update migtest_e_history6 set test_number1 = 42 where test_number1 is null;
 alter table migtest_e_history6 alter column test_number1 set default 42;
 alter table migtest_e_history6 alter column test_number1 set not null;
-alter table migtest_e_history6 alter column test_number2 set null;
+alter table migtest_e_history6 alter column test_number2 drop not null;
 alter table migtest_e_softdelete add column deleted boolean default false not null;
 
 alter table migtest_oto_child add column master_id bigint;
@@ -108,3 +113,11 @@ alter table migtest_ckey_parent add constraint fk_migtest_ckey_parent_assoc_id f
 
 alter table migtest_oto_child add constraint fk_migtest_oto_child_master_id foreign key (master_id) references migtest_oto_master (id) on delete restrict;
 
+call sysproc.admin_cmd('reorg table migtest_e_history2') /* reorg #3 */;
+call sysproc.admin_cmd('reorg table migtest_e_history6') /* reorg #4 */;
+call sysproc.admin_cmd('reorg table migtest_mtm_c_migtest_mtm_m') /* reorg #5 */;
+call sysproc.admin_cmd('reorg table migtest_e_user') /* reorg #6 */;
+call sysproc.admin_cmd('reorg table migtest_e_history') /* reorg #7 */;
+call sysproc.admin_cmd('reorg table migtest_e_history4') /* reorg #8 */;
+call sysproc.admin_cmd('reorg table migtest_mtm_m_migtest_mtm_c') /* reorg #9 */;
+call sysproc.admin_cmd('reorg table migtest_e_basic') /* reorg #10 */;

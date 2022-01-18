@@ -16,17 +16,20 @@ alter table migtest_fk_set_null drop constraint fk_migtest_fk_set_null_one_id;
 alter table migtest_fk_set_null add constraint fk_migtest_fk_set_null_one_id foreign key (one_id) references migtest_fk_one (id) on delete set null;
 alter table migtest_e_basic drop constraint ck_migtest_e_basic_status;
 alter table migtest_e_basic alter column status drop default;
-alter table migtest_e_basic alter column status set null;
+alter table migtest_e_basic alter column status drop not null;
 alter table migtest_e_basic add constraint ck_migtest_e_basic_status check ( status in ('N','A','I'));
 
+call sysproc.admin_cmd('reorg table migtest_e_basic') /*status2 reorg*/;
 update migtest_e_basic set status2 = 'N' where status2 is null;
 alter table migtest_e_basic drop constraint ck_migtest_e_basic_status2;
-alter table migtest_e_basic alter column status2 varchar(1);
+alter table migtest_e_basic alter column status2 set data type varchar(1);
 alter table migtest_e_basic alter column status2 set default 'N';
 alter table migtest_e_basic alter column status2 set not null;
 alter table migtest_e_basic add constraint ck_migtest_e_basic_status2 check ( status2 in ('N','A','I'));
-alter table migtest_e_basic drop constraint uq_migtest_e_basic_description;
+call sysproc.admin_cmd('reorg table migtest_e_basic') /* reorg #1 */;
+drop index uq_migtest_e_basic_description;
 
+call sysproc.admin_cmd('reorg table migtest_e_basic') /*user_id reorg*/;
 update migtest_e_basic set user_id = 23 where user_id is null;
 alter table migtest_e_basic drop constraint fk_migtest_e_basic_user_id;
 alter table migtest_e_basic alter column user_id set default 23;
@@ -35,10 +38,10 @@ alter table migtest_e_basic add column old_boolean boolean default false not nul
 alter table migtest_e_basic add column old_boolean2 boolean;
 alter table migtest_e_basic add column eref_id integer;
 
-alter table migtest_e_basic drop constraint uq_migtest_e_basic_status_indextest1;
-alter table migtest_e_basic drop constraint uq_migtest_e_basic_name;
-alter table migtest_e_basic drop constraint uq_migtest_e_basic_indextest4;
-alter table migtest_e_basic drop constraint uq_migtest_e_basic_indextest5;
+drop index uq_migtest_e_basic_status_indextest1;
+drop index uq_migtest_e_basic_name;
+drop index uq_migtest_e_basic_indextest4;
+drop index uq_migtest_e_basic_indextest5;
 create unique index uq_migtest_e_basic_indextest2 on migtest_e_basic(indextest2) exclude null keys;
 create unique index uq_migtest_e_basic_indextest6 on migtest_e_basic(indextest6) exclude null keys;
 alter table migtest_e_enum drop constraint ck_migtest_e_enum_test_status;
@@ -46,15 +49,16 @@ alter table migtest_e_enum add constraint ck_migtest_e_enum_test_status check ( 
 comment on column migtest_e_history.test_string is '';
 comment on table migtest_e_history is '';
 alter table migtest_e_history2 alter column test_string drop default;
-alter table migtest_e_history2 alter column test_string set null;
+alter table migtest_e_history2 alter column test_string drop not null;
 alter table migtest_e_history2 add column obsolete_string1 varchar(255);
 alter table migtest_e_history2 add column obsolete_string2 varchar(255);
 
-alter table migtest_e_history4 alter column test_number integer;
+alter table migtest_e_history4 alter column test_number set data type integer;
 alter table migtest_e_history6 alter column test_number1 drop default;
-alter table migtest_e_history6 alter column test_number1 set null;
+alter table migtest_e_history6 alter column test_number1 drop not null;
 
 -- NOTE: table has @History - special migration may be necessary
+call sysproc.admin_cmd('reorg table migtest_e_history6') /*test_number2 reorg*/;
 update migtest_e_history6 set test_number2 = 7 where test_number2 is null;
 alter table migtest_e_history6 alter column test_number2 set default 7;
 alter table migtest_e_history6 alter column test_number2 set not null;
@@ -62,6 +66,12 @@ create index ix_migtest_e_basic_indextest1 on migtest_e_basic (indextest1);
 create index ix_migtest_e_basic_indextest5 on migtest_e_basic (indextest5);
 drop index ix_migtest_e_basic_indextest3;
 drop index ix_migtest_e_basic_indextest6;
+call sysproc.admin_cmd('reorg table migtest_e_basic') /* reorg #2 */;
 create index ix_migtest_e_basic_eref_id on migtest_e_basic (eref_id);
 alter table migtest_e_basic add constraint fk_migtest_e_basic_eref_id foreign key (eref_id) references migtest_e_ref (id) on delete restrict;
 
+call sysproc.admin_cmd('reorg table migtest_e_history2') /* reorg #3 */;
+call sysproc.admin_cmd('reorg table migtest_e_ref') /* reorg #4 */;
+call sysproc.admin_cmd('reorg table migtest_e_history6') /* reorg #5 */;
+call sysproc.admin_cmd('reorg table migtest_e_history4') /* reorg #6 */;
+call sysproc.admin_cmd('reorg table migtest_e_basic') /* reorg #7 */;

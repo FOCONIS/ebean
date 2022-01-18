@@ -31,6 +31,10 @@
                 <after>
                     <ddl>update ${table} set ${column} = old_boolean</ddl>
                 </after>
+                <after platforms="db2">
+                    <ddl>call sysproc.admin_cmd('reorg table ${table}') /* migrate */</ddl>
+                    <ddl>update ${table} set ${column} = old_boolean</ddl>
+                </after>
             </column>
             <column name="new_boolean_field2" type="boolean" defaultValue="true" notnull="true"/>
             <column name="progress" type="integer" defaultValue="0" notnull="true" checkConstraint="check ( progress in (0,1,2))" checkConstraintName="ck_migtest_e_basic_progress"/>

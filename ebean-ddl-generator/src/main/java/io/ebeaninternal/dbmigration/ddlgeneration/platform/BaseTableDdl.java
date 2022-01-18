@@ -299,6 +299,7 @@ public class BaseTableDdl implements TableDdl {
     if (!platformDdl.isInlineForeignKeys()) {
       writeAddForeignKeys(writer, createTable);
     }
+    platformDdl.tableCreated(tableName);
   }
 
   private String sequenceName(CreateTable createTable, List<Column> pk) {

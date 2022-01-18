@@ -772,4 +772,8 @@ public class PlatformDdl {
   public void addTablePartition(DdlBuffer apply, String partitionMode, String partitionColumn) throws IOException {
     // only supported by postgres initially
   }
+  
+  protected void tableCreated(String tableName) {
+    
+  }
 }

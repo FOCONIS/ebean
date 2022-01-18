@@ -5,6 +5,7 @@ import io.ebean.annotation.DbMigration;
 import io.ebean.annotation.EnumValue;
 import io.ebean.annotation.Index;
 import io.ebean.annotation.NotNull;
+import io.ebean.annotation.Platform;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -78,6 +79,8 @@ public class EBasic {
   @NotNull
   @DbDefault("true")
   @DbMigration(postAdd = "update ${table} set ${column} = old_boolean")
+  @DbMigration(postAdd = { "call sysproc.admin_cmd('reorg table ${table}') /* migrate */",
+      "update ${table} set ${column} = old_boolean" }, platforms = Platform.DB2)
   Boolean newBooleanField;
 
   @NotNull

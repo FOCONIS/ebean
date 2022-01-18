@@ -161,6 +161,7 @@ create table migtest_oto_master (
   constraint pk_migtest_oto_master primary key (id)
 );
 
+call sysproc.admin_cmd('reorg table migtest_e_basic') /* reorg #1 */;
 create index ix_migtest_e_basic_indextest1 on migtest_e_basic (indextest1);
 create index ix_migtest_e_basic_indextest5 on migtest_e_basic (indextest5);
 create index ix_migtest_fk_cascade_one_id on migtest_fk_cascade (one_id);
@@ -172,3 +173,26 @@ alter table migtest_fk_set_null add constraint fk_migtest_fk_set_null_one_id for
 create index ix_migtest_e_basic_eref_id on migtest_e_basic (eref_id);
 alter table migtest_e_basic add constraint fk_migtest_e_basic_eref_id foreign key (eref_id) references migtest_e_ref (id) on delete restrict;
 
+call sysproc.admin_cmd('reorg table migtest_fk_cascade_one') /* reorg #2 */;
+call sysproc.admin_cmd('reorg table migtest_fk_none_via_join') /* reorg #3 */;
+call sysproc.admin_cmd('reorg table migtest_e_history2') /* reorg #4 */;
+call sysproc.admin_cmd('reorg table migtest_oto_master') /* reorg #5 */;
+call sysproc.admin_cmd('reorg table migtest_e_history3') /* reorg #6 */;
+call sysproc.admin_cmd('reorg table migtest_fk_cascade') /* reorg #7 */;
+call sysproc.admin_cmd('reorg table migtest_e_history6') /* reorg #8 */;
+call sysproc.admin_cmd('reorg table migtest_ckey_assoc') /* reorg #9 */;
+call sysproc.admin_cmd('reorg table migtest_e_history') /* reorg #10 */;
+call sysproc.admin_cmd('reorg table migtest_e_history4') /* reorg #11 */;
+call sysproc.admin_cmd('reorg table migtest_e_enum') /* reorg #12 */;
+call sysproc.admin_cmd('reorg table migtest_e_history5') /* reorg #13 */;
+call sysproc.admin_cmd('reorg table migtest_ckey_detail') /* reorg #14 */;
+call sysproc.admin_cmd('reorg table migtest_mtm_m') /* reorg #15 */;
+call sysproc.admin_cmd('reorg table migtest_e_softdelete') /* reorg #16 */;
+call sysproc.admin_cmd('reorg table migtest_oto_child') /* reorg #17 */;
+call sysproc.admin_cmd('reorg table migtest_e_ref') /* reorg #18 */;
+call sysproc.admin_cmd('reorg table migtest_fk_none') /* reorg #19 */;
+call sysproc.admin_cmd('reorg table migtest_mtm_c') /* reorg #20 */;
+call sysproc.admin_cmd('reorg table migtest_ckey_parent') /* reorg #21 */;
+call sysproc.admin_cmd('reorg table migtest_fk_one') /* reorg #22 */;
+call sysproc.admin_cmd('reorg table migtest_e_basic') /* reorg #23 */;
+call sysproc.admin_cmd('reorg table migtest_fk_set_null') /* reorg #24 */;
