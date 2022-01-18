@@ -60,10 +60,12 @@ public class EBasic {
   @Size(max=127)
   String name;
 
-
+  @DbMigration(preAlter = { "-- db2 does not support parial null indices :( - so we clear that table",
+      "call sysproc.admin_cmd('reorg table migtest_e_basic') /* reorg before delete */;",
+      "delete from migtest_e_basic" }, platforms = Platform.DB2)
   @DbMigration(preAlter = "-- rename all collisions")
   @Column(unique = true)
-  @Size(max=127)
+  @Size(max = 127)
   String description;
 
   //@NotNull
@@ -78,9 +80,9 @@ public class EBasic {
 
   @NotNull
   @DbDefault("true")
-  @DbMigration(postAdd = "update ${table} set ${column} = old_boolean")
   @DbMigration(postAdd = { "call sysproc.admin_cmd('reorg table ${table}') /* migrate */",
       "update ${table} set ${column} = old_boolean" }, platforms = Platform.DB2)
+  @DbMigration(postAdd = "update ${table} set ${column} = old_boolean")
   Boolean newBooleanField;
 
   @NotNull

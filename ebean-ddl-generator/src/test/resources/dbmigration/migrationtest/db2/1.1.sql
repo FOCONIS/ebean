@@ -41,7 +41,9 @@ alter table migtest_e_basic alter column status2 set data type varchar(127);
 alter table migtest_e_basic alter column status2 drop default;
 alter table migtest_e_basic alter column status2 drop not null;
 
--- rename all collisions;
+-- db2 does not support parial null indices :( - so we clear that table;
+call sysproc.admin_cmd('reorg table migtest_e_basic') /* reorg before delete */;;
+delete from migtest_e_basic;
 call sysproc.admin_cmd('reorg table migtest_e_basic') /* reorg #1 */;
 create unique index uq_migtest_e_basic_description on migtest_e_basic(description) exclude null keys;
 
@@ -50,6 +52,7 @@ alter table migtest_e_basic add constraint fk_migtest_e_basic_user_id foreign ke
 alter table migtest_e_basic alter column user_id drop not null;
 alter table migtest_e_basic add column new_string_field varchar(255) default 'foo''bar' not null;
 alter table migtest_e_basic add column new_boolean_field boolean default true not null;
+call sysproc.admin_cmd('reorg table migtest_e_basic') /* migrate */;
 update migtest_e_basic set new_boolean_field = old_boolean;
 
 alter table migtest_e_basic add column new_boolean_field2 boolean default true not null;

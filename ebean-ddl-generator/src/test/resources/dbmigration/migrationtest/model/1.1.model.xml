@@ -16,6 +16,11 @@
         <alterColumn columnName="status" tableName="migtest_e_basic" currentType="varchar(1)" defaultValue="'A'" notnull="true" currentNotnull="false" checkConstraint="check ( status in ('N','A','I','?'))" checkConstraintName="ck_migtest_e_basic_status"/>
         <alterColumn columnName="status2" tableName="migtest_e_basic" type="varchar(127)" currentType="varchar(1)" defaultValue="DROP DEFAULT" notnull="false" currentNotnull="true" dropCheckConstraint="ck_migtest_e_basic_status2"/>
         <alterColumn columnName="description" tableName="migtest_e_basic" unique="uq_migtest_e_basic_description">
+            <before platforms="db2">
+                <ddl>-- db2 does not support parial null indices :( - so we clear that table</ddl>
+                <ddl>call sysproc.admin_cmd('reorg table migtest_e_basic') /* reorg before delete */;</ddl>
+                <ddl>delete from migtest_e_basic</ddl>
+            </before>
             <before>
                 <ddl>-- rename all collisions</ddl>
             </before>
@@ -28,11 +33,11 @@
         <addColumn tableName="migtest_e_basic">
             <column name="new_string_field" type="varchar" defaultValue="'foo''bar'" notnull="true"/>
             <column name="new_boolean_field" type="boolean" defaultValue="true" notnull="true">
-                <after>
-                    <ddl>update ${table} set ${column} = old_boolean</ddl>
-                </after>
                 <after platforms="db2">
                     <ddl>call sysproc.admin_cmd('reorg table ${table}') /* migrate */</ddl>
+                    <ddl>update ${table} set ${column} = old_boolean</ddl>
+                </after>
+                <after>
                     <ddl>update ${table} set ${column} = old_boolean</ddl>
                 </after>
             </column>
