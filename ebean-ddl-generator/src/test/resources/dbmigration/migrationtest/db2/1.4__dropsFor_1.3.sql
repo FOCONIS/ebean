@@ -31,7 +31,7 @@ alter table migtest_oto_child drop column master_id;
 drop table migtest_e_user;
 delimiter $$
 begin
-if exists (select seqschema from syscat.sequences where seqschema = current_schema and seqname='migtest_e_user_seq') then
+if exists (select seqschema from syscat.sequences where seqschema = current_schema and seqname = 'MIGTEST_E_USER_SEQ') then
   prepare stmt from 'drop sequence migtest_e_user_seq';
   execute stmt;
 end if;
