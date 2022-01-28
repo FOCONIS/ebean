@@ -772,6 +772,14 @@ public class PlatformDdl {
   public void addTablePartition(DdlBuffer apply, String partitionMode, String partitionColumn) throws IOException {
     // only supported by postgres initially
   }
+  
+  /**
+   * TODO.
+   * @throws IOException 
+   */
+  public void addTablespace(DdlBuffer apply, String tablespaceName) throws IOException{
+    // now only supported for db2
+  }
 
   /**
    * Returns a statement to reorganize the table. This is required mainly for DB2.

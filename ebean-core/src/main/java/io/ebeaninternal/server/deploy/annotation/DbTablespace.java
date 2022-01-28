@@ -13,29 +13,17 @@ import io.ebean.annotation.Platform;
  */
 @Target({ElementType.FIELD, ElementType.TYPE, ElementType.ANNOTATION_TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-@Repeatable(DbTablespace.List.class)
 public @interface DbTablespace {
 
   /**
    * TODO.
    */
-  String tablespaceName();
+  String value();
   
   /**
    * TODO.
    */
-  String indexTablespace() default "";
+  String index() default "$DEFAULT";
 
-  Platform[] platforms() default {};
-
-  /**
-   * Repeatable support for {@link DbTablespace}.
-   */
-  @Target({ElementType.FIELD, ElementType.TYPE})
-  @Retention(RetentionPolicy.RUNTIME)
-  @interface List {
-
-    DbTablespace[] value() default {};
-  }
 
 }

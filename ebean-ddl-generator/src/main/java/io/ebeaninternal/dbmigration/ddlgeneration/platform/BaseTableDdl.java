@@ -281,7 +281,7 @@ public class BaseTableDdl implements TableDdl {
     apply.newLine().append(")");
     // HIER Tablespace 
     if(createTable.getTablespace() != null) {
-      apply.append(" in ").append(createTable.getTablespace()).append(" ");
+      platformDdl.addTablespace(apply, createTable.getTablespace());
     }
     addTableStorageEngine(apply, createTable);
     addTableCommentInline(apply, createTable);
@@ -591,7 +591,7 @@ public class BaseTableDdl implements TableDdl {
   public void generate(DdlWrite writer, CreateIndex index) throws IOException {
     if (platformInclude(index.getPlatforms())) {
       flushReorgTables(writer.apply());
-      writer.apply().appendStatement(platformDdl.createIndex(new WriteCreateIndex(index)));
+      writer.apply().appendStatement(platformDdl.createIndex(new WriteCreateIndex(index))); // TODOP: with tablespace 
       writer.dropAll().appendStatement(platformDdl.dropIndex(index.getIndexName(), index.getTableName(), Boolean.TRUE.equals(index.isConcurrent())));
     }
   }

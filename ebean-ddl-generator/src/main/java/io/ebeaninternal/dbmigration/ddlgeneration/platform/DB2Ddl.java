@@ -1,7 +1,10 @@
 package io.ebeaninternal.dbmigration.ddlgeneration.platform;
 
+import java.io.IOException;
+
 import io.ebean.annotation.ConstraintMode;
 import io.ebean.config.dbplatform.DatabasePlatform;
+import io.ebeaninternal.dbmigration.ddlgeneration.DdlBuffer;
 
 /**
  * DB2 platform specific DDL.
@@ -134,8 +137,12 @@ public class DB2Ddl extends PlatformDdl {
 
   @Override
   public String reorgTable(String table, int counter) {
-    // TODO Auto-generated method stub
     return "call sysproc.admin_cmd('reorg table " + lowerTableName(table) + "') /* reorg #" + counter + " */";
+  }
+  
+  @Override
+  public void addTablespace(DdlBuffer apply, String tablespaceName) throws IOException {
+    apply.append(" in ").append(tablespaceName);
   }
 
 }

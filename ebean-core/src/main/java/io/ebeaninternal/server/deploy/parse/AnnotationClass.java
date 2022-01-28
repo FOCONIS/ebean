@@ -160,10 +160,13 @@ final class AnnotationClass extends AnnotationParser {
     if (partition != null) {
       descriptor.setPartitionMeta(new PartitionMeta(partition.mode(), partition.property()));
     }
-    // TODO: check platform from the list of tablespaces?
     DbTablespace tablespace = typeGet(cls, DbTablespace.class);
     if (tablespace != null) {
-      descriptor.setTablespaceMeta(new TablespaceMeta(tablespace.tablespaceName(), tablespace.indexTablespace()));
+      String indexTs = tablespace.index();
+      if("$DEFAULT".equals(indexTs)) {
+        indexTs = tablespace.value();
+      }
+      descriptor.setTablespaceMeta(new TablespaceMeta(tablespace.value(), indexTs));
     }
     Draftable draftable = typeGet(cls, Draftable.class);
     if (draftable != null) {
