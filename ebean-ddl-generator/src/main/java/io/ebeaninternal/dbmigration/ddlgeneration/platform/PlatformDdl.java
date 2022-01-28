@@ -777,7 +777,7 @@ public class PlatformDdl {
    * TODO.
    * @throws IOException 
    */
-  public void addTablespace(DdlBuffer apply, String tablespaceName) throws IOException{
+  public void addTablespace(DdlBuffer apply, String tablespaceName, String indexTablespace) throws IOException{
     // now only supported for db2
   }
 

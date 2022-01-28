@@ -13,7 +13,6 @@ import io.ebeaninternal.server.deploy.annotation.DbTablespace;
  */
 @Entity
 @Table(name = "foo")
-@DbTablespace(tablespaceName = "test_TS")
 public class Foo {
   @Id
   @GeneratedValue

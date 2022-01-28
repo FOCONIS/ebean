@@ -141,8 +141,8 @@ public class DB2Ddl extends PlatformDdl {
   }
   
   @Override
-  public void addTablespace(DdlBuffer apply, String tablespaceName) throws IOException {
-    apply.append(" in ").append(tablespaceName);
+  public void addTablespace(DdlBuffer apply, String tablespaceName, String indexTablespace) throws IOException {
+    apply.append(" in ").append(tablespaceName).append(" INDEX IN ").append(indexTablespace);
   }
 
 }

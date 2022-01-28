@@ -24,6 +24,10 @@ public @interface DbTablespace {
    * TODO.
    */
   String index() default "$DEFAULT";
+  
+  /*
+   * TODO: String LongTablespace?
+   */
 
 
 }

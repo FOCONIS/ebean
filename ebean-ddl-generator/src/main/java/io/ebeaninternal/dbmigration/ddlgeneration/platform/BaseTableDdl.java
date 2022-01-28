@@ -1,11 +1,13 @@
 package io.ebeaninternal.dbmigration.ddlgeneration.platform;
 
+import io.ebean.DB;
 import io.ebean.annotation.Platform;
 import io.ebean.config.DatabaseConfig;
 import io.ebean.config.DbConstraintNaming;
 import io.ebean.config.NamingConvention;
 import io.ebean.config.dbplatform.DbHistorySupport;
 import io.ebean.config.dbplatform.IdType;
+import io.ebean.plugin.BeanType;
 import io.ebean.util.StringHelper;
 import io.ebeaninternal.dbmigration.ddlgeneration.DdlBuffer;
 import io.ebeaninternal.dbmigration.ddlgeneration.DdlOptions;
@@ -281,7 +283,7 @@ public class BaseTableDdl implements TableDdl {
     apply.newLine().append(")");
     // HIER Tablespace 
     if(createTable.getTablespace() != null) {
-      platformDdl.addTablespace(apply, createTable.getTablespace());
+      platformDdl.addTablespace(apply, createTable.getTablespace(), createTable.getIndexTablespace());
     }
     addTableStorageEngine(apply, createTable);
     addTableCommentInline(apply, createTable);
