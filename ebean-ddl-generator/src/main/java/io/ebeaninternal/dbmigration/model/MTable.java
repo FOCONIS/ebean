@@ -17,6 +17,8 @@ import io.ebeaninternal.server.deploy.BeanDescriptor;
 import io.ebeaninternal.server.deploy.BeanProperty;
 import io.ebeaninternal.server.deploy.IdentityMode;
 import io.ebeaninternal.server.deploy.PartitionMeta;
+import io.ebeaninternal.server.deploy.TablespaceMeta;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,6 +58,7 @@ public class MTable {
    */
   private boolean draft;
   private PartitionMeta partitionMeta;
+  private TablespaceMeta tablespaceMeta;
   private String pkName;
   private String comment;
   private String tablespace;
@@ -93,6 +96,7 @@ public class MTable {
     this.identityMode = descriptor.identityMode();
     this.storageEngine = descriptor.storageEngine();
     this.partitionMeta = descriptor.partitionMeta();
+    this.tablespaceMeta = descriptor.tablespaceMeta();
     this.comment = descriptor.dbComment();
     if (descriptor.isHistorySupport()) {
       withHistory = true;
@@ -138,6 +142,7 @@ public class MTable {
     this.pkName = createTable.getPkName();
     this.comment = createTable.getComment();
     this.storageEngine = createTable.getStorageEngine();
+    // TODO: ?
     this.tablespace = createTable.getTablespace();
     this.indexTablespace = createTable.getIndexTablespace();
     this.withHistory = Boolean.TRUE.equals(createTable.isWithHistory());
@@ -210,8 +215,13 @@ public class MTable {
       createTable.setPartitionColumn(partitionMeta.getProperty());
     }
     createTable.setStorageEngine(storageEngine);
-    createTable.setTablespace(tablespace);
-    createTable.setIndexTablespace(indexTablespace);
+    if (tablespaceMeta != null) {
+      createTable.setTablespace(tablespaceMeta.getTablespaceName());
+      createTable.setIndexTablespace(tablespaceMeta.getIndexTablespace());
+    }
+    // TODO?
+//    createTable.setTablespace(tablespace);
+//    createTable.setIndexTablespace(indexTablespace);
     toCreateTable(identityMode, createTable);
     if (withHistory) {
       createTable.setWithHistory(Boolean.TRUE);

@@ -22,6 +22,8 @@ import io.ebeaninternal.server.deploy.BeanDescriptor.EntityType;
 import io.ebeaninternal.server.deploy.IndexDefinition;
 import io.ebeaninternal.server.deploy.InheritInfo;
 import io.ebeaninternal.server.deploy.PartitionMeta;
+import io.ebeaninternal.server.deploy.TablespaceMeta;
+import io.ebeaninternal.server.deploy.annotation.DbTablespace;
 import io.ebeaninternal.server.deploy.meta.DeployBeanProperty;
 
 import javax.persistence.AttributeOverride;
@@ -157,6 +159,11 @@ final class AnnotationClass extends AnnotationParser {
     DbPartition partition = typeGet(cls, DbPartition.class);
     if (partition != null) {
       descriptor.setPartitionMeta(new PartitionMeta(partition.mode(), partition.property()));
+    }
+    // TODO: check platform from the list of tablespaces?
+    DbTablespace tablespace = typeGet(cls, DbTablespace.class);
+    if (tablespace != null) {
+      descriptor.setTablespaceMeta(new TablespaceMeta(tablespace.tablespaceName(), tablespace.indexTablespace()));
     }
     Draftable draftable = typeGet(cls, Draftable.class);
     if (draftable != null) {

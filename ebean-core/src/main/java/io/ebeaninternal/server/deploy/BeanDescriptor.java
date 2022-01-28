@@ -119,6 +119,7 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType, SpiBeanType {
   private final boolean softDelete;
   private final String draftTable;
   private final PartitionMeta partitionMeta;
+  private final TablespaceMeta tablespaceMeta;
   private final String storageEngine;
   private final String dbComment;
   private final boolean readAuditing;
@@ -273,6 +274,7 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType, SpiBeanType {
     this.dependentTables = deploy.getDependentTables();
     this.dbComment = deploy.getDbComment();
     this.partitionMeta = deploy.getPartitionMeta();
+    this.tablespaceMeta = deploy.getTablespaceMeta();
     this.storageEngine = deploy.getStorageEngine();
     this.autoTunable = beanFinder == null && (entityType == EntityType.ORM || entityType == EntityType.VIEW);
     // helper object used to derive lists of properties
@@ -2668,6 +2670,13 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType, SpiBeanType {
    */
   public PartitionMeta partitionMeta() {
     return partitionMeta;
+  }
+  
+  /**
+   * Return the tablespace details of the bean.
+   */
+  public TablespaceMeta tablespaceMeta() {
+    return tablespaceMeta;
   }
 
   /**
