@@ -1,8 +1,5 @@
 package io.ebeaninternal.server.type;
 
-import io.ebean.config.JsonConfig;
-import io.ebeaninternal.server.core.BasicTypeConverter;
-
 import java.sql.Date;
 import java.sql.Timestamp;
 import java.sql.Types;
@@ -10,10 +7,13 @@ import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 
+import io.ebean.config.JsonConfig;
+import io.ebeaninternal.server.core.BasicTypeConverter;
+
 /**
  * ScalarType for java.time.LocalDate. This maps to a JDBC Date.
  */
-final class ScalarTypeLocalDate extends ScalarTypeBaseDate<LocalDate> {
+class ScalarTypeLocalDate extends ScalarTypeBaseDate<LocalDate> {
 
   ScalarTypeLocalDate(JsonConfig.Date mode) {
     super(mode, LocalDate.class, false, Types.DATE);
@@ -60,5 +60,4 @@ final class ScalarTypeLocalDate extends ScalarTypeBaseDate<LocalDate> {
     }
     return (LocalDate) value;
   }
-
 }

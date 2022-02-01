@@ -1,17 +1,18 @@
 package io.ebeaninternal.server.type;
 
-import io.ebean.config.JsonConfig;
-import io.ebeaninternal.server.core.BasicTypeConverter;
+import java.sql.Date;
+import java.sql.Types;
+
 import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDate;
 
-import java.sql.Date;
-import java.sql.Types;
+import io.ebean.config.JsonConfig;
+import io.ebeaninternal.server.core.BasicTypeConverter;
 
 /**
  * ScalarType for Joda LocalDate. This maps to a JDBC Date.
  */
-final class ScalarTypeJodaLocalDate extends ScalarTypeBaseDate<LocalDate> {
+class ScalarTypeJodaLocalDate extends ScalarTypeBaseDate<LocalDate> {
 
   ScalarTypeJodaLocalDate(JsonConfig.Date mode) {
     super(mode, LocalDate.class, false, Types.DATE);
@@ -40,7 +41,7 @@ final class ScalarTypeJodaLocalDate extends ScalarTypeBaseDate<LocalDate> {
   @SuppressWarnings("deprecation")
   @Override
   public Date convertToDate(LocalDate value) {
-    return new Date(value .getYear() - 1900, value .getMonthOfYear() - 1, value .getDayOfMonth());
+    return new Date(value.getYear() - 1900, value.getMonthOfYear() - 1, value.getDayOfMonth());
   }
 
   @Override
@@ -54,9 +55,8 @@ final class ScalarTypeJodaLocalDate extends ScalarTypeBaseDate<LocalDate> {
   @Override
   public LocalDate toBeanType(Object value) {
     if (value instanceof java.util.Date) {
-      return LocalDate.fromDateFields((java.util.Date)value);
+      return LocalDate.fromDateFields((java.util.Date) value);
     }
     return (LocalDate) value;
   }
-
 }

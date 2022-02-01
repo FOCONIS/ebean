@@ -1,7 +1,10 @@
 package io.ebean.config.dbplatform.db2;
 
+import java.sql.Types;
+
+import javax.sql.DataSource;
+
 import io.ebean.BackgroundExecutor;
-import io.ebean.annotation.PersistBatch;
 import io.ebean.annotation.Platform;
 import io.ebean.config.dbplatform.DatabasePlatform;
 import io.ebean.config.dbplatform.DbPlatformType;
@@ -9,22 +12,15 @@ import io.ebean.config.dbplatform.DbType;
 import io.ebean.config.dbplatform.PlatformIdGenerator;
 import io.ebean.config.dbplatform.SqlErrorCodes;
 
-import javax.sql.DataSource;
-import java.sql.Types;
-
 /**
  * DB2 specific platform.
  */
-public class DB2Platform extends DatabasePlatform {
+public abstract class BaseDB2Platform extends DatabasePlatform {
 
-  public DB2Platform() {
+  public BaseDB2Platform() {
     super();
     this.platform = Platform.DB2;
-    // Note: DB2 (at least LUW supports length up to 128)
-    // TOOD: Check if we need to introduce a new platform (DB2_LUW_11 ?)
-    // FIXME: This differs to original ebean branch, but is required run tests.
-    this.maxTableNameLength = 128;
-    this.maxConstraintNameLength = 128;
+    this.supportsNativeJavaTime = false;
     this.truncateTable = "truncate table %s reuse storage ignore delete triggers immediate";
     this.likeClauseRaw = "like ?";
     this.sqlLimiter = new Db2SqlLimiter();

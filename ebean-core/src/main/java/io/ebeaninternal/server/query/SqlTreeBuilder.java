@@ -35,7 +35,6 @@ public final class SqlTreeBuilder {
   private final CQueryPredicates predicates;
   private final boolean subQuery;
   private final boolean distinctOnPlatform;
-  private final boolean distinctNoLobs;
   /**
    * Property if resultSet contains master and detail rows.
    */
@@ -54,6 +53,7 @@ public final class SqlTreeBuilder {
   private final SpiQuery.TemporalMode temporalMode;
   private SqlTreeNode rootNode;
   private boolean sqlDistinct;
+  private final boolean distinctNoLobs;
 
   /**
    * Construct for RawSql query.
