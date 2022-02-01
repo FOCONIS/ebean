@@ -736,12 +736,20 @@ public class BaseTableDdl implements TableDdl {
   public void generate(DdlWrite writer, AlterTable alterTable) throws IOException {
     if (platformDdl.useTableSpace ) {
       if (hasValue(alterTable.getTablespace()) || hasValue(alterTable.getIndexTablespace())) {
-        writer.apply().appendStatement("-- TODO: " + alterTable.getName() + " -> " + alterTable.getTablespace() );
-        writer.apply().appendStatement("-- TODO: " + alterTable.getName() + " -> Index " + alterTable.getIndexTablespace() );
-        if (strictMode) {
-          throw new UnsupportedOperationException("Tablespace change is not supported by this platform. Disable strict mode for migration and wirte migration manually");
-        }
+        writeTablespaceChange(writer.apply(), 
+            alterTable.getName(), 
+            DdlHelp.toTablespace(alterTable.getTablespace()),
+            DdlHelp.toTablespace(alterTable.getIndexTablespace()),
+            null);
       }
+    }
+  }
+  
+  protected void writeTablespaceChange(DdlBuffer buffer, String tablename, String tableSpace, String indexSpace, String lobSpace) throws IOException {
+    buffer.appendStatement("-- TableSpace changed: Table: " 
+        + tablename + ", tableSpace " + tableSpace + ", indexSpace " + indexSpace + ", lobSpace " + lobSpace);
+    if (strictMode) {
+      throw new UnsupportedOperationException("Tablespace change is not supported by this platform. Disable strict mode for migration and wirte migration manually");
     }
   }
   
