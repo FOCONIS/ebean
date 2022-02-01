@@ -451,8 +451,8 @@ public class BaseTableDdl implements TableDdl {
       // TODO
       MTable table = write.getTable(tableName);
       String indexTablespace = null;
-      if (table != null && table.isPartitioned() && table.getIndexTablespace() != null) {
-        indexTablespace = table.getIndexTablespace();
+      if (table != null && table.isPartitioned() && table.getTablespaceMeta() != null) {
+        indexTablespace = table.getTablespaceMeta().getIndexTablespace();
       }
       // no matching unique constraint so add the index
        fkeyBuffer.appendStatement(platformDdl.createIndex(new WriteCreateIndex(request.indexName(), tableName, request.cols(), false), indexTablespace));
@@ -602,8 +602,8 @@ public class BaseTableDdl implements TableDdl {
       
       MTable table = writer.getTable(index.getTableName());
       String indexTablespace = null;
-      if (table != null && table.isPartitioned() && table.getIndexTablespace() != null) {
-        indexTablespace = table.getIndexTablespace();
+      if (table != null && table.isPartitioned() && table.getTablespaceMeta() != null) {
+        indexTablespace = table.getTablespaceMeta().getIndexTablespace();
       }
       
       writer.apply().appendStatement(platformDdl.createIndex(new WriteCreateIndex(index), indexTablespace)); // TODOP: with tablespace 

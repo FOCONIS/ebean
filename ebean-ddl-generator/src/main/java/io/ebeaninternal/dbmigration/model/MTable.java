@@ -30,6 +30,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.management.Descriptor;
+
 import static io.ebeaninternal.dbmigration.ddlgeneration.platform.SplitColumns.split;
 import static io.ebeaninternal.dbmigration.model.MTableIdentity.fromCreateTable;
 import static io.ebeaninternal.dbmigration.model.MTableIdentity.toCreateTable;
@@ -58,12 +60,10 @@ public class MTable {
    */
   private boolean draft;
   private PartitionMeta partitionMeta;
-  private TablespaceMeta tablespaceMeta;
+  private final TablespaceMeta tablespaceMeta;
   private String pkName;
   private String comment;
-  private String tablespace;
-  private String storageEngine;
-  private String indexTablespace;
+  private final String storageEngine;
   private IdentityMode identityMode;
   private boolean withHistory;
   private final Map<String, MColumn> columns = new LinkedHashMap<>();
@@ -97,10 +97,6 @@ public class MTable {
     this.storageEngine = descriptor.storageEngine();
     this.partitionMeta = descriptor.partitionMeta();
     this.tablespaceMeta = descriptor.tablespaceMeta();
-    if(this.tablespaceMeta != null) {
-      this.tablespace = this.tablespaceMeta.getTablespaceName();
-      this.indexTablespace = this.tablespaceMeta.getIndexTablespace();
-    }
     this.comment = descriptor.dbComment();
     if (descriptor.isHistorySupport()) {
       withHistory = true;
@@ -112,11 +108,28 @@ public class MTable {
   }
 
   /**
-   * Construct for element collection or intersection table.
+   * Constructor for test cases only!
    */
+  @Deprecated
   public MTable(String name) {
+    this(name, null, null);
+  }
+
+  /**
+   * Construct for element collection or intersection table. They have same table space and storage engine.
+   */
+  public MTable(String name, BeanDescriptor<?> descriptor) {
+    this(name, descriptor.tablespaceMeta(), descriptor.storageEngine());
+  }
+  
+  /**
+   * Constructor for dependant tables (draft/element collection or intersection).
+   */
+  private MTable(String name, TablespaceMeta tablespaceMeta, String storageEngine) {
     this.name = name;
     this.identityMode = IdentityMode.NONE;
+    this.tablespaceMeta = tablespaceMeta;
+    this.storageEngine = storageEngine;
   }
 
   /**
@@ -126,7 +139,7 @@ public class MTable {
    * later when creating the CreateTable object.
    */
   public MTable createDraftTable() {
-    draftTable = new MTable(name + "_draft");
+    draftTable = new MTable(name + "_draft", this.tablespaceMeta, this.storageEngine);
     draftTable.draft = true;
     draftTable.whenCreatedColumn = whenCreatedColumn;
     // compoundKeys
@@ -146,9 +159,12 @@ public class MTable {
     this.pkName = createTable.getPkName();
     this.comment = createTable.getComment();
     this.storageEngine = createTable.getStorageEngine();
-    // TODO: ?
-    this.tablespace = createTable.getTablespace();
-    this.indexTablespace = createTable.getIndexTablespace();
+    if (createTable.getTablespace() != null) {
+      this.tablespaceMeta = new TablespaceMeta(createTable.getTablespace(),
+          createTable.getIndexTablespace() != null ? createTable.getIndexTablespace() : createTable.getTablespace());
+    } else {
+      this.tablespaceMeta = null;
+    }
     this.withHistory = Boolean.TRUE.equals(createTable.isWithHistory());
     this.draft = Boolean.TRUE.equals(createTable.isDraft());
     this.identityMode = fromCreateTable(createTable);
@@ -223,6 +239,7 @@ public class MTable {
       createTable.setTablespace(tablespaceMeta.getTablespaceName());
       createTable.setIndexTablespace(tablespaceMeta.getIndexTablespace());
     }
+    // createTable.set
     // TODO?
 //    createTable.setTablespace(tablespace);
 //    createTable.setIndexTablespace(indexTablespace);
@@ -438,13 +455,9 @@ public class MTable {
   public void setComment(String comment) {
     this.comment = comment;
   }
-
-  public String getTablespace() {
-    return tablespace;
-  }
-
-  public String getIndexTablespace() {
-    return indexTablespace;
+  
+  public TablespaceMeta getTablespaceMeta() {
+    return tablespaceMeta;
   }
 
   public boolean isWithHistory() {
