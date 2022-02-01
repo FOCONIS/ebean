@@ -43,6 +43,7 @@ public class DB2Ddl extends PlatformDdl {
     this.columnSetNull = "drop not null";
     this.columnSetType = "set data type ";
     this.inlineUniqueWhenNullable = false;
+    this.useTableSpace = true;
   }
 
   @Override

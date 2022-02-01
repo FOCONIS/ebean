@@ -208,4 +208,12 @@ public class ObjectFactory {
     return new Migration();
   }
 
+  /**
+   * Create an instance of {@link AlterTable }
+   * 
+   */
+  public AlterTable createAlterTable() {
+    return new AlterTable();
+  }
+
 }

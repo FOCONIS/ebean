@@ -5,6 +5,7 @@ import io.ebeaninternal.dbmigration.migration.AddColumn;
 import io.ebeaninternal.dbmigration.migration.AddHistoryTable;
 import io.ebeaninternal.dbmigration.migration.AddTableComment;
 import io.ebeaninternal.dbmigration.migration.AlterColumn;
+import io.ebeaninternal.dbmigration.migration.AlterTable;
 import io.ebeaninternal.dbmigration.migration.Column;
 import io.ebeaninternal.dbmigration.migration.CreateTable;
 import io.ebeaninternal.dbmigration.migration.DropColumn;
@@ -28,6 +29,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import javax.management.Descriptor;
@@ -60,10 +62,10 @@ public class MTable {
    */
   private boolean draft;
   private PartitionMeta partitionMeta;
-  private final TablespaceMeta tablespaceMeta;
+  private TablespaceMeta tablespaceMeta;
   private String pkName;
   private String comment;
-  private final String storageEngine;
+  private String storageEngine;
   private IdentityMode identityMode;
   private boolean withHistory;
   private final Map<String, MColumn> columns = new LinkedHashMap<>();
@@ -297,6 +299,8 @@ public class MTable {
 
     compareCompoundKeys(modelDiff, newTable);
     compareUniqueKeys(modelDiff, newTable);
+    compareTableAttrs(modelDiff, newTable);
+  
   }
 
   private void compareColumns(ModelDiff modelDiff, MTable newTable) {
@@ -366,7 +370,32 @@ public class MTable {
       modelDiff.addUniqueConstraint(newKey.addUniqueConstraint(name));
     }
   }
+  
+  private void compareTableAttrs(ModelDiff modelDiff, MTable newTable) {
+    AlterTable alterTable = new AlterTable();
+    alterTable.setName(newTable.getName());
+    boolean altered = false;
 
+    String oldTs = tablespaceMeta == null ? DdlHelp.TABLESPACE_DEFAULT : tablespaceMeta.getTablespaceName();
+    String newTs = newTable.getTablespaceMeta() == null ? DdlHelp.TABLESPACE_DEFAULT : newTable.getTablespaceMeta().getTablespaceName();
+    if (!oldTs.equals(newTs)) {
+      altered = true;
+      alterTable.setTablespace(newTs);
+    }
+
+    String oldIdx = tablespaceMeta == null ? DdlHelp.TABLESPACE_DEFAULT : tablespaceMeta.getIndexTablespace();
+    String newIdx = newTable.getTablespaceMeta() == null ? DdlHelp.TABLESPACE_DEFAULT : newTable.getTablespaceMeta().getIndexTablespace();
+    if (!oldIdx.equals(newIdx)) {
+      altered = true;
+      alterTable.setIndexTablespace(newIdx);
+    }
+
+    // TODO add alterTable.setPartitionMode() etc. here.
+    if (altered) {
+      modelDiff.addAlterTable(alterTable);
+    }
+  }
+  
   /**
    * Apply AddColumn migration.
    */
@@ -454,6 +483,10 @@ public class MTable {
 
   public void setComment(String comment) {
     this.comment = comment;
+  }
+  
+  public void setTablespaceMeta(TablespaceMeta tablespaceMeta) {
+    this.tablespaceMeta = tablespaceMeta;
   }
   
   public TablespaceMeta getTablespaceMeta() {

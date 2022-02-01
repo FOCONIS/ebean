@@ -8,6 +8,10 @@ public final class TablespaceMeta {
   private String tablespaceName;
   private String indexTablespace;
 
+  public TablespaceMeta() {
+    
+  }
+  
   public TablespaceMeta(String tablespaceName, String indexTablespace) {
     this.tablespaceName = tablespaceName;
     this.indexTablespace = indexTablespace;
@@ -52,5 +56,9 @@ public final class TablespaceMeta {
   @Override
   public String toString() {
     return "tablespace=" + tablespaceName + ", indexTablespace=" + indexTablespace;
+  }
+
+  public boolean isSet() {
+    return tablespaceName != null || indexTablespace != null;
   }
 }

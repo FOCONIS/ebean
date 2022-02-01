@@ -127,6 +127,8 @@ public class PlatformDdl {
   protected boolean inlineForeignKeys;
 
   protected boolean includeStorageEngine;
+  
+  protected boolean useTableSpace;
 
   protected final DbDefaultValue dbDefaultValue;
 

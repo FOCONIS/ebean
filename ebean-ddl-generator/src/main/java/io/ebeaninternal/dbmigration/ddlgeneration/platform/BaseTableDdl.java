@@ -20,6 +20,7 @@ import io.ebeaninternal.dbmigration.migration.AddTableComment;
 import io.ebeaninternal.dbmigration.migration.AddUniqueConstraint;
 import io.ebeaninternal.dbmigration.migration.AlterColumn;
 import io.ebeaninternal.dbmigration.migration.AlterForeignKey;
+import io.ebeaninternal.dbmigration.migration.AlterTable;
 import io.ebeaninternal.dbmigration.migration.Column;
 import io.ebeaninternal.dbmigration.migration.CreateIndex;
 import io.ebeaninternal.dbmigration.migration.CreateTable;
@@ -200,7 +201,7 @@ public class BaseTableDdl implements TableDdl {
 
     private void handleStrictError(String tableName, String columnName) {
       if (strictMode) {
-        String message = "DB Migration of non-null column with no default value specified for: " + tableName + "." + columnName+" Use @DbDefault to specify a default value or specify dbMigration.setStrictMode(false)";
+        String message = "DB Migration of non-null column with no default value specified for: " + tableName + "." + columnName+" Use @DbDefault to specify a default value or disable strict mode for migration";
         throw new IllegalArgumentException(message);
       }
     }
@@ -731,6 +732,19 @@ public class BaseTableDdl implements TableDdl {
     }
   }
 
+  @Override
+  public void generate(DdlWrite writer, AlterTable alterTable) throws IOException {
+    if (platformDdl.useTableSpace ) {
+      if (hasValue(alterTable.getTablespace()) || hasValue(alterTable.getIndexTablespace())) {
+        writer.apply().appendStatement("-- TODO: " + alterTable.getName() + " -> " + alterTable.getTablespace() );
+        writer.apply().appendStatement("-- TODO: " + alterTable.getName() + " -> Index " + alterTable.getIndexTablespace() );
+        if (strictMode) {
+          throw new UnsupportedOperationException("Tablespace change is not supported by this platform. Disable strict mode for migration and wirte migration manually");
+        }
+      }
+    }
+  }
+  
   /**
    * Add drop column DDL.
    */
