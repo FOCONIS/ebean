@@ -448,8 +448,14 @@ public class BaseTableDdl implements TableDdl {
     DdlBuffer fkeyBuffer = write.applyForeignKeys();
     String tableName = lowerTableName(request.table());
     if (request.indexName() != null) {
+      // TODO
+      MTable table = write.getTable(tableName);
+      String indexTablespace = null;
+      if (table != null && table.isPartitioned() && table.getIndexTablespace() != null) {
+        indexTablespace = table.getIndexTablespace();
+      }
       // no matching unique constraint so add the index
-      fkeyBuffer.appendStatement(platformDdl.createIndex(new WriteCreateIndex(request.indexName(), tableName, request.cols(), false)));
+       fkeyBuffer.appendStatement(platformDdl.createIndex(new WriteCreateIndex(request.indexName(), tableName, request.cols(), false), indexTablespace));
     }
     alterTableAddForeignKey(write.getOptions(), fkeyBuffer, request);
     fkeyBuffer.end();
@@ -593,7 +599,14 @@ public class BaseTableDdl implements TableDdl {
   public void generate(DdlWrite writer, CreateIndex index) throws IOException {
     if (platformInclude(index.getPlatforms())) {
       flushReorgTables(writer.apply());
-      writer.apply().appendStatement(platformDdl.createIndex(new WriteCreateIndex(index))); // TODOP: with tablespace 
+      
+      MTable table = writer.getTable(index.getTableName());
+      String indexTablespace = null;
+      if (table != null && table.isPartitioned() && table.getIndexTablespace() != null) {
+        indexTablespace = table.getIndexTablespace();
+      }
+      
+      writer.apply().appendStatement(platformDdl.createIndex(new WriteCreateIndex(index), indexTablespace)); // TODOP: with tablespace 
       writer.dropAll().appendStatement(platformDdl.dropIndex(index.getIndexName(), index.getTableName(), Boolean.TRUE.equals(index.isConcurrent())));
     }
   }

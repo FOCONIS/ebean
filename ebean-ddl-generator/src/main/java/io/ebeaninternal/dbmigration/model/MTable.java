@@ -97,6 +97,10 @@ public class MTable {
     this.storageEngine = descriptor.storageEngine();
     this.partitionMeta = descriptor.partitionMeta();
     this.tablespaceMeta = descriptor.tablespaceMeta();
+    if(this.tablespaceMeta != null) {
+      this.tablespace = this.tablespaceMeta.getTablespaceName();
+      this.indexTablespace = this.tablespaceMeta.getIndexTablespace();
+    }
     this.comment = descriptor.dbComment();
     if (descriptor.isHistorySupport()) {
       withHistory = true;

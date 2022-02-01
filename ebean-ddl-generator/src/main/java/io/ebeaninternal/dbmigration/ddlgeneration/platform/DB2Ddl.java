@@ -144,5 +144,30 @@ public class DB2Ddl extends PlatformDdl {
   public void addTablespace(DdlBuffer apply, String tablespaceName, String indexTablespace) throws IOException {
     apply.append(" in ").append(tablespaceName).append(" INDEX IN ").append(indexTablespace);
   }
+  
+  @Override
+  public String createIndex(WriteCreateIndex create, String indexTablespace) {
+    if (create.useDefinition()) {
+      return create.getDefinition();
+    }
+    StringBuilder buffer = new StringBuilder();
+    buffer.append("create ");
+    if (create.isUnique()) {
+      buffer.append(uniqueIndex).append(" ");
+    }
+    buffer.append("index ");
+    if (create.isConcurrent()) {
+      buffer.append(indexConcurrent);
+    }
+    if (create.isNotExistsCheck()) {
+      buffer.append(createIndexIfNotExists);
+    }
+    buffer.append(maxConstraintName(create.getIndexName())).append(" on ").append(create.getTableName());
+    appendColumns(create.getColumns(), buffer);
+    if(indexTablespace != null) {
+      buffer.append(" in ").append(indexTablespace);
+    }
+    return buffer.toString();
+  }
 
 }

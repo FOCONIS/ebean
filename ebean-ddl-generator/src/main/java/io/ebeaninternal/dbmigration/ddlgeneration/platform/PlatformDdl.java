@@ -400,8 +400,12 @@ public class PlatformDdl {
   public String dropIndex(String indexName, String tableName, boolean concurrent) {
     return dropIndexIfExists + maxConstraintName(indexName);
   }
-
+  
   public String createIndex(WriteCreateIndex create) {
+    return createIndex(create, null);
+  }
+
+  public String createIndex(WriteCreateIndex create, String indexTablespace) {
     if (create.useDefinition()) {
       return create.getDefinition();
     }
