@@ -34,7 +34,8 @@ import io.ebeaninternal.dbmigration.ddlgeneration.DdlHandler;
  * 
  */
 public class DB2Ddl extends PlatformDdl {
-  
+  private static final String MOVE_TABLE = "CALL SYSPROC.ADMIN_MOVE_TABLE(CURRENT_SCHEMA,'%s','%s','%s','%s','','','','','','MOVE')";
+
   public DB2Ddl(DatabasePlatform platform) {
     super(platform);
     this.dropTableIfExists = "drop table ";
@@ -45,12 +46,16 @@ public class DB2Ddl extends PlatformDdl {
     this.columnSetNull = "drop not null";
     this.columnSetType = "set data type ";
     this.inlineUniqueWhenNullable = false;
-    this.useTableSpace = true;
   }
+//
+//  @Override
+//  public DdlHandler createDdlHandler(DatabaseConfig config) {
+//    return new Db2DdlHandler(config, this);
+//  }
 
   @Override
-  public DdlHandler createDdlHandler(DatabaseConfig config) {
-    return new Db2DdlHandler(config, this);
+  public String alterTableTablespace(String tablename, String tableSpace, String indexSpace, String lobSpace) {
+    return String.format(MOVE_TABLE, tablename, tableSpace, indexSpace, lobSpace);
   }
   
   @Override
@@ -149,33 +154,19 @@ public class DB2Ddl extends PlatformDdl {
   }
   
   @Override
-  public void addTablespace(DdlBuffer apply, String tablespaceName, String indexTablespace) throws IOException {
-    apply.append(" in ").append(tablespaceName).append(" INDEX IN ").append(indexTablespace);
+  public void addTablespace(DdlBuffer apply, String tablespaceName, String indexTablespace, String lobTablespace)
+      throws IOException {
+    apply.append(" in ").append(tablespaceName).append(" index in ").append(indexTablespace).append(" long in ").append(lobTablespace);
   }
   
   @Override
-  public String createIndex(WriteCreateIndex create, String indexTablespace) {
-    if (create.useDefinition()) {
-      return create.getDefinition();
+  public String createIndex(WriteCreateIndex create) {
+    String ret = super.createIndex(create);
+    if(create.getTablespace() != null) {
+      return ret + " in " + create.getTablespace();
+    } else {
+      return ret;
     }
-    StringBuilder buffer = new StringBuilder();
-    buffer.append("create ");
-    if (create.isUnique()) {
-      buffer.append(uniqueIndex).append(" ");
-    }
-    buffer.append("index ");
-    if (create.isConcurrent()) {
-      buffer.append(indexConcurrent);
-    }
-    if (create.isNotExistsCheck()) {
-      buffer.append(createIndexIfNotExists);
-    }
-    buffer.append(maxConstraintName(create.getIndexName())).append(" on ").append(create.getTableName());
-    appendColumns(create.getColumns(), buffer);
-    if(indexTablespace != null) {
-      buffer.append(" in ").append(indexTablespace);
-    }
-    return buffer.toString();
   }
 
 }

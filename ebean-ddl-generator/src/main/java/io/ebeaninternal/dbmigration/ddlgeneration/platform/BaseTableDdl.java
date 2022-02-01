@@ -43,6 +43,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Supplier;
 
 import static io.ebean.util.StringHelper.replace;
 import static io.ebeaninternal.api.PlatformMatch.matchPlatform;
@@ -284,7 +285,7 @@ public class BaseTableDdl implements TableDdl {
     apply.newLine().append(")");
     // HIER Tablespace 
     if(createTable.getTablespace() != null) {
-      platformDdl.addTablespace(apply, createTable.getTablespace(), createTable.getIndexTablespace());
+      platformDdl.addTablespace(apply, createTable.getTablespace(), createTable.getIndexTablespace(), null);
     }
     addTableStorageEngine(apply, createTable);
     addTableCommentInline(apply, createTable);
@@ -449,14 +450,9 @@ public class BaseTableDdl implements TableDdl {
     DdlBuffer fkeyBuffer = write.applyForeignKeys();
     String tableName = lowerTableName(request.table());
     if (request.indexName() != null) {
-      // TODO
       MTable table = write.getTable(tableName);
-      String indexTablespace = null;
-      if (table != null && table.isPartitioned() && table.getTablespaceMeta() != null) {
-        indexTablespace = table.getTablespaceMeta().getIndexTablespace();
-      }
       // no matching unique constraint so add the index
-       fkeyBuffer.appendStatement(platformDdl.createIndex(new WriteCreateIndex(request.indexName(), tableName, request.cols(), false), indexTablespace));
+       fkeyBuffer.appendStatement(platformDdl.createIndex(new WriteCreateIndex(request.indexName(), tableName, getIndexTablespace(table), request.cols(), false)));
     }
     alterTableAddForeignKey(write.getOptions(), fkeyBuffer, request);
     fkeyBuffer.end();
@@ -596,18 +592,27 @@ public class BaseTableDdl implements TableDdl {
     return pk;
   }
 
+  /**
+   * Method to return the index tablespace for platform. 
+   * @param index
+   * @param tableSupplier
+   * @return
+   */
+  protected String getIndexTablespace(MTable table) {
+    return null;
+  }
   @Override
   public void generate(DdlWrite writer, CreateIndex index) throws IOException {
     if (platformInclude(index.getPlatforms())) {
       flushReorgTables(writer.apply());
       
       MTable table = writer.getTable(index.getTableName());
-      String indexTablespace = null;
-      if (table != null && table.isPartitioned() && table.getTablespaceMeta() != null) {
-        indexTablespace = table.getTablespaceMeta().getIndexTablespace();
-      }
+//      String indexTablespace = null;
+//      if (table != null && table.isPartitioned() && table.getTablespaceMeta() != null) {
+//        indexTablespace = table.getTablespaceMeta().getIndexTablespace();
+//      }
       
-      writer.apply().appendStatement(platformDdl.createIndex(new WriteCreateIndex(index), indexTablespace)); // TODOP: with tablespace 
+      writer.apply().appendStatement(platformDdl.createIndex(new WriteCreateIndex(index, getIndexTablespace(table)))); 
       writer.dropAll().appendStatement(platformDdl.dropIndex(index.getIndexName(), index.getTableName(), Boolean.TRUE.equals(index.isConcurrent())));
     }
   }
@@ -734,14 +739,12 @@ public class BaseTableDdl implements TableDdl {
 
   @Override
   public void generate(DdlWrite writer, AlterTable alterTable) throws IOException {
-    if (platformDdl.useTableSpace ) {
-      if (hasValue(alterTable.getTablespace()) || hasValue(alterTable.getIndexTablespace())) {
-        writeTablespaceChange(writer.apply(), 
-            alterTable.getName(), 
-            DdlHelp.toTablespace(alterTable.getTablespace()),
-            DdlHelp.toTablespace(alterTable.getIndexTablespace()),
-            null);
-      }
+    if (hasValue(alterTable.getTablespace()) || hasValue(alterTable.getIndexTablespace())) {
+      writer.apply().appendStatement(
+          platformDdl.alterTableTablespace(alterTable.getName(), 
+              DdlHelp.toTablespace(alterTable.getTablespace()),
+              DdlHelp.toTablespace(alterTable.getIndexTablespace()),
+              null));
     }
   }
   

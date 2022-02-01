@@ -128,8 +128,6 @@ public class PlatformDdl {
 
   protected boolean includeStorageEngine;
   
-  protected boolean useTableSpace;
-
   protected final DbDefaultValue dbDefaultValue;
 
   protected String fallbackArrayType = "varchar(1000)";
@@ -402,12 +400,7 @@ public class PlatformDdl {
   public String dropIndex(String indexName, String tableName, boolean concurrent) {
     return dropIndexIfExists + maxConstraintName(indexName);
   }
-  
   public String createIndex(WriteCreateIndex create) {
-    return createIndex(create, null);
-  }
-
-  public String createIndex(WriteCreateIndex create, String indexTablespace) {
     if (create.useDefinition()) {
       return create.getDefinition();
     }
@@ -512,6 +505,13 @@ public class PlatformDdl {
    */
   public String alterTableDropConstraint(String tableName, String constraintName) {
     return "alter table " + tableName + " " + dropConstraintIfExists + " " + maxConstraintName(constraintName);
+  }
+
+  /**
+   * Moves the table to an other tablespace.
+   */
+  public String alterTableTablespace(String tablename, String tableSpace, String indexSpace, String lobSpace) {
+    return null;
   }
 
   /**
@@ -783,7 +783,7 @@ public class PlatformDdl {
    * TODO.
    * @throws IOException 
    */
-  public void addTablespace(DdlBuffer apply, String tablespaceName, String indexTablespace) throws IOException{
+  public void addTablespace(DdlBuffer apply, String tablespaceName, String indexTablespace, String lobTablespace) throws IOException{
     // now only supported for db2
   }
 
@@ -796,5 +796,7 @@ public class PlatformDdl {
   public String reorgTable(String table, int counter) {
     return null;
   }
+
+  
 
 }

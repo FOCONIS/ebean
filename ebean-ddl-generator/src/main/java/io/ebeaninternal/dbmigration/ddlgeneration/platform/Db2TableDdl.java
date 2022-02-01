@@ -16,6 +16,7 @@ public class Db2TableDdl extends BaseTableDdl {
   @Override
   protected void writeTablespaceChange(DdlBuffer buffer, String tablename, String tableSpace, String indexSpace,
       String lobSpace) throws IOException {
+    private static final String MOVE_TABLE = "CALL SYSPROC.ADMIN_MOVE_TABLE(CURRENT_SCHEMA,'%s','%s','%s','%s','','','','','','MOVE')";
     buffer.appendStatement(String.format(MOVE_TABLE, tablename, tableSpace, indexSpace, lobSpace));
   }
 
