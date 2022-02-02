@@ -86,6 +86,8 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType, SpiBeanType {
   private final ConcurrentHashMap<String, ElPropertyDeploy> elDeployCache = new ConcurrentHashMap<>();
   private final ConcurrentHashMap<String, ElComparator<T>> comparatorCache = new ConcurrentHashMap<>();
   private final ConcurrentHashMap<String, STreeProperty> dynamicProperty = new ConcurrentHashMap<>();
+  private final ConcurrentHashMap<String, Map<String,String>> pathMaps = new ConcurrentHashMap<>();
+
   private final Map<String, SpiRawSql> namedRawSql;
   private final Map<String, String> namedQuery;
   private final boolean multiValueSupported;
@@ -2785,6 +2787,22 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType, SpiBeanType {
   }
 
   @Override
+  public Map<String, String> pathMap(String prefix) {
+    return pathMaps.computeIfAbsent(prefix, s -> {
+      HashMap<String, String> m = new HashMap<>();
+      for (STreePropertyAssocMany many : propsMany()) {
+        String name = many.name();
+        m.put(name, prefix + "." + name);
+      }
+      for (STreePropertyAssocOne one : propsOne()) {
+        String name = one.name();
+        m.put(name, prefix + "." + name);
+      }
+      return m.isEmpty() ? Collections.emptyMap() : m;
+    });
+  }
+
+  @Override
   public boolean isEmbeddedPath(String propertyPath) {
     ElPropertyDeploy elProp = elPropertyDeploy(propertyPath);
     if (elProp == null) {
@@ -3363,12 +3381,12 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType, SpiBeanType {
     jsonHelp.jsonWriteProperties(writeJson, bean);
   }
 
-  public T jsonRead(SpiJsonReader jsonRead, String path) throws IOException {
-    return jsonHelp.jsonRead(jsonRead, path, true);
+  public T jsonRead(SpiJsonReader jsonRead, String path, T target) throws IOException {
+    return jsonHelp.jsonRead(jsonRead, path, true, target);
   }
 
-  T jsonReadObject(SpiJsonReader jsonRead, String path) throws IOException {
-    return jsonHelp.jsonRead(jsonRead, path, false);
+  T jsonReadObject(SpiJsonReader jsonRead, String path, T target) throws IOException {
+    return jsonHelp.jsonRead(jsonRead, path, false, target);
   }
 
   public List<BeanProperty[]> uniqueProps() {
