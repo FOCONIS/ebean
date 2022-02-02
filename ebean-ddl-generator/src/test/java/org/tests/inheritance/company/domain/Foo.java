@@ -6,8 +6,6 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Version;
 
-import io.ebeaninternal.server.deploy.annotation.DbTablespace;
-
 /**
  * @author Per-Ingemar Andersson, It-huset i Norden AB
  */

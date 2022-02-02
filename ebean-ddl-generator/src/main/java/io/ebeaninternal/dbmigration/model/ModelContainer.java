@@ -280,8 +280,11 @@ public class ModelContainer {
     if (alterTable.getTablespace() != null) {
       ts.setTablespaceName(DdlHelp.toTablespace(alterTable.getTablespace()));
     }
-    if (alterTable.getIndexTablespace()!= null) {
+    if (alterTable.getIndexTablespace() != null) {
       ts.setIndexTablespace(DdlHelp.toTablespace(alterTable.getIndexTablespace()));
+    }
+    if (alterTable.getLobTablespace() != null) {
+      ts.setLobTablespace(DdlHelp.toTablespace(alterTable.getLobTablespace()));
     }
     if (ts.isSet()) {
       table.setTablespaceMeta(ts);

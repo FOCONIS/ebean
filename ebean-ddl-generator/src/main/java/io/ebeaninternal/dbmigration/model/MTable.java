@@ -29,10 +29,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
-
-import javax.management.Descriptor;
 
 import static io.ebeaninternal.dbmigration.ddlgeneration.platform.SplitColumns.split;
 import static io.ebeaninternal.dbmigration.model.MTableIdentity.fromCreateTable;
@@ -163,7 +160,8 @@ public class MTable {
     this.storageEngine = createTable.getStorageEngine();
     if (createTable.getTablespace() != null) {
       this.tablespaceMeta = new TablespaceMeta(createTable.getTablespace(),
-          createTable.getIndexTablespace() != null ? createTable.getIndexTablespace() : createTable.getTablespace());
+          createTable.getIndexTablespace() != null ? createTable.getIndexTablespace() : createTable.getTablespace(),
+          createTable.getLobTablespace() != null ? createTable.getLobTablespace() : createTable.getTablespace());
     } else {
       this.tablespaceMeta = null;
     }
@@ -240,11 +238,8 @@ public class MTable {
     if (tablespaceMeta != null) {
       createTable.setTablespace(tablespaceMeta.getTablespaceName());
       createTable.setIndexTablespace(tablespaceMeta.getIndexTablespace());
+      createTable.setLobTablespace(tablespaceMeta.getLobTablespace());
     }
-    // createTable.set
-    // TODO?
-//    createTable.setTablespace(tablespace);
-//    createTable.setIndexTablespace(indexTablespace);
     toCreateTable(identityMode, createTable);
     if (withHistory) {
       createTable.setWithHistory(Boolean.TRUE);
@@ -389,8 +384,14 @@ public class MTable {
       altered = true;
       alterTable.setIndexTablespace(newIdx);
     }
+    
+    String oldLobTs = tablespaceMeta == null ? DdlHelp.TABLESPACE_DEFAULT : tablespaceMeta.getLobTablespace();
+    String newLobTs = newTable.getTablespaceMeta() == null ? DdlHelp.TABLESPACE_DEFAULT : newTable.getTablespaceMeta().getLobTablespace();
+    if (!oldLobTs.equals(newLobTs)) {
+      altered = true;
+      alterTable.setLobTablespace(newLobTs);
+    }
 
-    // TODO add alterTable.setPartitionMode() etc. here.
     if (altered) {
       modelDiff.addAlterTable(alterTable);
     }

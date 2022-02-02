@@ -4,17 +4,18 @@ import java.util.Objects;
 
 public final class TablespaceMeta {
 
-
   private String tablespaceName;
   private String indexTablespace;
+  private String lobTablespace;
 
   public TablespaceMeta() {
     
   }
   
-  public TablespaceMeta(String tablespaceName, String indexTablespace) {
+  public TablespaceMeta(String tablespaceName, String indexTablespace, String lobTablespace) {
     this.tablespaceName = tablespaceName;
     this.indexTablespace = indexTablespace;
+    this.lobTablespace = lobTablespace;
   }
 
   public String getTablespaceName() {
@@ -33,9 +34,17 @@ public final class TablespaceMeta {
     this.indexTablespace = indexTablespace;
   }
   
+  public String getLobTablespace() {
+    return lobTablespace;
+  }
+
+  public void setLobTablespace(String lobTablespace) {
+    this.lobTablespace = lobTablespace;
+  }
+
   @Override
   public int hashCode() {
-    return Objects.hash(indexTablespace, tablespaceName);
+    return Objects.hash(indexTablespace, tablespaceName, lobTablespace);
   }
 
   @Override
@@ -48,17 +57,18 @@ public final class TablespaceMeta {
       return false;
     TablespaceMeta other = (TablespaceMeta) obj;
     return Objects.equals(indexTablespace, other.indexTablespace)
-        && Objects.equals(tablespaceName, other.tablespaceName);
+        && Objects.equals(tablespaceName, other.tablespaceName)
+        && Objects.equals(lobTablespace, other.lobTablespace);
   }
 
 
 
   @Override
   public String toString() {
-    return "tablespace=" + tablespaceName + ", indexTablespace=" + indexTablespace;
+    return "tablespace=" + tablespaceName + ", indexTablespace=" + indexTablespace + ", lobTablespace=" + lobTablespace;
   }
 
   public boolean isSet() {
-    return tablespaceName != null || indexTablespace != null;
+    return tablespaceName != null || indexTablespace != null || lobTablespace != null;
   }
 }

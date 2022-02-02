@@ -23,7 +23,7 @@ import io.ebeaninternal.server.deploy.IndexDefinition;
 import io.ebeaninternal.server.deploy.InheritInfo;
 import io.ebeaninternal.server.deploy.PartitionMeta;
 import io.ebeaninternal.server.deploy.TablespaceMeta;
-import io.ebeaninternal.server.deploy.annotation.DbTablespace;
+import io.ebeaninternal.server.deploy.annotation.Tablespace;
 import io.ebeaninternal.server.deploy.meta.DeployBeanProperty;
 
 import javax.persistence.AttributeOverride;
@@ -160,13 +160,17 @@ final class AnnotationClass extends AnnotationParser {
     if (partition != null) {
       descriptor.setPartitionMeta(new PartitionMeta(partition.mode(), partition.property()));
     }
-    DbTablespace tablespace = typeGet(cls, DbTablespace.class);
+    Tablespace tablespace = typeGet(cls, Tablespace.class);
     if (tablespace != null) {
       String indexTs = tablespace.index();
-      if("$DEFAULT".equals(indexTs)) {
+      if("".equals(indexTs)) {
         indexTs = tablespace.value();
       }
-      descriptor.setTablespaceMeta(new TablespaceMeta(tablespace.value(), indexTs));
+      String lobTs = tablespace.lob();
+      if("".equals(lobTs)) {
+        lobTs = tablespace.value();
+      }
+      descriptor.setTablespaceMeta(new TablespaceMeta(tablespace.value(), indexTs, lobTs));
     }
     Draftable draftable = typeGet(cls, Draftable.class);
     if (draftable != null) {

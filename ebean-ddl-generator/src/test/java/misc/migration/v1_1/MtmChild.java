@@ -7,11 +7,11 @@ import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 
-import io.ebeaninternal.server.deploy.annotation.DbTablespace;
+import io.ebeaninternal.server.deploy.annotation.Tablespace;
 
 @Entity
 @Table(name = "migtest_mtm_c")
-@DbTablespace("TESTTS")
+@Tablespace("TESTTS")
 public class MtmChild {
 
   @Id

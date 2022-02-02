@@ -780,7 +780,7 @@ public class PlatformDdl {
   }
   
   /**
-   * TODO.
+   * Adds tablespace declaration. Now only supported for db2.
    * @throws IOException 
    */
   public void addTablespace(DdlBuffer apply, String tablespaceName, String indexTablespace, String lobTablespace) throws IOException{

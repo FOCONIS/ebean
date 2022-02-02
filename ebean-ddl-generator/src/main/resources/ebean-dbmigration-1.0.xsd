@@ -362,6 +362,7 @@
   <xsd:attributeGroup name="tablespaceAttributes">
     <xsd:attribute name="tablespace" type="xsd:string"/>
     <xsd:attribute name="indexTablespace" type="xsd:string"/>
+    <xsd:attribute name="lobTablespace" type="xsd:string"/>
     <xsd:attribute name="comment" type="xsd:string"/>
   </xsd:attributeGroup>
 
@@ -372,6 +373,7 @@
       <xsd:element ref="sql" maxOccurs="unbounded"/>
 
       <xsd:element ref="createTable" maxOccurs="unbounded"/>
+      <xsd:element ref="alterTable" maxOccurs="unbounded"/>
       <xsd:element ref="dropTable" maxOccurs="unbounded"/>
       <xsd:element ref="renameTable" maxOccurs="unbounded"/>
       <xsd:element ref="addTableComment" maxOccurs="unbounded"/>

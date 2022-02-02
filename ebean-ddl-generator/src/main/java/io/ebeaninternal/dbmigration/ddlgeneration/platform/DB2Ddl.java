@@ -47,11 +47,6 @@ public class DB2Ddl extends PlatformDdl {
     this.columnSetType = "set data type ";
     this.inlineUniqueWhenNullable = false;
   }
-//
-//  @Override
-//  public DdlHandler createDdlHandler(DatabaseConfig config) {
-//    return new Db2DdlHandler(config, this);
-//  }
 
   @Override
   public String alterTableTablespace(String tablename, String tableSpace, String indexSpace, String lobSpace) {

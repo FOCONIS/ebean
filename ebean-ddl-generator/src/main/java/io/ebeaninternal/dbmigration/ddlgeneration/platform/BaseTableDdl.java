@@ -283,9 +283,8 @@ public class BaseTableDdl implements TableDdl {
       writeInlineForeignKeys(writer, createTable);
     }
     apply.newLine().append(")");
-    // HIER Tablespace 
     if(createTable.getTablespace() != null) {
-      platformDdl.addTablespace(apply, createTable.getTablespace(), createTable.getIndexTablespace(), null);
+      platformDdl.addTablespace(apply, createTable.getTablespace(), createTable.getIndexTablespace(), createTable.getLobTablespace());
     }
     addTableStorageEngine(apply, createTable);
     addTableCommentInline(apply, createTable);
@@ -593,24 +592,22 @@ public class BaseTableDdl implements TableDdl {
   }
 
   /**
-   * Method to return the index tablespace for platform. 
-   * @param index
-   * @param tableSupplier
-   * @return
+   * Method to return the index tablespace for platform.
    */
+  // FIXME: do we need this function and isPartitioned()?
   protected String getIndexTablespace(MTable table) {
-    return null;
+    String indexTablespace = null;
+    if (table != null && table.isPartitioned() && table.getTablespaceMeta() != null) {
+      indexTablespace = table.getTablespaceMeta().getIndexTablespace();
+    }
+    return indexTablespace;
   }
+  
   @Override
   public void generate(DdlWrite writer, CreateIndex index) throws IOException {
     if (platformInclude(index.getPlatforms())) {
       flushReorgTables(writer.apply());
-      
       MTable table = writer.getTable(index.getTableName());
-//      String indexTablespace = null;
-//      if (table != null && table.isPartitioned() && table.getTablespaceMeta() != null) {
-//        indexTablespace = table.getTablespaceMeta().getIndexTablespace();
-//      }
       
       writer.apply().appendStatement(platformDdl.createIndex(new WriteCreateIndex(index, getIndexTablespace(table)))); 
       writer.dropAll().appendStatement(platformDdl.dropIndex(index.getIndexName(), index.getTableName(), Boolean.TRUE.equals(index.isConcurrent())));
@@ -744,7 +741,7 @@ public class BaseTableDdl implements TableDdl {
           platformDdl.alterTableTablespace(alterTable.getName(), 
               DdlHelp.toTablespace(alterTable.getTablespace()),
               DdlHelp.toTablespace(alterTable.getIndexTablespace()),
-              null));
+              DdlHelp.toTablespace(alterTable.getLobTablespace())));
     }
   }
   
@@ -752,7 +749,7 @@ public class BaseTableDdl implements TableDdl {
     buffer.appendStatement("-- TableSpace changed: Table: " 
         + tablename + ", tableSpace " + tableSpace + ", indexSpace " + indexSpace + ", lobSpace " + lobSpace);
     if (strictMode) {
-      throw new UnsupportedOperationException("Tablespace change is not supported by this platform. Disable strict mode for migration and wirte migration manually");
+      throw new UnsupportedOperationException("Tablespace change is not supported by this platform. Disable strict mode for migration and write migration manually");
     }
   }
   
