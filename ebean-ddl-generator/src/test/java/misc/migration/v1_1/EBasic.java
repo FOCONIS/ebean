@@ -1,10 +1,19 @@
 package misc.migration.v1_1;
 
+import io.ebean.annotation.DbDefault;
+import io.ebean.annotation.DbMigration;
+import io.ebean.annotation.EnumValue;
 import io.ebean.annotation.Index;
-import io.ebean.annotation.*;
+import io.ebean.annotation.NotNull;
+import io.ebean.annotation.Platform;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 import javax.validation.constraints.Size;
+
 import java.sql.Timestamp;
 
 @Entity
@@ -51,10 +60,11 @@ public class EBasic {
   @Size(max=127)
   String name;
 
-
+  @DbMigration(preAlter = { "-- db2 does not support parial null indices :( - so we have to clean",
+      "update ${table} set status = 'N' where id = 1" }, platforms = Platform.DB2)
   @DbMigration(preAlter = "-- rename all collisions")
   @Column(unique = true)
-  @Size(max=127)
+  @Size(max = 127)
   String description;
 
   //@NotNull

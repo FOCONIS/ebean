@@ -13,6 +13,7 @@ import java.sql.Types;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@ExtendWith(PlatformCondition.class)
 public abstract class BaseTestCase {
 
   protected static Logger logger = LoggerFactory.getLogger(BaseTestCase.class);

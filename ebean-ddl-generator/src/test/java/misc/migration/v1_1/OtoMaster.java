@@ -1,22 +1,22 @@
 package misc.migration.v1_1;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.ManyToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import java.util.List;
 
 @Entity
-@Table(name = "migtest_mtm_m")
-public class MtmMaster {
+@Table(name = "migtest_oto_master")
+public class OtoMaster {
 
   @Id
   Long id;
 
   String name;
 
-  @ManyToMany
-  List<MtmChild> children;
+  @OneToOne(cascade = CascadeType.ALL, mappedBy = "master")
+  OtoChild child;
 
   public Long getId() {
     return id;
@@ -34,12 +34,12 @@ public class MtmMaster {
     this.name = name;
   }
 
-  public List<MtmChild> getChildren() {
-    return children;
+  public OtoChild getChild() {
+    return child;
   }
 
-  public void setChildren(List<MtmChild> children) {
-    this.children = children;
+  public void setChild(OtoChild child) {
+    this.child = child;
   }
 
 }

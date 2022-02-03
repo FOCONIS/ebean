@@ -1,10 +1,8 @@
-package misc.migration.v1_1;
+package misc.migration.v1_2;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.ManyToMany;
 import javax.persistence.Table;
-import java.util.List;
 
 @Entity
 @Table(name = "migtest_mtm_m")
@@ -14,9 +12,6 @@ public class MtmMaster {
   Long id;
 
   String name;
-
-  @ManyToMany
-  List<MtmChild> children;
 
   public Long getId() {
     return id;
@@ -32,14 +27,6 @@ public class MtmMaster {
 
   public void setName(String name) {
     this.name = name;
-  }
-
-  public List<MtmChild> getChildren() {
-    return children;
-  }
-
-  public void setChildren(List<MtmChild> children) {
-    this.children = children;
   }
 
 }
