@@ -3,10 +3,8 @@ package io.ebeaninternal.dbmigration.ddlgeneration.platform;
 import java.io.IOException;
 
 import io.ebean.annotation.ConstraintMode;
-import io.ebean.config.DatabaseConfig;
 import io.ebean.config.dbplatform.DatabasePlatform;
 import io.ebeaninternal.dbmigration.ddlgeneration.DdlBuffer;
-import io.ebeaninternal.dbmigration.ddlgeneration.DdlHandler;
 
 /**
  * DB2 platform specific DDL.
@@ -155,14 +153,4 @@ public class DB2Ddl extends PlatformDdl {
     apply.append(" in ").append(tablespaceName).append(" index in ").append(indexTablespace).append(" long in ").append(lobTablespace);
   }
   
-  @Override
-  public String createIndex(WriteCreateIndex create) {
-    String ret = super.createIndex(create);
-    if(create.getTablespace() != null) {
-      return ret + " in " + create.getTablespace();
-    } else {
-      return ret;
-    }
-  }
-
 }

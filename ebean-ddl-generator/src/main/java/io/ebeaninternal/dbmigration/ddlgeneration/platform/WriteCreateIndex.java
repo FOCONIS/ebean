@@ -8,7 +8,6 @@ class WriteCreateIndex {
 
   private final String indexName;
   private final String tableName;
-  private final String tablespace;
   private final String[] columns;
   private final boolean unique;
   private final boolean concurrent;
@@ -18,10 +17,9 @@ class WriteCreateIndex {
   /**
    * Create index for foreign key.
    */
-  WriteCreateIndex(String indexName, String tableName, String tablespace, String[] columns, boolean unique) {
+  WriteCreateIndex(String indexName, String tableName, String[] columns, boolean unique) {
     this.indexName = indexName;
     this.tableName = tableName;
-    this.tablespace = tablespace;
     this.columns = columns;
     this.unique = unique;
     this.concurrent = false;
@@ -32,10 +30,9 @@ class WriteCreateIndex {
   /**
    * Create non-foreign key index.
    */
-  public WriteCreateIndex(CreateIndex index, String tablespace) {
+  public WriteCreateIndex(CreateIndex index) {
     this.indexName = index.getIndexName();
     this.tableName = index.getTableName();
-    this.tablespace = tablespace;
     this.columns = split(index.getColumns());
     this.unique = Boolean.TRUE.equals(index.isUnique());
     this.concurrent = Boolean.TRUE.equals(index.isConcurrent());
@@ -74,8 +71,5 @@ class WriteCreateIndex {
   public boolean isNotExistsCheck() {
     return notExistsCheck;
   }
-  
-  public String getTablespace() {
-    return tablespace;
-  }
+
 }

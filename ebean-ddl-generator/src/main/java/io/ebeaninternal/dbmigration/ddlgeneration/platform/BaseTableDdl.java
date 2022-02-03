@@ -1,13 +1,11 @@
 package io.ebeaninternal.dbmigration.ddlgeneration.platform;
 
-import io.ebean.DB;
 import io.ebean.annotation.Platform;
 import io.ebean.config.DatabaseConfig;
 import io.ebean.config.DbConstraintNaming;
 import io.ebean.config.NamingConvention;
 import io.ebean.config.dbplatform.DbHistorySupport;
 import io.ebean.config.dbplatform.IdType;
-import io.ebean.plugin.BeanType;
 import io.ebean.util.StringHelper;
 import io.ebeaninternal.dbmigration.ddlgeneration.DdlBuffer;
 import io.ebeaninternal.dbmigration.ddlgeneration.DdlOptions;
@@ -43,8 +41,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Supplier;
-
 import static io.ebean.util.StringHelper.replace;
 import static io.ebeaninternal.api.PlatformMatch.matchPlatform;
 import static io.ebeaninternal.dbmigration.ddlgeneration.platform.SplitColumns.split;
@@ -449,9 +445,8 @@ public class BaseTableDdl implements TableDdl {
     DdlBuffer fkeyBuffer = write.applyForeignKeys();
     String tableName = lowerTableName(request.table());
     if (request.indexName() != null) {
-      MTable table = write.getTable(tableName);
       // no matching unique constraint so add the index
-       fkeyBuffer.appendStatement(platformDdl.createIndex(new WriteCreateIndex(request.indexName(), tableName, getIndexTablespace(table), request.cols(), false)));
+       fkeyBuffer.appendStatement(platformDdl.createIndex(new WriteCreateIndex(request.indexName(), tableName, request.cols(), false)));
     }
     alterTableAddForeignKey(write.getOptions(), fkeyBuffer, request);
     fkeyBuffer.end();
@@ -590,26 +585,12 @@ public class BaseTableDdl implements TableDdl {
     }
     return pk;
   }
-
-  /**
-   * Method to return the index tablespace for platform.
-   */
-  // FIXME: do we need this function and isPartitioned()?
-  protected String getIndexTablespace(MTable table) {
-    String indexTablespace = null;
-    if (table != null && table.isPartitioned() && table.getTablespaceMeta() != null) {
-      indexTablespace = table.getTablespaceMeta().getIndexTablespace();
-    }
-    return indexTablespace;
-  }
   
   @Override
   public void generate(DdlWrite writer, CreateIndex index) throws IOException {
     if (platformInclude(index.getPlatforms())) {
       flushReorgTables(writer.apply());
-      MTable table = writer.getTable(index.getTableName());
-      
-      writer.apply().appendStatement(platformDdl.createIndex(new WriteCreateIndex(index, getIndexTablespace(table)))); 
+      writer.apply().appendStatement(platformDdl.createIndex(new WriteCreateIndex(index))); 
       writer.dropAll().appendStatement(platformDdl.dropIndex(index.getIndexName(), index.getTableName(), Boolean.TRUE.equals(index.isConcurrent())));
     }
   }

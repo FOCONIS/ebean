@@ -49,11 +49,11 @@ public class PlatformDdl_CreateIndexTest {
     createIndex.setColumns("acol");
     createIndex.setUnique(unique);
     createIndex.setConcurrent(concurrent);
-    return new WriteCreateIndex(createIndex, null);
+    return new WriteCreateIndex(createIndex);
   }
 
   WriteCreateIndex fkeyCreateIndex(boolean unique) {
-    return new WriteCreateIndex("ix_mytab_acol", "mytab", null, new String[]{"acol"}, unique);
+    return new WriteCreateIndex("ix_mytab_acol", "mytab", new String[]{"acol"}, unique);
   }
 
 
@@ -111,10 +111,10 @@ public class PlatformDdl_CreateIndexTest {
 
   @Test
   public void db2luw_tablespaceIndex() {
-    String sql = db2LuwDdl.createIndex(new WriteCreateIndex("ix_mytab_acol", "mytab", "idx_ts", new String[]{"acol"}, false));
-    assertEquals("create index ix_mytab_acol on mytab (acol) in idx_ts", sql);
-    sql = db2LuwDdl.createIndex(new WriteCreateIndex("ix_mytab_acol", "mytab", "idx_ts", new String[]{"acol"}, true));
-    assertEquals("create unique index ix_mytab_acol on mytab (acol) in idx_ts", sql);
+    String sql = db2LuwDdl.createIndex(new WriteCreateIndex("ix_mytab_acol", "mytab", new String[]{"acol"}, false));
+    assertEquals("create index ix_mytab_acol on mytab (acol)", sql);
+    sql = db2LuwDdl.createIndex(new WriteCreateIndex("ix_mytab_acol", "mytab", new String[]{"acol"}, true));
+    assertEquals("create unique index ix_mytab_acol on mytab (acol)", sql);
     
   }
 
