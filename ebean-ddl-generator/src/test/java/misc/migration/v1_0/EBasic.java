@@ -4,16 +4,19 @@ import io.ebean.annotation.DbDefault;
 import io.ebean.annotation.EnumValue;
 import io.ebean.annotation.Index;
 import io.ebean.annotation.NotNull;
+import io.ebean.annotation.Tablespace;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
+
 import java.sql.Timestamp;
 
 @Entity
 @Table(name = "migtest_e_basic")
+@Tablespace(value = "TSTABLES", index = "INDEXTS")
 public class EBasic {
 
   public enum Status {

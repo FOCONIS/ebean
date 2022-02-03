@@ -1,14 +1,17 @@
 package misc.migration.v1_1;
 
-import javax.persistence.ElementCollection;
+import java.util.List;
+
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
-import java.util.List;
+
+import io.ebean.annotation.Tablespace;
 
 @Entity
 @Table(name = "migtest_mtm_m")
+@Tablespace("TSMASTER")
 public class MtmMaster {
 
   @Id
@@ -19,8 +22,9 @@ public class MtmMaster {
   @ManyToMany
   List<MtmChild> children;
 
-  @ElementCollection
-  List<String> phoneNumbers;
+  // add in separate commit!
+//  @ElementCollection
+//  List<String> phoneNumbers;
   
   public Long getId() {
     return id;
@@ -41,7 +45,7 @@ public class MtmMaster {
   public List<MtmChild> getChildren() {
     return children;
   }
-
+  
   public void setChildren(List<MtmChild> children) {
     this.children = children;
   }
