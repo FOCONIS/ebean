@@ -2,15 +2,19 @@ package io.ebeaninternal.server.deploy;
 
 import java.util.Objects;
 
+/**
+ * Meta data for table spaces.
+ * If table space is configured, tablespaceName, indexTablespace, lobTablespace is never null;
+ * 
+ * @author Noemi Szemenyei, FOCONIS AG
+ *
+ */
 public final class TablespaceMeta {
 
-  private String tablespaceName;
-  private String indexTablespace;
-  private String lobTablespace;
+  private final String tablespaceName;
+  private final String indexTablespace;
+  private final String lobTablespace;
 
-  public TablespaceMeta() {
-    
-  }
   
   public TablespaceMeta(String tablespaceName, String indexTablespace, String lobTablespace) {
     this.tablespaceName = tablespaceName;
@@ -22,24 +26,12 @@ public final class TablespaceMeta {
     return tablespaceName;
   }
 
-  public void setTablespaceName(String tablespaceName) {
-    this.tablespaceName = tablespaceName;
-  }
-
   public String getIndexTablespace() {
     return indexTablespace;
   }
 
-  public void setIndexTablespace(String indexTablespace) {
-    this.indexTablespace = indexTablespace;
-  }
-  
   public String getLobTablespace() {
     return lobTablespace;
-  }
-
-  public void setLobTablespace(String lobTablespace) {
-    this.lobTablespace = lobTablespace;
   }
 
   @Override
@@ -68,7 +60,4 @@ public final class TablespaceMeta {
     return "tablespace=" + tablespaceName + ", indexTablespace=" + indexTablespace + ", lobTablespace=" + lobTablespace;
   }
 
-  public boolean isSet() {
-    return tablespaceName != null || indexTablespace != null || lobTablespace != null;
-  }
 }

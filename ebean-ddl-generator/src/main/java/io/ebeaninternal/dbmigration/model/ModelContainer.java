@@ -274,21 +274,26 @@ public class ModelContainer {
     }
     // Handle Tablespace change
     TablespaceMeta ts = table.getTablespaceMeta();
-    if (ts == null) {
-      ts = new TablespaceMeta();
-    }
+    String currentTableSpace = ts == null ? null : ts.getTablespaceName();
+    String currentIndexSpace = ts == null ? null : ts.getIndexTablespace();
+    String currentLobSpace = ts == null ? null : ts.getLobTablespace();
+
     if (alterTable.getTablespace() != null) {
-      ts.setTablespaceName(DdlHelp.toTablespace(alterTable.getTablespace()));
+      currentTableSpace = DdlHelp.toTablespace(alterTable.getTablespace());
     }
     if (alterTable.getIndexTablespace() != null) {
-      ts.setIndexTablespace(DdlHelp.toTablespace(alterTable.getIndexTablespace()));
+      currentIndexSpace = DdlHelp.toTablespace(alterTable.getIndexTablespace());
     }
     if (alterTable.getLobTablespace() != null) {
-      ts.setLobTablespace(DdlHelp.toTablespace(alterTable.getLobTablespace()));
+      currentLobSpace = DdlHelp.toTablespace(alterTable.getLobTablespace());
     }
-    if (ts.isSet()) {
-      table.setTablespaceMeta(ts);
+    if (currentTableSpace != null) {
+      assert currentIndexSpace != null;
+      assert currentLobSpace != null;
+      table.setTablespaceMeta(new TablespaceMeta(currentTableSpace, currentIndexSpace, currentLobSpace));
     } else {
+      assert currentIndexSpace == null;
+      assert currentLobSpace == null;
       table.setTablespaceMeta(null);
     }
   }
