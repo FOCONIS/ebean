@@ -7,7 +7,7 @@ import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 
-import io.ebeaninternal.server.deploy.annotation.Tablespace;
+import io.ebean.annotation.Tablespace;
 
 @Entity
 @Table(name = "migtest_mtm_c")

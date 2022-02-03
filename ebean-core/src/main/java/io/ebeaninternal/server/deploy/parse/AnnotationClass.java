@@ -14,6 +14,7 @@ import io.ebean.annotation.Index;
 import io.ebean.annotation.InvalidateQueryCache;
 import io.ebean.annotation.ReadAudit;
 import io.ebean.annotation.StorageEngine;
+import io.ebean.annotation.Tablespace;
 import io.ebean.annotation.View;
 import io.ebean.config.TableName;
 import io.ebean.util.AnnotationUtil;
@@ -23,7 +24,6 @@ import io.ebeaninternal.server.deploy.IndexDefinition;
 import io.ebeaninternal.server.deploy.InheritInfo;
 import io.ebeaninternal.server.deploy.PartitionMeta;
 import io.ebeaninternal.server.deploy.TablespaceMeta;
-import io.ebeaninternal.server.deploy.annotation.Tablespace;
 import io.ebeaninternal.server.deploy.meta.DeployBeanProperty;
 
 import javax.persistence.AttributeOverride;
