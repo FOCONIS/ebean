@@ -1,6 +1,5 @@
 package io.ebeaninternal.dbmigration.ddlgeneration;
 
-import io.localtest.BaseTestCase;
 import io.ebean.DB;
 import io.ebean.config.DatabaseConfig;
 import io.ebean.config.dbplatform.DatabasePlatform;
@@ -11,6 +10,8 @@ import io.ebean.config.dbplatform.sqlserver.SqlServer17Platform;
 import io.ebeaninternal.api.SpiEbeanServer;
 import io.ebeaninternal.dbmigration.migration.ChangeSet;
 import io.ebeaninternal.dbmigration.model.CurrentModel;
+import io.localtest.BaseTestCase;
+
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
