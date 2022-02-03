@@ -1,5 +1,6 @@
 package misc.migration.v1_1;
 
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
@@ -8,6 +9,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "migtest_mtm_m")
+@Tablespace("TSMASTER")
 public class MtmMaster {
 
   @Id
@@ -18,6 +20,9 @@ public class MtmMaster {
   @ManyToMany
   List<MtmChild> children;
 
+  @ElementCollection
+  List<String> phoneNumbers;
+  
   public Long getId() {
     return id;
   }
