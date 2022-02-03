@@ -48,7 +48,7 @@ public class DB2Ddl extends PlatformDdl {
 
   @Override
   public String alterTableTablespace(String tablename, String tableSpace, String indexSpace, String lobSpace) {
-    return String.format(MOVE_TABLE, tablename, tableSpace, indexSpace, lobSpace);
+    return String.format(MOVE_TABLE, tablename.toUpperCase(), tableSpace, indexSpace, lobSpace);
   }
   
   @Override
