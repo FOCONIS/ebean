@@ -448,7 +448,7 @@ public class BaseTableDdl implements TableDdl {
     String tableName = lowerTableName(request.table());
     if (request.indexName() != null) {
       // no matching unique constraint so add the index
-       fkeyBuffer.appendStatement(platformDdl.createIndex(new WriteCreateIndex(request.indexName(), tableName, request.cols(), false)));
+      fkeyBuffer.appendStatement(platformDdl.createIndex(new WriteCreateIndex(request.indexName(), tableName, request.cols(), false)));
     }
     alterTableAddForeignKey(write.getOptions(), fkeyBuffer, request);
     fkeyBuffer.end();

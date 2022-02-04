@@ -115,7 +115,6 @@ public class PlatformDdl_CreateIndexTest {
     assertEquals("create index ix_mytab_acol on mytab (acol)", sql);
     sql = db2LuwDdl.createIndex(new WriteCreateIndex("ix_mytab_acol", "mytab", new String[]{"acol"}, true));
     assertEquals("create unique index ix_mytab_acol on mytab (acol)", sql);
-    
   }
 
 }

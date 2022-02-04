@@ -370,23 +370,45 @@ public class MTable {
     AlterTable alterTable = new AlterTable();
     alterTable.setName(newTable.getName());
     boolean altered = false;
+    
+    String oldTs;
+    String oldIdx;
+    String oldLobTs;
+    
+    String newTs;
+    String newIdx;
+    String newLobTs;
+    
+    if(tablespaceMeta == null) {
+      oldTs = DdlHelp.TABLESPACE_DEFAULT;
+      oldIdx = DdlHelp.TABLESPACE_DEFAULT;
+      oldLobTs = DdlHelp.TABLESPACE_DEFAULT;
+    } else {
+      oldTs = tablespaceMeta.getTablespaceName();
+      oldIdx = tablespaceMeta.getIndexTablespace();
+      oldLobTs = tablespaceMeta.getLobTablespace();
+    }
+    
+    if(newTable.getTablespaceMeta() == null) {
+      newTs = DdlHelp.TABLESPACE_DEFAULT;
+      newIdx = DdlHelp.TABLESPACE_DEFAULT;
+      newLobTs = DdlHelp.TABLESPACE_DEFAULT;
+    } else {
+      newTs = newTable.getTablespaceMeta().getTablespaceName();
+      newIdx = newTable.getTablespaceMeta().getIndexTablespace();
+      newLobTs = newTable.getTablespaceMeta().getLobTablespace();
+    }
 
-    String oldTs = tablespaceMeta == null ? DdlHelp.TABLESPACE_DEFAULT : tablespaceMeta.getTablespaceName();
-    String newTs = newTable.getTablespaceMeta() == null ? DdlHelp.TABLESPACE_DEFAULT : newTable.getTablespaceMeta().getTablespaceName();
     if (!oldTs.equals(newTs)) {
       altered = true;
       alterTable.setTablespace(newTs);
     }
 
-    String oldIdx = tablespaceMeta == null ? DdlHelp.TABLESPACE_DEFAULT : tablespaceMeta.getIndexTablespace();
-    String newIdx = newTable.getTablespaceMeta() == null ? DdlHelp.TABLESPACE_DEFAULT : newTable.getTablespaceMeta().getIndexTablespace();
     if (!oldIdx.equals(newIdx)) {
       altered = true;
       alterTable.setIndexTablespace(newIdx);
     }
     
-    String oldLobTs = tablespaceMeta == null ? DdlHelp.TABLESPACE_DEFAULT : tablespaceMeta.getLobTablespace();
-    String newLobTs = newTable.getTablespaceMeta() == null ? DdlHelp.TABLESPACE_DEFAULT : newTable.getTablespaceMeta().getLobTablespace();
     if (!oldLobTs.equals(newLobTs)) {
       altered = true;
       alterTable.setLobTablespace(newLobTs);

@@ -119,7 +119,7 @@ create unique index uq_migtest_e_basic_status_indextest1 on migtest_e_basic(stat
 create unique index uq_migtest_e_basic_name on migtest_e_basic(name) exclude null keys;
 create unique index uq_migtest_e_basic_indextest4 on migtest_e_basic(indextest4) exclude null keys;
 create unique index uq_migtest_e_basic_indextest5 on migtest_e_basic(indextest5) exclude null keys;
-CALL SYSPROC.ADMIN_MOVE_TABLE(CURRENT_SCHEMA,'migtest_e_basic','null','null','null','','','','','','MOVE');
+CALL SYSPROC.ADMIN_MOVE_TABLE(CURRENT_SCHEMA,'MIGTEST_E_BASIC','null','null','null','','','','','','MOVE');
 delimiter $$
 begin
 if exists (select constname from syscat.tabconst where tabschema = current_schema and constname = 'CK_MIGTEST_E_ENUM_TEST_STATUS' and tabname = 'MIGTEST_E_ENUM') then
@@ -153,8 +153,8 @@ alter table migtest_e_history6 alter column test_number1 set not null;
 alter table migtest_e_history6 alter column test_number2 drop not null;
 alter table migtest_e_softdelete add column deleted boolean default false not null;
 
-CALL SYSPROC.ADMIN_MOVE_TABLE(CURRENT_SCHEMA,'migtest_mtm_c','TESTTS','TESTTS','TESTTS','','','','','','MOVE');
-CALL SYSPROC.ADMIN_MOVE_TABLE(CURRENT_SCHEMA,'migtest_mtm_m','TSMASTER','TSMASTER','TSMASTER','','','','','','MOVE');
+CALL SYSPROC.ADMIN_MOVE_TABLE(CURRENT_SCHEMA,'MIGTEST_MTM_C','TESTTS','TESTTS','TESTTS','','','','','','MOVE');
+CALL SYSPROC.ADMIN_MOVE_TABLE(CURRENT_SCHEMA,'MIGTEST_MTM_M','TSMASTER','TSMASTER','TSMASTER','','','','','','MOVE');
 alter table migtest_oto_child add column master_id bigint;
 
 call sysproc.admin_cmd('reorg table migtest_e_history6') /* reorg #6 */;
