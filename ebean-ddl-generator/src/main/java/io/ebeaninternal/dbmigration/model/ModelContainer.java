@@ -274,25 +274,21 @@ public class ModelContainer {
     }
     // Handle Tablespace change
     TablespaceMeta ts = table.getTablespaceMeta();
-    
-    String currentTableSpace = ts == null ? null : ts.getTablespaceName();
-    String currentIndexSpace = ts == null ? null : ts.getIndexTablespace();
-    String currentLobSpace = ts == null ? null : ts.getLobTablespace();
 
     if (alterTable.getTablespace() != null) {
-      currentTableSpace = DdlHelp.toTablespace(alterTable.getTablespace());
-      currentIndexSpace = DdlHelp.toTablespace(alterTable.getIndexTablespace());
-      currentLobSpace = DdlHelp.toTablespace(alterTable.getLobTablespace());
-    }
-    
-    if (currentTableSpace != null) {
-      assert currentIndexSpace != null;
-      assert currentLobSpace != null;
-      table.setTablespaceMeta(new TablespaceMeta(currentTableSpace, currentIndexSpace, currentLobSpace));
-    } else {
-      assert currentIndexSpace == null;
-      assert currentLobSpace == null;
-      table.setTablespaceMeta(null);
+      String currentTableSpace = DdlHelp.toTablespace(alterTable.getTablespace());
+      String currentIndexSpace = DdlHelp.toTablespace(alterTable.getIndexTablespace());
+      String currentLobSpace = DdlHelp.toTablespace(alterTable.getLobTablespace());
+
+      if (currentTableSpace != null) {
+        assert currentIndexSpace != null;
+        assert currentLobSpace != null;
+        table.setTablespaceMeta(new TablespaceMeta(currentTableSpace, currentIndexSpace, currentLobSpace));
+      } else {
+        assert currentIndexSpace == null;
+        assert currentLobSpace == null;
+        table.setTablespaceMeta(null);
+      }
     }
   }
 
