@@ -9,9 +9,9 @@ import javax.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for anonymous complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType>
  *   &lt;complexContent>
@@ -27,27 +27,27 @@ import javax.xml.bind.annotation.XmlType;
 @XmlRootElement(name = "dropHistoryTable")
 public class DropHistoryTable {
 
-    @XmlAttribute(name = "baseTable", required = true)
-    protected String baseTable;
+  @XmlAttribute(name = "baseTable", required = true)
+  protected String baseTable;
 
-    /**
-     * Gets the value of the baseTable property.
-     * 
+  /**
+   * Gets the value of the baseTable property.
+   *
    * @return possible object is
-     *     {@link String }
-     */
-    public String getBaseTable() {
-        return baseTable;
-    }
+   * {@link String }
+   */
+  public String getBaseTable() {
+    return baseTable;
+  }
 
-    /**
-     * Sets the value of the baseTable property.
-     * 
+  /**
+   * Sets the value of the baseTable property.
+   *
    * @param value allowed object is
-     *     {@link String }
-     */
-    public void setBaseTable(String value) {
-        this.baseTable = value;
-    }
+   *              {@link String }
+   */
+  public void setBaseTable(String value) {
+    this.baseTable = value;
+  }
 
 }

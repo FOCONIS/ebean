@@ -7,7 +7,7 @@ import javax.xml.bind.annotation.XmlType;
 
 /**
  * <p>Java class for identityType.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
  * <p>
  * <pre>
@@ -26,33 +26,33 @@ import javax.xml.bind.annotation.XmlType;
 @XmlEnum
 public enum IdentityType {
 
-    @XmlEnumValue("identity")
-    IDENTITY("identity"),
-    @XmlEnumValue("sequence")
-    SEQUENCE("sequence"),
-    @XmlEnumValue("generator")
-    GENERATOR("generator"),
-    @XmlEnumValue("external")
-    EXTERNAL("external"),
-    @XmlEnumValue("default")
-    DEFAULT("default");
-    private final String value;
+  @XmlEnumValue("identity")
+  IDENTITY("identity"),
+  @XmlEnumValue("sequence")
+  SEQUENCE("sequence"),
+  @XmlEnumValue("generator")
+  GENERATOR("generator"),
+  @XmlEnumValue("external")
+  EXTERNAL("external"),
+  @XmlEnumValue("default")
+  DEFAULT("default");
+  private final String value;
 
-    IdentityType(String v) {
-        value = v;
-    }
+  IdentityType(String v) {
+    value = v;
+  }
 
-    public String value() {
-        return value;
-    }
+  public String value() {
+    return value;
+  }
 
-    public static IdentityType fromValue(String v) {
-        for (IdentityType c: IdentityType.values()) {
-            if (c.value.equals(v)) {
-                return c;
-            }
-        }
-        throw new IllegalArgumentException(v);
+  public static IdentityType fromValue(String v) {
+    for (IdentityType c : IdentityType.values()) {
+      if (c.value.equals(v)) {
+        return c;
+      }
     }
+    throw new IllegalArgumentException(v);
+  }
 
 }
