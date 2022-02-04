@@ -71,5 +71,4 @@ class WriteCreateIndex {
   public boolean isNotExistsCheck() {
     return notExistsCheck;
   }
-
 }

@@ -48,7 +48,7 @@ public class ChangeSet {
     @XmlElement(name = "sql", type = Sql.class),
     @XmlElement(name = "createTable", type = CreateTable.class),
     @XmlElement(name = "alterTable", type = AlterTable.class),
-        @XmlElement(name = "dropTable", type = DropTable.class),
+    @XmlElement(name = "dropTable", type = DropTable.class),
     @XmlElement(name = "renameTable", type = RenameTable.class),
     @XmlElement(name = "addTableComment", type = AddTableComment.class),
     @XmlElement(name = "addUniqueConstraint", type = AddUniqueConstraint.class),

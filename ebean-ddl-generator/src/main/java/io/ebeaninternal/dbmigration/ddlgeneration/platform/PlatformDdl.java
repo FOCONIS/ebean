@@ -400,6 +400,7 @@ public class PlatformDdl {
   public String dropIndex(String indexName, String tableName, boolean concurrent) {
     return dropIndexIfExists + maxConstraintName(indexName);
   }
+  
   public String createIndex(WriteCreateIndex create) {
     if (create.useDefinition()) {
       return create.getDefinition();
@@ -796,7 +797,5 @@ public class PlatformDdl {
   public String reorgTable(String table, int counter) {
     return null;
   }
-
-  
 
 }

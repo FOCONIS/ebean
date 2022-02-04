@@ -41,6 +41,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import static io.ebean.util.StringHelper.replace;
 import static io.ebeaninternal.api.PlatformMatch.matchPlatform;
 import static io.ebeaninternal.dbmigration.ddlgeneration.platform.SplitColumns.split;
@@ -279,8 +280,9 @@ public class BaseTableDdl implements TableDdl {
       writeInlineForeignKeys(writer, createTable);
     }
     apply.newLine().append(")");
-    if(createTable.getTablespace() != null) {
-      platformDdl.addTablespace(apply, createTable.getTablespace(), createTable.getIndexTablespace(), createTable.getLobTablespace());
+    if (createTable.getTablespace() != null) {
+      platformDdl.addTablespace(apply, createTable.getTablespace(), createTable.getIndexTablespace(),
+          createTable.getLobTablespace());
     }
     addTableStorageEngine(apply, createTable);
     addTableCommentInline(apply, createTable);
@@ -718,19 +720,20 @@ public class BaseTableDdl implements TableDdl {
   @Override
   public void generate(DdlWrite writer, AlterTable alterTable) throws IOException {
     if (hasValue(alterTable.getTablespace()) || hasValue(alterTable.getIndexTablespace())) {
-      writer.apply().appendStatement(
-          platformDdl.alterTableTablespace(alterTable.getName(), 
-              DdlHelp.toTablespace(alterTable.getTablespace()),
+      writer.apply().appendStatement(platformDdl.alterTableTablespace(alterTable.getName(),
+              DdlHelp.toTablespace(alterTable.getTablespace()), 
               DdlHelp.toTablespace(alterTable.getIndexTablespace()),
               DdlHelp.toTablespace(alterTable.getLobTablespace())));
     }
   }
-  
-  protected void writeTablespaceChange(DdlBuffer buffer, String tablename, String tableSpace, String indexSpace, String lobSpace) throws IOException {
-    buffer.appendStatement("-- TableSpace changed: Table: " 
-        + tablename + ", tableSpace " + tableSpace + ", indexSpace " + indexSpace + ", lobSpace " + lobSpace);
+
+  protected void writeTablespaceChange(DdlBuffer buffer, String tablename, String tableSpace, String indexSpace,
+      String lobSpace) throws IOException {
+    buffer.appendStatement("-- TableSpace changed: Table: " + tablename + ", tableSpace " + tableSpace + ", indexSpace "
+        + indexSpace + ", lobSpace " + lobSpace);
     if (strictMode) {
-      throw new UnsupportedOperationException("Tablespace change is not supported by this platform. Disable strict mode for migration and write migration manually");
+      throw new UnsupportedOperationException(
+          "Tablespace change is not supported by this platform. Disable strict mode for migration and write migration manually");
     }
   }
   
