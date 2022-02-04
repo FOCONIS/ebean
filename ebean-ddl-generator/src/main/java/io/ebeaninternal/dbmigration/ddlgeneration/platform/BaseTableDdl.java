@@ -719,7 +719,7 @@ public class BaseTableDdl implements TableDdl {
 
   @Override
   public void generate(DdlWrite writer, AlterTable alterTable) throws IOException {
-    if (hasValue(alterTable.getTablespace()) || hasValue(alterTable.getIndexTablespace())) {
+    if (hasValue(alterTable.getTablespace()) || hasValue(alterTable.getIndexTablespace()) || hasValue(alterTable.getLobTablespace())) {
       writer.apply().appendStatement(platformDdl.alterTableTablespace(alterTable.getName(),
               DdlHelp.toTablespace(alterTable.getTablespace()), 
               DdlHelp.toTablespace(alterTable.getIndexTablespace()),
