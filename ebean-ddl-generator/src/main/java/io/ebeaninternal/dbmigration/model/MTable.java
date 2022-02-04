@@ -29,6 +29,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import static io.ebeaninternal.dbmigration.ddlgeneration.platform.SplitColumns.split;
@@ -370,55 +371,25 @@ public class MTable {
     AlterTable alterTable = new AlterTable();
     alterTable.setName(newTable.getName());
     boolean altered = false;
-    
-    String oldTs;
-    String oldIdx;
-    String oldLobTs;
-    
-    String newTs;
-    String newIdx;
-    String newLobTs;
-    
-    if(tablespaceMeta == null) {
-      oldTs = DdlHelp.TABLESPACE_DEFAULT;
-      oldIdx = DdlHelp.TABLESPACE_DEFAULT;
-      oldLobTs = DdlHelp.TABLESPACE_DEFAULT;
-    } else {
-      oldTs = tablespaceMeta.getTablespaceName();
-      oldIdx = tablespaceMeta.getIndexTablespace();
-      oldLobTs = tablespaceMeta.getLobTablespace();
-    }
-    
-    if(newTable.getTablespaceMeta() == null) {
-      newTs = DdlHelp.TABLESPACE_DEFAULT;
-      newIdx = DdlHelp.TABLESPACE_DEFAULT;
-      newLobTs = DdlHelp.TABLESPACE_DEFAULT;
-    } else {
-      newTs = newTable.getTablespaceMeta().getTablespaceName();
-      newIdx = newTable.getTablespaceMeta().getIndexTablespace();
-      newLobTs = newTable.getTablespaceMeta().getLobTablespace();
-    }
 
-    if (!oldTs.equals(newTs)) {
+    if (!Objects.equals(tablespaceMeta, newTable.getTablespaceMeta())) {
+      if (newTable.getTablespaceMeta() == null) {
+        alterTable.setTablespace(DdlHelp.TABLESPACE_DEFAULT);
+        alterTable.setIndexTablespace(DdlHelp.TABLESPACE_DEFAULT);
+        alterTable.setLobTablespace(DdlHelp.TABLESPACE_DEFAULT);
+      } else {
+        alterTable.setTablespace(newTable.getTablespaceMeta().getTablespaceName());
+        alterTable.setIndexTablespace(newTable.getTablespaceMeta().getIndexTablespace());
+        alterTable.setLobTablespace(newTable.getTablespaceMeta().getLobTablespace());
+      }
       altered = true;
-      alterTable.setTablespace(newTs);
-    }
-
-    if (!oldIdx.equals(newIdx)) {
-      altered = true;
-      alterTable.setIndexTablespace(newIdx);
-    }
-    
-    if (!oldLobTs.equals(newLobTs)) {
-      altered = true;
-      alterTable.setLobTablespace(newLobTs);
     }
 
     if (altered) {
       modelDiff.addAlterTable(alterTable);
     }
   }
-  
+
   /**
    * Apply AddColumn migration.
    */

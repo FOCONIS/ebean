@@ -274,19 +274,17 @@ public class ModelContainer {
     }
     // Handle Tablespace change
     TablespaceMeta ts = table.getTablespaceMeta();
+    
     String currentTableSpace = ts == null ? null : ts.getTablespaceName();
     String currentIndexSpace = ts == null ? null : ts.getIndexTablespace();
     String currentLobSpace = ts == null ? null : ts.getLobTablespace();
 
     if (alterTable.getTablespace() != null) {
       currentTableSpace = DdlHelp.toTablespace(alterTable.getTablespace());
-    }
-    if (alterTable.getIndexTablespace() != null) {
       currentIndexSpace = DdlHelp.toTablespace(alterTable.getIndexTablespace());
-    }
-    if (alterTable.getLobTablespace() != null) {
       currentLobSpace = DdlHelp.toTablespace(alterTable.getLobTablespace());
     }
+    
     if (currentTableSpace != null) {
       assert currentIndexSpace != null;
       assert currentLobSpace != null;
