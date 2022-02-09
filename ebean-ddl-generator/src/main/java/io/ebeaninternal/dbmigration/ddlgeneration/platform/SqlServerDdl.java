@@ -133,27 +133,24 @@ public class SqlServerDdl extends PlatformDdl {
   }
 
   @Override
-  public String alterColumnDefaultValue(String tableName, String columnName, String defaultValue) {
+  public void alterColumnDefaultValue(DdlWrite writer, String tableName, String columnName, String defaultValue) {
     // Unfortunately, the SqlServer creates default values with a random name.
     // You can specify a name in DDL, but this does not work in conjunction with
     // temporal tables in certain cases. So we have to delete the constraint with
     // a rather complex statement.
-    StringBuilder sb = new StringBuilder();
     if (DdlHelp.isDropDefault(defaultValue)) {
-      sb.append("EXEC usp_ebean_drop_default_constraint ").append(tableName).append(", ").append(columnName);
+      writer.apply().append("EXEC usp_ebean_drop_default_constraint ").append(tableName).append(", ").append(columnName).endOfStatement();
     } else {
-      sb.append("alter table ").append(tableName);
-      sb.append(" add default ").append(convertDefaultValue(defaultValue)).append(" for ").append(columnName);
+      writer.alterTable(tableName, "add default ").append(convertDefaultValue(defaultValue)).append(" for ").append(columnName);
     }
-    return sb.toString();
   }
 
   @Override
-  public String alterColumnBaseAttributes(AlterColumn alter) {
+  public void alterColumnBaseAttributes(DdlWrite writer, AlterColumn alter) {
     if (alter.getType() == null && alter.isNotnull() == null) {
       // No type change or notNull change
       // defaultValue change already handled in alterColumnDefaultValue
-      return null;
+      return;
     }
     String tableName = alter.getTableName();
     String columnName = alter.getColumnName();
@@ -161,22 +158,18 @@ public class SqlServerDdl extends PlatformDdl {
     type = convert(type);
     boolean notnull = (alter.isNotnull() != null) ? alter.isNotnull() : Boolean.TRUE.equals(alter.isCurrentNotnull());
     String notnullClause = notnull ? " not null" : "";
-
-    return "alter table " + tableName + " " + alterColumn + " " + columnName + " " + type + notnullClause;
+    writer.alterTable(tableName, alterColumn).append(' ').append(columnName).append(' ').append(type).append(notnullClause);
   }
 
   @Override
-  public String alterColumnType(String tableName, String columnName, String type) {
-
+  public void alterColumnType(DdlWrite write, String tableName, String columnName, String type) {
     // can't alter itself - done in alterColumnBaseAttributes()
-    return null;
   }
 
   @Override
-  public String alterColumnNotnull(String tableName, String columnName, boolean notnull) {
+  public void alterColumnNotnull(DdlWrite write, String tableName, String columnName, boolean notnull) {
 
     // can't alter itself - done in alterColumnBaseAttributes()
-    return null;
   }
 
   /**
@@ -202,9 +195,8 @@ public class SqlServerDdl extends PlatformDdl {
    * (constraints, default values, indices and foreign keys). That's why we call a user stored procedure here
    */
   @Override
-  public void alterTableDropColumn(DdlBuffer buffer, String tableName, String columnName) {
-
-    buffer.append("EXEC usp_ebean_drop_column ").append(tableName).append(", ").append(columnName).endOfStatement();
+  public void alterTableDropColumn(DdlWrite write, String tableName, String columnName) {
+    write.apply().append("EXEC usp_ebean_drop_column ").append(tableName).append(", ").append(columnName).endOfStatement();
   }
 
   /**
@@ -229,7 +221,7 @@ public class SqlServerDdl extends PlatformDdl {
     int pos = definition.indexOf('(');
     String name = pos == -1 ? definition : definition.substring(0, pos);
 
-    dropTVP(write.dropAll(), name);
+    dropTVP(write.dropWriter().postAlter(), name);
     //TVPs are included in "I__create_procs.sql"
     //createTVP(write.apply(), name, definition);
   }

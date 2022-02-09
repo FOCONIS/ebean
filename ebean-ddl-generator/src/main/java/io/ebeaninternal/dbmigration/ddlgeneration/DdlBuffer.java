@@ -28,7 +28,7 @@ public interface DdlBuffer {
   /**
    * Append a value that is potentially null or empty and proceed it with a space if so.
    */
-  DdlBuffer appendWithSpace(String foreignKeyRestrict);
+  DdlBuffer appendWithSpace(String value);
 
   /**
    * Append new line character to the buffer.

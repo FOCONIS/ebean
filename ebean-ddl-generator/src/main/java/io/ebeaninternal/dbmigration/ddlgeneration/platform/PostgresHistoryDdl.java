@@ -47,8 +47,8 @@ public class PostgresHistoryDdl extends DbTriggerBasedHistoryDdl {
   }
 
   @Override
-  protected void dropSysPeriodColumns(DdlBuffer buffer, String baseTableName) {
-    buffer.append("alter table ").append(baseTableName).append(" drop column ").append(sysPeriod).endOfStatement();
+  protected void dropSysPeriodColumns(DdlWrite writer, String baseTableName) {
+    writer.alterTable(baseTableName, "drop column ").append(sysPeriod);
   }
 
   @Override

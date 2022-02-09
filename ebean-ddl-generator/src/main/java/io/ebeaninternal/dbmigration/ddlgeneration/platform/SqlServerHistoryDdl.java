@@ -51,7 +51,7 @@ public class SqlServerHistoryDdl implements PlatformHistoryDdl {
     apply.append("alter table ").append(baseTable).append(" set (system_versioning = on (history_table=")
       .append(getHistoryTable(baseTable)).append("))").endOfStatement();
 
-    DdlBuffer drop = writer.dropAll();
+    DdlBuffer drop = writer.dropWriter().apply();
     drop.append("IF OBJECT_ID('").append(baseTable).append("', 'U') IS NOT NULL alter table ").append(baseTable).append(" set (system_versioning = off)").endOfStatement();
     drop.append("IF OBJECT_ID('").append(baseTable).append("_history', 'U') IS NOT NULL drop table ").append(baseTable).append("_history").endOfStatement();
   }
@@ -63,8 +63,9 @@ public class SqlServerHistoryDdl implements PlatformHistoryDdl {
     apply.append("-- dropping history support for ").append(baseTable).endOfStatement();
     // drop default constraints
 
-    apply.append(platformDdl.alterColumnDefaultValue(baseTable, systemPeriodStart, DdlHelp.DROP_DEFAULT)).endOfStatement();
-    apply.append(platformDdl.alterColumnDefaultValue(baseTable, systemPeriodEnd, DdlHelp.DROP_DEFAULT)).endOfStatement();
+    platformDdl.alterColumnDefaultValue(writer, baseTable, systemPeriodStart, DdlHelp.DROP_DEFAULT);
+    platformDdl.alterColumnDefaultValue(writer, baseTable,systemPeriodEnd, DdlHelp.DROP_DEFAULT);
+
     // switch of versioning & period
     apply.append("alter table ").append(baseTable).append(" set (system_versioning = off)").endOfStatement();
     apply.append("alter table ").append(baseTable).append(" drop period for system_time").endOfStatement();

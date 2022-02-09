@@ -91,20 +91,7 @@ public class PlatformDdlWriter {
       writer.append(header).append('\n');
     }
     // merge the apply buffers in the appropriate order
-    prependDropDependencies(writer, write.applyDropDependencies());
-    writer.append("-- apply changes\n");
-    writer.append(write.apply().getBuffer());
-    writer.append(write.applyForeignKeys().getBuffer());
-    writer.append(write.applyHistoryView().getBuffer());
-    writer.append(write.applyHistoryTrigger().getBuffer());
-  }
-
-  private void prependDropDependencies(Writer writer, DdlBuffer buffer) throws IOException {
-    if (!buffer.isEmpty()) {
-      writer.append("-- drop dependencies\n");
-      writer.append(buffer.getBuffer());
-      writer.append("\n");
-    }
+    write.write(writer);
   }
 
   /**
