@@ -73,13 +73,15 @@ call sysproc.admin_cmd('reorg table migtest_e_basic') /* reorg #1 */;
 -- db2 does not support parial null indices :( - so we have to clean;
 update migtest_e_basic set status = 'N' where id = 1;
 create unique index uq_migtest_e_basic_description on migtest_e_basic(description) exclude null keys;
+alter table migtest_e_basic alter column description set data type varchar(127);
 
+call sysproc.admin_cmd('reorg table migtest_e_basic') /* reorg #2 */;
 insert into migtest_e_user (id) select distinct user_id from migtest_e_basic;
 alter table migtest_e_basic add constraint fk_migtest_e_basic_user_id foreign key (user_id) references migtest_e_user (id) on delete restrict;
 alter table migtest_e_basic alter column user_id drop not null;
 alter table migtest_e_basic add column new_string_field varchar(255) default 'foo''bar' not null;
 alter table migtest_e_basic add column new_boolean_field boolean default true not null;
-call sysproc.admin_cmd('reorg table migtest_e_basic') /* reorg #2 */;
+call sysproc.admin_cmd('reorg table migtest_e_basic') /* reorg #3 */;
 update migtest_e_basic set new_boolean_field = old_boolean;
 
 alter table migtest_e_basic add column new_boolean_field2 boolean default true not null;
@@ -131,7 +133,7 @@ comment on column migtest_e_history.test_string is 'Column altered to long now';
 alter table migtest_e_history alter column test_string set data type bigint;
 comment on table migtest_e_history is 'We have history now';
 
-call sysproc.admin_cmd('reorg table migtest_e_history') /* reorg #3 */;
+call sysproc.admin_cmd('reorg table migtest_e_history') /* reorg #4 */;
 -- NOTE: table has @History - special migration may be necessary
 update migtest_e_history2 set test_string = 'unknown' where test_string is null;
 alter table migtest_e_history2 alter column test_string set default 'unknown';
@@ -144,8 +146,8 @@ alter table migtest_e_history4 alter column test_number set data type bigint;
 alter table migtest_e_history5 add column test_boolean boolean default false not null;
 
 
-call sysproc.admin_cmd('reorg table migtest_e_history2') /* reorg #4 */;
-call sysproc.admin_cmd('reorg table migtest_e_history4') /* reorg #5 */;
+call sysproc.admin_cmd('reorg table migtest_e_history2') /* reorg #5 */;
+call sysproc.admin_cmd('reorg table migtest_e_history4') /* reorg #6 */;
 -- NOTE: table has @History - special migration may be necessary
 update migtest_e_history6 set test_number1 = 42 where test_number1 is null;
 alter table migtest_e_history6 alter column test_number1 set default 42;
@@ -157,7 +159,7 @@ CALL SYSPROC.ADMIN_MOVE_TABLE(CURRENT_SCHEMA,'MIGTEST_MTM_C','TESTTS','TESTTS','
 CALL SYSPROC.ADMIN_MOVE_TABLE(CURRENT_SCHEMA,'MIGTEST_MTM_M','TSMASTER','TSMASTER','TSMASTER','','','','','','MOVE');
 alter table migtest_oto_child add column master_id bigint;
 
-call sysproc.admin_cmd('reorg table migtest_e_history6') /* reorg #6 */;
+call sysproc.admin_cmd('reorg table migtest_e_history6') /* reorg #7 */;
 create index ix_migtest_e_basic_indextest3 on migtest_e_basic (indextest3);
 create index ix_migtest_e_basic_indextest6 on migtest_e_basic (indextest6);
 delimiter $$
