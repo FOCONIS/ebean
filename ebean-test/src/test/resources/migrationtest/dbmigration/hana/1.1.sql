@@ -56,7 +56,6 @@ alter table migtest_e_basic alter ( status2 nvarchar(127) default null);
 
 -- rename all collisions;
 -- cannot create unique index "uq_migtest_e_basic_description" on table "migtest_e_basic" with nullable columns;
-alter table migtest_e_basic alter ( description nvarchar(127));
 
 insert into migtest_e_user (id) select distinct user_id from migtest_e_basic;
 alter table migtest_e_basic add constraint fk_migtest_e_basic_user_id foreign key (user_id) references migtest_e_user (id) on delete restrict on update restrict;

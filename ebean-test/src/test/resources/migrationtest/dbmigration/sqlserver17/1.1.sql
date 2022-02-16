@@ -47,7 +47,6 @@ alter table migtest_e_basic alter column status2 nvarchar(127);
 
 -- rename all collisions;
 create unique nonclustered index uq_migtest_e_basic_description on migtest_e_basic(description) where description is not null;
-alter table migtest_e_basic alter column description nvarchar(127);
 
 insert into migtest_e_user (id) select distinct user_id from migtest_e_basic;
 alter table migtest_e_basic add constraint fk_migtest_e_basic_user_id foreign key (user_id) references migtest_e_user (id);

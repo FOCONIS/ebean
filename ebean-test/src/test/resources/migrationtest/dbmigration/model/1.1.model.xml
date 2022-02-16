@@ -15,7 +15,7 @@
         <alterColumn columnName="one_id" tableName="migtest_fk_set_null" references="migtest_fk_one.id" foreignKeyName="fk_migtest_fk_set_null_one_id" foreignKeyIndex="ix_migtest_fk_set_null_one_id" foreignKeyOnDelete="RESTRICT" foreignKeyOnUpdate="RESTRICT" dropForeignKey="fk_migtest_fk_set_null_one_id" dropForeignKeyIndex="ix_migtest_fk_set_null_one_id"/>
         <alterColumn columnName="status" tableName="migtest_e_basic" currentType="varchar(1)" defaultValue="'A'" notnull="true" currentNotnull="false" checkConstraint="check ( status in ('N','A','I','?'))" checkConstraintName="ck_migtest_e_basic_status"/>
         <alterColumn columnName="status2" tableName="migtest_e_basic" type="varchar(127)" currentType="varchar(1)" defaultValue="DROP DEFAULT" notnull="false" currentNotnull="true" dropCheckConstraint="ck_migtest_e_basic_status2"/>
-        <alterColumn columnName="description" tableName="migtest_e_basic" type="varchar(127)" currentType="db2;blob(64M);sqlserver,h2;varchar(227);varchar(127)" currentNotnull="false" unique="uq_migtest_e_basic_description">
+        <alterColumn columnName="description" tableName="migtest_e_basic" unique="uq_migtest_e_basic_description">
             <before platforms="db2">
                 <ddl>-- db2 does not support parial null indices :( - so we have to clean</ddl>
                 <ddl>update ${table} set status = 'N' where id = 1</ddl>
@@ -113,6 +113,7 @@
         <dropIndex indexName="ix_migtest_oto_child_lowername" tableName="migtest_oto_child" platforms="POSTGRES"/>
     </changeSet>
     <changeSet type="pendingDrops">
+        <dropColumn columnName="description2" tableName="migtest_e_basic"/>
         <dropColumn columnName="old_boolean" tableName="migtest_e_basic"/>
         <dropColumn columnName="old_boolean2" tableName="migtest_e_basic"/>
         <dropColumn columnName="eref_id" tableName="migtest_e_basic"/>
