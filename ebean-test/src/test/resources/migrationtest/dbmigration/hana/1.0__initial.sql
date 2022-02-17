@@ -194,8 +194,6 @@ create column table migtest_oto_master (
   constraint pk_migtest_oto_master primary key (id)
 );
 
--- explicit index "ix_migtest_e_basic_indextest1" for single column "indextest1" of table "migtest_e_basic" is not necessary;
--- explicit index "ix_migtest_e_basic_indextest5" for single column "indextest5" of table "migtest_e_basic" is not necessary;
 -- altering tables
 alter table migtest_e_history2 add (
     sys_period_start TIMESTAMP NOT NULL GENERATED ALWAYS AS ROW START, 
@@ -237,3 +235,5 @@ alter table migtest_fk_set_null add constraint fk_migtest_fk_set_null_one_id for
 -- explicit index "ix_migtest_e_basic_eref_id" for single column "eref_id" of table "migtest_e_basic" is not necessary;
 alter table migtest_e_basic add constraint fk_migtest_e_basic_eref_id foreign key (eref_id) references migtest_e_ref (id) on delete restrict on update restrict;
 
+-- explicit index "ix_migtest_e_basic_indextest1" for single column "indextest1" of table "migtest_e_basic" is not necessary;
+-- explicit index "ix_migtest_e_basic_indextest5" for single column "indextest5" of table "migtest_e_basic" is not necessary;

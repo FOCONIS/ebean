@@ -1,41 +1,4 @@
 -- Migrationscripts for ebean unittest
--- apply changes
-CALL usp_ebean_drop_column('migtest_ckey_detail', 'one_key');
-
-CALL usp_ebean_drop_column('migtest_ckey_detail', 'two_key');
-
-CALL usp_ebean_drop_column('migtest_ckey_parent', 'assoc_id');
-
-CALL usp_ebean_drop_column('migtest_e_basic', 'new_string_field');
-
-CALL usp_ebean_drop_column('migtest_e_basic', 'new_boolean_field');
-
-CALL usp_ebean_drop_column('migtest_e_basic', 'new_boolean_field2');
-
-CALL usp_ebean_drop_column('migtest_e_basic', 'progress');
-
-CALL usp_ebean_drop_column('migtest_e_basic', 'new_integer');
-
-CALL usp_ebean_drop_column('migtest_e_history2', 'test_string2');
-
-CALL usp_ebean_drop_column('migtest_e_history2_history', 'test_string2');
-CALL usp_ebean_drop_column('migtest_e_history2', 'test_string3');
-
-CALL usp_ebean_drop_column('migtest_e_history2_history', 'test_string3');
-CALL usp_ebean_drop_column('migtest_e_history2', 'new_column');
-
-CALL usp_ebean_drop_column('migtest_e_history2_history', 'new_column');
-CALL usp_ebean_drop_column('migtest_e_history5', 'test_boolean');
-
-CALL usp_ebean_drop_column('migtest_e_history5_history', 'test_boolean');
-CALL usp_ebean_drop_column('migtest_e_softdelete', 'deleted');
-
-CALL usp_ebean_drop_column('migtest_oto_child', 'master_id');
-
-drop table migtest_e_user cascade;
-drop table migtest_mtm_c_migtest_mtm_m cascade;
-drop table migtest_mtm_m_migtest_mtm_c cascade;
-drop table migtest_mtm_m_phone_numbers cascade;
 -- altering tables
 alter table migtest_e_history drop system versioning;
 alter table migtest_e_history drop period for system_time;
@@ -50,3 +13,26 @@ alter table migtest_e_history5 drop system versioning;
 alter table migtest_e_history5 add system versioning history table migtest_e_history5_history not validated;
 -- post alter
 drop table migtest_e_history_history cascade;
+drop table migtest_e_user cascade;
+drop table migtest_mtm_c_migtest_mtm_m cascade;
+drop table migtest_mtm_m_migtest_mtm_c cascade;
+drop table migtest_mtm_m_phone_numbers cascade;
+-- apply foreign keys
+CALL usp_ebean_drop_column('migtest_ckey_detail', 'one_key');
+CALL usp_ebean_drop_column('migtest_ckey_detail', 'two_key');
+CALL usp_ebean_drop_column('migtest_ckey_parent', 'assoc_id');
+CALL usp_ebean_drop_column('migtest_e_basic', 'new_string_field');
+CALL usp_ebean_drop_column('migtest_e_basic', 'new_boolean_field');
+CALL usp_ebean_drop_column('migtest_e_basic', 'new_boolean_field2');
+CALL usp_ebean_drop_column('migtest_e_basic', 'progress');
+CALL usp_ebean_drop_column('migtest_e_basic', 'new_integer');
+CALL usp_ebean_drop_column('migtest_e_history2', 'test_string2');
+CALL usp_ebean_drop_column('migtest_e_history2_history', 'test_string2');
+CALL usp_ebean_drop_column('migtest_e_history2', 'test_string3');
+CALL usp_ebean_drop_column('migtest_e_history2_history', 'test_string3');
+CALL usp_ebean_drop_column('migtest_e_history2', 'new_column');
+CALL usp_ebean_drop_column('migtest_e_history2_history', 'new_column');
+CALL usp_ebean_drop_column('migtest_e_history5', 'test_boolean');
+CALL usp_ebean_drop_column('migtest_e_history5_history', 'test_boolean');
+CALL usp_ebean_drop_column('migtest_e_softdelete', 'deleted');
+CALL usp_ebean_drop_column('migtest_oto_child', 'master_id');
