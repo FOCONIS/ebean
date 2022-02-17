@@ -3,12 +3,14 @@ package io.ebeaninternal.dbmigration.ddlgeneration.platform;
 import io.ebean.DB;
 import io.ebean.config.DatabaseConfig;
 import io.ebean.config.dbplatform.IdType;
+import io.ebean.config.dbplatform.db2.DB2LuwPlatform;
 import io.ebean.config.dbplatform.h2.H2Platform;
 import io.ebean.config.dbplatform.hana.HanaPlatform;
 import io.ebean.config.dbplatform.mysql.MySqlPlatform;
 import io.ebean.config.dbplatform.oracle.OraclePlatform;
 import io.ebean.config.dbplatform.postgres.PostgresPlatform;
 import io.ebean.config.dbplatform.sqlserver.SqlServer17Platform;
+import io.ebeaninternal.dbmigration.ddlgeneration.BaseDdlWrite;
 import io.ebeaninternal.dbmigration.ddlgeneration.DdlWrite;
 import io.ebeaninternal.dbmigration.ddlgeneration.PlatformDdlBuilder;
 import io.ebeaninternal.dbmigration.migration.AlterColumn;
@@ -33,6 +35,7 @@ public class PlatformDdl_AlterColumnTest {
   private final PlatformDdl oraDdl = PlatformDdlBuilder.create(new OraclePlatform());
   private final PlatformDdl sqlServerDdl = PlatformDdlBuilder.create(new SqlServer17Platform());
   private final PlatformDdl hanaDdl = PlatformDdlBuilder.create(new HanaPlatform());
+  private final PlatformDdl db2LuwDdl = PlatformDdlBuilder.create(new DB2LuwPlatform());
 
   {
     DatabaseConfig serverConfig = DB.getDefault().pluginApi().config();
@@ -87,137 +90,166 @@ public class PlatformDdl_AlterColumnTest {
     assertThat(hanaDdl.convertArrayType("varchar[]")).isEqualTo("nvarchar(255) array");
     assertThat(hanaDdl.convertArrayType("integer[]")).isEqualTo("integer array");
   }
+  
+  private String alterColumnBaseAttributes(PlatformDdl ddl, AlterColumn alterColumn) throws IOException {
+    DdlWrite write = new BaseDdlWrite();
+    ddl.alterColumnBaseAttributes(write, alterColumn);
+    return write.toString();
+  }
 
   @Test
-  public void testAlterColumnBaseAttributes() {
+  public void testAlterColumnBaseAttributes() throws IOException {
 
     AlterColumn alterColumn = alterNotNull();
-    assertNull(h2Ddl.alterColumnBaseAttributes(alterColumn));
-    assertNull(pgDdl.alterColumnBaseAttributes(alterColumn));
-    assertNull(oraDdl.alterColumnBaseAttributes(alterColumn));
+    assertEquals("", alterColumnBaseAttributes(h2Ddl, alterColumn));
+    assertEquals("", alterColumnBaseAttributes(pgDdl, alterColumn));
+    assertEquals("", alterColumnBaseAttributes(oraDdl, alterColumn));
 
-    String sql = mysqlDdl.alterColumnBaseAttributes(alterColumn);
-    assertEquals("alter table mytab modify acol varchar(5) not null", sql);
+    String sql = alterColumnBaseAttributes(mysqlDdl, alterColumn);
+    assertEquals("-- altering tables\nalter table mytab modify acol varchar(5) not null;\n", sql);
 
-    sql = sqlServerDdl.alterColumnBaseAttributes(alterColumn);
-    assertEquals("alter table mytab alter column acol nvarchar(5) not null", sql);
+    sql = alterColumnBaseAttributes(sqlServerDdl, alterColumn);
+    assertEquals("-- altering tables\nalter table mytab alter column acol nvarchar(5) not null;\n", sql);
 
-    sql = hanaDdl.alterColumnBaseAttributes(alterColumn);
-    assertEquals("alter table mytab alter ( acol nvarchar(5) not null)", sql);
+    sql = alterColumnBaseAttributes(hanaDdl, alterColumn);
+    assertEquals("-- altering tables\nalter table mytab alter ( acol nvarchar(5) not null);\n", sql);
 
     alterColumn.setNotnull(Boolean.FALSE);
-    sql = mysqlDdl.alterColumnBaseAttributes(alterColumn);
-    assertEquals("alter table mytab modify acol varchar(5)", sql);
+    sql = alterColumnBaseAttributes(mysqlDdl, alterColumn);
+    assertEquals("-- altering tables\nalter table mytab modify acol varchar(5);\n", sql);
 
-    sql = hanaDdl.alterColumnBaseAttributes(alterColumn);
-    assertEquals("alter table mytab alter ( acol nvarchar(5))", sql);
+    sql = alterColumnBaseAttributes(hanaDdl, alterColumn);
+    assertEquals("-- altering tables\nalter table mytab alter ( acol nvarchar(5));\n", sql);
 
     alterColumn.setNotnull(null);
     alterColumn.setType("varchar(100)");
 
-    sql = mysqlDdl.alterColumnBaseAttributes(alterColumn);
-    assertEquals("alter table mytab modify acol varchar(100)", sql);
+    sql = alterColumnBaseAttributes(mysqlDdl, alterColumn);
+    assertEquals("-- altering tables\nalter table mytab modify acol varchar(100);\n", sql);
 
-    sql = hanaDdl.alterColumnBaseAttributes(alterColumn);
-    assertEquals("alter table mytab alter ( acol nvarchar(100))", sql);
+    sql = alterColumnBaseAttributes(hanaDdl, alterColumn);
+    assertEquals("-- altering tables\nalter table mytab alter ( acol nvarchar(100));\n", sql);
 
     alterColumn.setCurrentNotnull(Boolean.TRUE);
-    sql = mysqlDdl.alterColumnBaseAttributes(alterColumn);
-    assertEquals("alter table mytab modify acol varchar(100) not null", sql);
+    sql = alterColumnBaseAttributes(mysqlDdl, alterColumn);
+    assertEquals("-- altering tables\nalter table mytab modify acol varchar(100) not null;\n", sql);
 
-    sql = hanaDdl.alterColumnBaseAttributes(alterColumn);
-    assertEquals("alter table mytab alter ( acol nvarchar(100) not null)", sql);
+    sql = alterColumnBaseAttributes(hanaDdl, alterColumn);
+    assertEquals("-- altering tables\nalter table mytab alter ( acol nvarchar(100) not null);\n", sql);
+  }
+
+  private String alterColumnType(PlatformDdl ddl, String type) throws IOException {
+    DdlWrite write = new BaseDdlWrite();
+    ddl.alterColumnType(write, "mytab", "acol", type);
+    return write.toString();
   }
 
   @Test
-  public void testAlterColumnType() {
+  public void testAlterColumnType() throws IOException {
 
-    String sql = h2Ddl.alterColumnType("mytab", "acol", "varchar(20)");
-    assertEquals("alter table mytab alter column acol varchar(20)", sql);
+    String sql = alterColumnType(h2Ddl, "varchar(20)");
+    assertEquals("-- altering tables\nalter table mytab alter column acol varchar(20);\n", sql);
 
-    sql = pgDdl.alterColumnType("mytab", "acol", "varchar(20)");
-    assertEquals("alter table mytab alter column acol type varchar(20) using acol::varchar(20)", sql);
-    sql = pgDdl.alterColumnType("mytab", "acol", "bigint");
-    assertEquals("alter table mytab alter column acol type bigint using acol::bigint", sql);
+    sql = alterColumnType(pgDdl, "varchar(20)");
+    assertEquals("-- altering tables\nalter table mytab alter column acol type varchar(20) using acol::varchar(20);\n", sql);
+    sql = alterColumnType(pgDdl, "bigint");
+    assertEquals("-- altering tables\nalter table mytab alter column acol type bigint using acol::bigint;\n", sql);
 
-    sql = oraDdl.alterColumnType("mytab", "acol", "varchar(20)");
-    assertEquals("alter table mytab modify acol varchar2(20)", sql);
+    sql = alterColumnType(oraDdl, "varchar(20)");
+    assertEquals("-- altering tables\nalter table mytab modify acol varchar2(20);\n", sql);
 
-    sql = mysqlDdl.alterColumnType("mytab", "acol", "varchar(20)");
-    assertNull(sql);
+    sql = alterColumnType(mysqlDdl, "varchar(20)");
+    assertEquals("", sql);
 
-    sql = sqlServerDdl.alterColumnType("mytab", "acol", "varchar(20)");
-    assertNull(sql);
+    sql = alterColumnType(sqlServerDdl, "varchar(20)");
+    assertEquals("", sql);
 
-    sql = hanaDdl.alterColumnType("mytab", "acol", "varchar(20)");
-    assertNull(sql);
+    sql = alterColumnType(hanaDdl, "varchar(20)");
+    assertEquals("", sql);
+  }
+
+  private String alterColumnNotNull(PlatformDdl ddl, boolean notnull) throws IOException {
+    DdlWrite write = new BaseDdlWrite();
+    ddl.alterColumnNotnull(write, "mytab", "acol", notnull);
+    return write.toString();
   }
 
   @Test
-  public void testAlterColumnNotnull() {
+  public void testAlterColumnNotnull() throws IOException {
 
-    String sql = h2Ddl.alterColumnNotnull("mytab", "acol", true);
-    assertEquals("alter table mytab alter column acol set not null", sql);
+    String sql = alterColumnNotNull(h2Ddl, true);
+    assertEquals("-- altering tables\nalter table mytab alter column acol set not null;\n", sql);
 
-    sql = pgDdl.alterColumnNotnull("mytab", "acol", true);
-    assertEquals("alter table mytab alter column acol set not null", sql);
+    sql = alterColumnNotNull(pgDdl, true);
+    assertEquals("-- altering tables\nalter table mytab alter column acol set not null;\n", sql);
 
-    sql = oraDdl.alterColumnNotnull("mytab", "acol", true);
-    assertEquals("alter table mytab modify acol not null", sql);
+    sql = alterColumnNotNull(oraDdl, true);
+    assertEquals("-- altering tables\nalter table mytab modify acol not null;\n", sql);
 
-    sql = mysqlDdl.alterColumnNotnull("mytab", "acol", true);
-    assertNull(sql);
+    sql = alterColumnNotNull(mysqlDdl, true);
+    assertEquals("", sql);
 
-    sql = sqlServerDdl.alterColumnNotnull("mytab", "acol", true);
-    assertNull(sql);
+    sql = alterColumnNotNull(sqlServerDdl, true);
+    assertEquals("", sql);
 
-    sql = hanaDdl.alterColumnNotnull("mytab", "acol", true);
-    assertNull(sql);
+    sql = alterColumnNotNull(hanaDdl, true);
+    assertEquals("", sql);
+    
+    sql = alterColumnNotNull(db2LuwDdl, true);
+    assertEquals("-- altering tables\nalter table mytab alter column acol set not null;\n", sql);
   }
 
   @Test
-  public void testAlterColumnNull() {
+  public void testAlterColumnNull() throws IOException {
 
-    String sql = h2Ddl.alterColumnNotnull("mytab", "acol", false);
-    assertEquals("alter table mytab alter column acol set null", sql);
+    String sql = alterColumnNotNull(h2Ddl, false);
+    assertEquals("-- altering tables\nalter table mytab alter column acol set null;\n", sql);
 
-    sql = pgDdl.alterColumnNotnull("mytab", "acol", false);
-    assertEquals("alter table mytab alter column acol drop not null", sql);
+    sql = alterColumnNotNull(pgDdl, false);
+    assertEquals("-- altering tables\nalter table mytab alter column acol drop not null;\n", sql);
 
-    sql = oraDdl.alterColumnNotnull("mytab", "acol", false);
-    assertEquals("alter table mytab modify acol null", sql);
+    sql = alterColumnNotNull(oraDdl, false);
+    assertEquals("-- altering tables\nalter table mytab modify acol null;\n", sql);
+    
+    sql = alterColumnNotNull(db2LuwDdl, false);
+    assertEquals("-- altering tables\nalter table mytab alter column acol drop not null;\n", sql);
 
-    sql = mysqlDdl.alterColumnNotnull("mytab", "acol", false);
-    assertNull(sql);
+    sql = alterColumnNotNull(mysqlDdl, false);
+    assertEquals("",sql);
 
-    sql = sqlServerDdl.alterColumnNotnull("mytab", "acol", false);
-    assertNull(sql);
+    sql = alterColumnNotNull(sqlServerDdl, false);
+    assertEquals("",sql);
 
-    sql = hanaDdl.alterColumnNotnull("mytab", "acol", false);
-    assertNull(sql);
+    sql = alterColumnNotNull(hanaDdl, false);
+    assertEquals("",sql);
   }
 
+  private String alterColumnDefaultValue(PlatformDdl ddl, String value) {
+    DdlWrite write = new BaseDdlWrite();
+    ddl.alterColumnDefaultValue(write, "mytab", "acol", value);
+    return write.toString();
+  }
   @Test
   public void testAlterColumnDefaultValue() {
 
-    String sql = h2Ddl.alterColumnDefaultValue("mytab", "acol", "'hi'");
-    assertEquals("alter table mytab alter column acol set default 'hi'", sql);
+    String sql = alterColumnDefaultValue(h2Ddl, "'hi'");
+    assertEquals("-- altering tables\nalter table mytab alter column acol set default 'hi';\n", sql);
 
-    sql = pgDdl.alterColumnDefaultValue("mytab", "acol", "'hi'");
-    assertEquals("alter table mytab alter column acol set default 'hi'", sql);
+    sql = alterColumnDefaultValue(pgDdl, "'hi'");
+    assertEquals("-- altering tables\nalter table mytab alter column acol set default 'hi';\n", sql);
 
-    sql = oraDdl.alterColumnDefaultValue("mytab", "acol", "'hi'");
-    assertEquals("alter table mytab modify acol default 'hi'", sql);
+    sql = alterColumnDefaultValue(oraDdl, "'hi'");
+    assertEquals("-- altering tables\nalter table mytab modify acol default 'hi';\n", sql);
 
-    sql = mysqlDdl.alterColumnDefaultValue("mytab", "acol", "'hi'");
-    assertEquals("alter table mytab alter acol set default 'hi'", sql);
+    sql = alterColumnDefaultValue(mysqlDdl, "'hi'");
+    assertEquals("-- altering tables\nalter table mytab alter acol set default 'hi';\n", sql);
 
-    sql = sqlServerDdl.alterColumnDefaultValue("mytab", "acol", "'hi'");
-    assertEquals("alter table mytab add default 'hi' for acol", sql);
+    sql = alterColumnDefaultValue(sqlServerDdl, "'hi'");
+    assertEquals("-- altering tables\nalter table mytab add default 'hi' for acol;\n", sql);
 
     boolean exceptionCaught = false;
     try {
-      hanaDdl.alterColumnDefaultValue("mytab", "acol", "'hi'");
+      alterColumnDefaultValue(hanaDdl, "'hi'");
     } catch (UnsupportedOperationException e) {
       exceptionCaught = true;
     }
@@ -227,24 +259,27 @@ public class PlatformDdl_AlterColumnTest {
   @Test
   public void testAlterColumnDropDefault() {
 
-    String sql = h2Ddl.alterColumnDefaultValue("mytab", "acol", "DROP DEFAULT");
-    assertEquals("alter table mytab alter column acol drop default", sql);
+    String sql = alterColumnDefaultValue(h2Ddl, "DROP DEFAULT");
+    assertEquals("-- altering tables\nalter table mytab alter column acol drop default;\n", sql);
 
-    sql = pgDdl.alterColumnDefaultValue("mytab", "acol", "DROP DEFAULT");
-    assertEquals("alter table mytab alter column acol drop default", sql);
+    sql = alterColumnDefaultValue(pgDdl, "DROP DEFAULT");
+    assertEquals("-- altering tables\nalter table mytab alter column acol drop default;\n", sql);
 
-    sql = oraDdl.alterColumnDefaultValue("mytab", "acol", "DROP DEFAULT");
-    assertEquals("alter table mytab modify acol drop default", sql);
+    sql = alterColumnDefaultValue(oraDdl, "DROP DEFAULT");
+    assertEquals("-- altering tables\nalter table mytab modify acol drop default;\n", sql);
 
-    sql = mysqlDdl.alterColumnDefaultValue("mytab", "acol", "DROP DEFAULT");
-    assertEquals("alter table mytab alter acol drop default", sql);
+    sql = alterColumnDefaultValue(mysqlDdl, "DROP DEFAULT");
+    assertEquals("-- altering tables\nalter table mytab alter acol drop default;\n", sql);
 
-    sql = sqlServerDdl.alterColumnDefaultValue("mytab", "acol", "DROP DEFAULT");
-    assertEquals("EXEC usp_ebean_drop_default_constraint mytab, acol", sql);
-
+    sql = alterColumnDefaultValue(sqlServerDdl, "DROP DEFAULT");
+    assertEquals("-- apply changes\nEXEC usp_ebean_drop_default_constraint mytab, acol;\n", sql);
+    
+    sql = alterColumnDefaultValue(db2LuwDdl, "DROP DEFAULT");
+    assertEquals("-- altering tables\nalter table mytab alter column acol drop default;\n", sql);
+    
     boolean exceptionCaught = false;
     try {
-      hanaDdl.alterColumnDefaultValue("mytab", "acol", "DROP DEFAULT");
+      alterColumnDefaultValue(hanaDdl, "DROP DEFAULT");
     } catch (UnsupportedOperationException e) {
       exceptionCaught = true;
     }
@@ -253,9 +288,9 @@ public class PlatformDdl_AlterColumnTest {
 
   @Test
   public void oracle_alterTableAddColumn() throws IOException {
-    DdlWrite write = new DdlWrite();
-    oraDdl.alterTableAddColumn(write.apply(), "my_table", simpleColumn(), false, "1");
-    assertThat(write.apply().getBuffer()).isEqualTo("alter table my_table add my_column int default 1 not null;\n");
+    DdlWrite write = new BaseDdlWrite();
+    oraDdl.alterTableAddColumn(write, "my_table", simpleColumn(), false, "1");
+    assertThat(write.toString()).isEqualTo("-- altering tables\nalter table my_table add my_column int default 1 not null;\n");
   }
 
   private Column simpleColumn() {

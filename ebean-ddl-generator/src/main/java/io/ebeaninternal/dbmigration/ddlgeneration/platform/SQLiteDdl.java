@@ -3,6 +3,7 @@ package io.ebeaninternal.dbmigration.ddlgeneration.platform;
 import io.ebean.config.dbplatform.DatabasePlatform;
 import io.ebeaninternal.dbmigration.ddlgeneration.DdlBuffer;
 import io.ebeaninternal.dbmigration.ddlgeneration.DdlOptions;
+import io.ebeaninternal.dbmigration.ddlgeneration.DdlWrite;
 
 /**
  * DB2 platform specific DDL.
@@ -16,12 +17,12 @@ public class SQLiteDdl extends PlatformDdl {
   }
 
   @Override
-  public void addTableComment(DdlBuffer apply, String tableName, String tableComment) {
+  public void addTableComment(DdlWrite write, String tableName, String tableComment) {
     // not supported
   }
 
   @Override
-  public void addColumnComment(DdlBuffer apply, String table, String column, String comment) {
+  public void addColumnComment(DdlWrite write, String table, String column, String comment) {
     // not supported
   }
 

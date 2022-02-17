@@ -3,6 +3,7 @@ package io.ebeaninternal.dbmigration.ddlgeneration.platform;
 import io.ebean.DB;
 import io.ebean.config.dbplatform.h2.H2Platform;
 import io.ebeaninternal.api.SpiEbeanServer;
+import io.ebeaninternal.dbmigration.ddlgeneration.BaseDdlWrite;
 import io.ebeaninternal.dbmigration.ddlgeneration.DdlOptions;
 import io.ebeaninternal.dbmigration.ddlgeneration.DdlWrite;
 import io.ebeaninternal.dbmigration.ddlgeneration.PlatformDdlBuilder;
@@ -28,7 +29,7 @@ public class H2HistoryDdlTest {
 
     CurrentModel currentModel = new CurrentModel(ebeanServer);
     ModelContainer modelContainer = currentModel.read();
-    DdlWrite write = new DdlWrite(new MConfiguration(), modelContainer, new DdlOptions());
+    DdlWrite write = new BaseDdlWrite(new MConfiguration(), modelContainer, new DdlOptions());
 
     H2Platform h2Platform = new H2Platform();
     PlatformDdl h2Ddl = PlatformDdlBuilder.create(h2Platform);
@@ -44,7 +45,7 @@ public class H2HistoryDdlTest {
       .contains("add one")
       .contains("create trigger")
       .doesNotContain("create view");
-    assertThat(write.dropAll().isEmpty()).isTrue();
+    assertThat(write.toString()).isEqualTo("");
 
   }
 }

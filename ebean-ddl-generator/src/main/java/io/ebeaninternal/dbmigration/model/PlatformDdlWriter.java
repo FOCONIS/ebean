@@ -41,7 +41,7 @@ public class PlatformDdlWriter {
    */
   public void processMigration(Migration dbMigration, DdlWrite write, File writePath, String fullVersion) throws IOException {
     DdlHandler handler = handler();
-    handler.generateProlog(write);
+    handler.generateProlog(write); 
     if (lockTimeoutSeconds > 0) {
       String lockSql = platformDdl.setLockTimeout(lockTimeoutSeconds);
       if (lockSql != null) {
@@ -91,7 +91,7 @@ public class PlatformDdlWriter {
       writer.append(header).append('\n');
     }
     // merge the apply buffers in the appropriate order
-    write.write(writer);
+    write.writeApply(writer);
   }
 
   /**

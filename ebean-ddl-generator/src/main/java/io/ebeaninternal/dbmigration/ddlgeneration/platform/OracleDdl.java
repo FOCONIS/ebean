@@ -2,6 +2,7 @@ package io.ebeaninternal.dbmigration.ddlgeneration.platform;
 
 import io.ebean.annotation.ConstraintMode;
 import io.ebean.config.dbplatform.DatabasePlatform;
+import io.ebeaninternal.dbmigration.ddlgeneration.DdlWrite;
 
 /**
  * Oracle platform specific DDL.
@@ -24,12 +25,12 @@ public class OracleDdl extends PlatformDdl {
   }
 
   @Override
-  public String alterTableAddUniqueConstraint(String tableName, String uqName, String[] columns, String[] nullableColumns) {
+  public void alterTableAddUniqueConstraint(DdlWrite write, String tableName, String uqName, String[] columns, String[] nullableColumns) {
     if (nullableColumns == null || nullableColumns.length == 0) {
-      return super.alterTableAddUniqueConstraint(tableName, uqName, columns, nullableColumns);
+      super.alterTableAddUniqueConstraint(write, tableName, uqName, columns, nullableColumns);
     } else {
       // Hmm: https://stackoverflow.com/questions/11893134/oracle-create-unique-index-but-ignore-nulls
-      return "-- NOT YET IMPLEMENTED: " + super.alterTableAddUniqueConstraint(tableName, uqName, columns, nullableColumns);
+      write.apply().append("-- NOT YET IMPLEMENTED: unique constraint with nulls: ").append(uqName).end();
     }
   }
 

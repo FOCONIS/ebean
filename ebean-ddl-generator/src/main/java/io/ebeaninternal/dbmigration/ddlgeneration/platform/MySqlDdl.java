@@ -3,6 +3,7 @@ package io.ebeaninternal.dbmigration.ddlgeneration.platform;
 import io.ebean.config.dbplatform.DatabasePlatform;
 import io.ebean.util.StringHelper;
 import io.ebeaninternal.dbmigration.ddlgeneration.DdlBuffer;
+import io.ebeaninternal.dbmigration.ddlgeneration.DdlWrite;
 import io.ebeaninternal.dbmigration.migration.AlterColumn;
 import io.ebeaninternal.dbmigration.migration.Column;
 
@@ -37,11 +38,11 @@ public class MySqlDdl extends PlatformDdl {
   }
 
   @Override
-  public void alterTableDropColumn(final DdlBuffer buffer, final String tableName, final String columnName) {
+  public void alterTableDropColumn(final DdlWrite writer, final String tableName, final String columnName) {
     if (this.useMigrationStoredProcedures) {
-      buffer.append("CALL usp_ebean_drop_column('").append(tableName).append("', '").append(columnName).append("')").endOfStatement();
+      writer.apply().append("CALL usp_ebean_drop_column('").append(tableName).append("', '").append(columnName).append("')").endOfStatement();
     } else {
-      super.alterTableDropColumn(buffer, tableName, columnName);
+      super.alterTableDropColumn(writer, tableName, columnName);
     }
   }
 
@@ -63,57 +64,51 @@ public class MySqlDdl extends PlatformDdl {
   }
 
   @Override
-  public String alterTableAddCheckConstraint(String tableName, String checkConstraintName, String checkConstraint) {
+  public void alterTableAddCheckConstraint(DdlWrite write, String tableName, String checkConstraintName,
+      String checkConstraint) {
     if (USE_CHECK_CONSTRAINT) {
-      return super.alterTableAddCheckConstraint(tableName, checkConstraintName, checkConstraint);
-    } else {
-      return null;
+      super.alterTableAddCheckConstraint(write, tableName, checkConstraintName, checkConstraint);
     }
   }
 
   @Override
-  public String alterTableDropConstraint(String tableName, String constraintName) {
+  public void alterTableDropConstraint(DdlWrite write, String tableName, String constraintName) {
     // drop constraint not supported in MySQL 5.7 and 8.0 but starting with MariaDB
     // 10.2.1 CHECK is evaluated
     if (USE_CHECK_CONSTRAINT) {
-      StringBuilder sb = new StringBuilder();
+      DdlBuffer sb = write.index();
       // statement for MySQL >= 8.0.16
       sb.append("/*!80016 alter table ").append(tableName);
-      sb.append(" drop check ").append(constraintName).append(" */;\n");
+      sb.append(" drop check ").append(maxConstraintName(constraintName)).append(" */;\n");
       // statement for MariaDB >= 10.2.1
-      sb.append("/*M!100201 ");
-      sb.append(super.alterTableDropConstraint(tableName, constraintName));
+      sb.append("/*M!100201  alter table ").append(tableName);
+      sb.append(" drop constraint if exists ").append(maxConstraintName(constraintName)).append(" */;\n");
       sb.append(" */");
-      return sb.toString();
-    } else {
-      return null;
     }
   }
 
   @Override
-  public String alterColumnType(String tableName, String columnName, String type) {
+  public void alterColumnType(DdlWrite write, String tableName, String columnName, String type) {
     // can't alter itself - done in alterColumnBaseAttributes()
-    return null;
   }
 
   @Override
-  public String alterColumnNotnull(String tableName, String columnName, boolean notnull) {
+  public void alterColumnNotnull(DdlWrite write, String tableName, String columnName, boolean notnull) {
     // can't alter itself - done in alterColumnBaseAttributes()
-    return null;
   }
 
   @Override
-  public String alterColumnDefaultValue(String tableName, String columnName, String defaultValue) {
+  public void alterColumnDefaultValue(DdlWrite writer, String tableName, String columnName, String defaultValue) {
     String suffix = DdlHelp.isDropDefault(defaultValue) ? columnDropDefault : columnSetDefault + " " + convertDefaultValue(defaultValue);
-    return "alter table " + tableName + " alter " + columnName + " " + suffix;
+    writer.alterTable(tableName, "alter ").append(columnName).append(" ").append(suffix);
   }
 
   @Override
-  public String alterColumnBaseAttributes(AlterColumn alter) {
+  public void alterColumnBaseAttributes(DdlWrite writer, AlterColumn alter) {
     if (alter.getType() == null && alter.isNotnull() == null) {
       // No type change or notNull change
       // defaultValue change already handled in alterColumnDefaultValue
-      return null;
+      return;
     }
     String tableName = alter.getTableName();
     String columnName = alter.getColumnName();
@@ -121,8 +116,7 @@ public class MySqlDdl extends PlatformDdl {
     type = convert(type);
     boolean notnull = (alter.isNotnull() != null) ? alter.isNotnull() : Boolean.TRUE.equals(alter.isCurrentNotnull());
     String notnullClause = notnull ? " not null" : "";
-
-    return "alter table " + tableName + " modify " + columnName + " " + type + notnullClause;
+    writer.alterTable(tableName, alterColumn).append(" ").append(columnName).append(" ").append(type).append(notnullClause);
   }
 
   @Override
@@ -150,15 +144,15 @@ public class MySqlDdl extends PlatformDdl {
    * Add table comment as a separate statement (from the create table statement).
    */
   @Override
-  public void addTableComment(DdlBuffer apply, String tableName, String tableComment) {
+  public void addTableComment(DdlWrite write, String tableName, String tableComment) {
     if (DdlHelp.isDropComment(tableComment)) {
       tableComment = "";
     }
-    apply.append(String.format("alter table %s comment = '%s'", tableName, tableComment)).endOfStatement();
+    write.postAlter().append(String.format("alter table %s comment = '%s'", tableName, tableComment)).endOfStatement();
   }
 
   @Override
-  public void addColumnComment(DdlBuffer apply, String table, String column, String comment) {
+  public void addColumnComment(DdlWrite write, String table, String column, String comment) {
     // alter comment currently not supported as it requires to repeat whole column definition
   }
 

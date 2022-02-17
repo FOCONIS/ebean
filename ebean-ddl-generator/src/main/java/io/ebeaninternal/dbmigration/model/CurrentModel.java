@@ -4,6 +4,7 @@ import io.ebean.config.DbConstraintNaming;
 import io.ebean.config.dbplatform.DatabasePlatform;
 import io.ebeaninternal.api.SpiEbeanServer;
 import io.ebeaninternal.dbmigration.Detect;
+import io.ebeaninternal.dbmigration.ddlgeneration.BaseDdlWrite;
 import io.ebeaninternal.dbmigration.ddlgeneration.DdlHandler;
 import io.ebeaninternal.dbmigration.ddlgeneration.DdlOptions;
 import io.ebeaninternal.dbmigration.ddlgeneration.DdlWrite;
@@ -26,7 +27,7 @@ import static io.ebeaninternal.api.PlatformMatch.matchPlatform;
  */
 public class CurrentModel {
 
-  private final SpiEbeanServer server;
+  private final SpiEbeanServer server;  
   private final DatabasePlatform databasePlatform;
   private final DbConstraintNaming constraintNaming;
   private final boolean platformTypes;
@@ -128,10 +129,7 @@ public class CurrentModel {
     if (jaxbPresent) {
       addExtraDdl(ddl, ExtraDdlXmlReader.readBuiltin(), "-- init script ");
     }
-    ddl.append(write.apply().getBuffer());
-    ddl.append(write.applyForeignKeys().getBuffer());
-    ddl.append(write.applyHistoryView().getBuffer());
-    ddl.append(write.applyHistoryTrigger().getBuffer());
+    write.writeApply(ddl);
     return ddl.toString();
   }
 
@@ -158,8 +156,7 @@ public class CurrentModel {
     if (ddlHeader != null && !ddlHeader.isEmpty()) {
       ddl.append(ddlHeader).append('\n');
     }
-    ddl.append(write.dropAllForeignKeys().getBuffer());
-    ddl.append(write.dropAll().getBuffer());
+    write.writeDropAll(ddl);
     return ddl.toString();
   }
 
@@ -169,7 +166,7 @@ public class CurrentModel {
   private void createDdl() throws IOException {
     if (write == null) {
       ChangeSet createChangeSet = getChangeSet();
-      write = new DdlWrite(new MConfiguration(), model, ddlOptions);
+      write = new BaseDdlWrite(new MConfiguration(), model, ddlOptions);
       DdlHandler handler = handler();
       handler.generateProlog(write);
       handler.generate(write, createChangeSet);

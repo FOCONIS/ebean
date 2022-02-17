@@ -8,7 +8,6 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-import java.util.StringJoiner;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +15,6 @@ import org.slf4j.LoggerFactory;
 import io.ebean.DB;
 import io.ebean.Database;
 import io.ebean.annotation.Platform;
-import io.ebean.config.ClassLoadConfig;
 import io.ebean.config.DatabaseConfig;
 import io.ebean.config.DbConstraintNaming;
 import io.ebean.config.PlatformConfig;
@@ -46,9 +44,9 @@ import io.ebean.config.dbplatform.sqlserver.SqlServer17Platform;
 import io.ebean.config.dbplatform.yugabyte.YugabytePlaform;
 import io.ebean.dbmigration.DbMigration;
 import io.ebean.util.IOUtils;
-import io.ebean.util.StringHelper;
 import io.ebeaninternal.api.DbOffline;
 import io.ebeaninternal.api.SpiEbeanServer;
+import io.ebeaninternal.dbmigration.ddlgeneration.BaseDdlWrite;
 import io.ebeaninternal.dbmigration.ddlgeneration.DdlOptions;
 import io.ebeaninternal.dbmigration.ddlgeneration.DdlWrite;
 import io.ebeaninternal.dbmigration.migration.Migration;
@@ -585,9 +583,9 @@ public class DefaultDbMigration implements DbMigration {
         // writer needs the current model to provide table/column details for
         // history ddl generation (triggers, history tables etc)
         DdlOptions options = new DdlOptions(addForeignKeySkipCheck);
-        DdlWrite write = new DdlWrite(new MConfiguration(), request.current, options);
-        PlatformDdlWriter writer = createDdlWriter(databasePlatform);
-        writer.processMigration(dbMigration, write, request.migrationDir, fullVersion);
+        DdlWrite writer = new BaseDdlWrite(new MConfiguration(), request.current, options);
+        PlatformDdlWriter platformWriter = createDdlWriter(databasePlatform);
+        platformWriter.processMigration(dbMigration, writer, request.migrationDir, fullVersion);
       }
       return fullVersion;
     }
@@ -654,10 +652,10 @@ public class DefaultDbMigration implements DbMigration {
   private void writeExtraPlatformDdl(String fullVersion, CurrentModel currentModel, Migration dbMigration, File writePath) throws IOException {
     DdlOptions options = new DdlOptions(addForeignKeySkipCheck);
     for (Pair pair : platforms) {
-      DdlWrite platformBuffer = new DdlWrite(new MConfiguration(), currentModel.read(), options);
+      DdlWrite writer = new BaseDdlWrite(new MConfiguration(), currentModel.read(), options);
       PlatformDdlWriter platformWriter = createDdlWriter(pair.platform);
       File subPath = platformWriter.subPath(writePath, pair.prefix);
-      platformWriter.processMigration(dbMigration, platformBuffer, subPath, fullVersion);
+      platformWriter.processMigration(dbMigration, writer, subPath, fullVersion);
     }
   }
 

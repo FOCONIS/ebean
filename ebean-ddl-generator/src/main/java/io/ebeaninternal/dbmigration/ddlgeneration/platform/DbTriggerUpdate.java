@@ -44,7 +44,7 @@ public class DbTriggerUpdate {
    * Return the appropriate drop dependency buffer for the current mode.
    */
   public DdlBuffer dropDependencyBuffer() {
-    return writer.applyDropDependencies();
+    return writer.dropDependencies();
   }
 
   /**

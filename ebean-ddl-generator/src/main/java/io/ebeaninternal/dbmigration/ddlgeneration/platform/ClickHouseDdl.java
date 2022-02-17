@@ -5,6 +5,7 @@ import io.ebean.config.dbplatform.DatabasePlatform;
 import io.ebeaninternal.dbmigration.ddlgeneration.DdlBuffer;
 import io.ebeaninternal.dbmigration.ddlgeneration.DdlHandler;
 import io.ebeaninternal.dbmigration.ddlgeneration.DdlOptions;
+import io.ebeaninternal.dbmigration.ddlgeneration.DdlWrite;
 
 public class ClickHouseDdl extends PlatformDdl {
 
@@ -14,6 +15,7 @@ public class ClickHouseDdl extends PlatformDdl {
     super(platform);
     this.includeStorageEngine = true;
     this.identitySuffix = "";
+    this.columnNotNull = null;
   }
 
   @Override
@@ -68,18 +70,14 @@ public class ClickHouseDdl extends PlatformDdl {
     return null;
   }
 
+
   @Override
-  protected void writeColumnNotNull(DdlBuffer buffer) {
+  public void addTableComment(DdlWrite write, String tableName, String tableComment) {
     // do nothing
   }
 
   @Override
-  public void addTableComment(DdlBuffer apply, String tableName, String tableComment) {
-    // do nothing
-  }
-
-  @Override
-  public void addColumnComment(DdlBuffer apply, String table, String column, String comment) {
+  public void addColumnComment(DdlWrite write, String table, String column, String comment) {
     // do nothing
   }
 

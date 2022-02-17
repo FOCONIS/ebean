@@ -86,8 +86,8 @@ public abstract class DbTriggerBasedHistoryDdl implements PlatformHistoryDdl {
     String baseTable = dropHistoryTable.getBaseTable();
 
     // drop in appropriate order
-    dropTriggers(writer.applyDropDependencies(), baseTable);
-    dropHistoryTableEtc(writer.applyDropDependencies(), baseTable);
+    dropTriggers(writer.dropDependencies(), baseTable);
+    dropHistoryTableEtc(writer, baseTable);
   }
 
   @Override
@@ -108,8 +108,9 @@ public abstract class DbTriggerBasedHistoryDdl implements PlatformHistoryDdl {
     String baseTable = table.getName();
     String whenCreatedColumn = table.getWhenCreatedColumn();
 
-    dropTriggers(writer.dropAll(), baseTable);
-    dropHistoryTableEtc(writer.dropAll(), baseTable);
+    // FIXME RPR: drop all system versioning!
+    //dropTriggers(writer.dropWriter().apply(), baseTable);
+    //dropHistoryTableEtc(writer.dropWriter(), baseTable);
 
     addHistoryTable(writer, table, whenCreatedColumn);
     createStoredFunction(writer, table);
@@ -233,16 +234,16 @@ public abstract class DbTriggerBasedHistoryDdl implements PlatformHistoryDdl {
     appendColumnName(apply, prefix, sysPeriodEnd);
   }
 
-  protected void dropHistoryTableEtc(DdlBuffer buffer, String baseTableName) {
+  protected void dropHistoryTableEtc(DdlWrite writer, String baseTableName) {
 
-    buffer.append("drop view ").append(baseTableName).append(viewSuffix).endOfStatement();
-    dropSysPeriodColumns(buffer, baseTableName);
-    buffer.append("drop table ").append(baseTableName).append(historySuffix).endOfStatement().end();
+    writer.apply().append("drop view ").append(baseTableName).append(viewSuffix).endOfStatement();
+    dropSysPeriodColumns(writer, baseTableName);
+    writer.postAlter().append("drop table ").append(baseTableName).append(historySuffix).endOfStatement().end();
   }
 
-  protected void dropSysPeriodColumns(DdlBuffer buffer, String baseTableName) {
-    platformDdl.alterTableDropColumn(buffer, baseTableName, sysPeriodStart);
-    platformDdl.alterTableDropColumn(buffer, baseTableName, sysPeriodEnd);
+  protected void dropSysPeriodColumns(DdlWrite writer, String baseTableName) {
+    platformDdl.alterTableDropColumn(writer, baseTableName, sysPeriodStart);
+    platformDdl.alterTableDropColumn(writer, baseTableName, sysPeriodEnd);
   }
 
   protected void appendInsertIntoHistory(DdlBuffer buffer, String historyTable, List<String> columns) {

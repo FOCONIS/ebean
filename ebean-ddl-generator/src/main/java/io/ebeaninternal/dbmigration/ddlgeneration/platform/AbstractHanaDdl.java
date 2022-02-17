@@ -5,6 +5,7 @@ import io.ebean.config.dbplatform.DatabasePlatform;
 import io.ebean.config.dbplatform.DbPlatformType;
 import io.ebeaninternal.dbmigration.ddlgeneration.DdlBuffer;
 import io.ebeaninternal.dbmigration.ddlgeneration.DdlHandler;
+import io.ebeaninternal.dbmigration.ddlgeneration.DdlWrite;
 import io.ebeaninternal.dbmigration.migration.AlterColumn;
 
 import java.util.Objects;
@@ -38,7 +39,7 @@ public abstract class AbstractHanaDdl extends PlatformDdl {
   }
 
   @Override
-  public String alterColumnBaseAttributes(AlterColumn alter) {
+  public void alterColumnBaseAttributes(DdlWrite writer, AlterColumn alter) {
     String tableName = alter.getTableName();
     String columnName = alter.getColumnName();
     String currentType = alter.getCurrentType();
@@ -51,37 +52,33 @@ public abstract class AbstractHanaDdl extends PlatformDdl {
       : (alter.getDefaultValue() != null ? alter.getDefaultValue() : alter.getCurrentDefaultValue());
     String defaultValueClause = (defaultValue == null || defaultValue.isEmpty()) ? "" : " default " + defaultValue;
 
-    DdlBuffer buffer = new BaseDdlBuffer();
     if (!isConvertible(currentType, type)) {
       // add an intermediate conversion if possible
       if (isNumberType(currentType)) {
         // numbers can always be converted to decimal
-        buffer.append("alter table ").append(tableName).append(" ").append(alterColumn).append(" ").append(columnName)
-          .append(" decimal ").append(defaultValueClause).append(notnullClause).append(alterColumnSuffix)
-          .endOfStatement();
+        writer.alterTable(tableName, alterColumn).append(" ").append(columnName)
+          .append(" decimal ").append(defaultValueClause).append(notnullClause).append(alterColumnSuffix);
 
       } else if (isStringType(currentType)) {
         // strings can always be converted to nclob
-        buffer.append("alter table ").append(tableName).append(" ").append(alterColumn).append(" ").append(columnName)
-          .append(" nclob ").append(defaultValueClause).append(notnullClause).append(alterColumnSuffix)
-          .endOfStatement();
+        writer.alterTable(tableName, alterColumn).append(" ").append(columnName)
+          .append(" nclob ").append(defaultValueClause).append(notnullClause).append(alterColumnSuffix);
       }
     }
 
-    buffer.append("alter table ").append(tableName).append(" ").append(alterColumn).append(" ").append(columnName)
+    writer.alterTable(tableName, alterColumn).append(" ").append(columnName)
       .append(" ").append(type).append(defaultValueClause).append(notnullClause).append(alterColumnSuffix);
 
-    return buffer.getBuffer();
   }
 
   @Override
-  public String alterColumnDefaultValue(String tableName, String columnName, String defaultValue) {
+  public void alterColumnDefaultValue(DdlWrite writer, String tableName, String columnName, String defaultValue) {
     throw new UnsupportedOperationException();
   }
 
+  
   @Override
-  public String alterColumnNotnull(String tableName, String columnName, boolean notnull) {
-    return null;
+  public void alterColumnNotnull(DdlWrite write, String tableName, String columnName, boolean notnull) {
   }
 
   @Override
@@ -89,9 +86,10 @@ public abstract class AbstractHanaDdl extends PlatformDdl {
     return new HanaDdlHandler(config, this);
   }
 
+  
   @Override
-  public String alterColumnType(String tableName, String columnName, String type) {
-    return null;
+  public void alterColumnType(DdlWrite write, String tableName, String columnName, String type) {
+
   }
 
   @Override
@@ -105,17 +103,17 @@ public abstract class AbstractHanaDdl extends PlatformDdl {
   }
 
   @Override
-  public String alterTableAddUniqueConstraint(String tableName, String uqName, String[] columns, String[] nullableColumns) {
+  public void alterTableAddUniqueConstraint(DdlWrite write, String tableName, String uqName, String[] columns, String[] nullableColumns) {
     if (nullableColumns == null || nullableColumns.length == 0) {
-      return super.alterTableAddUniqueConstraint(tableName, uqName, columns, nullableColumns);
+      super.alterTableAddUniqueConstraint(write, tableName, uqName, columns, nullableColumns);
     } else {
-      return "-- cannot create unique index \"" + uqName + "\" on table \"" + tableName + "\" with nullable columns";
+      write.index().appendStatement("-- cannot create unique index \"" + uqName + "\" on table \"" + tableName + "\" with nullable columns");
     }
   }
 
   @Override
-  public String alterTableDropUniqueConstraint(String tableName, String uniqueConstraintName) {
-    DdlBuffer buffer = new BaseDdlBuffer();
+  public void alterTableDropUniqueConstraint(DdlWrite write, String tableName, String uniqueConstraintName) {
+    DdlBuffer buffer = write.index();
 
     buffer.append("delimiter $$").newLine();
     buffer.append("do").newLine();
@@ -125,12 +123,12 @@ public abstract class AbstractHanaDdl extends PlatformDdl {
       .append(maxConstraintName(uniqueConstraintName)).append("'").endOfStatement();
     buffer.append("end").endOfStatement();
     buffer.append("$$");
-    return buffer.getBuffer();
+    buffer.endOfStatement();
   }
 
   @Override
-  public String alterTableDropConstraint(String tableName, String constraintName) {
-    return alterTableDropUniqueConstraint(tableName, constraintName);
+  public void alterTableDropConstraint(DdlWrite write, String tableName, String constraintName) {
+    alterTableDropUniqueConstraint(write, tableName, constraintName);
   }
 
   /**
@@ -138,9 +136,9 @@ public abstract class AbstractHanaDdl extends PlatformDdl {
    * foreign keys. That's why we call a user stored procedure here
    */
   @Override
-  public void alterTableDropColumn(DdlBuffer buffer, String tableName, String columnName) {
-    buffer.append("CALL usp_ebean_drop_column('").append(tableName).append("', '").append(columnName).append("')")
-      .endOfStatement();
+  public void alterTableDropColumn(DdlWrite writer, String tableName, String columnName) {
+    writer.apply().append("CALL usp_ebean_drop_column('").append(tableName)
+        .append("', '").append(columnName).append("')").endOfStatement();
   }
 
   /**

@@ -98,6 +98,8 @@ public class PlatformDdl {
   protected String columnSetNotnull = "set not null";
 
   protected String columnSetNull = "set null";
+  
+  protected String columnNotNull = "not null";
 
   protected String updateNullWithDefault = "update ${table} set ${column} = ${default} where ${column} is null";
 
@@ -274,18 +276,11 @@ public class PlatformDdl {
       }
     }
     if (isTrue(column.isNotnull()) || isTrue(column.isPrimaryKey())) {
-      writeColumnNotNull(buffer);
+      buffer.appendWithSpace(columnNotNull);
     }
 
     // add check constraints later as we really want to give them a nice name
     // so that the database can potentially provide a nice SQL error
-  }
-
-  /**
-   * Allow for platform overriding (e.g. ClickHouse).
-   */
-  protected void writeColumnNotNull(DdlBuffer buffer) {
-    buffer.append(" not null");
   }
 
   /**
@@ -496,15 +491,15 @@ public class PlatformDdl {
   /**
    * Drop a unique constraint from the table (Sometimes this is an index).
    */
-  public String alterTableDropUniqueConstraint(String tableName, String uniqueConstraintName) {
-    return "alter table " + tableName + " " + dropUniqueConstraint + " " + maxConstraintName(uniqueConstraintName);
+  public void alterTableDropUniqueConstraint(DdlWrite write, String tableName, String uniqueConstraintName) {
+    write.alterTable(tableName, dropUniqueConstraint).append(" ").append(maxConstraintName(uniqueConstraintName));
   }
 
   /**
    * Drop a unique constraint from the table.
    */
-  public String alterTableDropConstraint(String tableName, String constraintName) {
-    return "alter table " + tableName + " " + dropConstraintIfExists + " " + maxConstraintName(constraintName);
+  public void alterTableDropConstraint(DdlWrite write, String tableName, String constraintName) {
+    write.alterTable(tableName, dropConstraintIfExists).append(" ").append(maxConstraintName(constraintName));
   }
 
   /**
@@ -512,54 +507,44 @@ public class PlatformDdl {
    * <p>
    * Overridden by MsSqlServer for specific null handling on unique constraints.
    */
-  public String alterTableAddUniqueConstraint(String tableName, String uqName, String[] columns, String[] nullableColumns) {
-
-    StringBuilder buffer = new StringBuilder(90);
-    buffer.append("alter table ").append(tableName).append(" add constraint ").append(maxConstraintName(uqName)).append(" unique ");
+  public void alterTableAddUniqueConstraint(DdlWrite write, String tableName, String uqName, String[] columns, String[] nullableColumns) {
+    StringBuilder buffer = write.alterTable(tableName, "add constraint ").append(maxConstraintName(uqName)).append(" unique ");
     appendColumns(columns, buffer);
-    return buffer.toString();
   }
 
-  public void alterTableAddColumn(DdlBuffer buffer, String tableName, Column column, boolean onHistoryTable, String defaultValue) {
+  public void alterTableAddColumn(DdlWrite write, String tableName, Column column, boolean onHistoryTable, String defaultValue) {
 
     String convertedType = convert(column.getType());
 
-    buffer.append("alter table ").append(tableName)
-      .append(" ").append(addColumn).append(" ").append(column.getName())
-      .append(" ").append(convertedType);
+    StringBuilder stmt = write.alterTable(tableName, addColumn).append(" ")
+        .append(column.getName()).append(" ").append(convertedType);
 
     // Add default value also to history table if it is not excluded
     if (defaultValue != null) {
       if (!onHistoryTable || !isTrue(column.isHistoryExclude())) {
-        buffer.append(" default ");
-        buffer.append(defaultValue);
+        stmt.append(" default ").append(defaultValue);
       }
     }
 
     if (!onHistoryTable) {
-      if (isTrue(column.isNotnull())) {
-        writeColumnNotNull(buffer);
+      if (isTrue(column.isNotnull()) && hasValue(columnNotNull)) {
+        stmt.append(' ').append(columnNotNull);
       }
-      buffer.append(addColumnSuffix);
-      buffer.endOfStatement();
+      stmt.append(addColumnSuffix);
 
       // check constraints cannot be added in one statement for h2
       if (!StringHelper.isNull(column.getCheckConstraint())) {
-        String ddl = alterTableAddCheckConstraint(tableName, column.getCheckConstraintName(), column.getCheckConstraint());
-        if (hasValue(ddl)) {
-          buffer.append(ddl).endOfStatement();
-        }
+        alterTableAddCheckConstraint(write, tableName, column.getCheckConstraintName(), column.getCheckConstraint());
       }
     } else {
-      buffer.append(addColumnSuffix);
-      buffer.endOfStatement();
+      stmt.append(addColumnSuffix);
     }
 
   }
 
-  public void alterTableDropColumn(DdlBuffer buffer, String tableName, String columnName) {
-    buffer.append("alter table ").append(tableName).append(" ").append(dropColumn).append(" ").append(columnName)
-      .append(dropColumnSuffix).endOfStatement();
+  public void alterTableDropColumn(DdlWrite writer, String tableName, String columnName) {
+    writer.alterTable(tableName, dropColumn).append(" ").append(columnName)
+      .append(dropColumnSuffix);
   }
 
   /**
@@ -577,8 +562,9 @@ public class PlatformDdl {
    * Note that that MySql and SQL Server instead use alterColumnBaseAttributes()
    * </p>
    */
-  public String alterColumnType(String tableName, String columnName, String type) {
-    return "alter table " + tableName + " " + alterColumn + " " + columnName + " " + columnSetType + convert(type) + alterColumnSuffix;
+  public void alterColumnType(DdlWrite write, String tableName, String columnName, String type) {
+    write.alterTable(tableName, alterColumn).append(" ").append(columnName).append(" ")
+        .append(columnSetType).append(convert(type)).append(alterColumnSuffix);
   }
 
   /**
@@ -587,24 +573,25 @@ public class PlatformDdl {
    * Note that that MySql, SQL Server, and HANA instead use alterColumnBaseAttributes()
    * </p>
    */
-  public String alterColumnNotnull(String tableName, String columnName, boolean notnull) {
+  public void alterColumnNotnull(DdlWrite write, String tableName, String columnName, boolean notnull) {
     String suffix = notnull ? columnSetNotnull : columnSetNull;
-    return "alter table " + tableName + " " + alterColumn + " " + columnName + " " + suffix + alterColumnSuffix;
+    write.alterTable(tableName, alterColumn).append(" ").append(columnName).append(" ").append(suffix).append(alterColumnSuffix);
   }
 
   /**
    * Alter table adding the check constraint.
    */
-  public String alterTableAddCheckConstraint(String tableName, String checkConstraintName, String checkConstraint) {
-    return "alter table " + tableName + " " + addConstraint + " " + maxConstraintName(checkConstraintName) + " " + checkConstraint;
+  public void alterTableAddCheckConstraint(DdlWrite write, String tableName, String checkConstraintName,
+      String checkConstraint) {
+    write.alterTable(tableName, addConstraint).append(" ").append(maxConstraintName(checkConstraintName)).append(" ").append(checkConstraint);
   }
 
   /**
    * Alter column setting the default value.
    */
-  public String alterColumnDefaultValue(String tableName, String columnName, String defaultValue) {
+  public void alterColumnDefaultValue(DdlWrite writer, String tableName, String columnName, String defaultValue) {
     String suffix = DdlHelp.isDropDefault(defaultValue) ? columnDropDefault : columnSetDefault + " " + convertDefaultValue(defaultValue);
-    return "alter table " + tableName + " " + alterColumn + " " + columnName + " " + suffix + alterColumnSuffix;
+    writer.alterTable(tableName, alterColumn).append(" ").append(columnName).append(" ").append(suffix).append(alterColumnSuffix);
   }
 
   /**
@@ -613,10 +600,9 @@ public class PlatformDdl {
    * Used by MySql, SQL Server, and HANA as these require both column attributes to be set together.
    * </p>
    */
-  public String alterColumnBaseAttributes(AlterColumn alter) {
+  public void alterColumnBaseAttributes(DdlWrite writer, AlterColumn alter) {
     // by default do nothing, only used by mysql, sql server, and HANA as they can only
     // modify the column with the full column definition
-    return null;
   }
 
   protected void appendColumns(String[] columns, StringBuilder buffer) {
@@ -689,21 +675,21 @@ public class PlatformDdl {
   /**
    * Add table comment as a separate statement (from the create table statement).
    */
-  public void addTableComment(DdlBuffer apply, String tableName, String tableComment) {
+  public void addTableComment(DdlWrite write, String tableName, String tableComment) {
     if (DdlHelp.isDropComment(tableComment)) {
       tableComment = "";
     }
-    apply.append(String.format("comment on table %s is '%s'", tableName, tableComment)).endOfStatement();
+    write.postAlter().append(String.format("comment on table %s is '%s'", tableName, tableComment)).endOfStatement();
   }
 
   /**
    * Add column comment as a separate statement.
    */
-  public void addColumnComment(DdlBuffer apply, String table, String column, String comment) {
+  public void addColumnComment(DdlWrite write, String table, String column, String comment) {
     if (DdlHelp.isDropComment(comment)) {
       comment = "";
     }
-    apply.append(String.format("comment on column %s.%s is '%s'", table, column, comment)).endOfStatement();
+    write.postAlter().append(String.format("comment on column %s.%s is '%s'", table, column, comment)).endOfStatement();
   }
 
   /**

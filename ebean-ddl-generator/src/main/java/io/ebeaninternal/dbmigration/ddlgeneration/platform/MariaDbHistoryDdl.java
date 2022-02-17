@@ -24,18 +24,15 @@ public class MariaDbHistoryDdl implements PlatformHistoryDdl {
   }
 
   private void enableSystemVersioning(DdlWrite writer, String baseTable) {
-    DdlBuffer apply = writer.applyHistoryView();
-    apply.append("alter table ").append(baseTable).append(" add system versioning").endOfStatement();
-
-    DdlBuffer drop = writer.dropAll();
-    drop.append("alter table ").append(baseTable).append(" drop system versioning").endOfStatement();
+    writer.alterTable(baseTable, "add system versioning");
+    // FIXME RPR: drop all system versioning!
+    // writer.dropWriter().alterTable(baseTable, "drop system versioning");
   }
 
   @Override
   public void dropHistoryTable(DdlWrite writer, DropHistoryTable dropHistoryTable) {
     String baseTable = dropHistoryTable.getBaseTable();
-    DdlBuffer apply = writer.applyHistoryView();
-    apply.append("alter table ").append(baseTable).append(" drop system versioning").endOfStatement();
+    writer.alterTable(baseTable, "drop system versioning");
   }
 
   @Override

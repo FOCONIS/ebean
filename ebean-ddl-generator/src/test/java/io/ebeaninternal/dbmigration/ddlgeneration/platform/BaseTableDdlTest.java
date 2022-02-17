@@ -6,6 +6,7 @@ import io.ebean.config.dbplatform.clickhouse.ClickHousePlatform;
 import io.ebean.config.dbplatform.h2.H2Platform;
 import io.ebean.config.dbplatform.mysql.MySqlPlatform;
 import io.ebean.config.dbplatform.oracle.OraclePlatform;
+import io.ebeaninternal.dbmigration.ddlgeneration.BaseDdlWrite;
 import io.ebeaninternal.dbmigration.ddlgeneration.DdlWrite;
 import io.ebeaninternal.dbmigration.ddlgeneration.Helper;
 import io.ebeaninternal.dbmigration.ddlgeneration.PlatformDdlBuilder;
@@ -31,7 +32,7 @@ public class BaseTableDdlTest {
   public void testAlterColumn() throws IOException {
     BaseTableDdl ddlGen = new BaseTableDdl(serverConfig, h2ddl);
 
-    DdlWrite write = new DdlWrite();
+    BaseDdlWrite write = new BaseDdlWrite();
 
     AlterColumn alterColumn = new AlterColumn();
     alterColumn.setTableName("mytab");
@@ -40,7 +41,7 @@ public class BaseTableDdlTest {
 
     ddlGen.generate(write, alterColumn);
 
-    String ddl = write.apply().getBuffer();
+    String ddl = write.toString();
     assertThat(ddl).contains("alter table mytab drop constraint if exists ck_mytab_acol");
     assertThat(ddl).contains("alter table mytab add constraint ck_mytab_acol check (acol in ('A','B'))");
   }
@@ -50,15 +51,15 @@ public class BaseTableDdlTest {
 
     BaseTableDdl ddlGen = new BaseTableDdl(serverConfig, PlatformDdlBuilder.create(new OraclePlatform()));
 
-    DdlWrite write = new DdlWrite();
+    BaseDdlWrite write = new BaseDdlWrite();
 
     Column column = new Column();
     column.setName("col_name");
     column.setType("varchar(20)");
 
-    ddlGen.alterTableAddColumn(write.apply(), "mytable", column, false, false);
+    ddlGen.alterTableAddColumn(write, "mytable", column, false, false);
 
-    String ddl = write.apply().getBuffer();
+    String ddl = write.toString();
     assertThat(ddl).contains("alter table mytable add col_name varchar2(20)");
   }
 
@@ -67,15 +68,15 @@ public class BaseTableDdlTest {
 
     ClickHouseTableDdl ddlGen = new ClickHouseTableDdl(serverConfig, PlatformDdlBuilder.create(new ClickHousePlatform()));
 
-    DdlWrite write = new DdlWrite();
+    BaseDdlWrite write = new BaseDdlWrite();
 
     Column column = new Column();
     column.setName("col_name");
     column.setType("varchar(20)");
 
-    ddlGen.alterTableAddColumn(write.apply(), "mytable", column, false, false);
+    ddlGen.alterTableAddColumn(write, "mytable", column, false, false);
 
-    String ddl = write.apply().getBuffer();
+    String ddl = write.toString();
     assertThat(ddl).contains("alter table mytable add column col_name String");
   }
 
@@ -84,7 +85,7 @@ public class BaseTableDdlTest {
 
     BaseTableDdl ddlGen = new BaseTableDdl(serverConfig, h2ddl);
 
-    DdlWrite write = new DdlWrite();
+    BaseDdlWrite write = new BaseDdlWrite();
 
     AlterColumn alterColumn = new AlterColumn();
     alterColumn.setTableName("mytab");
@@ -93,23 +94,25 @@ public class BaseTableDdlTest {
 
     ddlGen.generate(write, alterColumn);
 
-    String ddl = write.apply().getBuffer();
+    String ddl = write.toString();
     assertThat(ddl).contains("comment on column mytab.acol is 'my comment'");
   }
 
   @Test
   public void alterTableAddColumnWithComment() throws IOException {
     BaseTableDdl ddl = new BaseTableDdl(serverConfig, h2ddl);
-    DdlWrite write = new DdlWrite();
+    BaseDdlWrite write = new BaseDdlWrite();
     Column column = new Column();
     column.setName("my_column");
     column.setComment("some comment");
     column.setType("int");
 
-    ddl.alterTableAddColumn(write.apply(), "my_table", column, false, false);
+    ddl.alterTableAddColumn(write, "my_table", column, false, false);
     assertEquals(
+      "-- altering tables\n"+
       "alter table my_table add column my_column int;\n" +
-      "comment on column my_table.my_column is 'some comment';\n", write.apply().getBuffer());
+      "-- post alter\n" +
+      "comment on column my_table.my_column is 'some comment';\n", write.toString());
   }
 
   @Test
@@ -117,7 +120,7 @@ public class BaseTableDdlTest {
 
     BaseTableDdl ddlGen = new BaseTableDdl(serverConfig, h2ddl);
 
-    DdlWrite write = new DdlWrite();
+    BaseDdlWrite write = new BaseDdlWrite();
 
     AddTableComment addTableComment = new AddTableComment();
     addTableComment.setName("mytab");
@@ -125,7 +128,7 @@ public class BaseTableDdlTest {
 
     ddlGen.generate(write, addTableComment);
 
-    String ddl = write.apply().getBuffer();
+    String ddl = write.toString();
     assertThat(ddl).contains("comment on table mytab is 'my comment'");
   }
 
@@ -134,7 +137,7 @@ public class BaseTableDdlTest {
 
     BaseTableDdl ddlGen = new BaseTableDdl(serverConfig, PlatformDdlBuilder.create(new MySqlPlatform()));
 
-    DdlWrite write = new DdlWrite();
+    BaseDdlWrite write = new BaseDdlWrite();
 
     AddTableComment addTableComment = new AddTableComment();
     addTableComment.setName("mytab");
@@ -142,7 +145,7 @@ public class BaseTableDdlTest {
 
     ddlGen.generate(write, addTableComment);
 
-    String ddl = write.apply().getBuffer();
+    String ddl = write.toString();
     assertThat(ddl).contains("alter table mytab comment = 'my comment'");
   }
 
@@ -151,19 +154,15 @@ public class BaseTableDdlTest {
 
     BaseTableDdl ddlGen = new BaseTableDdl(serverConfig, h2ddl);
 
-    DdlWrite write = new DdlWrite();
+    BaseDdlWrite write = new BaseDdlWrite();
 
     ddlGen.generate(write, createTable());
-    String apply = write.apply().getBuffer();
-    String applyLast = write.applyForeignKeys().getBuffer();
+    String apply = write.toString();
 
-    String rollbackFirst = write.dropAllForeignKeys().getBuffer();
-    String rollbackLast = write.dropAll().getBuffer();
+    String rollback = write.dropWriter().toString();
 
     assertThat(apply).isEqualTo(Helper.asText(this, "/assert/BaseTableDdlTest/createTable-apply.txt"));
-    assertThat(applyLast).isEqualTo(Helper.asText(this, "/assert/BaseTableDdlTest/createTable-applyLast.txt"));
-    assertThat(rollbackFirst).isEqualTo(Helper.asText(this, "/assert/BaseTableDdlTest/createTable-rollbackFirst.txt"));
-    assertThat(rollbackLast).isEqualTo(Helper.asText(this, "/assert/BaseTableDdlTest/createTable-rollback.txt"));
+    assertThat(rollback).isEqualTo(Helper.asText(this, "/assert/BaseTableDdlTest/createTable-rollback.txt"));
   }
 
   private CreateTable createTable() {

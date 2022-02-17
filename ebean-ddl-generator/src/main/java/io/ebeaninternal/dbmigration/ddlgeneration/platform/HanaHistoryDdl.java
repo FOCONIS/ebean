@@ -34,12 +34,29 @@ public class HanaHistoryDdl implements PlatformHistoryDdl {
   public void createWithHistory(DdlWrite writer, MTable table) {
     String tableName = table.getName();
     String historyTableName = tableName + historySuffix;
-    DdlBuffer apply = writer.applyHistoryView();
-    if (apply.isEmpty()) {
+   // DdlBuffer apply = writer.applyHistoryView();
+    if (writer.applyHistoryView().isEmpty()) {
       createdHistoryTables.clear();
     }
 
-    apply.append(platformDdl.getCreateTableCommandPrefix()).append(" ").append(historyTableName).append(" (").newLine();
+    createHistoryTable(writer.apply(), table);
+
+    // enable system versioning
+    writer.alterTable(tableName, "add (\n")
+      .append("    ").append(systemPeriodStart).append(" TIMESTAMP NOT NULL GENERATED ALWAYS AS ROW START, \n")
+      .append("    ").append(systemPeriodEnd).append(" TIMESTAMP NOT NULL GENERATED ALWAYS AS ROW END\n")
+      .append(")");
+
+    writer.alterTable(tableName, "add period for system_time(").append(systemPeriodStart).append(",").append(systemPeriodEnd).append(")");
+
+    enableSystemVersioning(writer, tableName, historyTableName, true, false);
+
+    createdHistoryTables.put(tableName, historyTableName);
+    // FIXME RPR: drop all system versioning!
+    //dropHistoryTable(writer.dropWriter(), tableName, historyTableName);
+  }
+  private void createHistoryTable(DdlBuffer apply, MTable table) {
+    apply.append(platformDdl.getCreateTableCommandPrefix()).append(" ").append(table.getName()).append(historySuffix).append(" (").newLine();
 
     // create history table
     Collection<MColumn> cols = table.allColumns();
@@ -54,41 +71,24 @@ public class HanaHistoryDdl implements PlatformHistoryDdl {
     apply.append(",").newLine();
     writeColumnDefinition(apply, systemPeriodEnd, "TIMESTAMP", null, false, null);
     apply.newLine().append(")").endOfStatement();
-
-    // enable system versioning
-    apply.append("alter table ").append(tableName).append(" add (").newLine();
-    apply.append("    ").append(systemPeriodStart).append(" TIMESTAMP NOT NULL GENERATED ALWAYS AS ROW START, ").newLine();
-    apply.append("    ").append(systemPeriodEnd).append(" TIMESTAMP NOT NULL GENERATED ALWAYS AS ROW END").newLine();
-    apply.append(")").endOfStatement();
-
-    apply.append("alter table ").append(tableName).append(" add period for system_time(").append(systemPeriodStart)
-      .append(",").append(systemPeriodEnd).append(")").endOfStatement();
-
-    enableSystemVersioning(apply, tableName, historyTableName, true, false);
-
-    createdHistoryTables.put(tableName, historyTableName);
-
-    dropHistoryTable(writer.dropAll(), tableName, historyTableName);
   }
 
   @Override
   public void dropHistoryTable(DdlWrite writer, DropHistoryTable dropHistoryTable) {
-    dropHistoryTable(writer.applyDropDependencies(), dropHistoryTable.getBaseTable(),
+    dropHistoryTable(writer, dropHistoryTable.getBaseTable(),
       dropHistoryTable.getBaseTable() + historySuffix);
   }
 
-  protected void dropHistoryTable(DdlBuffer apply, String baseTable, String historyTable) {
+  protected void dropHistoryTable(DdlWrite writer, String baseTable, String historyTable) {
     // disable system versioning
-    disableSystemVersioning(apply, baseTable);
-
-    apply.append("alter table ").append(baseTable).append(" drop period for system_time").endOfStatement();
+    disableSystemVersioning(writer, baseTable);
+    writer.alterTable(baseTable, "drop period for system_time");
 
     // drop the period columns
-    apply.append("alter table ").append(baseTable).append(" drop (").append(systemPeriodStart).append(",")
-      .append(systemPeriodEnd).append(")").endOfStatement();
+    writer.alterTable(baseTable, "drop (").append(systemPeriodStart).append(",").append(systemPeriodEnd).append(")");
 
     // drop the history table
-    apply.append("drop table ").append(historyTable).append(" cascade").endOfStatement();
+    writer.postAlter().append("drop table ").append(historyTable).append(" cascade").endOfStatement();
   }
 
   @Override
@@ -122,32 +122,35 @@ public class HanaHistoryDdl implements PlatformHistoryDdl {
     }
   }
 
-  public void disableSystemVersioning(DdlBuffer apply, String tableName) {
-    disableSystemVersioning(apply, tableName, false);
+  public void disableSystemVersioning(DdlWrite writer, String tableName) {
+    disableSystemVersioning(writer, tableName, false);
   }
 
-  public void disableSystemVersioning(DdlBuffer apply, String tableName, boolean uniqueStatement) {
-    apply.append("alter table ").append(tableName).append(" drop system versioning");
-    if (uniqueStatement) {
-      // needed for the DB migration test to prevent the statement from being filtered
-      // out as a duplicate
-      apply.append(" /* ").append(String.valueOf(counter.getAndIncrement())).append(" */");
-    }
-    apply.endOfStatement();
+  public void disableSystemVersioning(DdlWrite writer, String tableName, boolean uniqueStatement) {
+    writer.alterTable(tableName, "drop system versioning");
+    // CHECKME: Do we need this?
+//    apply.append("alter table ").append(tableName).append(" drop system versioning");
+//    if (uniqueStatement) {
+//      // needed for the DB migration test to prevent the statement from being filtered
+//      // out as a duplicate
+//      apply.append(" /* ").append(String.valueOf(counter.getAndIncrement())).append(" */");
+//    }
+//    apply.endOfStatement();
   }
 
-  public void enableSystemVersioning(DdlBuffer apply, String tableName, String historyTableName, boolean validated,
+  public void enableSystemVersioning(DdlWrite writer, String tableName, String historyTableName, boolean validated,
                                      boolean uniqueStatement) {
-    apply.append("alter table ").append(tableName).append(" add system versioning history table ").append(historyTableName);
+    StringBuilder stmt = writer.alterTable(tableName, "add system versioning history table ").append(historyTableName);
     if (!validated) {
-      apply.append(" not validated");
+      stmt.append(" not validated");
     }
-    if (uniqueStatement) {
-      // needed for the DB migration test to prevent the statement from being filtered
-      // out as a duplicate
-      apply.append(" /* ").append(String.valueOf(counter.getAndIncrement())).append(" */");
-    }
-    apply.endOfStatement();
+    // CHECKME: Do we need this?
+//    if (uniqueStatement) {
+//      // needed for the DB migration test to prevent the statement from being filtered
+//      // out as a duplicate
+//      apply.append(" /* ").append(String.valueOf(counter.getAndIncrement())).append(" */");
+//    }
+//    apply.endOfStatement();
   }
 
   public boolean isSystemVersioningEnabled(String tableName) {

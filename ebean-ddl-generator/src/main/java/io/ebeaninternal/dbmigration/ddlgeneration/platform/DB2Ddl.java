@@ -2,6 +2,8 @@ package io.ebeaninternal.dbmigration.ddlgeneration.platform;
 
 import io.ebean.annotation.ConstraintMode;
 import io.ebean.config.dbplatform.DatabasePlatform;
+import io.ebeaninternal.dbmigration.ddlgeneration.DdlBuffer;
+import io.ebeaninternal.dbmigration.ddlgeneration.DdlWrite;
 
 /**
  * DB2 platform specific DDL.
@@ -21,25 +23,26 @@ public class DB2Ddl extends PlatformDdl {
   }
 
   @Override
-  public String alterTableAddUniqueConstraint(String tableName, String uqName, String[] columns, String[] nullableColumns) {
+  public void alterTableAddUniqueConstraint(DdlWrite write, String tableName, String uqName, String[] columns, String[] nullableColumns) {
     if (nullableColumns == null || nullableColumns.length == 0) {
-      return super.alterTableAddUniqueConstraint(tableName, uqName, columns, nullableColumns);
+       super.alterTableAddUniqueConstraint(write, tableName, uqName, columns, nullableColumns);
+       return;
     }     
 
     if (uqName == null) {
       throw new NullPointerException();
     }
-    StringBuilder sb = new StringBuilder("create unique index ");
-    sb.append(uqName).append(" on ").append(tableName).append('(');
+    
+    DdlBuffer buffer = write.index().append("create unique index ")
+        .append(uqName).append(" on ").append(tableName).append("(");
 
     for (int i = 0; i < columns.length; i++) {
       if (i > 0) {
-        sb.append(",");
+        buffer.append(",");
       }
-      sb.append(columns[i]);
+      buffer.append(columns[i]);
     }
-    sb.append(") exclude null keys");
-    return sb.toString();
+    buffer.append(") exclude null keys");
   }
 
   @Override
