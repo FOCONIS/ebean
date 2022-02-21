@@ -23,8 +23,6 @@ update migtest_e_basic set status2 = 'N' where status2 is null;
 
 update migtest_e_basic set user_id = 23 where user_id is null;
 
-
-
 -- NOTE: table has @History - special migration may be necessary
 update migtest_e_history6 set test_number2 = 7 where test_number2 is null;
 -- altering tables
@@ -63,7 +61,7 @@ alter table migtest_e_history6 alter column test_number1 drop default;
 alter table migtest_e_history6 alter column test_number1 set null;
 alter table migtest_e_history6 alter column test_number2 set default 7;
 alter table migtest_e_history6 alter column test_number2 set not null;
--- apply foreign keys
+-- indices/constraints
 alter table migtest_ckey_detail drop constraint fk_migtest_ckey_detail_parent;
 alter table migtest_fk_cascade add constraint fk_migtest_fk_cascade_one_id foreign key (one_id) references migtest_fk_cascade_one (id) on delete cascade;
 alter table migtest_fk_set_null add constraint fk_migtest_fk_set_null_one_id foreign key (one_id) references migtest_fk_one (id);
@@ -112,7 +110,7 @@ create or replace trigger migtest_e_history3_history_del for migtest_e_history3 
 end_trigger;
 $$
 
--- changes: [alter test_number, alter test_number]
+-- changes: [alter test_number]
 drop trigger migtest_e_history4_history_upd;
 drop trigger migtest_e_history4_history_del;
 delimiter $$

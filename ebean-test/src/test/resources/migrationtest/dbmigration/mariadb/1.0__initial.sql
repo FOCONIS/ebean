@@ -164,7 +164,7 @@ alter table migtest_e_history3 add system versioning;
 alter table migtest_e_history4 add system versioning;
 alter table migtest_e_history5 add system versioning;
 alter table migtest_e_history6 add system versioning;
--- apply foreign keys
+-- indices/constraints
 create index ix_migtest_fk_cascade_one_id on migtest_fk_cascade (one_id);
 alter table migtest_fk_cascade add constraint fk_migtest_fk_cascade_one_id foreign key (one_id) references migtest_fk_cascade_one (id) on delete cascade on update restrict;
 

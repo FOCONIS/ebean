@@ -40,7 +40,7 @@ create view migtest_e_history2_with_history as select * from migtest_e_history2 
 create view migtest_e_history5_with_history as select * from migtest_e_history5 union all select * from migtest_e_history5_history;
 
 -- apply history trigger
--- changes: [drop test_string2, drop test_string3, drop new_column]
+-- changes: [drop new_column, drop test_string2, drop test_string3]
 drop trigger migtest_e_history2_history_upd;
 create trigger migtest_e_history2_history_upd before update,delete on migtest_e_history2 for each row call "io.ebean.config.dbplatform.h2.H2HistoryTrigger";
 -- changes: [drop test_boolean]

@@ -225,7 +225,7 @@ alter table migtest_e_history6 add (
 );
 alter table migtest_e_history6 add period for system_time(sys_period_start,sys_period_end);
 alter table migtest_e_history6 add system versioning history table migtest_e_history6_history;
--- apply foreign keys
+-- indices/constraints
 -- explicit index "ix_migtest_fk_cascade_one_id" for single column "one_id" of table "migtest_fk_cascade" is not necessary;
 alter table migtest_fk_cascade add constraint fk_migtest_fk_cascade_one_id foreign key (one_id) references migtest_fk_cascade_one (id) on delete cascade on update restrict;
 

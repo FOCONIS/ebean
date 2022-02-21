@@ -19,10 +19,8 @@ create table migtest_e_ref (
 update migtest_e_basic set status2 = 'N' where status2 is null;
 
 update migtest_e_basic set user_id = 23 where user_id is null;
-
 -- NOT YET IMPLEMENTED: unique constraint with nulls: uq_migtest_e_basic_indextest2
 -- NOT YET IMPLEMENTED: unique constraint with nulls: uq_migtest_e_basic_indextest6
-
 
 -- NOTE: table has @History - special migration may be necessary
 update migtest_e_history6 set test_number2 = 7 where test_number2 is null;
@@ -60,7 +58,7 @@ alter table migtest_e_history6 modify test_number2 not null;
 -- post alter
 comment on column migtest_e_history.test_string is '';
 comment on table migtest_e_history is '';
--- apply foreign keys
+-- indices/constraints
 alter table migtest_ckey_detail drop constraint fk_migtest_ckey_detail_parent;
 alter table migtest_fk_cascade add constraint fk_migtest_fk_cascade_one_id foreign key (one_id) references migtest_fk_cascade_one (id) on delete cascade;
 alter table migtest_fk_set_null add constraint fk_migtest_fk_set_null_one_id foreign key (one_id) references migtest_fk_one (id) on delete set null;

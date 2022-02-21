@@ -40,7 +40,7 @@ create view migtest_e_history5_with_history as select * from migtest_e_history5 
 
 -- apply history trigger
 lock tables migtest_e_history2 write, migtest_e_history5 write;
--- changes: [drop test_string2, drop test_string3, drop new_column]
+-- changes: [drop new_column, drop test_string2, drop test_string3]
 drop trigger migtest_e_history2_history_upd;
 drop trigger migtest_e_history2_history_del;
 delimiter $$

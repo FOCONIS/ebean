@@ -40,14 +40,11 @@ create column table migtest_mtm_m_phone_numbers (
 );
 
 
-
-
 update migtest_e_basic set status = 'A' where status is null;
 
 -- rename all collisions;
 
 insert into migtest_e_user (id) select distinct user_id from migtest_e_basic;
-
 create column table migtest_e_history_history (
  id integer,
  test_string bigint,
@@ -58,12 +55,8 @@ create column table migtest_e_history_history (
 -- NOTE: table has @History - special migration may be necessary
 update migtest_e_history2 set test_string = 'unknown' where test_string is null;
 
-
-
 -- NOTE: table has @History - special migration may be necessary
 update migtest_e_history6 set test_number1 = 42 where test_number1 is null;
-
-
 -- altering tables
 alter table migtest_ckey_detail add ( one_key integer);
 alter table migtest_ckey_detail add ( two_key nvarchar(127));
@@ -118,11 +111,12 @@ alter table migtest_e_history6_history alter ( test_number2 integer);
 alter table migtest_e_softdelete add ( deleted boolean default false not null);
 alter table migtest_oto_child add ( master_id bigint);
 -- post alter
+-- NOTE: table has @History - special migration may be necessary
 update migtest_e_basic set new_boolean_field = old_boolean;
 
 comment on column migtest_e_history.test_string is 'Column altered to long now';
 comment on table migtest_e_history is 'We have history now';
--- apply foreign keys
+-- indices/constraints
 -- explicit index "ix_migtest_mtm_c_migtest_mtm_m_migtest_mtm_c" for single column "migtest_mtm_c_id" of table "migtest_mtm_c_migtest_mtm_m" is not necessary;
 alter table migtest_mtm_c_migtest_mtm_m add constraint fk_migtest_mtm_c_migtest_mtm_m_migtest_mtm_c foreign key (migtest_mtm_c_id) references migtest_mtm_c (id) on delete restrict on update restrict;
 

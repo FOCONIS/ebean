@@ -41,7 +41,7 @@ create view migtest_e_history2_with_history as select * from migtest_e_history2 
 create view migtest_e_history5_with_history as select * from migtest_e_history5 union all select * from migtest_e_history5_history;
 
 -- apply history trigger
--- changes: [drop test_string2, drop test_string3, drop new_column]
+-- changes: [drop new_column, drop test_string2, drop test_string3]
 create or replace function migtest_e_history2_history_version() returns trigger as $$
 declare
   lowerTs timestamptz;

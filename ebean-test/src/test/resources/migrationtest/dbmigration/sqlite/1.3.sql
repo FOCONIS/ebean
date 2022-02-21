@@ -20,8 +20,6 @@ update migtest_e_basic set status2 = 'N' where status2 is null;
 
 update migtest_e_basic set user_id = 23 where user_id is null;
 
-
-
 -- NOTE: table has @History - special migration may be necessary
 update migtest_e_history6 set test_number2 = 7 where test_number2 is null;
 -- altering tables
@@ -57,7 +55,7 @@ alter table migtest_e_history6 alter column test_number1 drop default;
 alter table migtest_e_history6 alter column test_number1 set null;
 alter table migtest_e_history6 alter column test_number2 set default 7;
 alter table migtest_e_history6 alter column test_number2 set not null;
--- apply foreign keys
+-- indices/constraints
 alter table migtest_ckey_detail drop constraint if exists fk_migtest_ckey_detail_parent;
 create index ix_migtest_e_basic_eref_id on migtest_e_basic (eref_id);
 

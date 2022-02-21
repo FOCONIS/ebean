@@ -160,7 +160,7 @@ create table migtest_oto_master (
 
 -- altering tables
 alter table migtest_e_ref add constraint uq_migtest_e_ref_name unique  (name);
--- apply foreign keys
+-- indices/constraints
 create index ix_migtest_fk_cascade_one_id on migtest_fk_cascade (one_id);
 alter table migtest_fk_cascade add constraint fk_migtest_fk_cascade_one_id foreign key (one_id) references migtest_fk_cascade_one (id) on delete cascade;
 
