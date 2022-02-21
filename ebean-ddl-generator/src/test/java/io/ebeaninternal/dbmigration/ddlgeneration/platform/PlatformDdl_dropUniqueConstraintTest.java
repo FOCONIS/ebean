@@ -31,30 +31,35 @@ public class PlatformDdl_dropUniqueConstraintTest {
   public void test() throws Exception {
 
     String sql = alterTableDropUniqueConstraint(h2Ddl);
-    assertEquals("alter table mytab drop constraint uq_name", sql);
+    assertEquals("-- altering tables\n"
+        + "alter table mytab drop constraint uq_name;\n", sql);
     sql = alterTableDropUniqueConstraint(pgDdl);
-    assertEquals("alter table mytab drop constraint uq_name", sql);
+    assertEquals("-- altering tables\n"
+        + "alter table mytab drop constraint uq_name;\n", sql);
     sql = alterTableDropUniqueConstraint(oraDdl);
-    assertEquals("alter table mytab drop constraint uq_name", sql);
+    assertEquals("-- altering tables\n"
+        + "alter table mytab drop constraint uq_name;\n", sql);
     sql = alterTableDropUniqueConstraint(sqlServerDdl);
-    assertEquals(
-          "IF EXISTS (SELECT name FROM sys.indexes WHERE object_id = OBJECT_ID('mytab','U') AND name = 'uq_name') drop index uq_name ON mytab;\n"
-        + "IF (OBJECT_ID('uq_name', 'UQ') IS NOT NULL) alter table mytab drop constraint uq_name",
+    assertEquals("-- indices/constraints\n"
+        + "IF EXISTS (SELECT name FROM sys.indexes WHERE object_id = OBJECT_ID('mytab','U') AND name = 'uq_name') drop index uq_name ON mytab;\n"
+        + "IF (OBJECT_ID('uq_name', 'UQ') IS NOT NULL) alter table mytab drop constraint uq_name;\n",
         sql);
 
     sql = alterTableDropUniqueConstraint(mysqlDdl);
-    assertEquals("alter table mytab drop index uq_name", sql);
+    assertEquals("-- altering tables\n"
+        + "alter table mytab drop index uq_name;\n", sql);
 
     DatabaseConfig config = new DatabaseConfig();
     hanaDdl.configure(config);
     sql = alterTableDropUniqueConstraint(hanaDdl);
-    assertEquals("delimiter $$\n" +
-        "do\n" +
-        "begin\n" +
-        "declare exit handler for sql_error_code 397 begin end;\n" +
-        "exec 'alter table mytab drop constraint uq_name';\n" +
-        "end;\n" +
-        "$$", sql);
+    assertEquals("-- indices/constraints\n"
+        + "delimiter $$\n"
+        + "do\n"
+        + "begin\n"
+        + "declare exit handler for sql_error_code 397 begin end;\n"
+        + "exec 'alter table mytab drop constraint uq_name';\n"
+        + "end;\n"
+        + "$$;\n", sql);
   }
 
 }

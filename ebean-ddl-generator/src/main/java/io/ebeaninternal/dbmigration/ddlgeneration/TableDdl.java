@@ -13,8 +13,6 @@ import io.ebeaninternal.dbmigration.migration.DropHistoryTable;
 import io.ebeaninternal.dbmigration.migration.DropIndex;
 import io.ebeaninternal.dbmigration.migration.DropTable;
 
-import java.io.IOException;
-
 /**
  * Write table DDL.
  */
@@ -83,10 +81,10 @@ public interface TableDdl {
   /**
    * Generate any extra DDL such as stored procedures or TableValueParameters.
    */
-  void generateProlog(DdlWrite write);
+  void generateProlog(DdlWrite writer);
 
   /**
    * Generate any extra DDL such as regeneration of history triggers.
    */
-  void generateEpilog(DdlWrite write);
+  void generateEpilog(DdlWrite writer);
 }

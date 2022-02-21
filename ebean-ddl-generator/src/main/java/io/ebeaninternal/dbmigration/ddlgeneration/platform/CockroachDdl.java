@@ -28,12 +28,12 @@ public class CockroachDdl extends PlatformDdl {
   }
 
   @Override
-  public void addTableComment(DdlWrite write, String tableName, String tableComment) {
+  public void addTableComment(DdlWrite writer, String tableName, String tableComment) {
     // do nothing
   }
 
   @Override
-  public void addColumnComment(DdlWrite write, String table, String column, String comment) {
+  public void addColumnComment(DdlWrite writer, String table, String column, String comment) {
     // do nothing
   }
 

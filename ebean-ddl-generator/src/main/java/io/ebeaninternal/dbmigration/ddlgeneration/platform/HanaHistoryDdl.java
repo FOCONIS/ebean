@@ -1,6 +1,7 @@
 package io.ebeaninternal.dbmigration.ddlgeneration.platform;
 
 import io.ebean.config.DatabaseConfig;
+import io.ebeaninternal.dbmigration.ddlgeneration.BaseDdlWrite;
 import io.ebeaninternal.dbmigration.ddlgeneration.DdlBuffer;
 import io.ebeaninternal.dbmigration.ddlgeneration.DdlWrite;
 import io.ebeaninternal.dbmigration.migration.AddHistoryTable;
@@ -34,7 +35,6 @@ public class HanaHistoryDdl implements PlatformHistoryDdl {
   public void createWithHistory(DdlWrite writer, MTable table) {
     String tableName = table.getName();
     String historyTableName = tableName + historySuffix;
-   // DdlBuffer apply = writer.applyHistoryView();
     if (writer.applyHistoryView().isEmpty()) {
       createdHistoryTables.clear();
     }
@@ -52,9 +52,14 @@ public class HanaHistoryDdl implements PlatformHistoryDdl {
     enableSystemVersioning(writer, tableName, historyTableName, true, false);
 
     createdHistoryTables.put(tableName, historyTableName);
-    // FIXME RPR: drop all system versioning!
-    //dropHistoryTable(writer.dropWriter(), tableName, historyTableName);
+    
+    // Workaround for drop all script
+    BaseDdlWrite tmpWrite = new BaseDdlWrite();
+    dropHistoryTable(tmpWrite, tableName, historyTableName);
+    writer.dropAll().append(tmpWrite.toString());
+    
   }
+
   private void createHistoryTable(DdlBuffer apply, MTable table) {
     apply.append(platformDdl.getCreateTableCommandPrefix()).append(" ").append(table.getName()).append(historySuffix).append(" (").newLine();
 
@@ -101,7 +106,7 @@ public class HanaHistoryDdl implements PlatformHistoryDdl {
   }
 
   @Override
-  public void updateTriggers(DdlWrite write, HistoryTableUpdate baseTable) {
+  public void updateTriggers(DdlWrite writer, HistoryTableUpdate baseTable) {
     // nothing to do
   }
 

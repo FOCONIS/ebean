@@ -168,16 +168,16 @@ public class BaseDdlHandlerTest extends BaseTestCase {
 
     String buffer = write.toString();
     assertThat(buffer)
-      .isEqualTo("-- altering tables\n"
+      .isEqualTo("-- drop all indices\n"
+          + "alter table foo drop constraint if exists fk_foo_some_id;\n"
+          + "drop index if exists idx_foo_some_id;\n"
+          + "\n"
+          + "-- altering tables\n"
           + "alter table foo add column some_id integer;\n"
-          + "-- apply foreign keys\n"
+          + "-- indices/constraints\n"
           + "create index idx_foo_some_id on foo (some_id);\n"
           + "alter table foo add constraint fk_foo_some_id foreign key (some_id) references bar (id) on delete restrict on update restrict;\n"
           + "\n");
-    assertThat(write.dropWriter().toString()).isEqualTo("-- drop dependencies\n"
-        + "alter table foo drop constraint if exists fk_foo_some_id;\n"
-        + "drop index if exists idx_foo_some_id;\n"
-        + "\n");
   }
 
   @Test
@@ -189,39 +189,39 @@ public class BaseDdlHandlerTest extends BaseTestCase {
     handler.generate(write, Helper.getDropColumn());
 
     assertThat(write.toString()).isEqualTo("-- altering tables\nalter table foo drop column col2;\n");
-    assertThat(write.dropWriter().toString()).isEqualTo("");
 
     write = new BaseDdlWrite();
     DdlHandler hanaHandler = hanaHandler();
 
     hanaHandler.generate(write, Helper.getDropColumn());
 
-    assertThat(write.toString()).isEqualTo("-- apply changes\nCALL usp_ebean_drop_column('foo', 'col2');\n\n");
-    assertThat(write.dropWriter().toString()).isEqualTo("");
+    assertThat(write.toString()).isEqualTo("-- apply changes\nCALL usp_ebean_drop_column('foo', 'col2');\n");
   }
 
   @Test
   public void createTable() throws Exception {
 
-    BaseDdlWrite write = new BaseDdlWrite();
+    DdlWrite write = new BaseDdlWrite();
     DdlHandler handler = h2Handler();
 
     handler.generate(write, Helper.getCreateTable());
 
-    String createTableDDL = Helper.asText(this, "/assert/create-table.txt");
+    String ddl = Helper.asText(this, "/assert/drop-and-create-table.txt");
 
-    assertThat(write.toString()).isEqualTo(createTableDDL);
-    assertThat(write.dropWriter().toString()).isEqualTo("-- apply changes\ndrop table if exists foo;\n\n");
+    assertThat(write.toString()).isEqualTo(ddl);
+  }
 
-    write = new BaseDdlWrite();
+  @Test
+  public void createColumnTable() throws Exception {
+
+    DdlWrite write = new BaseDdlWrite();
     DdlHandler hanaHandler = hanaHandler();
 
     hanaHandler.generate(write, Helper.getCreateTable());
 
-    String createColumnTableDDL = Helper.asText(this, "/assert/create-column-table.txt");
+    String ddl = Helper.asText(this, "/assert/drop-and-create-column-table.txt");
 
-    assertThat(write.toString()).isEqualTo(createColumnTableDDL);
-    assertThat(write.dropWriter().toString()).isEqualTo("-- apply changes\ndrop table foo cascade;\n\n");
+    assertThat(write.toString()).isEqualTo(ddl);
   }
 
   @Test
@@ -233,10 +233,15 @@ public class BaseDdlHandlerTest extends BaseTestCase {
     handler.generate(write, Helper.getChangeSet());
 
     String apply = Helper.asText(this, "/assert/BaseDdlHandlerTest/baseApply.sql");
-    String rollbackLast = Helper.asText(this, "/assert/BaseDdlHandlerTest/baseDropAll.sql");
+    String dropAll = Helper.asText(this, "/assert/BaseDdlHandlerTest/baseDropAll.sql");
 
-    assertThat(write.toString()).isEqualTo(apply);
-    assertThat(write.dropWriter().toString()).isEqualTo(rollbackLast);
+    StringBuilder sb = new StringBuilder();
+    write.writeApply(sb);
+    assertThat(sb.toString()).isEqualTo(apply);
+    
+    sb.setLength(0);
+    write.writeDropAll(sb);
+    assertThat(sb.toString()).isEqualTo(dropAll);
   }
 
   @Disabled
@@ -256,7 +261,7 @@ public class BaseDdlHandlerTest extends BaseTestCase {
     String rollbackLast = Helper.asText(this, "/assert/changeset-dropAll.txt");
 
     assertThat(write.toString()).isEqualTo(apply);
-    assertThat(write.dropWriter().toString()).isEqualTo(rollbackLast);
+    //assertThat(write.dropWriter().toString()).isEqualTo(rollbackLast);
   }
 
   @Disabled
@@ -275,7 +280,7 @@ public class BaseDdlHandlerTest extends BaseTestCase {
     String rollback = Helper.asText(this, "/assert/changeset-pg-rollback.sql");
 
     assertThat(write.toString()).isEqualTo(apply);
-    assertThat(write.dropWriter().toString()).isEqualTo(rollback);
+    //assertThat(write.dropWriter().toString()).isEqualTo(rollback);
   }
 
 }

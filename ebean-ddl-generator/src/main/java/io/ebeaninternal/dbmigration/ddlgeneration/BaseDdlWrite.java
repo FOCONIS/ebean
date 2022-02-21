@@ -240,8 +240,8 @@ public class BaseDdlWrite implements DdlWrite {
   public String toString() {
     StringBuilder sb = new StringBuilder();
     try {
-      writeApply(sb);
       writeDropAll(sb);
+      writeApply(sb);
     } catch (IOException e) {
       // can not happen
     }

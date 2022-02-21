@@ -78,7 +78,7 @@ public abstract class AbstractHanaDdl extends PlatformDdl {
 
   
   @Override
-  public void alterColumnNotnull(DdlWrite write, String tableName, String columnName, boolean notnull) {
+  public void alterColumnNotnull(DdlWrite writer, String tableName, String columnName, boolean notnull) {
   }
 
   @Override
@@ -88,7 +88,7 @@ public abstract class AbstractHanaDdl extends PlatformDdl {
 
   
   @Override
-  public void alterColumnType(DdlWrite write, String tableName, String columnName, String type) {
+  public void alterColumnType(DdlWrite writer, String tableName, String columnName, String type) {
 
   }
 
@@ -103,17 +103,17 @@ public abstract class AbstractHanaDdl extends PlatformDdl {
   }
 
   @Override
-  public void alterTableAddUniqueConstraint(DdlWrite write, String tableName, String uqName, String[] columns, String[] nullableColumns) {
+  public void alterTableAddUniqueConstraint(DdlWrite writer, String tableName, String uqName, String[] columns, String[] nullableColumns) {
     if (nullableColumns == null || nullableColumns.length == 0) {
-      super.alterTableAddUniqueConstraint(write, tableName, uqName, columns, nullableColumns);
+      super.alterTableAddUniqueConstraint(writer, tableName, uqName, columns, nullableColumns);
     } else {
-      write.index().appendStatement("-- cannot create unique index \"" + uqName + "\" on table \"" + tableName + "\" with nullable columns");
+      writer.index().appendStatement("-- cannot create unique index \"" + uqName + "\" on table \"" + tableName + "\" with nullable columns");
     }
   }
 
   @Override
-  public void alterTableDropUniqueConstraint(DdlWrite write, String tableName, String uniqueConstraintName) {
-    DdlBuffer buffer = write.index();
+  public void alterTableDropUniqueConstraint(DdlWrite writer, String tableName, String uniqueConstraintName) {
+    DdlBuffer buffer = writer.index();
 
     buffer.append("delimiter $$").newLine();
     buffer.append("do").newLine();
@@ -127,8 +127,8 @@ public abstract class AbstractHanaDdl extends PlatformDdl {
   }
 
   @Override
-  public void alterTableDropConstraint(DdlWrite write, String tableName, String constraintName) {
-    alterTableDropUniqueConstraint(write, tableName, constraintName);
+  public void alterTableDropConstraint(DdlWrite writer, String tableName, String constraintName) {
+    alterTableDropUniqueConstraint(writer, tableName, constraintName);
   }
 
   /**

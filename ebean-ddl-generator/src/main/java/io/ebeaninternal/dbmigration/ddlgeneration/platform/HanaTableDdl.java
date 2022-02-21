@@ -9,7 +9,6 @@ import io.ebeaninternal.dbmigration.migration.Column;
 import io.ebeaninternal.dbmigration.migration.DropColumn;
 import io.ebeaninternal.dbmigration.model.MTable;
 
-import java.io.IOException;
 import java.util.List;
 
 public class HanaTableDdl extends BaseTableDdl {
@@ -29,55 +28,55 @@ public class HanaTableDdl extends BaseTableDdl {
   }
 
   @Override
-  protected void alterColumnDefaultValue(DdlWrite write, AlterColumn alter) {
+  protected void alterColumnDefaultValue(DdlWrite writer, AlterColumn alter) {
     // done in alterColumnBaseAttributes
   }
 
   @Override
-  public void generate(DdlWrite write, AddColumn addColumn) {
+  public void generate(DdlWrite writer, AddColumn addColumn) {
     String tableName = addColumn.getTableName();
-    MTable table = write.getTable(tableName);
+    MTable table = writer.getTable(tableName);
     if (table == null) {
-      super.generate(write, addColumn);
+      super.generate(writer, addColumn);
       return;
     }
 
     boolean manageSystemVersioning = isTrue(table.isWithHistory()) && historyDdl.isSystemVersioningEnabled(tableName);
 
     if (manageSystemVersioning) {
-      historyDdl.disableSystemVersioning(write, table.getName(), this.generateUniqueDdl);
+      historyDdl.disableSystemVersioning(writer, table.getName(), this.generateUniqueDdl);
     }
 
-    super.generate(write, addColumn);
+    super.generate(writer, addColumn);
 
     if (manageSystemVersioning) {
       // make same changes to the history table
       String historyTable = historyTable(tableName);
       List<Column> columns = addColumn.getColumn();
       for (Column column : columns) {
-        alterTableAddColumn(write, historyTable, column, true, true);
+        alterTableAddColumn(writer, historyTable, column, true, true);
       }
 
-      historyDdl.enableSystemVersioning(write, table.getName(), historyTable, false, this.generateUniqueDdl);
+      historyDdl.enableSystemVersioning(writer, table.getName(), historyTable, false, this.generateUniqueDdl);
     }
   }
 
   @Override
-  public void generate(DdlWrite write, AlterColumn alterColumn) {
+  public void generate(DdlWrite writer, AlterColumn alterColumn) {
     String tableName = alterColumn.getTableName();
-    MTable table = write.getTable(tableName);
+    MTable table = writer.getTable(tableName);
     if (table == null) {
-      super.generate(write, alterColumn);
+      super.generate(writer, alterColumn);
       return;
     }
 
     boolean manageSystemVersioning = isTrue(table.isWithHistory()) && historyDdl.isSystemVersioningEnabled(tableName);
 
     if (manageSystemVersioning) {
-      historyDdl.disableSystemVersioning(write, tableName, this.generateUniqueDdl);
+      historyDdl.disableSystemVersioning(writer, tableName, this.generateUniqueDdl);
     }
 
-    super.generate(write, alterColumn);
+    super.generate(writer, alterColumn);
 
     if (manageSystemVersioning) {
       // make same changes to the history table
@@ -92,37 +91,37 @@ public class HanaTableDdl extends BaseTableDdl {
         alterHistoryColumn.setCurrentType(alterColumn.getCurrentType());
         alterHistoryColumn.setCurrentDefaultValue(alterColumn.getCurrentDefaultValue());
         alterHistoryColumn.setCurrentNotnull(alterColumn.isCurrentNotnull());
-        platformDdl.alterColumnBaseAttributes(write, alterHistoryColumn);
+        platformDdl.alterColumnBaseAttributes(writer, alterHistoryColumn);
 
       }
 
-      historyDdl.enableSystemVersioning(write, tableName, historyTable, false, this.generateUniqueDdl);
+      historyDdl.enableSystemVersioning(writer, tableName, historyTable, false, this.generateUniqueDdl);
     }
   }
 
   @Override
-  public void generate(DdlWrite write, DropColumn dropColumn) {
+  public void generate(DdlWrite writer, DropColumn dropColumn) {
     String tableName = dropColumn.getTableName();
-    MTable table = write.getTable(tableName);
+    MTable table = writer.getTable(tableName);
     if (table == null) {
-      super.generate(write, dropColumn);
+      super.generate(writer, dropColumn);
       return;
     }
 
     boolean manageSystemVersioning = isTrue(table.isWithHistory()) && historyDdl.isSystemVersioningEnabled(tableName);
 
     if (manageSystemVersioning) {
-      historyDdl.disableSystemVersioning(write, tableName, this.generateUniqueDdl);
+      historyDdl.disableSystemVersioning(writer, tableName, this.generateUniqueDdl);
     }
 
-    super.generate(write, dropColumn);
+    super.generate(writer, dropColumn);
 
     if (manageSystemVersioning) {
       // also drop from the history table
       String historyTable = historyTable(tableName);
-      alterTableDropColumn(write, historyTable, dropColumn.getColumnName());
+      alterTableDropColumn(writer, historyTable, dropColumn.getColumnName());
 
-      historyDdl.enableSystemVersioning(write, tableName, historyTable, false, this.generateUniqueDdl);
+      historyDdl.enableSystemVersioning(writer, tableName, historyTable, false, this.generateUniqueDdl);
     }
   }
 

@@ -32,7 +32,6 @@ import io.ebeaninternal.dbmigration.model.MTable;
 import io.ebeaninternal.dbmigration.model.MTableIdentity;
 import io.ebeaninternal.server.deploy.IdentityMode;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -143,24 +142,27 @@ public class BaseTableDdl implements TableDdl {
 
     void write(DdlWrite writer) {
       if (!before.isEmpty()) {
-        write.apply().end();
+        writer.apply().end();
+        if (withHistory) {
+          writer.apply().append("-- NOTE: table has @History - special migration may be necessary").newLine();
+        }
+        for (String ddlScript : before) {
+          writer.apply().appendStatement(translate(ddlScript, tableName, columnName, defaultValue));
+        }
       }
-      if (!before.isEmpty() && withHistory) {
-        write.apply().append("-- NOTE: table has @History - special migration may be necessary").newLine();
-      }
-      for (String ddlScript : before) {
-        write.apply().appendStatement(translate(ddlScript, tableName, columnName, defaultValue));
-      }
-
-      if (!after.isEmpty() && withHistory) {
-        write.postAlter().append("-- NOTE: table has @History - special migration may be necessary").newLine();
-      }
-      // here we run post migration scripts
-      for (String ddlScript : after) {
-        write.postAlter().appendStatement(translate(ddlScript, tableName, columnName, defaultValue));
-      }
+      // effective order in DDL.sql:
+      // 'before' goes to apply-buffer
+      // altered columns will be in the alterTable buffers.
+      // 'after' goes to the post-alter-buffer
       if (!after.isEmpty()) {
-        write.postAlter().end();
+        writer.postAlter().append("-- NOTE: table has @History - special migration may be necessary").newLine();
+
+        // here we run post migration scripts
+        for (String ddlScript : after) {
+          writer.postAlter().appendStatement(translate(ddlScript, tableName, columnName, defaultValue));
+        }
+
+        writer.postAlter().end();
       }
     }
 
@@ -252,7 +254,7 @@ public class BaseTableDdl implements TableDdl {
 
     String partitionMode = createTable.getPartitionMode();
 
-    DdlBuffer apply = write.apply();
+    DdlBuffer apply = writer.apply();
     apply.append(platformDdl.getCreateTableCommandPrefix()).append(" ").append(tableName).append(" (");
     writeTableColumns(apply, columns, identity);
     writeUniqueConstraints(apply, createTable);
@@ -273,28 +275,28 @@ public class BaseTableDdl implements TableDdl {
       platformDdl.addTablePartition(apply, partitionMode, createTable.getPartitionColumn());
     }
     apply.endOfStatement();
-
-    addComments(write, createTable);
-    writeUniqueOneToOneConstraints(write, createTable);
+    
+    addComments(writer, createTable);
+    writeUniqueOneToOneConstraints(writer, createTable);
     if (isTrue(createTable.isWithHistory())) {
       // create history with rollback before the
       // associated drop table is written to rollback
-      createWithHistory(write, createTable.getName());
+      createWithHistory(writer, createTable.getName());
     }
 
     // add drop table to the rollback buffer - do this before
     // we drop the related sequence (if sequences are used)
-    dropTable(write.dropAll(), tableName);
+    dropTable(writer.dropAll(), tableName);
 
     if (identity.useSequence()) {
-      writeSequence(write, identity);
+      writeSequence(writer, identity);
     }
 
     // add blank line for a bit of whitespace between tables
-    write.apply().end();
-    write.dropAll().end();
+    writer.apply().end();
+    writer.dropAll().end();
     if (!platformDdl.isInlineForeignKeys()) {
-      writeAddForeignKeys(write, createTable);
+      writeAddForeignKeys(writer, createTable);
     }
   }
 
@@ -309,11 +311,11 @@ public class BaseTableDdl implements TableDdl {
     if (!platformDdl.isInlineComments()) {
       String tableComment = createTable.getComment();
       if (hasValue(tableComment)) {
-        platformDdl.addTableComment(write, createTable.getName(), tableComment);
+        platformDdl.addTableComment(writer, createTable.getName(), tableComment);
       }
       for (Column column : createTable.getColumn()) {
         if (!StringHelper.isNull(column.getComment())) {
-          platformDdl.addColumnComment(write, createTable.getName(), column.getName(), column.getComment());
+          platformDdl.addColumnComment(writer, createTable.getName(), column.getName(), column.getComment());
         }
       }
     }
@@ -348,7 +350,7 @@ public class BaseTableDdl implements TableDdl {
    * Specific handling of OneToOne unique constraints for MsSqlServer.
    * For all other DB platforms these unique constraints are done inline as per normal.
    */
-  protected void writeUniqueOneToOneConstraints(DdlWrite write, CreateTable createTable) {
+  protected void writeUniqueOneToOneConstraints(DdlWrite writer, CreateTable createTable) {
     String tableName = createTable.getName();
     for (Column col : externalUnique) {
       String uqName = col.getUniqueOneToOne();
@@ -356,8 +358,8 @@ public class BaseTableDdl implements TableDdl {
         uqName = col.getUnique();
       }
       String[] columnNames = {col.getName()};
-      platformDdl.alterTableAddUniqueConstraint(write, tableName, uqName, columnNames, Boolean.TRUE.equals(col.isNotnull()) ? null : columnNames);
-      write.dropAllIndex().appendStatement(platformDdl.dropIndex(uqName, tableName));
+      platformDdl.alterTableAddUniqueConstraint(writer, tableName, uqName, columnNames, Boolean.TRUE.equals(col.isNotnull()) ? null : columnNames);
+      writer.dropAllIndex().appendStatement(platformDdl.dropIndex(uqName, tableName));
     }
 
     for (UniqueConstraint constraint : externalCompoundUnique) {
@@ -365,23 +367,23 @@ public class BaseTableDdl implements TableDdl {
       String[] columnNames = split(constraint.getColumnNames());
       String[] nullableColumns = split(constraint.getNullableColumns());
 
-      platformDdl.alterTableAddUniqueConstraint(write, tableName, uqName, columnNames, nullableColumns);
-      write.dropAllIndex().appendStatement(platformDdl.dropIndex(uqName, tableName));
+      platformDdl.alterTableAddUniqueConstraint(writer, tableName, uqName, columnNames, nullableColumns);
+      writer.dropAllIndex().appendStatement(platformDdl.dropIndex(uqName, tableName));
     }
   }
 
-  protected void writeSequence(DdlWrite write, DdlIdentity identity) {
+  protected void writeSequence(DdlWrite writer, DdlIdentity identity) {
     String seqName = identity.getSequenceName();
     String createSeq = platformDdl.createSequence(seqName, identity);
     if (hasValue(createSeq)) {
-      write.apply().append(createSeq).newLine();
-      write.dropAll().appendStatement(platformDdl.dropSequence(seqName));
+      writer.apply().append(createSeq).newLine();
+      writer.dropAll().appendStatement(platformDdl.dropSequence(seqName));
     }
   }
 
-  protected void createWithHistory(DdlWrite write, String name) {
-    MTable table = write.getTable(name);
-    platformDdl.createWithHistory(write, table); 
+  protected void createWithHistory(DdlWrite writer, String name) {
+    MTable table = writer.getTable(name);
+    platformDdl.createWithHistory(writer, table);
   }
 
   protected void writeInlineForeignKeys(DdlBuffer apply, CreateTable createTable) {
@@ -406,40 +408,40 @@ public class BaseTableDdl implements TableDdl {
     }
   }
 
-  protected void writeAddForeignKeys(DdlWrite write, CreateTable createTable) {
+  protected void writeAddForeignKeys(DdlWrite writer, CreateTable createTable) {
     for (Column column : createTable.getColumn()) {
       String references = column.getReferences();
       if (hasValue(references)) {
-        writeForeignKey(write, createTable.getName(), column);
+        writeForeignKey(writer, createTable.getName(), column);
       }
     }
-    writeAddCompoundForeignKeys(write, createTable);
+    writeAddCompoundForeignKeys(writer, createTable);
   }
 
-  protected void writeAddCompoundForeignKeys(DdlWrite write, CreateTable createTable) {
+  protected void writeAddCompoundForeignKeys(DdlWrite writer, CreateTable createTable) {
     for (ForeignKey key : createTable.getForeignKey()) {
-      writeForeignKey(write, new WriteForeignKey(createTable.getName(), key));
+      writeForeignKey(writer, new WriteForeignKey(createTable.getName(), key));
     }
   }
 
-  protected void writeForeignKey(DdlWrite write, String tableName, Column column) {
-    writeForeignKey(write, new WriteForeignKey(tableName, column));
+  protected void writeForeignKey(DdlWrite writer, String tableName, Column column) {
+    writeForeignKey(writer, new WriteForeignKey(tableName, column));
   }
 
-  protected void writeForeignKey(DdlWrite write, WriteForeignKey request) {
+  protected void writeForeignKey(DdlWrite writer, WriteForeignKey request) {
     String tableName = lowerTableName(request.table());
     if (request.indexName() != null) {
       // no matching unique constraint so add the index
-      write.index().appendStatement(platformDdl.createIndex(new WriteCreateIndex(request.indexName(), tableName, request.cols(), false)));
+      writer.index().appendStatement(platformDdl.createIndex(new WriteCreateIndex(request.indexName(), tableName, request.cols(), false)));
     }
-    alterTableAddForeignKey(write.getOptions(), write.index(), request);
-    write.index().end();
+    alterTableAddForeignKey(writer.getOptions(), writer.index(), request);
+    writer.index().end();
 
-    write.dropAllIndex().appendStatement(platformDdl.alterTableDropForeignKey(tableName, request.fkName()));
+    writer.dropAllIndex().appendStatement(platformDdl.alterTableDropForeignKey(tableName, request.fkName()));
     if (hasValue(request.indexName())) {
-      write.dropAllIndex().appendStatement(platformDdl.dropIndex(request.indexName(), tableName));
+      writer.dropAllIndex().appendStatement(platformDdl.dropIndex(request.indexName(), tableName));
     }
-    write.dropAllIndex().end();
+    writer.dropAllIndex().end();
   }
 
   protected void alterTableAddForeignKey(DdlOptions options, DdlBuffer buffer, WriteForeignKey request) {
@@ -571,40 +573,40 @@ public class BaseTableDdl implements TableDdl {
   }
 
   @Override
-  public void generate(DdlWrite write, CreateIndex index) {
+  public void generate(DdlWrite writer, CreateIndex index) {
     if (platformInclude(index.getPlatforms())) {
-      write.index().appendStatement(platformDdl.createIndex(new WriteCreateIndex(index)));
-      write.dropAllIndex().appendStatement(platformDdl.dropIndex(index.getIndexName(), index.getTableName(), Boolean.TRUE.equals(index.isConcurrent())));
+      writer.index().appendStatement(platformDdl.createIndex(new WriteCreateIndex(index)));
+      writer.dropAllIndex().appendStatement(platformDdl.dropIndex(index.getIndexName(), index.getTableName(), Boolean.TRUE.equals(index.isConcurrent())));
     }
   }
 
   @Override
-  public void generate(DdlWrite write, DropIndex dropIndex) {
+  public void generate(DdlWrite writer, DropIndex dropIndex) {
     if (platformInclude(dropIndex.getPlatforms())) {
-      write.dropDependencies().appendStatement(platformDdl.dropIndex(dropIndex.getIndexName(), dropIndex.getTableName(), Boolean.TRUE.equals(dropIndex.isConcurrent())));
+      writer.dropDependencies().appendStatement(platformDdl.dropIndex(dropIndex.getIndexName(), dropIndex.getTableName(), Boolean.TRUE.equals(dropIndex.isConcurrent())));
     }
   }
 
   @Override
-  public void generate(DdlWrite write, AddUniqueConstraint constraint) {
+  public void generate(DdlWrite writer, AddUniqueConstraint constraint) {
     if (platformInclude(constraint.getPlatforms())) {
       if (DdlHelp.isDropConstraint(constraint.getColumnNames())) {
-        platformDdl.alterTableDropUniqueConstraint(write, constraint.getTableName(), constraint.getConstraintName());
+        platformDdl.alterTableDropUniqueConstraint(writer, constraint.getTableName(), constraint.getConstraintName());
 
       } else {
         String[] cols = split(constraint.getColumnNames());
         String[] nullableColumns = split(constraint.getNullableColumns());
-        platformDdl.alterTableAddUniqueConstraint(write, constraint.getTableName(), constraint.getConstraintName(), cols, nullableColumns);
+        platformDdl.alterTableAddUniqueConstraint(writer, constraint.getTableName(), constraint.getConstraintName(), cols, nullableColumns);
       }
     }
   }
 
   @Override
-  public void generate(DdlWrite write, AlterForeignKey alterForeignKey) {
+  public void generate(DdlWrite writer, AlterForeignKey alterForeignKey) {
     if (DdlHelp.isDropForeignKey(alterForeignKey.getColumnNames())) {
-      write.index().appendStatement(platformDdl.alterTableDropForeignKey(alterForeignKey.getTableName(), alterForeignKey.getName()));
+      writer.index().appendStatement(platformDdl.alterTableDropForeignKey(alterForeignKey.getTableName(), alterForeignKey.getName()));
     } else {
-      write.index().appendStatement(platformDdl.alterTableAddForeignKey(write.getOptions(), new WriteForeignKey(alterForeignKey)));
+      writer.index().appendStatement(platformDdl.alterTableAddForeignKey(writer.getOptions(), new WriteForeignKey(alterForeignKey)));
     }
   }
 
@@ -612,44 +614,44 @@ public class BaseTableDdl implements TableDdl {
    * Add add history table DDL.
    */
   @Override
-  public void generate(DdlWrite write, AddHistoryTable addHistoryTable) {
-    platformDdl.addHistoryTable(write, addHistoryTable);
+  public void generate(DdlWrite writer, AddHistoryTable addHistoryTable) {
+    platformDdl.addHistoryTable(writer, addHistoryTable);
   }
 
   /**
    * Add drop history table DDL.
    */
   @Override
-  public void generate(DdlWrite write, DropHistoryTable dropHistoryTable) {
-    platformDdl.dropHistoryTable(write, dropHistoryTable);
+  public void generate(DdlWrite writer, DropHistoryTable dropHistoryTable) {
+    platformDdl.dropHistoryTable(writer, dropHistoryTable);
   }
 
   @Override
-  public void generateProlog(DdlWrite write) {
-    platformDdl.generateProlog(write);
+  public void generateProlog(DdlWrite writer) {
+    platformDdl.generateProlog(writer);
   }
 
   /**
    * Called at the end to generate additional ddl such as regenerate history triggers.
    */
   @Override
-  public void generateEpilog(DdlWrite write) {
+  public void generateEpilog(DdlWrite writer) {
     if (!regenerateHistoryTriggers.isEmpty()) {
-      platformDdl.lockTables(write.applyHistoryTrigger(), regenerateHistoryTriggers.keySet());
+      platformDdl.lockTables(writer.applyHistoryTrigger(), regenerateHistoryTriggers.keySet());
 
       for (HistoryTableUpdate update : this.regenerateHistoryTriggers.values()) {
-        platformDdl.regenerateHistoryTriggers(write, update);
+        platformDdl.regenerateHistoryTriggers(writer, update);
       }
 
-      platformDdl.unlockTables(write.applyHistoryTrigger(), regenerateHistoryTriggers.keySet());
+      platformDdl.unlockTables(writer.applyHistoryTrigger(), regenerateHistoryTriggers.keySet());
     }
-    platformDdl.generateEpilog(write);
+    platformDdl.generateEpilog(writer);
   }
 
   @Override
-  public void generate(DdlWrite write, AddTableComment addTableComment) {
+  public void generate(DdlWrite writer, AddTableComment addTableComment) {
     if (hasValue(addTableComment.getComment())) {
-      platformDdl.addTableComment(write, addTableComment.getName(), addTableComment.getComment());
+      platformDdl.addTableComment(writer, addTableComment.getName(), addTableComment.getComment());
     }
   }
 
@@ -657,23 +659,23 @@ public class BaseTableDdl implements TableDdl {
    * Add add column DDL.
    */
   @Override
-  public void generate(DdlWrite write, AddColumn addColumn) {
+  public void generate(DdlWrite writer, AddColumn addColumn) {
     String tableName = addColumn.getTableName();
     List<Column> columns = addColumn.getColumn();
     for (Column column : columns) {
-      alterTableAddColumn(write, tableName, column, false, isTrue(addColumn.isWithHistory()));
+      alterTableAddColumn(writer, tableName, column, false, isTrue(addColumn.isWithHistory()));
     }
     if (isTrue(addColumn.isWithHistory()) && historySupport == HistorySupport.TRIGGER_BASED) {
       // make same changes to the history table
       String historyTable = historyTable(tableName);
       for (Column column : columns) {
         regenerateHistoryTriggers(tableName, HistoryTableUpdate.Change.ADD, column.getName());
-        alterTableAddColumn(write, historyTable, column, true, true);
+        alterTableAddColumn(writer, historyTable, column, true, true);
       }
     }
     for (Column column : columns) {
       if (hasValue(column.getReferences())) {
-        writeForeignKey(write, tableName, column);
+        writeForeignKey(writer, tableName, column);
       }
     }
   }
@@ -682,15 +684,15 @@ public class BaseTableDdl implements TableDdl {
    * Add drop table DDL.
    */
   @Override
-  public void generate(DdlWrite write, DropTable dropTable) {
-    dropTable(write.postAlter(), dropTable.getName());
+  public void generate(DdlWrite writer, DropTable dropTable) {
+    dropTable(writer.postAlter(), dropTable.getName());
     if (hasValue(dropTable.getSequenceCol())
         && platformDdl.getPlatform().getDbIdentity().isSupportsSequence()) {
       String sequenceName = dropTable.getSequenceName();
       if (!hasValue(sequenceName)) {
         sequenceName = namingConvention.getSequenceName(dropTable.getName(), dropTable.getSequenceCol());
       }
-      dropSequence(write.apply(), sequenceName);
+      dropSequence(writer.apply(), sequenceName);
     }
   }
 
@@ -698,14 +700,14 @@ public class BaseTableDdl implements TableDdl {
    * Add drop column DDL.
    */
   @Override
-  public void generate(DdlWrite write, DropColumn dropColumn) {
+  public void generate(DdlWrite writer, DropColumn dropColumn) {
     String tableName = dropColumn.getTableName();
-    alterTableDropColumn(write, tableName, dropColumn.getColumnName());
+    alterTableDropColumn(writer, tableName, dropColumn.getColumnName());
 
     if (isTrue(dropColumn.isWithHistory())  && historySupport == HistorySupport.TRIGGER_BASED) {
       // also drop from the history table
       regenerateHistoryTriggers(tableName, HistoryTableUpdate.Change.DROP, dropColumn.getColumnName());
-      alterTableDropColumn(write, historyTable(tableName), dropColumn.getColumnName());
+      alterTableDropColumn(writer, historyTable(tableName), dropColumn.getColumnName());
     }
   }
 
@@ -713,9 +715,9 @@ public class BaseTableDdl implements TableDdl {
    * Add all the appropriate changes based on the column changes.
    */
   @Override
-  public void generate(DdlWrite write, AlterColumn alterColumn) {
+  public void generate(DdlWrite writer, AlterColumn alterColumn) {
     DdlMigrationHelp ddlHelp = new DdlMigrationHelp(alterColumn);
-    ddlHelp.write(write);
+    ddlHelp.write(writer);
 
     if (isTrue(alterColumn.isHistoryExclude())) {
       regenerateHistoryTriggers(alterColumn.getTableName(), HistoryTableUpdate.Change.EXCLUDE, alterColumn.getColumnName());
@@ -724,58 +726,58 @@ public class BaseTableDdl implements TableDdl {
     }
 
     if (hasValue(alterColumn.getDropForeignKey())) {
-      alterColumnDropForeignKey(write, alterColumn);
+      alterColumnDropForeignKey(writer, alterColumn);
     }
     if (hasValue(alterColumn.getReferences())) {
-      alterColumnAddForeignKey(write, alterColumn);
+      alterColumnAddForeignKey(writer, alterColumn);
     }
 
     if (hasValue(alterColumn.getDropUnique())) {
-      alterColumnDropUniqueConstraint(write, alterColumn);
+      alterColumnDropUniqueConstraint(writer, alterColumn);
     }
     if (hasValue(alterColumn.getUnique())) {
-      alterColumnAddUniqueConstraint(write, alterColumn);
+      alterColumnAddUniqueConstraint(writer, alterColumn);
     }
     if (hasValue(alterColumn.getUniqueOneToOne())) {
-      alterColumnAddUniqueOneToOneConstraint(write, alterColumn);
+      alterColumnAddUniqueOneToOneConstraint(writer, alterColumn);
     }
     if (hasValue(alterColumn.getComment())) {
-      alterColumnComment(write, alterColumn);
+      alterColumnComment(writer, alterColumn);
     }
     if (hasValue(alterColumn.getDropCheckConstraint())) {
-      dropCheckConstraint(write, alterColumn, alterColumn.getDropCheckConstraint());
+      dropCheckConstraint(writer, alterColumn, alterColumn.getDropCheckConstraint());
     }
 
     boolean alterCheckConstraint = hasValue(alterColumn.getCheckConstraint());
 
     if (alterCheckConstraint) {
       // drop constraint before altering type etc
-      dropCheckConstraint(write, alterColumn, alterColumn.getCheckConstraintName());
+      dropCheckConstraint(writer, alterColumn, alterColumn.getCheckConstraintName());
     }
     boolean alterBaseAttributes = false;
     if (hasValue(alterColumn.getType())) {
-      alterColumnType(write, alterColumn);
+      alterColumnType(writer, alterColumn);
       alterBaseAttributes = true;
     }
     if (hasValue(alterColumn.getDefaultValue())) {
-      alterColumnDefaultValue(write, alterColumn);
+      alterColumnDefaultValue(writer, alterColumn);
       alterBaseAttributes = true;
     }
     if (alterColumn.isNotnull() != null) {
-      alterColumnNotnull(write, alterColumn);
+      alterColumnNotnull(writer, alterColumn);
       alterBaseAttributes = true;
     }
     if (alterBaseAttributes) {
-      alterColumnBaseAttributes(write, alterColumn);
+      alterColumnBaseAttributes(writer, alterColumn);
     }
     if (alterCheckConstraint) {
       // add constraint last (after potential type change)
-      addCheckConstraint(write, alterColumn);
+      addCheckConstraint(writer, alterColumn);
     }
   }
 
-  private void alterColumnComment(DdlWrite write, AlterColumn alterColumn) {
-    platformDdl.addColumnComment(write, alterColumn.getTableName(), alterColumn.getColumnName(), alterColumn.getComment());
+  private void alterColumnComment(DdlWrite writer, AlterColumn alterColumn) {
+    platformDdl.addColumnComment(writer, alterColumn.getTableName(), alterColumn.getColumnName(), alterColumn.getComment());
   }
 
   /**
@@ -797,8 +799,8 @@ public class BaseTableDdl implements TableDdl {
    * This is mysql specific - alter all the base attributes of the column together.
    * Will be called, if there is a type, dbdefault or notnull change.
    */
-  protected void alterColumnBaseAttributes(DdlWrite write, AlterColumn alter) {
-    platformDdl.alterColumnBaseAttributes(write, alter);
+  protected void alterColumnBaseAttributes(DdlWrite writer, AlterColumn alter) {
+    platformDdl.alterColumnBaseAttributes(writer, alter);
 
     if (isTrue(alter.isWithHistory()) && alter.getType() != null && historySupport == HistorySupport.TRIGGER_BASED) {
       // mysql and sql server column type change allowing nulls in the history table
@@ -808,79 +810,79 @@ public class BaseTableDdl implements TableDdl {
       alterHistoryColumn.setTableName(historyTable(alter.getTableName()));
       alterHistoryColumn.setColumnName(alter.getColumnName());
       alterHistoryColumn.setType(alter.getType());
-      platformDdl.alterColumnBaseAttributes(write, alterHistoryColumn);
+      platformDdl.alterColumnBaseAttributes(writer, alterHistoryColumn);
     }
   }
 
-  protected void alterColumnDefaultValue(DdlWrite write, AlterColumn alter) {
-    platformDdl.alterColumnDefaultValue(write, alter.getTableName(), alter.getColumnName(), alter.getDefaultValue());
+  protected void alterColumnDefaultValue(DdlWrite writer, AlterColumn alter) {
+    platformDdl.alterColumnDefaultValue(writer, alter.getTableName(), alter.getColumnName(), alter.getDefaultValue());
   }
 
-  protected void dropCheckConstraint(DdlWrite write, AlterColumn alter, String constraintName) {
-    platformDdl.alterTableDropConstraint(write, alter.getTableName(), constraintName);
+  protected void dropCheckConstraint(DdlWrite writer, AlterColumn alter, String constraintName) {
+    platformDdl.alterTableDropConstraint(writer, alter.getTableName(), constraintName);
   }
 
-  protected void addCheckConstraint(DdlWrite write, AlterColumn alter) {
-    platformDdl.alterTableAddCheckConstraint(write, alter.getTableName(), alter.getCheckConstraintName(), alter.getCheckConstraint());
+  protected void addCheckConstraint(DdlWrite writer, AlterColumn alter) {
+    platformDdl.alterTableAddCheckConstraint(writer, alter.getTableName(), alter.getCheckConstraintName(), alter.getCheckConstraint());
   }
 
-  protected void alterColumnNotnull(DdlWrite write, AlterColumn alter) {
-    platformDdl.alterColumnNotnull(write, alter.getTableName(), alter.getColumnName(), alter.isNotnull());
+  protected void alterColumnNotnull(DdlWrite writer, AlterColumn alter) {
+    platformDdl.alterColumnNotnull(writer, alter.getTableName(), alter.getColumnName(), alter.isNotnull());
   }
 
-  protected void alterColumnType(DdlWrite write, AlterColumn alter) {
-    platformDdl.alterColumnType(write, alter.getTableName(), alter.getColumnName(), alter.getType());
+  protected void alterColumnType(DdlWrite writer, AlterColumn alter) {
+    platformDdl.alterColumnType(writer, alter.getTableName(), alter.getColumnName(), alter.getType());
     
     if (isTrue(alter.isWithHistory()) && historySupport == HistorySupport.TRIGGER_BASED) {
       regenerateHistoryTriggers(alter.getTableName(), HistoryTableUpdate.Change.ALTER, alter.getColumnName());
       // apply same type change to matching column in the history table
-      platformDdl.alterColumnType(write, historyTable(alter.getTableName()), alter.getColumnName(), alter.getType());
+      platformDdl.alterColumnType(writer, historyTable(alter.getTableName()), alter.getColumnName(), alter.getType());
     }
   }
 
-  protected void alterColumnAddForeignKey(DdlWrite write, AlterColumn alterColumn) {
-    alterTableAddForeignKey(write.getOptions(), write.index(), new WriteForeignKey(alterColumn));
+  protected void alterColumnAddForeignKey(DdlWrite writer, AlterColumn alterColumn) {
+    alterTableAddForeignKey(writer.getOptions(), writer.index(), new WriteForeignKey(alterColumn));
   }
 
-  protected void alterColumnDropForeignKey(DdlWrite write, AlterColumn alter) {
-    write.dropDependencies().appendStatement(platformDdl.alterTableDropForeignKey(alter.getTableName(), alter.getDropForeignKey()));
+  protected void alterColumnDropForeignKey(DdlWrite writer, AlterColumn alter) {
+    writer.dropDependencies().appendStatement(platformDdl.alterTableDropForeignKey(alter.getTableName(), alter.getDropForeignKey()));
   }
 
-  protected void alterColumnDropUniqueConstraint(DdlWrite write, AlterColumn alter) {
-    platformDdl.alterTableDropUniqueConstraint(write, alter.getTableName(), alter.getDropUnique());
+  protected void alterColumnDropUniqueConstraint(DdlWrite writer, AlterColumn alter) {
+    platformDdl.alterTableDropUniqueConstraint(writer, alter.getTableName(), alter.getDropUnique());
   }
 
-  protected void alterColumnAddUniqueOneToOneConstraint(DdlWrite write, AlterColumn alter) {
-    addUniqueConstraint(write, alter, alter.getUniqueOneToOne());
+  protected void alterColumnAddUniqueOneToOneConstraint(DdlWrite writer, AlterColumn alter) {
+    addUniqueConstraint(writer, alter, alter.getUniqueOneToOne());
   }
 
-  protected void alterColumnAddUniqueConstraint(DdlWrite write, AlterColumn alter) {
-    addUniqueConstraint(write, alter, alter.getUnique());
+  protected void alterColumnAddUniqueConstraint(DdlWrite writer, AlterColumn alter) {
+    addUniqueConstraint(writer, alter, alter.getUnique());
   }
 
-  protected void addUniqueConstraint(DdlWrite write, AlterColumn alter, String uqName) {
+  protected void addUniqueConstraint(DdlWrite writer, AlterColumn alter, String uqName) {
     String[] cols = {alter.getColumnName()};
     boolean notNull = alter.isNotnull() != null ? alter.isNotnull() : Boolean.TRUE.equals(alter.isNotnull());
-    platformDdl.alterTableAddUniqueConstraint(write, alter.getTableName(), uqName, cols, notNull ? null : cols);
+    platformDdl.alterTableAddUniqueConstraint(writer, alter.getTableName(), uqName, cols, notNull ? null : cols);
 
-    write.dropAllIndex().appendStatement(platformDdl.dropIndex(uqName, alter.getTableName()));
+    writer.dropAllIndex().appendStatement(platformDdl.dropIndex(uqName, alter.getTableName()));
   }
 
 
-  protected void alterTableDropColumn(DdlWrite write, String tableName, String columnName) {
-    platformDdl.alterTableDropColumn(write, tableName, columnName);
+  protected void alterTableDropColumn(DdlWrite writer, String tableName, String columnName) {
+    platformDdl.alterTableDropColumn(writer, tableName, columnName);
   }
 
-  protected void alterTableAddColumn(DdlWrite write, String tableName, Column column, boolean onHistoryTable, boolean withHistory) {
+  protected void alterTableAddColumn(DdlWrite writer, String tableName, Column column, boolean onHistoryTable, boolean withHistory) {
     DdlMigrationHelp help = new DdlMigrationHelp(tableName, column, withHistory);
     if (!onHistoryTable) {
-      help.write(write);
+      help.write(writer);
     }
 
-    platformDdl.alterTableAddColumn(write, tableName, column, onHistoryTable, help.getDefaultValue());
+    platformDdl.alterTableAddColumn(writer, tableName, column, onHistoryTable, help.getDefaultValue());
     final String comment = column.getComment();
     if (comment != null && !comment.isEmpty()) {
-      platformDdl.addColumnComment(write, tableName, column.getName(), comment);
+      platformDdl.addColumnComment(writer, tableName, column.getName(), comment);
     }
   }
 

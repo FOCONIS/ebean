@@ -64,19 +64,19 @@ public class MySqlDdl extends PlatformDdl {
   }
 
   @Override
-  public void alterTableAddCheckConstraint(DdlWrite write, String tableName, String checkConstraintName,
+  public void alterTableAddCheckConstraint(DdlWrite writer, String tableName, String checkConstraintName,
       String checkConstraint) {
     if (USE_CHECK_CONSTRAINT) {
-      super.alterTableAddCheckConstraint(write, tableName, checkConstraintName, checkConstraint);
+      super.alterTableAddCheckConstraint(writer, tableName, checkConstraintName, checkConstraint);
     }
   }
 
   @Override
-  public void alterTableDropConstraint(DdlWrite write, String tableName, String constraintName) {
+  public void alterTableDropConstraint(DdlWrite writer, String tableName, String constraintName) {
     // drop constraint not supported in MySQL 5.7 and 8.0 but starting with MariaDB
     // 10.2.1 CHECK is evaluated
     if (USE_CHECK_CONSTRAINT) {
-      DdlBuffer sb = write.index();
+      DdlBuffer sb = writer.index();
       // statement for MySQL >= 8.0.16
       sb.append("/*!80016 alter table ").append(tableName);
       sb.append(" drop check ").append(maxConstraintName(constraintName)).append(" */;\n");
@@ -88,12 +88,12 @@ public class MySqlDdl extends PlatformDdl {
   }
 
   @Override
-  public void alterColumnType(DdlWrite write, String tableName, String columnName, String type) {
+  public void alterColumnType(DdlWrite writer, String tableName, String columnName, String type) {
     // can't alter itself - done in alterColumnBaseAttributes()
   }
 
   @Override
-  public void alterColumnNotnull(DdlWrite write, String tableName, String columnName, boolean notnull) {
+  public void alterColumnNotnull(DdlWrite writer, String tableName, String columnName, boolean notnull) {
     // can't alter itself - done in alterColumnBaseAttributes()
   }
 
@@ -144,15 +144,15 @@ public class MySqlDdl extends PlatformDdl {
    * Add table comment as a separate statement (from the create table statement).
    */
   @Override
-  public void addTableComment(DdlWrite write, String tableName, String tableComment) {
+  public void addTableComment(DdlWrite writer, String tableName, String tableComment) {
     if (DdlHelp.isDropComment(tableComment)) {
       tableComment = "";
     }
-    write.postAlter().append(String.format("alter table %s comment = '%s'", tableName, tableComment)).endOfStatement();
+    writer.postAlter().append(String.format("alter table %s comment = '%s'", tableName, tableComment)).endOfStatement();
   }
 
   @Override
-  public void addColumnComment(DdlWrite write, String table, String column, String comment) {
+  public void addColumnComment(DdlWrite writer, String table, String column, String comment) {
     // alter comment currently not supported as it requires to repeat whole column definition
   }
 

@@ -1,7 +1,7 @@
--- drop dependencies
+-- drop all indices
 alter table mytable drop constraint if exists fk_mytable_order_id;
 drop index if exists ix_mytable_order_id;
 
--- apply changes
+-- drop all
 drop table if exists mytable;
 

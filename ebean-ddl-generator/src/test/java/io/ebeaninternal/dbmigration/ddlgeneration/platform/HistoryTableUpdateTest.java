@@ -26,7 +26,7 @@ public class HistoryTableUpdateTest {
     upd.add(HistoryTableUpdate.Change.EXCLUDE, "six");
     upd.add(HistoryTableUpdate.Change.DROP, "four");
 
-    assertThat(upd.description()).isEqualTo("[add two, include five, exclude six, drop four]");
+    assertThat(upd.description()).isEqualTo("[add two, drop four, exclude six, include five]");
   }
 
 }

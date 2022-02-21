@@ -352,8 +352,8 @@ public class PlatformDdl {
   /**
    * Regenerate the history triggers (or function) due to a column being added/dropped/excluded or included.
    */
-  public void regenerateHistoryTriggers(DdlWrite write, HistoryTableUpdate update) {
-    historyDdl.updateTriggers(write, update);
+  public void regenerateHistoryTriggers(DdlWrite writer, HistoryTableUpdate update) {
+    historyDdl.updateTriggers(writer, update);
   }
 
   /**
@@ -491,15 +491,15 @@ public class PlatformDdl {
   /**
    * Drop a unique constraint from the table (Sometimes this is an index).
    */
-  public void alterTableDropUniqueConstraint(DdlWrite write, String tableName, String uniqueConstraintName) {
-    write.alterTable(tableName, dropUniqueConstraint).append(" ").append(maxConstraintName(uniqueConstraintName));
+  public void alterTableDropUniqueConstraint(DdlWrite writer, String tableName, String uniqueConstraintName) {
+    writer.alterTable(tableName, dropUniqueConstraint).append(" ").append(maxConstraintName(uniqueConstraintName));
   }
 
   /**
    * Drop a unique constraint from the table.
    */
-  public void alterTableDropConstraint(DdlWrite write, String tableName, String constraintName) {
-    write.alterTable(tableName, dropConstraintIfExists).append(" ").append(maxConstraintName(constraintName));
+  public void alterTableDropConstraint(DdlWrite writer, String tableName, String constraintName) {
+    writer.alterTable(tableName, dropConstraintIfExists).append(" ").append(maxConstraintName(constraintName));
   }
 
   /**
@@ -507,16 +507,16 @@ public class PlatformDdl {
    * <p>
    * Overridden by MsSqlServer for specific null handling on unique constraints.
    */
-  public void alterTableAddUniqueConstraint(DdlWrite write, String tableName, String uqName, String[] columns, String[] nullableColumns) {
-    StringBuilder buffer = write.alterTable(tableName, "add constraint ").append(maxConstraintName(uqName)).append(" unique ");
+  public void alterTableAddUniqueConstraint(DdlWrite writer, String tableName, String uqName, String[] columns, String[] nullableColumns) {
+    StringBuilder buffer = writer.alterTable(tableName, "add constraint ").append(maxConstraintName(uqName)).append(" unique ");
     appendColumns(columns, buffer);
   }
 
-  public void alterTableAddColumn(DdlWrite write, String tableName, Column column, boolean onHistoryTable, String defaultValue) {
+  public void alterTableAddColumn(DdlWrite writer, String tableName, Column column, boolean onHistoryTable, String defaultValue) {
 
     String convertedType = convert(column.getType());
 
-    StringBuilder stmt = write.alterTable(tableName, addColumn).append(" ")
+    StringBuilder stmt = writer.alterTable(tableName, addColumn).append(" ")
         .append(column.getName()).append(" ").append(convertedType);
 
     // Add default value also to history table if it is not excluded
@@ -534,7 +534,7 @@ public class PlatformDdl {
 
       // check constraints cannot be added in one statement for h2
       if (!StringHelper.isNull(column.getCheckConstraint())) {
-        alterTableAddCheckConstraint(write, tableName, column.getCheckConstraintName(), column.getCheckConstraint());
+        alterTableAddCheckConstraint(writer, tableName, column.getCheckConstraintName(), column.getCheckConstraint());
       }
     } else {
       stmt.append(addColumnSuffix);
@@ -562,8 +562,8 @@ public class PlatformDdl {
    * Note that that MySql and SQL Server instead use alterColumnBaseAttributes()
    * </p>
    */
-  public void alterColumnType(DdlWrite write, String tableName, String columnName, String type) {
-    write.alterTable(tableName, alterColumn).append(" ").append(columnName).append(" ")
+  public void alterColumnType(DdlWrite writer, String tableName, String columnName, String type) {
+    writer.alterTable(tableName, alterColumn).append(" ").append(columnName).append(" ")
         .append(columnSetType).append(convert(type)).append(alterColumnSuffix);
   }
 
@@ -573,17 +573,17 @@ public class PlatformDdl {
    * Note that that MySql, SQL Server, and HANA instead use alterColumnBaseAttributes()
    * </p>
    */
-  public void alterColumnNotnull(DdlWrite write, String tableName, String columnName, boolean notnull) {
+  public void alterColumnNotnull(DdlWrite writer, String tableName, String columnName, boolean notnull) {
     String suffix = notnull ? columnSetNotnull : columnSetNull;
-    write.alterTable(tableName, alterColumn).append(" ").append(columnName).append(" ").append(suffix).append(alterColumnSuffix);
+    writer.alterTable(tableName, alterColumn).append(" ").append(columnName).append(" ").append(suffix).append(alterColumnSuffix);
   }
 
   /**
    * Alter table adding the check constraint.
    */
-  public void alterTableAddCheckConstraint(DdlWrite write, String tableName, String checkConstraintName,
+  public void alterTableAddCheckConstraint(DdlWrite writer, String tableName, String checkConstraintName,
       String checkConstraint) {
-    write.alterTable(tableName, addConstraint).append(" ").append(maxConstraintName(checkConstraintName)).append(" ").append(checkConstraint);
+    writer.alterTable(tableName, addConstraint).append(" ").append(maxConstraintName(checkConstraintName)).append(" ").append(checkConstraint);
   }
 
   /**
@@ -675,34 +675,34 @@ public class PlatformDdl {
   /**
    * Add table comment as a separate statement (from the create table statement).
    */
-  public void addTableComment(DdlWrite write, String tableName, String tableComment) {
+  public void addTableComment(DdlWrite writer, String tableName, String tableComment) {
     if (DdlHelp.isDropComment(tableComment)) {
       tableComment = "";
     }
-    write.postAlter().append(String.format("comment on table %s is '%s'", tableName, tableComment)).endOfStatement();
+    writer.postAlter().append(String.format("comment on table %s is '%s'", tableName, tableComment)).endOfStatement();
   }
 
   /**
    * Add column comment as a separate statement.
    */
-  public void addColumnComment(DdlWrite write, String table, String column, String comment) {
+  public void addColumnComment(DdlWrite writer, String table, String column, String comment) {
     if (DdlHelp.isDropComment(comment)) {
       comment = "";
     }
-    write.postAlter().append(String.format("comment on column %s.%s is '%s'", table, column, comment)).endOfStatement();
+    writer.postAlter().append(String.format("comment on column %s.%s is '%s'", table, column, comment)).endOfStatement();
   }
 
   /**
    * Use this to generate a prolog for each script (stored procedures)
    */
-  public void generateProlog(DdlWrite write) {
+  public void generateProlog(DdlWrite writer) {
 
   }
 
   /**
    * Use this to generate an epilog. Will be added at the end of script
    */
-  public void generateEpilog(DdlWrite write) {
+  public void generateEpilog(DdlWrite writer) {
 
   }
 

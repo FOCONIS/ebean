@@ -25,6 +25,8 @@ public class H2HistoryDdlTest {
     HistoryTableUpdate update = new HistoryTableUpdate("c_user");
     update.add(HistoryTableUpdate.Change.ADD, "one");
     update.add(HistoryTableUpdate.Change.DROP, "two");
+    update.add(HistoryTableUpdate.Change.ALTER, "three");
+    update.add(HistoryTableUpdate.Change.ALTER, "three");
 
 
     CurrentModel currentModel = new CurrentModel(ebeanServer);
@@ -45,7 +47,16 @@ public class H2HistoryDdlTest {
       .contains("add one")
       .contains("create trigger")
       .doesNotContain("create view");
-    assertThat(write.toString()).isEqualTo("");
+    assertThat(write.toString()).isEqualTo("-- drop dependencies\n" 
+        + "drop view if exists c_user_with_history;\n"
+        + "-- apply history view\n"
+        + "create view c_user_with_history as select * from c_user union all select * from c_user_history;\n"
+        + "\n"
+        + "-- apply history trigger\n"
+        + "-- changes: [add one, alter three, drop two]\n"
+        // CHECKME: Should trigger be deleted earlier
+        + "drop trigger c_user_history_upd;\n"
+        + "create trigger c_user_history_upd before update,delete on c_user for each row call \"io.ebean.config.dbplatform.h2.H2HistoryTrigger\";\n");
 
   }
 }

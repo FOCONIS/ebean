@@ -57,8 +57,8 @@ public class PostgresDdl extends PlatformDdl {
   }
 
   @Override
-  public void alterColumnType(DdlWrite write, String tableName, String columnName, String type) {
-    write.alterTable(tableName, alterColumn).append(" ").append(columnName).append(" ")
+  public void alterColumnType(DdlWrite writer, String tableName, String columnName, String type) {
+    writer.alterTable(tableName, alterColumn).append(" ").append(columnName).append(" ")
         .append(columnSetType).append(convert(type)).append(alterColumnSuffix)
         .append(" using ").append(columnName).append("::").append(convert(type));
   }

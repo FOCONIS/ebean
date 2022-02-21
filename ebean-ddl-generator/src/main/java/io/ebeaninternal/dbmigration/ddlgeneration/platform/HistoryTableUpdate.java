@@ -1,7 +1,11 @@
 package io.ebeaninternal.dbmigration.ddlgeneration.platform;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * Bean holding comments relating to a history table that needs to have it's
@@ -21,8 +25,9 @@ public class HistoryTableUpdate {
     ALTER
   }
 
-  private static class Column {
+  private static class Column implements Comparable<Column> {
 
+    
     final Change change;
 
     final String column;
@@ -41,11 +46,15 @@ public class HistoryTableUpdate {
       return change.name().toLowerCase() + " " + column;
     }
 
+    @Override
+    public int compareTo(Column o) {
+      return description().compareTo(o.description());
+    }
   }
 
   private final String baseTable;
 
-  private final List<Column> columnChanges = new ArrayList<>();
+  private final Set<Column> columnChanges = new TreeSet<>();
 
   /**
    * Construct with a given base table name.

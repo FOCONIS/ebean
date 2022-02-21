@@ -1,6 +1,7 @@
 package io.ebeaninternal.dbmigration.ddlgeneration.platform;
 
 import io.ebean.config.DatabaseConfig;
+import io.ebeaninternal.dbmigration.ddlgeneration.BaseDdlWrite;
 import io.ebeaninternal.dbmigration.ddlgeneration.DdlBuffer;
 import io.ebeaninternal.dbmigration.ddlgeneration.DdlWrite;
 import io.ebeaninternal.dbmigration.migration.AddHistoryTable;
@@ -25,8 +26,12 @@ public class MariaDbHistoryDdl implements PlatformHistoryDdl {
 
   private void enableSystemVersioning(DdlWrite writer, String baseTable) {
     writer.alterTable(baseTable, "add system versioning");
-    // FIXME RPR: drop all system versioning!
-    // writer.dropWriter().alterTable(baseTable, "drop system versioning");
+
+    // Workaround for drop all script
+    BaseDdlWrite tmpWrite = new BaseDdlWrite();
+    tmpWrite.alterTable(baseTable, "drop system versioning");
+    writer.dropAll().append(tmpWrite.toString());
+     
   }
 
   @Override

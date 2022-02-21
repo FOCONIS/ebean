@@ -39,23 +39,24 @@ public class PlatformDdlWriter {
   /**
    * Write the migration as platform specific ddl.
    */
-  public void processMigration(Migration dbMigration, DdlWrite write, File writePath, String fullVersion) throws IOException {
+  public void processMigration(Migration dbMigration, DdlWrite writer, File writePath, String fullVersion)
+      throws IOException {
     DdlHandler handler = handler();
-    handler.generateProlog(write); 
+    handler.generateProlog(writer);
     if (lockTimeoutSeconds > 0) {
       String lockSql = platformDdl.setLockTimeout(lockTimeoutSeconds);
       if (lockSql != null) {
-        write.apply().append(lockSql).endOfStatement().newLine();
+        writer.apply().append(lockSql).endOfStatement().newLine();
       }
     }
     List<ChangeSet> changeSets = dbMigration.getChangeSet();
     for (ChangeSet changeSet : changeSets) {
       if (isApply(changeSet)) {
-        handler.generate(write, changeSet);
+        handler.generate(writer, changeSet);
       }
     }
-    handler.generateEpilog(write);
-    writePlatformDdl(write, writePath, fullVersion);
+    handler.generateEpilog(writer);
+    writePlatformDdl(writer, writePath, fullVersion);
   }
 
   /**
@@ -68,10 +69,10 @@ public class PlatformDdlWriter {
   /**
    * Write the ddl files.
    */
-  protected void writePlatformDdl(DdlWrite write, File resourcePath, String fullVersion) throws IOException {
-    if (!write.isApplyEmpty()) {
+  protected void writePlatformDdl(DdlWrite writer, File resourcePath, String fullVersion) throws IOException {
+    if (!writer.isApplyEmpty()) {
       try (Writer applyWriter = createWriter(resourcePath, fullVersion, ".sql")) {
-        writeApplyDdl(applyWriter, write);
+        writeApplyDdl(applyWriter, writer);
         applyWriter.flush();
       }
     }

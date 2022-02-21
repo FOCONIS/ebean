@@ -25,12 +25,12 @@ public class OracleDdl extends PlatformDdl {
   }
 
   @Override
-  public void alterTableAddUniqueConstraint(DdlWrite write, String tableName, String uqName, String[] columns, String[] nullableColumns) {
+  public void alterTableAddUniqueConstraint(DdlWrite writer, String tableName, String uqName, String[] columns, String[] nullableColumns) {
     if (nullableColumns == null || nullableColumns.length == 0) {
-      super.alterTableAddUniqueConstraint(write, tableName, uqName, columns, nullableColumns);
+      super.alterTableAddUniqueConstraint(writer, tableName, uqName, columns, nullableColumns);
     } else {
       // Hmm: https://stackoverflow.com/questions/11893134/oracle-create-unique-index-but-ignore-nulls
-      write.apply().append("-- NOT YET IMPLEMENTED: unique constraint with nulls: ").append(uqName).end();
+      writer.apply().append("-- NOT YET IMPLEMENTED: unique constraint with nulls: ").append(uqName).end();
     }
   }
 

@@ -63,9 +63,9 @@ public class SqlServerDdl extends PlatformDdl {
    * MsSqlServer specific null handling on unique constraints.
    */
   @Override
-  public void alterTableAddUniqueConstraint(DdlWrite write, String tableName, String uqName, String[] columns, String[] nullableColumns) {
+  public void alterTableAddUniqueConstraint(DdlWrite writer, String tableName, String uqName, String[] columns, String[] nullableColumns) {
     if (nullableColumns == null || nullableColumns.length == 0) {
-      super.alterTableAddUniqueConstraint(write, tableName, uqName, columns, nullableColumns);
+      super.alterTableAddUniqueConstraint(writer, tableName, uqName, columns, nullableColumns);
       return; 
     }
     if (uqName == null) {
@@ -73,7 +73,7 @@ public class SqlServerDdl extends PlatformDdl {
     }
     // issues#233
     
-    DdlBuffer buffer = write.index().append("create unique nonclustered index ")
+    DdlBuffer buffer = writer.index().append("create unique nonclustered index ")
         .append(uqName).append(" on ").append(tableName).append("(");
 
     for (int i = 0; i < columns.length; i++) {
@@ -92,18 +92,18 @@ public class SqlServerDdl extends PlatformDdl {
   }
 
   @Override
-  public void alterTableDropConstraint(DdlWrite write, String tableName, String constraintName) {
-    write.index().append("IF (OBJECT_ID('").append(constraintName).append("', 'C') IS NOT NULL) alter table ")
+  public void alterTableDropConstraint(DdlWrite writer, String tableName, String constraintName) {
+    writer.index().append("IF (OBJECT_ID('").append(constraintName).append("', 'C') IS NOT NULL) alter table ")
       .append(tableName).append(" drop constraint ").append(constraintName);
   }
   /**
    * Drop a unique constraint from the table (Sometimes this is an index).
    */
   @Override
-  public void alterTableDropUniqueConstraint(DdlWrite write, String tableName, String uniqueConstraintName) {
-    write.index().appendStatement(dropIndex(uniqueConstraintName, tableName));
-    write.index().append("IF (OBJECT_ID('").append(uniqueConstraintName).append("', 'UQ') IS NOT NULL) alter table ")
-      .append(tableName).append(" drop constraint ").append(uniqueConstraintName);
+  public void alterTableDropUniqueConstraint(DdlWrite writer, String tableName, String uniqueConstraintName) {
+    writer.index().appendStatement(dropIndex(uniqueConstraintName, tableName));
+    writer.index().append("IF (OBJECT_ID('").append(uniqueConstraintName).append("', 'UQ') IS NOT NULL) alter table ")
+      .append(tableName).append(" drop constraint ").append(uniqueConstraintName).endOfStatement();
   }
   /**
    * Generate and return the create sequence DDL.
@@ -160,12 +160,12 @@ public class SqlServerDdl extends PlatformDdl {
   }
 
   @Override
-  public void alterColumnType(DdlWrite write, String tableName, String columnName, String type) {
+  public void alterColumnType(DdlWrite writer, String tableName, String columnName, String type) {
     // can't alter itself - done in alterColumnBaseAttributes()
   }
 
   @Override
-  public void alterColumnNotnull(DdlWrite write, String tableName, String columnName, boolean notnull) {
+  public void alterColumnNotnull(DdlWrite writer, String tableName, String columnName, boolean notnull) {
 
     // can't alter itself - done in alterColumnBaseAttributes()
   }
@@ -174,7 +174,7 @@ public class SqlServerDdl extends PlatformDdl {
    * Add table comment as a separate statement (from the create table statement).
    */
   @Override
-  public void addTableComment(DdlWrite write, String tableName, String tableComment) {
+  public void addTableComment(DdlWrite writer, String tableName, String tableComment) {
 
     // do nothing for MS SQL Server (cause it requires stored procedures etc)
   }
@@ -183,7 +183,7 @@ public class SqlServerDdl extends PlatformDdl {
    * Add column comment as a separate statement.
    */
   @Override
-  public void addColumnComment(DdlWrite write, String table, String column, String comment) {
+  public void addColumnComment(DdlWrite writer, String table, String column, String comment) {
 
     // do nothing for MS SQL Server (cause it requires stored procedures etc)
   }
@@ -193,35 +193,35 @@ public class SqlServerDdl extends PlatformDdl {
    * (constraints, default values, indices and foreign keys). That's why we call a user stored procedure here
    */
   @Override
-  public void alterTableDropColumn(DdlWrite write, String tableName, String columnName) {
-    write.apply().append("EXEC usp_ebean_drop_column ").append(tableName).append(", ").append(columnName).endOfStatement();
+  public void alterTableDropColumn(DdlWrite writer, String tableName, String columnName) {
+    writer.apply().append("EXEC usp_ebean_drop_column ").append(tableName).append(", ").append(columnName).endOfStatement();
   }
 
   /**
    * This writes the multi value datatypes needed for MultiValueBind.
    */
   @Override
-  public void generateProlog(DdlWrite write) {
-    super.generateProlog(write);
+  public void generateProlog(DdlWrite writer) {
+    super.generateProlog(writer);
 
-    generateTVPDefinitions(write, "bigint");
-    generateTVPDefinitions(write, "float");
-    generateTVPDefinitions(write, "bit");
-    generateTVPDefinitions(write, "date");
-    generateTVPDefinitions(write, "time");
+    generateTVPDefinitions(writer, "bigint");
+    generateTVPDefinitions(writer, "float");
+    generateTVPDefinitions(writer, "bit");
+    generateTVPDefinitions(writer, "date");
+    generateTVPDefinitions(writer, "time");
     //generateTVPDefinitions(write, "datetime2");
-    generateTVPDefinitions(write, "uniqueidentifier");
-    generateTVPDefinitions(write, "nvarchar(max)");
+    generateTVPDefinitions(writer, "uniqueidentifier");
+    generateTVPDefinitions(writer, "nvarchar(max)");
 
   }
 
-  private void generateTVPDefinitions(DdlWrite write, String definition) {
+  private void generateTVPDefinitions(DdlWrite writer, String definition) {
     int pos = definition.indexOf('(');
     String name = pos == -1 ? definition : definition.substring(0, pos);
 
-    dropTVP(write.dropAllProcs(), name);
+    dropTVP(writer.dropAllProcs(), name);
     //TVPs are included in "I__create_procs.sql"
-    //createTVP(write.apply(), name, definition);
+    //createTVP(writer.apply(), name, definition);
   }
 
   private void dropTVP(DdlBuffer ddl, String name) {

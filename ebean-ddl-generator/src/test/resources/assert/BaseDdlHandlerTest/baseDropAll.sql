@@ -1,3 +1,3 @@
--- apply changes
+-- drop all
 drop table if exists foo;
 

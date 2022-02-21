@@ -2,6 +2,7 @@ package io.ebeaninternal.dbmigration.ddlgeneration.platform;
 
 import io.ebean.config.DatabaseConfig;
 import io.ebean.config.DbConstraintNaming;
+import io.ebeaninternal.dbmigration.ddlgeneration.BaseDdlWrite;
 import io.ebeaninternal.dbmigration.ddlgeneration.DdlBuffer;
 import io.ebeaninternal.dbmigration.ddlgeneration.DdlWrite;
 import io.ebeaninternal.dbmigration.migration.AddHistoryTable;
@@ -108,9 +109,12 @@ public abstract class DbTriggerBasedHistoryDdl implements PlatformHistoryDdl {
     String baseTable = table.getName();
     String whenCreatedColumn = table.getWhenCreatedColumn();
 
-    // FIXME RPR: drop all system versioning!
-    //dropTriggers(writer.dropWriter().apply(), baseTable);
-    //dropHistoryTableEtc(writer.dropWriter(), baseTable);
+
+    dropTriggers(writer.dropAll(), baseTable);
+    // Workaround for drop all script
+    BaseDdlWrite tmpWrite = new BaseDdlWrite();
+    dropHistoryTableEtc(tmpWrite, baseTable);
+    writer.dropAll().append(tmpWrite.toString());
 
     addHistoryTable(writer, table, whenCreatedColumn);
     createStoredFunction(writer, table);

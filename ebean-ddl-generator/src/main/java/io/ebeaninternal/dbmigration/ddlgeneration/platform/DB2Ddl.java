@@ -23,9 +23,9 @@ public class DB2Ddl extends PlatformDdl {
   }
 
   @Override
-  public void alterTableAddUniqueConstraint(DdlWrite write, String tableName, String uqName, String[] columns, String[] nullableColumns) {
+  public void alterTableAddUniqueConstraint(DdlWrite writer, String tableName, String uqName, String[] columns, String[] nullableColumns) {
     if (nullableColumns == null || nullableColumns.length == 0) {
-       super.alterTableAddUniqueConstraint(write, tableName, uqName, columns, nullableColumns);
+       super.alterTableAddUniqueConstraint(writer, tableName, uqName, columns, nullableColumns);
        return;
     }     
 
@@ -33,7 +33,7 @@ public class DB2Ddl extends PlatformDdl {
       throw new NullPointerException();
     }
     
-    DdlBuffer buffer = write.index().append("create unique index ")
+    DdlBuffer buffer = writer.index().append("create unique index ")
         .append(uqName).append(" on ").append(tableName).append("(");
 
     for (int i = 0; i < columns.length; i++) {

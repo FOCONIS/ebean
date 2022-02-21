@@ -5,10 +5,9 @@ create table foo (
   col3                          varchar(30) not null,
   constraint pk_foo primary key (col1)
 );
-comment on table foo is 'comment';
-
-
 
 -- altering tables
 alter table foo add column added_to_foo varchar(20);
 alter table foo drop column col2;
+-- post alter
+comment on table foo is 'comment';

@@ -7,7 +7,7 @@ create table mytable (
   constraint pk_mytable primary key (id)
 );
 
--- apply foreign keys
+-- indices/constraints
 create index ix_mytable_order_id on mytable (order_id);
 alter table mytable add constraint fk_mytable_order_id foreign key (order_id) references orders (id) on delete restrict on update restrict;
 

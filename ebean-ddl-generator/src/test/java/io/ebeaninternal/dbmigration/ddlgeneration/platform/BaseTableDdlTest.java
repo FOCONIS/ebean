@@ -157,12 +157,14 @@ public class BaseTableDdlTest {
     BaseDdlWrite write = new BaseDdlWrite();
 
     ddlGen.generate(write, createTable());
-    String apply = write.toString();
 
-    String rollback = write.dropWriter().toString();
+    StringBuilder sb = new StringBuilder();
+    write.writeApply(sb);
+    assertThat(sb.toString()).isEqualTo(Helper.asText(this, "/assert/BaseTableDdlTest/createTable-apply.txt"));
 
-    assertThat(apply).isEqualTo(Helper.asText(this, "/assert/BaseTableDdlTest/createTable-apply.txt"));
-    assertThat(rollback).isEqualTo(Helper.asText(this, "/assert/BaseTableDdlTest/createTable-rollback.txt"));
+    sb.setLength(0);
+    write.writeDropAll(sb);
+    assertThat(sb.toString()).isEqualTo(Helper.asText(this, "/assert/BaseTableDdlTest/createTable-rollback.txt"));
   }
 
   private CreateTable createTable() {

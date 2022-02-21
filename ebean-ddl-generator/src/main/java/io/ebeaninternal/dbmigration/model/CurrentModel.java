@@ -118,7 +118,7 @@ public class CurrentModel {
   /**
    * Return the 'Create' DDL.
    */
-  public String getCreateDdl() throws IOException {
+  public String getCreateDdl() {
 
     createDdl();
 
@@ -129,7 +129,12 @@ public class CurrentModel {
     if (jaxbPresent) {
       addExtraDdl(ddl, ExtraDdlXmlReader.readBuiltin(), "-- init script ");
     }
-    write.writeApply(ddl);
+    try {
+      write.writeApply(ddl);
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
     return ddl.toString();
   }
 
@@ -148,7 +153,7 @@ public class CurrentModel {
   /**
    * Return the 'Drop' DDL.
    */
-  public String getDropAllDdl() throws IOException {
+  public String getDropAllDdl() {
 
     createDdl();
 
@@ -156,14 +161,19 @@ public class CurrentModel {
     if (ddlHeader != null && !ddlHeader.isEmpty()) {
       ddl.append(ddlHeader).append('\n');
     }
-    write.writeDropAll(ddl);
+    try {
+      write.writeDropAll(ddl);
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
     return ddl.toString();
   }
 
   /**
    * Create all the DDL based on the changeSet.
    */
-  private void createDdl() throws IOException {
+  private void createDdl() {
     if (write == null) {
       ChangeSet createChangeSet = getChangeSet();
       write = new BaseDdlWrite(new MConfiguration(), model, ddlOptions);
