@@ -105,6 +105,3 @@ alter table migtest_oto_child add constraint fk_migtest_oto_child_master_id fore
 
 create index ix_migtest_e_basic_indextest3 on migtest_e_basic (indextest3);
 create index ix_migtest_e_basic_indextest6 on migtest_e_basic (indextest6);
--- apply history trigger
-lock tables migtest_e_history3 write;
-unlock tables;

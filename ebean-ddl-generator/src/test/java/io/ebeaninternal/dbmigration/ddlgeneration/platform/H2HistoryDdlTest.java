@@ -36,7 +36,7 @@ public class H2HistoryDdlTest {
     H2Platform h2Platform = new H2Platform();
     PlatformDdl h2Ddl = PlatformDdlBuilder.create(h2Platform);
     h2Ddl.configure(ebeanServer.config());
-    h2Ddl.regenerateHistoryTriggers(write, update);
+    // h2Ddl.regenerateHistoryTriggers(write, update);
 
     assertThat(write.applyHistoryView().isEmpty()).isFalse();
     assertThat(write.applyHistoryTrigger().isEmpty()).isFalse();

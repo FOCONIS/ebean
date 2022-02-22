@@ -112,11 +112,11 @@ alter table migtest_e_history add (sys_period_start TIMESTAMP NOT NULL GENERATED
    sys_period_end TIMESTAMP NOT NULL GENERATED ALWAYS AS ROW END);
 alter table migtest_e_history add period for system_time(sys_period_start,sys_period_end);
 alter table migtest_e_history alter (test_string bigint);
-alter table migtest_e_history add system versioning history table migtest_e_history_history;
 alter table migtest_e_history2 alter (test_string nvarchar(255) default 'unknown' not null);
 alter table migtest_e_history2 add (test_string2 nvarchar(255),
    test_string3 nvarchar(255) default 'unknown' not null,
    new_column nvarchar(20));
+alter table migtest_e_history2_history alter (test_string nvarchar(255));
 alter table migtest_e_history2_history add (test_string2 nvarchar(255),
    test_string3 nvarchar(255) default 'unknown',
    new_column nvarchar(20));
@@ -126,12 +126,15 @@ alter table migtest_e_history5 add (test_boolean boolean default false not null)
 alter table migtest_e_history5_history add (test_boolean boolean default false);
 alter table migtest_e_history6 alter (test_number1 integer default 42 not null,
    test_number2 integer);
+alter table migtest_e_history6_history alter (test_number1 integer,
+   test_number2 integer);
 alter table migtest_e_softdelete add (deleted boolean default false not null);
 alter table migtest_oto_child add (master_id bigint);
 -- post alter
 -- NOTE: table has @History - special migration may be necessary
 update migtest_e_basic set new_boolean_field = old_boolean;
 
+alter table migtest_e_history add system versioning history table migtest_e_history_history;
 comment on column migtest_e_history.test_string is 'Column altered to long now';
 comment on table migtest_e_history is 'We have history now';
 alter table migtest_e_history2 add system versioning history table migtest_e_history2_history not validated;

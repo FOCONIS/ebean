@@ -95,11 +95,25 @@ create table migtest_e_history2 (
   obsolete_string2              varchar(255),
   constraint pk_migtest_e_history2 primary key (id)
 );
+create table migtest_e_history2_history(
+  id                            integer,
+  test_string                   varchar(255),
+  obsolete_string1              varchar(255),
+  obsolete_string2              varchar(255),
+  sys_period_start              datetime(6),
+  sys_period_end                datetime(6)
+);
 
 create table migtest_e_history3 (
   id                            integer auto_increment not null,
   test_string                   varchar(255),
   constraint pk_migtest_e_history3 primary key (id)
+);
+create table migtest_e_history3_history(
+  id                            integer,
+  test_string                   varchar(255),
+  sys_period_start              datetime(6),
+  sys_period_end                datetime(6)
 );
 
 create table migtest_e_history4 (
@@ -107,11 +121,23 @@ create table migtest_e_history4 (
   test_number                   integer,
   constraint pk_migtest_e_history4 primary key (id)
 );
+create table migtest_e_history4_history(
+  id                            integer,
+  test_number                   integer,
+  sys_period_start              datetime(6),
+  sys_period_end                datetime(6)
+);
 
 create table migtest_e_history5 (
   id                            integer auto_increment not null,
   test_number                   integer,
   constraint pk_migtest_e_history5 primary key (id)
+);
+create table migtest_e_history5_history(
+  id                            integer,
+  test_number                   integer,
+  sys_period_start              datetime(6),
+  sys_period_end                datetime(6)
 );
 
 create table migtest_e_history6 (
@@ -119,6 +145,13 @@ create table migtest_e_history6 (
   test_number1                  integer,
   test_number2                  integer not null,
   constraint pk_migtest_e_history6 primary key (id)
+);
+create table migtest_e_history6_history(
+  id                            integer,
+  test_number1                  integer,
+  test_number2                  integer,
+  sys_period_start              datetime(6),
+  sys_period_end                datetime(6)
 );
 
 create table migtest_e_ref (
@@ -158,6 +191,28 @@ create table migtest_oto_master (
   constraint pk_migtest_oto_master primary key (id)
 );
 
+-- altering tables
+alter table migtest_e_history2 add column sys_period_start datetime(6) default now(6);
+alter table migtest_e_history2 add column sys_period_end datetime(6) default now(6);
+alter table migtest_e_history3 add column sys_period_start datetime(6) default now(6);
+alter table migtest_e_history3 add column sys_period_end datetime(6) default now(6);
+alter table migtest_e_history4 add column sys_period_start datetime(6) default now(6);
+alter table migtest_e_history4 add column sys_period_end datetime(6) default now(6);
+alter table migtest_e_history5 add column sys_period_start datetime(6) default now(6);
+alter table migtest_e_history5 add column sys_period_end datetime(6) default now(6);
+alter table migtest_e_history6 add column sys_period_start datetime(6) default now(6);
+alter table migtest_e_history6 add column sys_period_end datetime(6) default now(6);
+-- post alter
+create view migtest_e_history2_with_history as select * from migtest_e_history2 union all select * from migtest_e_history2_history;
+
+create view migtest_e_history3_with_history as select * from migtest_e_history3 union all select * from migtest_e_history3_history;
+
+create view migtest_e_history4_with_history as select * from migtest_e_history4 union all select * from migtest_e_history4_history;
+
+create view migtest_e_history5_with_history as select * from migtest_e_history5 union all select * from migtest_e_history5_history;
+
+create view migtest_e_history6_with_history as select * from migtest_e_history6 union all select * from migtest_e_history6_history;
+
 -- indices/constraints
 create index ix_migtest_fk_cascade_one_id on migtest_fk_cascade (one_id);
 alter table migtest_fk_cascade add constraint fk_migtest_fk_cascade_one_id foreign key (one_id) references migtest_fk_cascade_one (id) on delete cascade on update restrict;
@@ -170,103 +225,3 @@ alter table migtest_e_basic add constraint fk_migtest_e_basic_eref_id foreign ke
 
 create index ix_migtest_e_basic_indextest1 on migtest_e_basic (indextest1);
 create index ix_migtest_e_basic_indextest5 on migtest_e_basic (indextest5);
--- apply history view
-alter table migtest_e_history2 add column sys_period_start datetime(6) default now(6);
-alter table migtest_e_history2 add column sys_period_end datetime(6);
-create table migtest_e_history2_history(
-  id                            integer,
-  test_string                   varchar(255),
-  obsolete_string1              varchar(255),
-  obsolete_string2              varchar(255),
-  sys_period_start              datetime(6),
-  sys_period_end                datetime(6)
-);
-create view migtest_e_history2_with_history as select * from migtest_e_history2 union all select * from migtest_e_history2_history;
-
-alter table migtest_e_history3 add column sys_period_start datetime(6) default now(6);
-alter table migtest_e_history3 add column sys_period_end datetime(6);
-create table migtest_e_history3_history(
-  id                            integer,
-  test_string                   varchar(255),
-  sys_period_start              datetime(6),
-  sys_period_end                datetime(6)
-);
-create view migtest_e_history3_with_history as select * from migtest_e_history3 union all select * from migtest_e_history3_history;
-
-alter table migtest_e_history4 add column sys_period_start datetime(6) default now(6);
-alter table migtest_e_history4 add column sys_period_end datetime(6);
-create table migtest_e_history4_history(
-  id                            integer,
-  test_number                   integer,
-  sys_period_start              datetime(6),
-  sys_period_end                datetime(6)
-);
-create view migtest_e_history4_with_history as select * from migtest_e_history4 union all select * from migtest_e_history4_history;
-
-alter table migtest_e_history5 add column sys_period_start datetime(6) default now(6);
-alter table migtest_e_history5 add column sys_period_end datetime(6);
-create table migtest_e_history5_history(
-  id                            integer,
-  test_number                   integer,
-  sys_period_start              datetime(6),
-  sys_period_end                datetime(6)
-);
-create view migtest_e_history5_with_history as select * from migtest_e_history5 union all select * from migtest_e_history5_history;
-
-alter table migtest_e_history6 add column sys_period_start datetime(6) default now(6);
-alter table migtest_e_history6 add column sys_period_end datetime(6);
-create table migtest_e_history6_history(
-  id                            integer,
-  test_number1                  integer,
-  test_number2                  integer,
-  sys_period_start              datetime(6),
-  sys_period_end                datetime(6)
-);
-create view migtest_e_history6_with_history as select * from migtest_e_history6 union all select * from migtest_e_history6_history;
-
--- apply history trigger
-delimiter $$
-create trigger migtest_e_history2_history_upd before update on migtest_e_history2 for each row begin
-    insert into migtest_e_history2_history (sys_period_start,sys_period_end,id, test_string, obsolete_string2) values (OLD.sys_period_start, now(6),OLD.id, OLD.test_string, OLD.obsolete_string2);
-    set NEW.sys_period_start = now(6);
-end$$
-delimiter $$
-create trigger migtest_e_history2_history_del before delete on migtest_e_history2 for each row begin
-    insert into migtest_e_history2_history (sys_period_start,sys_period_end,id, test_string, obsolete_string2) values (OLD.sys_period_start, now(6),OLD.id, OLD.test_string, OLD.obsolete_string2);
-end$$
-delimiter $$
-create trigger migtest_e_history3_history_upd before update on migtest_e_history3 for each row begin
-    insert into migtest_e_history3_history (sys_period_start,sys_period_end,id, test_string) values (OLD.sys_period_start, now(6),OLD.id, OLD.test_string);
-    set NEW.sys_period_start = now(6);
-end$$
-delimiter $$
-create trigger migtest_e_history3_history_del before delete on migtest_e_history3 for each row begin
-    insert into migtest_e_history3_history (sys_period_start,sys_period_end,id, test_string) values (OLD.sys_period_start, now(6),OLD.id, OLD.test_string);
-end$$
-delimiter $$
-create trigger migtest_e_history4_history_upd before update on migtest_e_history4 for each row begin
-    insert into migtest_e_history4_history (sys_period_start,sys_period_end,id, test_number) values (OLD.sys_period_start, now(6),OLD.id, OLD.test_number);
-    set NEW.sys_period_start = now(6);
-end$$
-delimiter $$
-create trigger migtest_e_history4_history_del before delete on migtest_e_history4 for each row begin
-    insert into migtest_e_history4_history (sys_period_start,sys_period_end,id, test_number) values (OLD.sys_period_start, now(6),OLD.id, OLD.test_number);
-end$$
-delimiter $$
-create trigger migtest_e_history5_history_upd before update on migtest_e_history5 for each row begin
-    insert into migtest_e_history5_history (sys_period_start,sys_period_end,id, test_number) values (OLD.sys_period_start, now(6),OLD.id, OLD.test_number);
-    set NEW.sys_period_start = now(6);
-end$$
-delimiter $$
-create trigger migtest_e_history5_history_del before delete on migtest_e_history5 for each row begin
-    insert into migtest_e_history5_history (sys_period_start,sys_period_end,id, test_number) values (OLD.sys_period_start, now(6),OLD.id, OLD.test_number);
-end$$
-delimiter $$
-create trigger migtest_e_history6_history_upd before update on migtest_e_history6 for each row begin
-    insert into migtest_e_history6_history (sys_period_start,sys_period_end,id, test_number1, test_number2) values (OLD.sys_period_start, now(6),OLD.id, OLD.test_number1, OLD.test_number2);
-    set NEW.sys_period_start = now(6);
-end$$
-delimiter $$
-create trigger migtest_e_history6_history_del before delete on migtest_e_history6 for each row begin
-    insert into migtest_e_history6_history (sys_period_start,sys_period_end,id, test_number1, test_number2) values (OLD.sys_period_start, now(6),OLD.id, OLD.test_number1, OLD.test_number2);
-end$$

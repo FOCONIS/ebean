@@ -8,7 +8,7 @@ public interface DdlAlterTable {
 
   void write(Appendable target) throws IOException;
 
-  DdlAlterTable preAdd(String operation);
+  // DdlAlterTable preAdd(String operation);
 
   /**
    * Adds an alter table command.
@@ -19,10 +19,11 @@ public interface DdlAlterTable {
 
   DdlAlterTable add(String operation, String columnName, String... suffix);
 
-  DdlAlterTable postAdd(String operation);
+  DdlAlterTable raw(String string);
 
   boolean isHistoryHandled();
 
   DdlAlterTable setHistoryHandled();
+
 
 }

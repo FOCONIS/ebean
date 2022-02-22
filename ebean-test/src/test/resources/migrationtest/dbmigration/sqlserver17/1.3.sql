@@ -69,7 +69,3 @@ IF (OBJECT_ID('ck_migtest_e_enum_test_status', 'C') IS NOT NULL) alter table mig
 alter table migtest_e_enum add constraint ck_migtest_e_enum_test_status check ( test_status in ('N','A','I'));
 create index ix_migtest_e_basic_indextest1 on migtest_e_basic (indextest1);
 create index ix_migtest_e_basic_indextest5 on migtest_e_basic (indextest5);
--- apply history view
--- alter table migtest_e_history3 set (system_versioning = off (history_table=dbo.migtest_e_history3_history));
--- history migration goes here
--- alter table migtest_e_history3 set (system_versioning = on (history_table=dbo.migtest_e_history3_history));

@@ -7,9 +7,6 @@ alter table if exists migtest_fk_set_null drop constraint if exists fk_migtest_f
 alter table if exists migtest_e_basic drop constraint if exists fk_migtest_e_basic_user_id;
 drop index if exists ix_migtest_e_basic_indextest3;
 drop index if exists ix_migtest_e_basic_indextest6;
-drop view if exists migtest_e_history2_with_history;
-drop view if exists migtest_e_history3_with_history;
-drop view if exists migtest_e_history4_with_history;
 -- apply changes
 create table migtest_e_ref (
   id                            serial not null,
@@ -22,6 +19,18 @@ create table migtest_e_ref (
 update migtest_e_basic set status2 = 'N' where status2 is null;
 
 update migtest_e_basic set user_id = 23 where user_id is null;
+drop trigger if exists migtest_e_history2_history_upd on migtest_e_history2 cascade;
+drop function if exists migtest_e_history2_history_version();
+
+drop view migtest_e_history2_with_history;
+drop trigger if exists migtest_e_history4_history_upd on migtest_e_history4 cascade;
+drop function if exists migtest_e_history4_history_version();
+
+drop view migtest_e_history4_with_history;
+drop trigger if exists migtest_e_history6_history_upd on migtest_e_history6 cascade;
+drop function if exists migtest_e_history6_history_version();
+
+drop view migtest_e_history6_with_history;
 
 -- NOTE: table has @History - special migration may be necessary
 update migtest_e_history6 set test_number2 = 7 where test_number2 is null;
@@ -61,6 +70,24 @@ alter table migtest_e_history6 alter column test_number2 set not null;
 -- post alter
 comment on column migtest_e_history.test_string is '';
 comment on table migtest_e_history is '';
+create view migtest_e_history2_with_history as select * from migtest_e_history2 union all select * from migtest_e_history2_history;
+
+create trigger migtest_e_history2_history_upd
+  before update or delete on migtest_e_history2
+  for each row execute procedure migtest_e_history2_history_version();
+
+create view migtest_e_history4_with_history as select * from migtest_e_history4 union all select * from migtest_e_history4_history;
+
+create trigger migtest_e_history4_history_upd
+  before update or delete on migtest_e_history4
+  for each row execute procedure migtest_e_history4_history_version();
+
+create view migtest_e_history6_with_history as select * from migtest_e_history6 union all select * from migtest_e_history6_history;
+
+create trigger migtest_e_history6_history_upd
+  before update or delete on migtest_e_history6
+  for each row execute procedure migtest_e_history6_history_version();
+
 -- indices/constraints
 alter table if exists migtest_ckey_detail drop constraint if exists fk_migtest_ckey_detail_parent;
 alter table migtest_fk_cascade add constraint fk_migtest_fk_cascade_one_id foreign key (one_id) references migtest_fk_cascade_one (id) on delete cascade on update restrict;
@@ -76,68 +103,3 @@ create index if not exists ix_migtest_e_basic_indextest5 on migtest_e_basic (ind
 create index if not exists ix_m12_otoc71 on migtest_oto_child (name);
 create unique index if not exists uq_m12_otoc71 on migtest_oto_child (lower(name));
 create unique index if not exists ix_migtest_oto_master_lowername on migtest_oto_master (lower(name));
--- apply history view
-create view migtest_e_history2_with_history as select * from migtest_e_history2 union all select * from migtest_e_history2_history;
-
-create view migtest_e_history3_with_history as select * from migtest_e_history3 union all select * from migtest_e_history3_history;
-
-create view migtest_e_history4_with_history as select * from migtest_e_history4 union all select * from migtest_e_history4_history;
-
--- apply history trigger
--- changes: [add obsolete_string1, add obsolete_string2]
-create or replace function migtest_e_history2_history_version() returns trigger as $$
-declare
-  lowerTs timestamptz;
-  upperTs timestamptz;
-begin
-  lowerTs = lower(OLD.sys_period);
-  upperTs = greatest(lowerTs + '1 microsecond',current_timestamp);
-  if (TG_OP = 'UPDATE') then
-    insert into migtest_e_history2_history (sys_period,id, test_string, obsolete_string2, test_string2, test_string3, new_column) values (tstzrange(lowerTs,upperTs), OLD.id, OLD.test_string, OLD.obsolete_string2, OLD.test_string2, OLD.test_string3, OLD.new_column);
-    NEW.sys_period = tstzrange(upperTs,null);
-    return new;
-  elsif (TG_OP = 'DELETE') then
-    insert into migtest_e_history2_history (sys_period,id, test_string, obsolete_string2, test_string2, test_string3, new_column) values (tstzrange(lowerTs,upperTs), OLD.id, OLD.test_string, OLD.obsolete_string2, OLD.test_string2, OLD.test_string3, OLD.new_column);
-    return old;
-  end if;
-end;
-$$ LANGUAGE plpgsql;
-
--- changes: [include test_string]
-create or replace function migtest_e_history3_history_version() returns trigger as $$
-declare
-  lowerTs timestamptz;
-  upperTs timestamptz;
-begin
-  lowerTs = lower(OLD.sys_period);
-  upperTs = greatest(lowerTs + '1 microsecond',current_timestamp);
-  if (TG_OP = 'UPDATE') then
-    insert into migtest_e_history3_history (sys_period,id, test_string) values (tstzrange(lowerTs,upperTs), OLD.id, OLD.test_string);
-    NEW.sys_period = tstzrange(upperTs,null);
-    return new;
-  elsif (TG_OP = 'DELETE') then
-    insert into migtest_e_history3_history (sys_period,id, test_string) values (tstzrange(lowerTs,upperTs), OLD.id, OLD.test_string);
-    return old;
-  end if;
-end;
-$$ LANGUAGE plpgsql;
-
--- changes: [alter test_number]
-create or replace function migtest_e_history4_history_version() returns trigger as $$
-declare
-  lowerTs timestamptz;
-  upperTs timestamptz;
-begin
-  lowerTs = lower(OLD.sys_period);
-  upperTs = greatest(lowerTs + '1 microsecond',current_timestamp);
-  if (TG_OP = 'UPDATE') then
-    insert into migtest_e_history4_history (sys_period,id, test_number) values (tstzrange(lowerTs,upperTs), OLD.id, OLD.test_number);
-    NEW.sys_period = tstzrange(upperTs,null);
-    return new;
-  elsif (TG_OP = 'DELETE') then
-    insert into migtest_e_history4_history (sys_period,id, test_number) values (tstzrange(lowerTs,upperTs), OLD.id, OLD.test_number);
-    return old;
-  end if;
-end;
-$$ LANGUAGE plpgsql;
-

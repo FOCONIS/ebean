@@ -104,6 +104,7 @@ alter table migtest_e_basic add (old_boolean boolean default false not null,
 alter table migtest_e_history2 alter (test_string nvarchar(255) default null);
 alter table migtest_e_history2 add (obsolete_string1 nvarchar(255),
    obsolete_string2 nvarchar(255));
+alter table migtest_e_history2_history alter (test_string nvarchar(255));
 alter table migtest_e_history2_history add (obsolete_string1 nvarchar(255),
    obsolete_string2 nvarchar(255));
 alter table migtest_e_history4 alter (test_number decimal);
@@ -112,6 +113,8 @@ alter table migtest_e_history4_history alter (test_number decimal);
 alter table migtest_e_history4_history alter (test_number integer);
 alter table migtest_e_history6 alter (test_number1 integer default null,
    test_number2 integer default 7 not null);
+alter table migtest_e_history6_history alter (test_number1 integer,
+   test_number2 integer);
 -- post alter
 comment on column migtest_e_history.test_string is '';
 comment on table migtest_e_history is '';

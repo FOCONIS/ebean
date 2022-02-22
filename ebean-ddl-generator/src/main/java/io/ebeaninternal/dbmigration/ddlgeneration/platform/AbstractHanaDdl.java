@@ -1,16 +1,11 @@
 package io.ebeaninternal.dbmigration.ddlgeneration.platform;
 
-import io.ebean.config.DatabaseConfig;
 import io.ebean.config.dbplatform.DatabasePlatform;
 import io.ebean.config.dbplatform.DbPlatformType;
 import io.ebeaninternal.dbmigration.ddlgeneration.DdlAlterTable;
 import io.ebeaninternal.dbmigration.ddlgeneration.DdlBuffer;
-import io.ebeaninternal.dbmigration.ddlgeneration.DdlHandler;
 import io.ebeaninternal.dbmigration.ddlgeneration.DdlWrite;
-import io.ebeaninternal.dbmigration.ddlgeneration.platform.BaseAlterTableWrite.AlterCmd;
 import io.ebeaninternal.dbmigration.migration.AlterColumn;
-import io.ebeaninternal.dbmigration.migration.Column;
-import io.ebeaninternal.dbmigration.model.MTable;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -74,9 +69,7 @@ public abstract class AbstractHanaDdl extends PlatformDdl {
     }
 
     alterTable(writer, tableName).add(alterColumn, columnName, type, defaultValueClause, notnullClause);
-    if (!onHistoryTable) {
-      disableHistoryDuringAlter(writer, tableName);
-    }
+
   }
 
   @Override
@@ -138,7 +131,7 @@ public abstract class AbstractHanaDdl extends PlatformDdl {
           }
         }
         sb.append(")");
-        newCmds.add(new AlterCmd(sb.toString(), null, null));
+        newCmds.add(new AlterCmd(sb.toString(), null, null, false));
       }
       batches.clear();
     }
@@ -222,36 +215,9 @@ public abstract class AbstractHanaDdl extends PlatformDdl {
    */
   @Override
   public void alterTableDropColumn(DdlWrite writer, String tableName, String columnName, boolean onHistoryTable) {
-    disableHistoryDuringAlter(writer, tableName);
-    writer.apply().append("CALL usp_ebean_drop_column('").append(tableName)
-        .append("', '").append(columnName).append("')").endOfStatement();
-    if (!onHistoryTable) {
-      disableHistoryDuringAlter(writer, tableName);
-    }
-
+    alterTable(writer, tableName).raw("CALL usp_ebean_drop_column('" + tableName + "', '" + columnName + "')");
   }
 
-  public void alterTableAddColumn(DdlWrite writer, String tableName, Column column, boolean onHistoryTable,
-      String defaultValue) {
-    super.alterTableAddColumn(writer, tableName, column, onHistoryTable, defaultValue);
-    if (!onHistoryTable) {
-      disableHistoryDuringAlter(writer, tableName);
-    }
-  }
-
-
-  private void disableHistoryDuringAlter(DdlWrite writer, String tableName) {
-    MTable table = writer.getTable(tableName);
-    if (table != null && table.isWithHistory()) {
-      DdlAlterTable alter = alterTable(writer, tableName);
-      if (!alter.isHistoryHandled()) {
-        HanaHistoryDdl historyDdl = (HanaHistoryDdl) this.historyDdl;
-        writer.apply().appendStatement(historyDdl.disableSystemVersioning(tableName));
-        writer.postAlter().appendStatement(historyDdl.enableSystemVersioning(tableName, false));
-        alter.setHistoryHandled();
-      }
-    }
-  };
 
   /**
    * Check if a data type can be converted to another data type. Data types can't

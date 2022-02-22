@@ -9,7 +9,6 @@ import io.ebean.config.dbplatform.DbIdentity;
 import io.ebean.config.dbplatform.IdType;
 import io.ebean.util.StringHelper;
 import io.ebeaninternal.dbmigration.ddlgeneration.BaseDdlHandler;
-import io.ebeaninternal.dbmigration.ddlgeneration.DdlAlterMerger;
 import io.ebeaninternal.dbmigration.ddlgeneration.DdlAlterTable;
 import io.ebeaninternal.dbmigration.ddlgeneration.DdlBuffer;
 import io.ebeaninternal.dbmigration.ddlgeneration.DdlHandler;
@@ -353,13 +352,13 @@ public class PlatformDdl {
     historyDdl.addHistoryTable(writer, addHistoryTable);
   }
 
-  /**
-   * Regenerate the history triggers (or function) due to a column being
-   * added/dropped/excluded or included.
-   */
-  public void regenerateHistoryTriggers(DdlWrite writer, HistoryTableUpdate update) {
-    historyDdl.updateTriggers(writer, update);
-  }
+//  /**
+//   * Regenerate the history triggers (or function) due to a column being
+//   * added/dropped/excluded or included.
+//   */
+//  public void regenerateHistoryTriggers(DdlWrite writer, HistoryTableUpdate update) {
+//    historyDdl.updateTriggers(writer, update);
+//  }
 
   /**
    * Generate and return the create sequence DDL.

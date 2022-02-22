@@ -1,11 +1,16 @@
 package io.ebeaninternal.dbmigration;
 
 import io.ebean.BaseTestCase;
+import io.ebean.Database;
+import io.ebean.DatabaseFactory;
 import io.ebean.SqlRow;
 import io.ebean.SqlUpdate;
+import io.ebean.Version;
 import io.ebean.annotation.IgnorePlatform;
 import io.ebean.annotation.Platform;
+import io.ebean.config.DatabaseConfig;
 import io.ebean.datasource.pool.ConnectionPool;
+import misc.migration.v1_1.EHistory;
 
 import org.junit.jupiter.api.Test;
 
@@ -13,6 +18,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -136,6 +143,8 @@ public class DbMigrationTest extends BaseTestCase {
     assertThat(row.getBoolean("new_boolean_field2")).isTrue();
     //assertThat(row.getTimestamp("some_date")).isCloseTo(new Date(), 60_000); // allow 1 minute delta
 
+    testVersioning();
+    // Check some migration
     runScript("1.2__dropsFor_1.1.sql");
 
     // Oracle caches the statement and does not detect schema change. It fails with
@@ -153,6 +162,36 @@ public class DbMigrationTest extends BaseTestCase {
     assertThat(result).hasSize(2);
     row = result.get(0);
     assertThat(row.keySet()).contains("old_boolean", "old_boolean2");
+  }
+
+  private void testVersioning() {
+    DatabaseConfig config = new DatabaseConfig();
+    config.setName(server().name());
+    config.loadFromProperties(server().pluginApi().config().getProperties());
+    config.setDdlGenerate(false);
+    config.setDdlRun(false);
+    config.setRegister(false);
+    config.setPackages(Arrays.asList("misc.migration.v1_1"));
+
+    Database tmpServer = DatabaseFactory.create(config);
+    try {
+      EHistory hist = new misc.migration.v1_1.EHistory();
+      hist.setId(2);
+      hist.setTestString(42L);
+      tmpServer.save(hist);
+
+      hist = tmpServer.find(EHistory.class).where().eq("testString", 42L).findOne();
+      hist.setTestString(45L);
+      tmpServer.save(hist);
+
+      List<Version<EHistory>> versions = tmpServer.find(EHistory.class).setId(hist.getId())
+          .findVersionsBetween(Timestamp.valueOf("1970-01-01 00:00:00"), Timestamp.valueOf("2100-01-01 00:00:00"));
+      assertThat(versions).hasSize(2);
+      // versions.get(0).getDiff()
+
+    } finally {
+      tmpServer.shutdown();
+    }
   }
 
   /**

@@ -2,6 +2,7 @@ package io.ebeaninternal.dbmigration.ddlgeneration.platform;
 
 import io.ebean.config.DatabaseConfig;
 import io.ebeaninternal.dbmigration.ddlgeneration.BaseDdlWrite;
+import io.ebeaninternal.dbmigration.ddlgeneration.DdlAlterTable;
 import io.ebeaninternal.dbmigration.ddlgeneration.DdlBuffer;
 import io.ebeaninternal.dbmigration.ddlgeneration.DdlWrite;
 import io.ebeaninternal.dbmigration.migration.AddHistoryTable;
@@ -10,8 +11,6 @@ import io.ebeaninternal.dbmigration.model.MColumn;
 import io.ebeaninternal.dbmigration.model.MTable;
 
 import java.util.Collection;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class HanaHistoryDdl implements PlatformHistoryDdl {
 
@@ -19,7 +18,6 @@ public class HanaHistoryDdl implements PlatformHistoryDdl {
   private String systemPeriodEnd;
   private AbstractHanaDdl platformDdl;
   private String historySuffix;
-  private Map<String, String> createdHistoryTables = new ConcurrentHashMap<>();
 
   @Override
   public void configure(DatabaseConfig config, PlatformDdl platformDdl) {
@@ -33,18 +31,17 @@ public class HanaHistoryDdl implements PlatformHistoryDdl {
   public void createWithHistory(DdlWrite writer, MTable table) {
     String tableName = table.getName();
     String historyTableName = tableName + historySuffix;
-    if (writer.applyHistoryView().isEmpty()) {
-      createdHistoryTables.clear();
-    }
 
     createHistoryTable(writer.apply(), table);
 
-    // enable system versioning
+    // add versioning columns for that table
     platformDdl.alterTable(writer, tableName)
         .add("add", systemPeriodStart, "TIMESTAMP NOT NULL GENERATED ALWAYS AS ROW START")
         .add("add", systemPeriodEnd, "TIMESTAMP NOT NULL GENERATED ALWAYS AS ROW END")
         .add("add period for system_time(" + systemPeriodStart + "," + systemPeriodEnd + ")")
-        .postAdd(enableSystemVersioning(tableName, true)).setHistoryHandled();
+        .setHistoryHandled(); // mark, that for this table history is handled because we ...
+    // ... enable system versioning after all alter statements
+    writer.postAlter().appendStatement(enableSystemVersioning(tableName, true));
 
     // Workaround for drop all script
     BaseDdlWrite tmpWrite = new BaseDdlWrite();
@@ -83,9 +80,6 @@ public class HanaHistoryDdl implements PlatformHistoryDdl {
     writer.dropDependencies().append("alter table ").append(baseTable).append(" drop period for system_time")
         .endOfStatement();
 
-    // writer.postAlter().append("alter table ").append(baseTable).append(" drop
-    // period for system_time");
-
     // drop the period columns
     platformDdl.alterTable(writer, baseTable).add("drop", systemPeriodStart).add("drop", systemPeriodEnd);
 
@@ -102,17 +96,12 @@ public class HanaHistoryDdl implements PlatformHistoryDdl {
     createWithHistory(writer, table);
   }
 
-  @Override
-  public void updateTriggers(DdlWrite writer, HistoryTableUpdate baseTable) {
-    // nothing to do
-  }
 
   protected void writeColumnDefinition(DdlBuffer buffer, String columnName, String type, String defaultValue,
                                        boolean isNotNull, String generated) {
 
-    String platformType = platformDdl.convert(type);
     buffer.append(" ").append(platformDdl.lowerColumnName(columnName));
-    buffer.append(" ").append(platformType);
+    buffer.append(" ").append(platformDdl.convert(type));
     if (defaultValue != null) {
       buffer.append(" default ").append(defaultValue);
     }
@@ -137,4 +126,18 @@ public class HanaHistoryDdl implements PlatformHistoryDdl {
   public boolean alterHistoryTables() {
     return true;
   }
+
+  @Override
+  public void regenerateHistory(DdlWrite writer, String tableName) {
+    MTable table = writer.getTable(tableName);
+    if (table != null && table.isWithHistory()) {
+      DdlAlterTable alter = writer.alterTable(tableName);
+      if (alter != null && !alter.isHistoryHandled()) {
+        writer.apply().appendStatement(disableSystemVersioning(tableName));
+        writer.postAlter().appendStatement(enableSystemVersioning(tableName, false));
+        alter.setHistoryHandled();
+      }
+    }
+  };
+
 }

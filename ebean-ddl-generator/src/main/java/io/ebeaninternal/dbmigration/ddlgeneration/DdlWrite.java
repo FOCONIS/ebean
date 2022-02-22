@@ -1,7 +1,6 @@
 package io.ebeaninternal.dbmigration.ddlgeneration;
 
 import java.io.IOException;
-import java.util.Map;
 import java.util.function.Function;
 
 import io.ebeaninternal.dbmigration.model.MTable;
@@ -45,7 +44,9 @@ public interface DdlWrite {
   /**
    * Holds all alter table statements per table, but NOT foreign keys.
    */
-  <T extends DdlAlterTable> T alterTable(String tableName, Function<String, T> factory);
+  DdlAlterTable alterTable(String tableName, Function<String, DdlAlterTable> factory);
+
+  DdlAlterTable alterTable(String tableName);
 
   /**
    * Holds all statements after alter.

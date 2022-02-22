@@ -82,18 +82,18 @@ public class SqlServerHistoryDdl implements PlatformHistoryDdl {
     enableSystemVersioning(writer, baseTable);
   }
 
-  @Override
-  public void updateTriggers(DdlWrite writer, HistoryTableUpdate baseTable) {
-    // SQL Server 2016 does not need triggers
-    DdlBuffer apply = writer.applyHistoryView();
-    String baseTableName = baseTable.getBaseTable();
-    apply.append("-- alter table ").append(baseTableName).append(" set (system_versioning = off (history_table=")
-      .append(getHistoryTable(baseTableName)).append("))").endOfStatement();
-    apply.append("-- history migration goes here").newLine();
-    apply.append("-- alter table ").append(baseTableName).append(" set (system_versioning = on (history_table=")
-      .append(getHistoryTable(baseTableName)).append("))").endOfStatement();
-
-  }
+//  @Override
+//  public void updateTriggers(DdlWrite writer, HistoryTableUpdate baseTable) {
+//    // SQL Server 2016 does not need triggers
+//    DdlBuffer apply = writer.applyHistoryView();
+//    String baseTableName = baseTable.getBaseTable();
+//    apply.append("-- alter table ").append(baseTableName).append(" set (system_versioning = off (history_table=")
+//      .append(getHistoryTable(baseTableName)).append("))").endOfStatement();
+//    apply.append("-- history migration goes here").newLine();
+//    apply.append("-- alter table ").append(baseTableName).append(" set (system_versioning = on (history_table=")
+//      .append(getHistoryTable(baseTableName)).append("))").endOfStatement();
+//
+//  }
 
   @Override
   public boolean alterHistoryTables() {

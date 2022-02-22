@@ -120,6 +120,3 @@ alter table migtest_e_history
         sys_periodTo   datetime2 GENERATED ALWAYS AS ROW END   NOT NULL DEFAULT '9999-12-31T23:59:59.9999999',
 period for system_time (sys_periodFrom, sys_periodTo);
 alter table migtest_e_history set (system_versioning = on (history_table=dbo.migtest_e_history_history));
--- alter table migtest_e_history3 set (system_versioning = off (history_table=dbo.migtest_e_history3_history));
--- history migration goes here
--- alter table migtest_e_history3 set (system_versioning = on (history_table=dbo.migtest_e_history3_history));

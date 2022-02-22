@@ -25,21 +25,21 @@ public class PostgresHistoryDdl extends DbTriggerBasedHistoryDdl {
       .append("(like ").append(table.getName()).append(")").endOfStatement();
   }
 
-  /**
-   * Use Postgres range type rather than start and end timestamps.
-   */
-  @Override
-  protected void addSysPeriodColumns(DdlBuffer apply, String baseTableName, String whenCreatedColumn) {
-    apply
-      .append("alter table ").append(baseTableName)
-      .append(" add column ").append(sysPeriod).append(" tstzrange not null default tstzrange(").append(now).append(", null)")
-      .endOfStatement();
-
-    if (whenCreatedColumn != null) {
-      apply.append("update ").append(baseTableName).append(" set ")
-        .append(sysPeriod).append(" = tstzrange(").append(whenCreatedColumn).append(", null)").endOfStatement();
-    }
-  }
+//  /**
+//   * Use Postgres range type rather than start and end timestamps.
+//   */
+//  @Override
+//  protected void addSysPeriodColumns(DdlBuffer apply, String baseTableName, String whenCreatedColumn) {
+//    apply
+//      .append("alter table ").append(baseTableName)
+//      .append(" add column ").append(sysPeriod).append(" tstzrange not null default tstzrange(").append(now).append(", null)")
+//      .endOfStatement();
+//
+//    if (whenCreatedColumn != null) {
+//      apply.append("update ").append(baseTableName).append(" set ")
+//        .append(sysPeriod).append(" = tstzrange(").append(whenCreatedColumn).append(", null)").endOfStatement();
+//    }
+//  }
 
 //  @Override
 //  protected void appendSysPeriodColumns(DdlBuffer apply, String prefix) {
@@ -52,12 +52,11 @@ public class PostgresHistoryDdl extends DbTriggerBasedHistoryDdl {
   }
 
   @Override
-  protected void createTriggers(DdlWrite writer, MTable table) {
+  protected void createTriggers(DdlBuffer apply, MTable table) {
     String baseTableName = table.getName();
     String procedureName = procedureName(baseTableName);
     String triggerName = triggerName(baseTableName);
 
-    DdlBuffer apply = writer.applyHistoryTrigger();
     apply
       .append("create trigger ").append(triggerName).newLine()
       .append("  before update or delete on ").append(baseTableName).newLine()

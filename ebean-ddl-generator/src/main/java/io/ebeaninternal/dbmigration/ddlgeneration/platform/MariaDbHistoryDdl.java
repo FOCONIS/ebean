@@ -45,11 +45,6 @@ public class MariaDbHistoryDdl implements PlatformHistoryDdl {
   }
 
   @Override
-  public void updateTriggers(DdlWrite writer, HistoryTableUpdate baseTable) {
-    // do nothing
-  }
-
-  @Override
   public boolean alterHistoryTables() {
     return false;
   }

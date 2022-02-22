@@ -53,6 +53,3 @@ alter table migtest_e_basic add constraint fk_migtest_e_basic_eref_id foreign ke
 
 create index ix_migtest_e_basic_indextest1 on migtest_e_basic (indextest1);
 create index ix_migtest_e_basic_indextest5 on migtest_e_basic (indextest5);
--- apply history trigger
-lock tables migtest_e_history3 write;
-unlock tables;

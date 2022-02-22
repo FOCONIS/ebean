@@ -23,9 +23,8 @@ public class H2HistoryDdl extends DbTriggerBasedHistoryDdl {
   }
 
   @Override
-  protected void createTriggers(DdlWrite writer, MTable table) {
+  protected void createTriggers(DdlBuffer apply, MTable table) {
     String baseTableName = table.getName();
-    DdlBuffer apply = writer.applyHistoryTrigger();
     addCreateTrigger(apply, updateTriggerName(baseTableName), baseTableName);
   }
 

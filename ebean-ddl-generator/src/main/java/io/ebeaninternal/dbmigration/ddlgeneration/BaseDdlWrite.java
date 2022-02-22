@@ -106,8 +106,13 @@ public class BaseDdlWrite implements DdlWrite {
   
 
   @Override
-  public <T extends DdlAlterTable> T alterTable(String tableName, Function<String, T> factory) {
-    return (T) alterTables.computeIfAbsent(tableName, factory);
+  public DdlAlterTable alterTable(String tableName, Function<String, DdlAlterTable> factory) {
+    return alterTables.computeIfAbsent(tableName, factory);
+  }
+
+  @Override
+  public DdlAlterTable alterTable(String tableName) {
+    return alterTables.get(tableName);
   }
 
   /**

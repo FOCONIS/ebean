@@ -19,12 +19,12 @@ public class MySqlHistoryDdl extends DbTriggerBasedHistoryDdl {
   }
 
   @Override
-  protected void createTriggers(DdlWrite writer, MTable table) {
+  protected void createTriggers(DdlBuffer apply, MTable table) {
 
-    DbTriggerUpdate update = createDbTriggerUpdate(writer, table);
-
-    addBeforeUpdate(updateTriggerName(update.getBaseTable()), update);
-    addBeforeDelete(deleteTriggerName(update.getBaseTable()), update);
+//    DbTriggerUpdate update = createDbTriggerUpdate(writer, table);
+//
+//    addBeforeUpdate(updateTriggerName(update.getBaseTable()), update);
+//    addBeforeDelete(deleteTriggerName(update.getBaseTable()), update);
   }
 
   @Override
