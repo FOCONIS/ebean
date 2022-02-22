@@ -1,8 +1,10 @@
 -- Migrationscripts for ebean unittest
 -- drop dependencies
 drop trigger migtest_e_history_history_upd;
--- apply changes
 drop view migtest_e_history_with_history;
+drop table migtest_e_history_history;
+
+-- apply changes
 drop trigger migtest_e_history2_history_upd;
 drop view migtest_e_history2_with_history;
 drop trigger migtest_e_history5_history_upd;
@@ -30,8 +32,6 @@ alter table migtest_e_history5_history drop column test_boolean;
 alter table migtest_e_softdelete drop column deleted;
 alter table migtest_oto_child drop column master_id;
 -- post alter
-drop table migtest_e_history_history;
-
 create view migtest_e_history2_with_history as select * from migtest_e_history2 union all select * from migtest_e_history2_history;
 
 create trigger migtest_e_history2_history_upd before update,delete on migtest_e_history2 for each row call "io.ebean.config.dbplatform.h2.H2HistoryTrigger";

@@ -2,6 +2,7 @@ package io.ebeaninternal.dbmigration.ddlgeneration.platform;
 
 import io.ebean.config.DatabaseConfig;
 import io.ebeaninternal.dbmigration.ddlgeneration.BaseDdlWrite;
+import io.ebeaninternal.dbmigration.ddlgeneration.DdlAlterTable;
 import io.ebeaninternal.dbmigration.ddlgeneration.DdlBuffer;
 import io.ebeaninternal.dbmigration.ddlgeneration.DdlWrite;
 import io.ebeaninternal.dbmigration.migration.AddHistoryTable;
@@ -14,6 +15,7 @@ import io.ebeaninternal.dbmigration.model.MTable;
 public class MariaDbHistoryDdl implements PlatformHistoryDdl {
 
   private PlatformDdl platformDdl;
+  private boolean alterHistorySet = false;
 
   @Override
   public void configure(DatabaseConfig config, PlatformDdl platformDdl) {
@@ -42,6 +44,15 @@ public class MariaDbHistoryDdl implements PlatformHistoryDdl {
   public void addHistoryTable(DdlWrite writer, AddHistoryTable addHistoryTable) {
     String baseTable = addHistoryTable.getBaseTable();
     enableSystemVersioning(writer, baseTable);
+  }
+
+  @Override
+  public void regenerateHistory(DdlWrite writer, String tableName) {
+    MTable table = writer.getTable(tableName);
+    if (table != null && table.isWithHistory() && !alterHistorySet) {
+      writer.apply().appendStatement("SET @@system_versioning_alter_history = 1");
+      alterHistorySet = true;
+    }
   }
 
   @Override

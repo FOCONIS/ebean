@@ -1,5 +1,6 @@
 -- Migrationscripts for ebean unittest
 -- apply changes
+SET @@system_versioning_alter_history = 1;
 drop sequence if exists migtest_e_ref_seq;
 -- altering tables
 alter table migtest_e_basic drop column old_boolean;

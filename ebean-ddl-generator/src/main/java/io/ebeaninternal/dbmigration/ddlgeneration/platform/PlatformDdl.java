@@ -352,6 +352,13 @@ public class PlatformDdl {
     historyDdl.addHistoryTable(writer, addHistoryTable);
   }
 
+  /**
+   * Regenerate history on an existing table.
+   */
+  public void regenerateHistory(DdlWrite writer, String tableName) {
+    historyDdl.regenerateHistory(writer, tableName);
+  }
+
 //  /**
 //   * Regenerate the history triggers (or function) due to a column being
 //   * added/dropped/excluded or included.
@@ -774,4 +781,5 @@ public class PlatformDdl {
   public void addTablePartition(DdlBuffer apply, String partitionMode, String partitionColumn) {
     // only supported by postgres initially
   }
+
 }

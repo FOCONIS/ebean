@@ -35,8 +35,8 @@ update migtest_e_basic set status = 'A' where status is null;
 insert into migtest_e_user (id) select distinct user_id from migtest_e_basic;
 
 -- NOTE: table has @History - special migration may be necessary
-SET @@system_versioning_alter_history = 1;
 update migtest_e_history2 set test_string = 'unknown' where test_string is null;
+SET @@system_versioning_alter_history = 1;
 
 -- NOTE: table has @History - special migration may be necessary
 update migtest_e_history6 set test_number1 = 42 where test_number1 is null;

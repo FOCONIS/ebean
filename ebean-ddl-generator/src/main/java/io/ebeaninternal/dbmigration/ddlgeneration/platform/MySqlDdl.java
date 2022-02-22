@@ -41,7 +41,7 @@ public class MySqlDdl extends PlatformDdl {
   public void alterTableDropColumn(final DdlWrite writer, final String tableName, final String columnName,
       boolean onHistoryTable) {
     if (this.useMigrationStoredProcedures) {
-      writer.apply().append("CALL usp_ebean_drop_column('").append(tableName).append("', '").append(columnName).append("')").endOfStatement();
+      alterTable(writer, tableName).raw("CALL usp_ebean_drop_column('" + tableName + "', '" + columnName + "')");
     } else {
       super.alterTableDropColumn(writer, tableName, columnName, onHistoryTable);
     }

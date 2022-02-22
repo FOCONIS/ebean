@@ -20,26 +20,22 @@ public class PostgresHistoryDdl extends DbTriggerBasedHistoryDdl {
    * Use Postgres create table like to create the history table.
    */
   @Override
-  protected void createHistoryTable(DdlBuffer apply, MTable table) {
-    apply.append("create table ").append(table.getName()).append(historySuffix)
+  protected void createHistoryTable(DdlWrite writer, MTable table) {
+    writer.postAlter().append("create table ").append(table.getName()).append(historySuffix)
       .append("(like ").append(table.getName()).append(")").endOfStatement();
   }
 
-//  /**
-//   * Use Postgres range type rather than start and end timestamps.
-//   */
-//  @Override
-//  protected void addSysPeriodColumns(DdlBuffer apply, String baseTableName, String whenCreatedColumn) {
-//    apply
-//      .append("alter table ").append(baseTableName)
-//      .append(" add column ").append(sysPeriod).append(" tstzrange not null default tstzrange(").append(now).append(", null)")
-//      .endOfStatement();
-//
-//    if (whenCreatedColumn != null) {
-//      apply.append("update ").append(baseTableName).append(" set ")
-//        .append(sysPeriod).append(" = tstzrange(").append(whenCreatedColumn).append(", null)").endOfStatement();
-//    }
-//  }
+  @Override
+  protected void addSysPeriodColumns(DdlWrite writer, String baseTableName, String whenCreatedColumn) {
+    platformDdl.alterTable(writer, baseTableName).add("add column", sysPeriod,
+        "tstzrange not null default tstzrange(" + now + ", null)");
+
+    if (whenCreatedColumn != null) {
+      writer.postAlter().append("update ").append(baseTableName).append(" set ").append(sysPeriod)
+          .append(" = tstzrange(")
+          .append(whenCreatedColumn).append(", null)").endOfStatement();
+    }
+  }
 
 //  @Override
 //  protected void appendSysPeriodColumns(DdlBuffer apply, String prefix) {
@@ -57,6 +53,7 @@ public class PostgresHistoryDdl extends DbTriggerBasedHistoryDdl {
     String procedureName = procedureName(baseTableName);
     String triggerName = triggerName(baseTableName);
 
+    createOrReplaceFunction(apply, procedureName, historyTableName(baseTableName), table.allHistoryColumns(true));
     apply
       .append("create trigger ").append(triggerName).newLine()
       .append("  before update or delete on ").append(baseTableName).newLine()
@@ -102,21 +99,21 @@ public class PostgresHistoryDdl extends DbTriggerBasedHistoryDdl {
     apply.end();
   }
 
-  @Override
-  protected void createStoredFunction(DdlWrite writer, MTable table) {
-    String procedureName = procedureName(table.getName());
-    String historyTable = historyTableName(table.getName());
-
-    List<String> columnNames = columnNamesForApply(table);
-    createOrReplaceFunction(writer.applyHistoryTrigger(), procedureName, historyTable, columnNames);
-  }
-
-  @Override
-  protected void updateHistoryTriggers(DbTriggerUpdate update) {
-    String procedureName = procedureName(update.getBaseTable());
-    recreateHistoryView(update);
-    createOrReplaceFunction(update.historyTriggerBuffer(), procedureName, update.getHistoryTable(), update.getColumns());
-  }
+//  @Override
+//  protected void createStoredFunction(DdlWrite writer, MTable table) {
+//    String procedureName = procedureName(table.getName());
+//    String historyTable = historyTableName(table.getName());
+//
+//    List<String> columnNames = columnNamesForApply(table);
+//    createOrReplaceFunction(writer.applyHistoryTrigger(), procedureName, historyTable, columnNames);
+//  }
+//
+//  @Override
+//  protected void updateHistoryTriggers(DbTriggerUpdate update) {
+//    String procedureName = procedureName(update.getBaseTable());
+//    recreateHistoryView(update);
+//    createOrReplaceFunction(update.historyTriggerBuffer(), procedureName, update.getHistoryTable(), update.getColumns());
+//  }
 
   @Override
   protected void appendInsertIntoHistory(DdlBuffer buffer, String historyTable, List<String> columns) {

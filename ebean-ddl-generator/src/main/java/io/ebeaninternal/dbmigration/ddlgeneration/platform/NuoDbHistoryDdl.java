@@ -30,42 +30,42 @@ public class NuoDbHistoryDdl extends DbTriggerBasedHistoryDdl {
 //    addBeforeDelete(deleteTriggerName(update.getBaseTable()), update);
   }
 
-  @Override
-  protected void updateHistoryTriggers(DbTriggerUpdate update) {
-
-    recreateHistoryView(update);
-
-    DdlBuffer buffer = update.historyTriggerBuffer();
-    String baseTable = update.getBaseTable();
-
-    dropTriggers(buffer, baseTable);
-    addBeforeUpdate(updateTriggerName(baseTable), update);
-    addBeforeDelete(deleteTriggerName(baseTable), update);
-  }
-
-  private void addBeforeUpdate(String triggerName, DbTriggerUpdate update) {
-
-    DdlBuffer apply = update.historyTriggerBuffer();
-    addTriggerStart(triggerName, update, apply, " before update for each row as ");
-    apply.append("    NEW.sys_period_start = greatest(current_timestamp, date_add(OLD.sys_period_start, interval 1 microsecond))").endOfStatement();
-    appendInsertIntoHistory(apply, update.getHistoryTable(), update.getColumns());
-    addEndTrigger(apply);
-  }
-
-  private void addBeforeDelete(String triggerName, DbTriggerUpdate update) {
-
-    DdlBuffer apply = update.historyTriggerBuffer();
-    addTriggerStart(triggerName, update, apply, " before delete for each row as");
-    appendInsertIntoHistory(apply, update.getHistoryTable(), update.getColumns());
-    addEndTrigger(apply);
-  }
-
-  private void addTriggerStart(String triggerName, DbTriggerUpdate update, DdlBuffer apply, String s) {
-    apply
-      .append("delimiter $$").newLine()
-      .append("create or replace trigger ").append(triggerName).append(" for ").append(update.getBaseTable())
-      .append(s).newLine();
-  }
+//  @Override
+//  protected void updateHistoryTriggers(DbTriggerUpdate update) {
+//
+//    recreateHistoryView(update);
+//
+//    DdlBuffer buffer = update.historyTriggerBuffer();
+//    String baseTable = update.getBaseTable();
+//
+//    dropTriggers(buffer, baseTable);
+//    addBeforeUpdate(updateTriggerName(baseTable), update);
+//    addBeforeDelete(deleteTriggerName(baseTable), update);
+//  }
+//
+//  private void addBeforeUpdate(String triggerName, DbTriggerUpdate update) {
+//
+//    DdlBuffer apply = update.historyTriggerBuffer();
+//    addTriggerStart(triggerName, update, apply, " before update for each row as ");
+//    apply.append("    NEW.sys_period_start = greatest(current_timestamp, date_add(OLD.sys_period_start, interval 1 microsecond))").endOfStatement();
+//    appendInsertIntoHistory(apply, update.getHistoryTable(), update.getColumns());
+//    addEndTrigger(apply);
+//  }
+//
+//  private void addBeforeDelete(String triggerName, DbTriggerUpdate update) {
+//
+//    DdlBuffer apply = update.historyTriggerBuffer();
+//    addTriggerStart(triggerName, update, apply, " before delete for each row as");
+//    appendInsertIntoHistory(apply, update.getHistoryTable(), update.getColumns());
+//    addEndTrigger(apply);
+//  }
+//
+//  private void addTriggerStart(String triggerName, DbTriggerUpdate update, DdlBuffer apply, String s) {
+//    apply
+//      .append("delimiter $$").newLine()
+//      .append("create or replace trigger ").append(triggerName).append(" for ").append(update.getBaseTable())
+//      .append(s).newLine();
+//  }
 
   private void addEndTrigger(DdlBuffer apply) {
     apply.append("end_trigger")

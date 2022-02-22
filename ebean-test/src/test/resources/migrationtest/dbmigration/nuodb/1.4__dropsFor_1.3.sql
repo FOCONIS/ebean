@@ -2,8 +2,10 @@
 -- drop dependencies
 drop trigger migtest_e_history_history_upd;
 drop trigger migtest_e_history_history_del;
--- apply changes
 drop view migtest_e_history_with_history;
+drop table migtest_e_history_history;
+
+-- apply changes
 drop trigger migtest_e_history2_history_upd;
 drop trigger migtest_e_history2_history_del;
 drop view migtest_e_history2_with_history;
@@ -33,8 +35,6 @@ alter table migtest_e_history5_history drop column test_boolean;
 alter table migtest_e_softdelete drop column deleted;
 alter table migtest_oto_child drop column master_id;
 -- post alter
-drop table migtest_e_history_history;
-
 create view migtest_e_history2_with_history as select * from migtest_e_history2 union all select * from migtest_e_history2_history;
 
 create view migtest_e_history5_with_history as select * from migtest_e_history5 union all select * from migtest_e_history5_history;

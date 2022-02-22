@@ -27,14 +27,14 @@ public class H2HistoryDdl extends DbTriggerBasedHistoryDdl {
     String baseTableName = table.getName();
     addCreateTrigger(apply, updateTriggerName(baseTableName), baseTableName);
   }
-
-  @Override
-  protected void updateHistoryTriggers(DbTriggerUpdate update) {
-    recreateHistoryView(update);
-    DdlBuffer buffer = update.historyTriggerBuffer();
-    dropTriggers(buffer, update.getBaseTable());
-    addCreateTrigger(buffer, updateTriggerName(update.getBaseTable()), update.getBaseTable());
-  }
+//
+//  @Override
+//  protected void updateHistoryTriggers(DbTriggerUpdate update) {
+//    recreateHistoryView(update);
+//    DdlBuffer buffer = update.historyTriggerBuffer();
+//    dropTriggers(buffer, update.getBaseTable());
+//    addCreateTrigger(buffer, updateTriggerName(update.getBaseTable()), update.getBaseTable());
+//  }
 
   private void addCreateTrigger(DdlBuffer apply, String triggerName, String baseTable) {
     // Note that this does not take into account the historyTable name (excepts _history suffix) and

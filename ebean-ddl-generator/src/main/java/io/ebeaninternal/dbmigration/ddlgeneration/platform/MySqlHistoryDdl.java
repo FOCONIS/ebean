@@ -21,46 +21,23 @@ public class MySqlHistoryDdl extends DbTriggerBasedHistoryDdl {
   @Override
   protected void createTriggers(DdlBuffer apply, MTable table) {
 
-//    DbTriggerUpdate update = createDbTriggerUpdate(writer, table);
-//
-//    addBeforeUpdate(updateTriggerName(update.getBaseTable()), update);
-//    addBeforeDelete(deleteTriggerName(update.getBaseTable()), update);
+    addBeforeUpdate(apply, updateTriggerName(table.getName()), table);
+    addBeforeDelete(apply, deleteTriggerName(table.getName()), table);
   }
 
-  @Override
-  protected void updateHistoryTriggers(DbTriggerUpdate update) {
+  private void addBeforeUpdate(DdlBuffer apply, String triggerName, MTable table) {
 
-    recreateHistoryView(update);
-
-    DdlBuffer buffer = update.historyTriggerBuffer();
-    String baseTable = update.getBaseTable();
-
-    dropTriggers(buffer, baseTable);
-    addBeforeUpdate(updateTriggerName(baseTable), update);
-    addBeforeDelete(deleteTriggerName(baseTable), update);
+    apply.append("delimiter $$").newLine().append("create trigger ").append(triggerName).append(" before update on ")
+        .append(table.getName()).append(" for each row begin").newLine();
+    appendInsertIntoHistory(apply, table.getName(), table.allHistoryColumns(true));
+    apply.append("    set NEW.").append(sysPeriod).append("_start = now(6)").endOfStatement().append("end$$").newLine();
   }
 
-  private void addBeforeUpdate(String triggerName, DbTriggerUpdate update) {
+  private void addBeforeDelete(DdlBuffer apply, String triggerName, MTable table) {
 
-    DdlBuffer apply = update.historyTriggerBuffer();
-    apply
-      .append("delimiter $$").newLine()
-      .append("create trigger ").append(triggerName).append(" before update on ").append(update.getBaseTable())
-      .append(" for each row begin").newLine();
-    appendInsertIntoHistory(apply, update.getHistoryTable(), update.getColumns());
-    apply
-      .append("    set NEW.").append(sysPeriod).append("_start = now(6)").endOfStatement()
-      .append("end$$").newLine();
-  }
-
-  private void addBeforeDelete(String triggerName, DbTriggerUpdate update) {
-
-    DdlBuffer apply = update.historyTriggerBuffer();
-    apply
-      .append("delimiter $$").newLine()
-      .append("create trigger ").append(triggerName).append(" before delete on ").append(update.getBaseTable())
-      .append(" for each row begin").newLine();
-    appendInsertIntoHistory(apply, update.getHistoryTable(), update.getColumns());
+    apply.append("delimiter $$").newLine().append("create trigger ").append(triggerName).append(" before delete on ")
+        .append(table.getName()).append(" for each row begin").newLine();
+    appendInsertIntoHistory(apply, table.getName(), table.allHistoryColumns(true));
     apply.append("end$$").newLine();
   }
 

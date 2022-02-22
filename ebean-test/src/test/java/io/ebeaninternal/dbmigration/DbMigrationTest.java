@@ -9,8 +9,10 @@ import io.ebean.Version;
 import io.ebean.annotation.IgnorePlatform;
 import io.ebean.annotation.Platform;
 import io.ebean.config.DatabaseConfig;
+import io.ebean.config.dbplatform.DbHistorySupport;
 import io.ebean.datasource.pool.ConnectionPool;
 import misc.migration.v1_1.EHistory;
+import misc.migration.v1_1.EHistory2;
 
 import org.junit.jupiter.api.Test;
 
@@ -165,9 +167,15 @@ public class DbMigrationTest extends BaseTestCase {
   }
 
   private void testVersioning() {
+    DbHistorySupport history = server().pluginApi().databasePlatform().getHistorySupport();
+    if (history == null) {
+      return;
+    }
     DatabaseConfig config = new DatabaseConfig();
     config.setName(server().name());
     config.loadFromProperties(server().pluginApi().config().getProperties());
+    config.setDataSource(server().dataSource());
+    config.setReadOnlyDataSource(server().dataSource());
     config.setDdlGenerate(false);
     config.setDdlRun(false);
     config.setRegister(false);
@@ -187,10 +195,32 @@ public class DbMigrationTest extends BaseTestCase {
       List<Version<EHistory>> versions = tmpServer.find(EHistory.class).setId(hist.getId())
           .findVersionsBetween(Timestamp.valueOf("1970-01-01 00:00:00"), Timestamp.valueOf("2100-01-01 00:00:00"));
       assertThat(versions).hasSize(2);
-      // versions.get(0).getDiff()
+      assertThat(versions.get(0).getDiff().toString()).isEqualTo("{testString=45,42}");
 
+      EHistory2 hist2 = new misc.migration.v1_1.EHistory2();
+      hist2.setId(2);
+      hist2.setTestString("foo1");
+      hist2.setTestString2("bar1");
+      hist2.setTestString3("baz1");
+      tmpServer.save(hist2);
+      hist2.setTestString("foo2");
+      hist2.setTestString2("bar2");
+      tmpServer.save(hist2);
+
+      List<Version<EHistory2>> versions2 = tmpServer.find(EHistory2.class).setId(hist.getId())
+          .findVersionsBetween(Timestamp.valueOf("1970-01-01 00:00:00"), Timestamp.valueOf("2100-01-01 00:00:00"));
+      assertThat(versions2).hasSize(2);
+
+      if (history.isStandardsBased()) {
+        // standardBased history does not support exclude
+        assertThat(versions2.get(0).getDiff().toString()).contains("testString=foo2,foo1")
+            .contains("testString2=bar2,bar1");
+      } else {
+        assertThat(versions2.get(0).getDiff().toString()).contains("testString=foo2,foo1")
+            .contains("testString2=bar2,null");
+      }
     } finally {
-      tmpServer.shutdown();
+      tmpServer.shutdown(false, false);
     }
   }
 
