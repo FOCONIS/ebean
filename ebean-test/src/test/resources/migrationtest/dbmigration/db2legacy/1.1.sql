@@ -47,7 +47,6 @@ alter table migtest_ckey_parent add column assoc_id integer;
 alter table migtest_e_basic drop constraint ck_mgtst__bsc_stts;
 alter table migtest_e_basic alter column status set default 'A';
 alter table migtest_e_basic alter column status set not null;
-alter table migtest_e_basic add constraint ck_mgtst__bsc_stts check ( status in ('N','A','I','?'));
 alter table migtest_e_basic drop constraint ck_mgtst__b_z543fg;
 alter table migtest_e_basic alter column status2 set data type varchar(127);
 alter table migtest_e_basic alter column status2 drop default;
@@ -57,7 +56,6 @@ alter table migtest_e_basic add column new_string_field varchar(255) default 'fo
 alter table migtest_e_basic add column new_boolean_field boolean default true not null;
 alter table migtest_e_basic add column new_boolean_field2 boolean default true not null;
 alter table migtest_e_basic add column progress integer default 0 not null;
-alter table migtest_e_basic add constraint ck_mgtst__b_l39g41 check ( progress in (0,1,2));
 alter table migtest_e_basic add column new_integer integer default 42 not null;
 alter table migtest_e_basic drop constraint uq_mgtst__b_4aybzy;
 alter table migtest_e_basic drop constraint uq_mgtst__b_4ayc02;
@@ -105,7 +103,9 @@ alter table migtest_fk_cascade add constraint fk_mgtst_fk_65kf6l foreign key (on
 alter table migtest_fk_none add constraint fk_mgtst_fk_nn_n_d foreign key (one_id) references migtest_fk_one (id) on delete restrict;
 alter table migtest_fk_none_via_join add constraint fk_mgtst_fk_9tknzj foreign key (one_id) references migtest_fk_one (id) on delete restrict;
 alter table migtest_fk_set_null add constraint fk_mgtst_fk_wicx8x foreign key (one_id) references migtest_fk_one (id) on delete restrict;
+alter table migtest_e_basic add constraint ck_mgtst__bsc_stts check ( status in ('N','A','I','?'));
 create unique index uq_migtest_e_basic_description on migtest_e_basic(description) exclude null keysalter table migtest_e_basic add constraint fk_mgtst__bsc_sr_d foreign key (user_id) references migtest_e_user (id) on delete restrict;
+alter table migtest_e_basic add constraint ck_mgtst__b_l39g41 check ( progress in (0,1,2));
 create unique index uq_migtest_e_basic_status_indextest1 on migtest_e_basic(status,indextest1) exclude null keyscreate unique index uq_migtest_e_basic_name on migtest_e_basic(name) exclude null keyscreate unique index uq_migtest_e_basic_indextest4 on migtest_e_basic(indextest4) exclude null keyscreate unique index uq_migtest_e_basic_indextest5 on migtest_e_basic(indextest5) exclude null keysalter table migtest_oto_child add constraint fk_mgtst_t__csyl38 foreign key (master_id) references migtest_oto_master (id) on delete restrict;
 
 create index ix_mgtst__b_eu8css on migtest_e_basic (indextest3);

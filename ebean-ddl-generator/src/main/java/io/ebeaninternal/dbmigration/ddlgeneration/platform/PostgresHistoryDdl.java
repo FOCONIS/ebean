@@ -41,14 +41,14 @@ public class PostgresHistoryDdl extends DbTriggerBasedHistoryDdl {
     }
   }
 
-  @Override
-  protected void appendSysPeriodColumns(DdlBuffer apply, String prefix) {
-    appendColumnName(apply, prefix, sysPeriod);
-  }
+//  @Override
+//  protected void appendSysPeriodColumns(DdlBuffer apply, String prefix) {
+//    appendColumnName(apply, prefix, sysPeriod);
+//  }
 
   @Override
   protected void dropSysPeriodColumns(DdlWrite writer, String baseTableName) {
-    writer.alterTable(baseTableName, "drop column ").append(sysPeriod);
+    platformDdl.alterTable(writer, baseTableName).add(platformDdl.dropColumn, sysPeriod);
   }
 
   @Override

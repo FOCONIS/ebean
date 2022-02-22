@@ -14,17 +14,10 @@ import java.util.List;
 public class HanaTableDdl extends BaseTableDdl {
 
   private final HanaHistoryDdl historyDdl;
-  private final boolean generateUniqueDdl;
 
   public HanaTableDdl(DatabaseConfig config, PlatformDdl platformDdl) {
     super(config, platformDdl);
     this.historyDdl = (HanaHistoryDdl) platformDdl.historyDdl;
-    if (config.getProperties() != null) {
-      PropertiesWrapper wrapper = new PropertiesWrapper("ebean", "hana", config.getProperties(), config.getClassLoadConfig());
-      this.generateUniqueDdl = wrapper.getBoolean("generateUniqueDdl", false);
-    } else {
-      this.generateUniqueDdl = false;
-    }
   }
 
   @Override
@@ -41,10 +34,11 @@ public class HanaTableDdl extends BaseTableDdl {
       return;
     }
 
+    alterTable(
     boolean manageSystemVersioning = isTrue(table.isWithHistory()) && historyDdl.isSystemVersioningEnabled(tableName);
 
     if (manageSystemVersioning) {
-      historyDdl.disableSystemVersioning(writer, table.getName(), this.generateUniqueDdl);
+      historyDdl.disableSystemVersioning(writer.dropDependencies(), table.getName());
     }
 
     super.generate(writer, addColumn);
@@ -57,7 +51,7 @@ public class HanaTableDdl extends BaseTableDdl {
         alterTableAddColumn(writer, historyTable, column, true, true);
       }
 
-      historyDdl.enableSystemVersioning(writer, table.getName(), historyTable, false, this.generateUniqueDdl);
+      historyDdl.enableSystemVersioning(writer.postAlter(), table.getName(), historyTable, false);
     }
   }
 
@@ -73,7 +67,7 @@ public class HanaTableDdl extends BaseTableDdl {
     boolean manageSystemVersioning = isTrue(table.isWithHistory()) && historyDdl.isSystemVersioningEnabled(tableName);
 
     if (manageSystemVersioning) {
-      historyDdl.disableSystemVersioning(writer, tableName, this.generateUniqueDdl);
+      historyDdl.disableSystemVersioning(writer.dropDependencies(), tableName);
     }
 
     super.generate(writer, alterColumn);
@@ -95,7 +89,7 @@ public class HanaTableDdl extends BaseTableDdl {
 
       }
 
-      historyDdl.enableSystemVersioning(writer, tableName, historyTable, false, this.generateUniqueDdl);
+      historyDdl.enableSystemVersioning(writer.postAlter(), tableName, historyTable, false);
     }
   }
 
@@ -111,7 +105,7 @@ public class HanaTableDdl extends BaseTableDdl {
     boolean manageSystemVersioning = isTrue(table.isWithHistory()) && historyDdl.isSystemVersioningEnabled(tableName);
 
     if (manageSystemVersioning) {
-      historyDdl.disableSystemVersioning(writer, tableName, this.generateUniqueDdl);
+      historyDdl.disableSystemVersioning(writer.dropDependencies(), tableName);
     }
 
     super.generate(writer, dropColumn);
@@ -121,7 +115,7 @@ public class HanaTableDdl extends BaseTableDdl {
       String historyTable = historyTable(tableName);
       alterTableDropColumn(writer, historyTable, dropColumn.getColumnName());
 
-      historyDdl.enableSystemVersioning(writer, tableName, historyTable, false, this.generateUniqueDdl);
+      historyDdl.enableSystemVersioning(writer.postAlter(), tableName, historyTable, false);
     }
   }
 

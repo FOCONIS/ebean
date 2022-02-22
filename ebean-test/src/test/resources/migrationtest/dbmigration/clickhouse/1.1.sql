@@ -38,7 +38,6 @@ alter table migtest_ckey_parent add column assoc_id UInt32;
 alter table migtest_e_basic drop constraint if exists ck_migtest_e_basic_status;
 alter table migtest_e_basic alter column status set default 'A';
 alter table migtest_e_basic alter column status set not null;
-alter table migtest_e_basic add constraint ck_migtest_e_basic_status check ( status in ('N','A','I','?'));
 alter table migtest_e_basic drop constraint if exists ck_migtest_e_basic_status2;
 alter table migtest_e_basic alter column status2 String;
 alter table migtest_e_basic alter column status2 drop default;
@@ -49,7 +48,6 @@ alter table migtest_e_basic add column new_string_field String default 'foo''bar
 alter table migtest_e_basic add column new_boolean_field UInt8 default true;
 alter table migtest_e_basic add column new_boolean_field2 UInt8 default true;
 alter table migtest_e_basic add column progress UInt32 default 0;
-alter table migtest_e_basic add constraint ck_migtest_e_basic_progress check ( progress in (0,1,2));
 alter table migtest_e_basic add column new_integer UInt32 default 42;
 alter table migtest_e_basic drop constraint uq_migtest_e_basic_indextest2;
 alter table migtest_e_basic drop constraint uq_migtest_e_basic_indextest6;
@@ -74,4 +72,8 @@ alter table migtest_oto_child add column master_id UInt64;
 -- post alter
 -- NOTE: table has @History - special migration may be necessary
 update migtest_e_basic set new_boolean_field = old_boolean;
+
+-- indices/constraints
+alter table migtest_e_basic add constraint ck_migtest_e_basic_status check ( status in ('N','A','I','?'));
+alter table migtest_e_basic add constraint ck_migtest_e_basic_progress check ( progress in (0,1,2));
 

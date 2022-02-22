@@ -51,7 +51,6 @@ alter table migtest_ckey_parent add column assoc_id integer;
 alter table migtest_e_basic drop constraint if exists ck_migtest_e_basic_status;
 alter table migtest_e_basic alter column status set default 'A';
 alter table migtest_e_basic alter column status set not null;
-alter table migtest_e_basic add constraint ck_migtest_e_basic_status check ( status in ('N','A','I','?'));
 alter table migtest_e_basic drop constraint if exists ck_migtest_e_basic_status2;
 alter table migtest_e_basic alter column status2 varchar(127);
 alter table migtest_e_basic alter column status2 drop default;
@@ -62,7 +61,6 @@ alter table migtest_e_basic add column new_string_field varchar(255) default 'fo
 alter table migtest_e_basic add column new_boolean_field int default 1 not null;
 alter table migtest_e_basic add column new_boolean_field2 int default 1 not null;
 alter table migtest_e_basic add column progress integer default 0 not null;
-alter table migtest_e_basic add constraint ck_migtest_e_basic_progress check ( progress in (0,1,2));
 alter table migtest_e_basic add column new_integer integer default 42 not null;
 alter table migtest_e_basic drop constraint uq_migtest_e_basic_indextest2;
 alter table migtest_e_basic drop constraint uq_migtest_e_basic_indextest6;
@@ -91,6 +89,8 @@ update migtest_e_basic set new_boolean_field = old_boolean;
 -- indices/constraints
 create index ix_migtest_ckey_parent_assoc_id on migtest_ckey_parent (assoc_id);
 
+alter table migtest_e_basic add constraint ck_migtest_e_basic_status check ( status in ('N','A','I','?'));
+alter table migtest_e_basic add constraint ck_migtest_e_basic_progress check ( progress in (0,1,2));
 
 create index ix_migtest_e_basic_indextest3 on migtest_e_basic (indextest3);
 create index ix_migtest_e_basic_indextest6 on migtest_e_basic (indextest6);

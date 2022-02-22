@@ -15,7 +15,7 @@ public class PostgresDdl extends PlatformDdl {
     super(platform);
     this.historyDdl = new PostgresHistoryDdl();
     this.dropTableCascade = " cascade";
-    this.columnSetType = "type ";
+    this.columnSetType = "type";
     this.alterTableIfExists = "if exists ";
     this.createIndexIfNotExists = "if not exists ";
     this.columnSetNull = "drop not null";
@@ -57,9 +57,9 @@ public class PostgresDdl extends PlatformDdl {
   }
 
   @Override
-  public void alterColumnType(DdlWrite writer, String tableName, String columnName, String type) {
-    writer.alterTable(tableName, alterColumn).append(" ").append(columnName).append(" ")
-        .append(columnSetType).append(convert(type)).append(alterColumnSuffix)
-        .append(" using ").append(columnName).append("::").append(convert(type));
+  public void alterColumnType(DdlWrite writer, String tableName, String columnName, String type,
+      boolean onHistoryTable) {
+    alterTable(writer, tableName).add(alterColumn, columnName,
+        columnSetType, convert(type), "using", columnName + "::" + convert(type));
   }
 }

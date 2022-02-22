@@ -16,7 +16,7 @@ public class HanaDdlTest {
   public void alterTableDropColumn() throws IOException {
     HanaColumnStoreDdl ddl = new HanaColumnStoreDdl(new HanaPlatform());
     DdlWrite write = new BaseDdlWrite();
-    ddl.alterTableDropColumn(write, "my_table", "my_column");
+    ddl.alterTableDropColumn(write, "my_table", "my_column", false);
     assertEquals("-- apply changes\nCALL usp_ebean_drop_column('my_table', 'my_column');\n", write.toString());
   }
 

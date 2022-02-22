@@ -38,11 +38,12 @@ public class MySqlDdl extends PlatformDdl {
   }
 
   @Override
-  public void alterTableDropColumn(final DdlWrite writer, final String tableName, final String columnName) {
+  public void alterTableDropColumn(final DdlWrite writer, final String tableName, final String columnName,
+      boolean onHistoryTable) {
     if (this.useMigrationStoredProcedures) {
       writer.apply().append("CALL usp_ebean_drop_column('").append(tableName).append("', '").append(columnName).append("')").endOfStatement();
     } else {
-      super.alterTableDropColumn(writer, tableName, columnName);
+      super.alterTableDropColumn(writer, tableName, columnName, onHistoryTable);
     }
   }
 
@@ -88,7 +89,8 @@ public class MySqlDdl extends PlatformDdl {
   }
 
   @Override
-  public void alterColumnType(DdlWrite writer, String tableName, String columnName, String type) {
+  public void alterColumnType(DdlWrite writer, String tableName, String columnName, String type,
+      boolean onHistoryTable) {
     // can't alter itself - done in alterColumnBaseAttributes()
   }
 
@@ -99,24 +101,38 @@ public class MySqlDdl extends PlatformDdl {
 
   @Override
   public void alterColumnDefaultValue(DdlWrite writer, String tableName, String columnName, String defaultValue) {
-    String suffix = DdlHelp.isDropDefault(defaultValue) ? columnDropDefault : columnSetDefault + " " + convertDefaultValue(defaultValue);
-    writer.alterTable(tableName, "alter ").append(columnName).append(" ").append(suffix);
+    // can't alter itself - done in alterColumnBaseAttributes()
   }
 
   @Override
-  public void alterColumnBaseAttributes(DdlWrite writer, AlterColumn alter) {
-    if (alter.getType() == null && alter.isNotnull() == null) {
-      // No type change or notNull change
-      // defaultValue change already handled in alterColumnDefaultValue
-      return;
-    }
+  public void alterColumnBaseAttributes(DdlWrite writer, AlterColumn alter, boolean onHistoryTable) {
     String tableName = alter.getTableName();
     String columnName = alter.getColumnName();
-    String type = alter.getType() != null ? alter.getType() : alter.getCurrentType();
-    type = convert(type);
-    boolean notnull = (alter.isNotnull() != null) ? alter.isNotnull() : Boolean.TRUE.equals(alter.isCurrentNotnull());
-    String notnullClause = notnull ? " not null" : "";
-    writer.alterTable(tableName, alterColumn).append(" ").append(columnName).append(" ").append(type).append(notnullClause);
+    String defaultValue = alter.getDefaultValue();
+    if (alter.getType() == null && alter.isNotnull() == null) {
+      // No type change or notNull change
+      // handle defaultValue change
+      if (hasValue(defaultValue)) {
+        String suffix = DdlHelp.isDropDefault(defaultValue) ? columnDropDefault
+            : columnSetDefault + " " + convertDefaultValue(defaultValue);
+        alterTable(writer, tableName).add("alter", columnName, suffix);
+      }
+      return;
+    } else {
+      String type = alter.getType() != null ? alter.getType() : alter.getCurrentType();
+      type = convert(type);
+      StringBuilder sb = new StringBuilder();
+      sb.append(type);
+
+      boolean notnull = (alter.isNotnull() != null) ? alter.isNotnull() : Boolean.TRUE.equals(alter.isCurrentNotnull());
+      if (notnull) {
+        sb.append(" not null");
+      }
+      if (hasValue(defaultValue) && !DdlHelp.isDropDefault(defaultValue)) {
+        sb.append(" default ").append(convertDefaultValue(defaultValue));
+      }
+      alterTable(writer, tableName).add("modify", columnName, sb.toString());
+    }
   }
 
   @Override

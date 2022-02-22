@@ -1,10 +1,24 @@
 package io.ebeaninternal.dbmigration.ddlgeneration;
 
 import java.io.IOException;
+import java.util.Map;
+import java.util.function.Function;
 
 import io.ebeaninternal.dbmigration.model.MTable;
 
 public interface DdlWrite {
+
+  /**
+   * Returns DdlOptions.
+   */
+  DdlOptions getOptions();
+
+  /**
+   * Returns MTable.
+   */
+  MTable getTable(String baseTable);
+
+  // -------------------- Buffers for the apply script ---------------------------
 
   /**
    * Holds dependent drops
@@ -29,15 +43,23 @@ public interface DdlWrite {
   DdlBuffer apply();
   
   /**
-   * Holds all alter table statements, but NOT foreign keys.
+   * Holds all alter table statements per table, but NOT foreign keys.
    */
-  StringBuilder alterTable(String tableName, String Statement);
-  
+  <T extends DdlAlterTable> T alterTable(String tableName, Function<String, T> factory);
+
   /**
    * Holds all statements after alter.
+   * <ul>
+   * <li>&#64;DbMigration.postAdd/postAlter</li>
+   * <li>Table/Column comments</li>
+   * <li>drop history table (after disabling history on a particular table></li>
+   * <ul>
    */
   DdlBuffer postAlter();
 
+  /**
+   * Holds statements for history generation.
+   */
   DdlBuffer applyHistoryView();
 
   /**
@@ -45,24 +67,42 @@ public interface DdlWrite {
    * @return
    */
   DdlBuffer index();
-  
+
+  /**
+   * Holds history triggers.
+   */
   DdlBuffer applyHistoryTrigger();
 
-  DdlOptions getOptions();
-
-  // -------------------- Buffers for the drop script ---------------------------  
-  DdlBuffer dropAllIndex();
-  
-  DdlBuffer dropAll();
-
-  DdlBuffer dropAllProcs();
-  
-  MTable getTable(String baseTable);
-
+  /**
+   * Are the apply buffers empty?
+   */
   boolean isApplyEmpty();
 
-  void writeApply(Appendable writer) throws IOException;
-  
-  void writeDropAll(Appendable writer) throws IOException;
+  /**
+   * Write the apply buffers to <code>target</code>
+   */
+  void writeApply(Appendable target) throws IOException;
+
+  // -------------------- Buffers for the drop script ---------------------------
+  /**
+   * Holds the drop index statements for drop-all script.
+   */
+  DdlBuffer dropAllIndex();
+
+  /**
+   * Holds the drop table/sequences/... statements for drop-all script.
+   */
+  DdlBuffer dropAll();
+
+  /**
+   * Holds the drop procedures statements for drop-all script.
+   */
+  DdlBuffer dropAllProcs();
+
+  /**
+   * Write the drop all buffers to <code>target</code>
+   */
+  void writeDropAll(Appendable target) throws IOException;
+
 
 }

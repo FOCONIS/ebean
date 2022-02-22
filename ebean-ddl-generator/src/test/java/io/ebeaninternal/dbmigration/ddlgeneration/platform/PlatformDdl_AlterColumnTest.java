@@ -93,7 +93,7 @@ public class PlatformDdl_AlterColumnTest {
   
   private String alterColumnBaseAttributes(PlatformDdl ddl, AlterColumn alterColumn) throws IOException {
     DdlWrite write = new BaseDdlWrite();
-    ddl.alterColumnBaseAttributes(write, alterColumn);
+    ddl.alterColumnBaseAttributes(write, alterColumn, false);
     return write.toString();
   }
 
@@ -140,7 +140,7 @@ public class PlatformDdl_AlterColumnTest {
 
   private String alterColumnType(PlatformDdl ddl, String type) throws IOException {
     DdlWrite write = new BaseDdlWrite();
-    ddl.alterColumnType(write, "mytab", "acol", type);
+    ddl.alterColumnType(write, "mytab", "acol", type, false);
     return write.toString();
   }
 

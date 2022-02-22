@@ -47,14 +47,12 @@ alter table migtest_ckey_detail add two_key nvarchar(127);
 alter table migtest_ckey_parent add assoc_id integer;
 alter table migtest_e_basic add default 'A' for status;
 alter table migtest_e_basic alter column status nvarchar(1) not null;
-alter table migtest_e_basic add constraint ck_migtest_e_basic_status check ( status in ('N','A','I','?'));
 alter table migtest_e_basic alter column status2 nvarchar(127);
 alter table migtest_e_basic alter column user_id integer;
 alter table migtest_e_basic add new_string_field nvarchar(255) default 'foo''bar' not null;
 alter table migtest_e_basic add new_boolean_field bit default 1 not null;
 alter table migtest_e_basic add new_boolean_field2 bit default 1 not null;
 alter table migtest_e_basic add progress integer default 0 not null;
-alter table migtest_e_basic add constraint ck_migtest_e_basic_progress check ( progress in (0,1,2));
 alter table migtest_e_basic add new_integer integer default 42 not null;
 alter table migtest_e_history alter column test_string numeric(19);
 alter table migtest_e_history2 add default 'unknown' for test_string;
@@ -97,8 +95,12 @@ alter table migtest_fk_cascade add constraint fk_migtest_fk_cascade_one_id forei
 alter table migtest_fk_none add constraint fk_migtest_fk_none_one_id foreign key (one_id) references migtest_fk_one (id);
 alter table migtest_fk_none_via_join add constraint fk_migtest_fk_none_via_join_one_id foreign key (one_id) references migtest_fk_one (id);
 alter table migtest_fk_set_null add constraint fk_migtest_fk_set_null_one_id foreign key (one_id) references migtest_fk_one (id);
-IF (OBJECT_ID('ck_migtest_e_basic_status', 'C') IS NOT NULL) alter table migtest_e_basic drop constraint ck_migtest_e_basic_statusIF (OBJECT_ID('ck_migtest_e_basic_status2', 'C') IS NOT NULL) alter table migtest_e_basic drop constraint ck_migtest_e_basic_status2create unique nonclustered index uq_migtest_e_basic_description on migtest_e_basic(description) where description is not null
+IF (OBJECT_ID('ck_migtest_e_basic_status', 'C') IS NOT NULL) alter table migtest_e_basic drop constraint ck_migtest_e_basic_status;
+alter table migtest_e_basic add constraint ck_migtest_e_basic_status check ( status in ('N','A','I','?'));
+IF (OBJECT_ID('ck_migtest_e_basic_status2', 'C') IS NOT NULL) alter table migtest_e_basic drop constraint ck_migtest_e_basic_status2;
+create unique nonclustered index uq_migtest_e_basic_description on migtest_e_basic(description) where description is not null
 alter table migtest_e_basic add constraint fk_migtest_e_basic_user_id foreign key (user_id) references migtest_e_user (id);
+alter table migtest_e_basic add constraint ck_migtest_e_basic_progress check ( progress in (0,1,2));
 IF EXISTS (SELECT name FROM sys.indexes WHERE object_id = OBJECT_ID('migtest_e_basic','U') AND name = 'uq_migtest_e_basic_indextest2') drop index uq_migtest_e_basic_indextest2 ON migtest_e_basic;
 IF (OBJECT_ID('uq_migtest_e_basic_indextest2', 'UQ') IS NOT NULL) alter table migtest_e_basic drop constraint uq_migtest_e_basic_indextest2;
 IF EXISTS (SELECT name FROM sys.indexes WHERE object_id = OBJECT_ID('migtest_e_basic','U') AND name = 'uq_migtest_e_basic_indextest6') drop index uq_migtest_e_basic_indextest6 ON migtest_e_basic;
@@ -107,7 +109,8 @@ create unique nonclustered index uq_migtest_e_basic_status_indextest1 on migtest
 create unique nonclustered index uq_migtest_e_basic_name on migtest_e_basic(name) where name is not null
 create unique nonclustered index uq_migtest_e_basic_indextest4 on migtest_e_basic(indextest4) where indextest4 is not null
 create unique nonclustered index uq_migtest_e_basic_indextest5 on migtest_e_basic(indextest5) where indextest5 is not null
-IF (OBJECT_ID('ck_migtest_e_enum_test_status', 'C') IS NOT NULL) alter table migtest_e_enum drop constraint ck_migtest_e_enum_test_statusalter table migtest_oto_child add constraint fk_migtest_oto_child_master_id foreign key (master_id) references migtest_oto_master (id);
+IF (OBJECT_ID('ck_migtest_e_enum_test_status', 'C') IS NOT NULL) alter table migtest_e_enum drop constraint ck_migtest_e_enum_test_status;
+alter table migtest_oto_child add constraint fk_migtest_oto_child_master_id foreign key (master_id) references migtest_oto_master (id);
 
 create index ix_migtest_e_basic_indextest3 on migtest_e_basic (indextest3);
 create index ix_migtest_e_basic_indextest6 on migtest_e_basic (indextest6);

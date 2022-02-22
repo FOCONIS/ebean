@@ -26,13 +26,10 @@ update migtest_e_basic set user_id = 23 where user_id is null;
 -- NOTE: table has @History - special migration may be necessary
 update migtest_e_history6 set test_number2 = 7 where test_number2 is null;
 -- altering tables
-alter table migtest_e_basic alter status drop default;
 alter table migtest_e_basic modify status varchar(1);
-alter table migtest_e_basic alter status2 set default 'N';
-alter table migtest_e_basic modify status2 varchar(1) not null;
+alter table migtest_e_basic modify status2 varchar(1) not null default 'N';
 alter table migtest_e_basic drop index uq_migtest_e_basic_description;
-alter table migtest_e_basic alter user_id set default 23;
-alter table migtest_e_basic modify user_id integer not null;
+alter table migtest_e_basic modify user_id integer not null default 23;
 alter table migtest_e_basic add column old_boolean tinyint(1) default 0 not null;
 alter table migtest_e_basic add column old_boolean2 tinyint(1);
 alter table migtest_e_basic add column eref_id integer;
@@ -42,7 +39,6 @@ alter table migtest_e_basic drop index uq_migtest_e_basic_indextest4;
 alter table migtest_e_basic drop index uq_migtest_e_basic_indextest5;
 alter table migtest_e_basic add constraint uq_migtest_e_basic_indextest2 unique  (indextest2);
 alter table migtest_e_basic add constraint uq_migtest_e_basic_indextest6 unique  (indextest6);
-alter table migtest_e_history2 alter test_string drop default;
 alter table migtest_e_history2 modify test_string varchar(255);
 alter table migtest_e_history2 add column obsolete_string1 varchar(255);
 alter table migtest_e_history2 add column obsolete_string2 varchar(255);
@@ -50,10 +46,8 @@ alter table migtest_e_history2_history add column obsolete_string1 varchar(255);
 alter table migtest_e_history2_history add column obsolete_string2 varchar(255);
 alter table migtest_e_history4 modify test_number integer;
 alter table migtest_e_history4_history modify test_number integer;
-alter table migtest_e_history6 alter test_number1 drop default;
 alter table migtest_e_history6 modify test_number1 integer;
-alter table migtest_e_history6 alter test_number2 set default 7;
-alter table migtest_e_history6 modify test_number2 integer not null;
+alter table migtest_e_history6 modify test_number2 integer not null default 7;
 alter table migtest_oto_child add constraint uq_m12_otoc72 unique  (name);
 alter table migtest_oto_master add constraint uq_migtest_oto_master_name unique  (name);
 -- post alter

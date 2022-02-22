@@ -3,12 +3,23 @@ package io.ebeaninternal.dbmigration.ddlgeneration.platform;
 import io.ebean.config.DatabaseConfig;
 import io.ebean.config.dbplatform.DatabasePlatform;
 import io.ebean.config.dbplatform.DbPlatformType;
+import io.ebeaninternal.dbmigration.ddlgeneration.DdlAlterTable;
 import io.ebeaninternal.dbmigration.ddlgeneration.DdlBuffer;
 import io.ebeaninternal.dbmigration.ddlgeneration.DdlHandler;
 import io.ebeaninternal.dbmigration.ddlgeneration.DdlWrite;
+import io.ebeaninternal.dbmigration.ddlgeneration.platform.BaseAlterTableWrite.AlterCmd;
 import io.ebeaninternal.dbmigration.migration.AlterColumn;
+import io.ebeaninternal.dbmigration.migration.Column;
+import io.ebeaninternal.dbmigration.model.MTable;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -18,10 +29,8 @@ public abstract class AbstractHanaDdl extends PlatformDdl {
 
   public AbstractHanaDdl(DatabasePlatform platform) {
     super(platform);
-    this.addColumn = "add (";
-    this.addColumnSuffix = ")";
-    this.alterColumn = "alter (";
-    this.alterColumnSuffix = ")";
+    this.addColumn = "add";
+    this.alterColumn = "alter";
     this.columnDropDefault = " default null";
     this.columnSetDefault = " default";
     this.columnSetNotnull = " not null";
@@ -39,7 +48,7 @@ public abstract class AbstractHanaDdl extends PlatformDdl {
   }
 
   @Override
-  public void alterColumnBaseAttributes(DdlWrite writer, AlterColumn alter) {
+  public void alterColumnBaseAttributes(DdlWrite writer, AlterColumn alter, boolean onHistoryTable) {
     String tableName = alter.getTableName();
     String columnName = alter.getColumnName();
     String currentType = alter.getCurrentType();
@@ -47,49 +56,125 @@ public abstract class AbstractHanaDdl extends PlatformDdl {
     type = convert(type);
     currentType = convert(currentType);
     boolean notnull = (alter.isNotnull() != null) ? alter.isNotnull() : Boolean.TRUE.equals(alter.isCurrentNotnull());
-    String notnullClause = notnull ? " not null" : "";
+    String notnullClause = notnull ? "not null" : "";
     String defaultValue = DdlHelp.isDropDefault(alter.getDefaultValue()) ? "null"
       : (alter.getDefaultValue() != null ? alter.getDefaultValue() : alter.getCurrentDefaultValue());
-    String defaultValueClause = (defaultValue == null || defaultValue.isEmpty()) ? "" : " default " + defaultValue;
+    String defaultValueClause = (defaultValue == null || defaultValue.isEmpty()) ? "" : "default " + defaultValue;
 
     if (!isConvertible(currentType, type)) {
       // add an intermediate conversion if possible
       if (isNumberType(currentType)) {
         // numbers can always be converted to decimal
-        writer.alterTable(tableName, alterColumn).append(" ").append(columnName)
-          .append(" decimal ").append(defaultValueClause).append(notnullClause).append(alterColumnSuffix);
+        alterTable(writer, tableName).add(alterColumn, columnName, "decimal", notnullClause);
 
       } else if (isStringType(currentType)) {
         // strings can always be converted to nclob
-        writer.alterTable(tableName, alterColumn).append(" ").append(columnName)
-          .append(" nclob ").append(defaultValueClause).append(notnullClause).append(alterColumnSuffix);
+        alterTable(writer, tableName).add(alterColumn, columnName, "nclob", notnullClause);
       }
     }
 
-    writer.alterTable(tableName, alterColumn).append(" ").append(columnName)
-      .append(" ").append(type).append(defaultValueClause).append(notnullClause).append(alterColumnSuffix);
-
+    alterTable(writer, tableName).add(alterColumn, columnName, type, defaultValueClause, notnullClause);
+    if (!onHistoryTable) {
+      disableHistoryDuringAlter(writer, tableName);
+    }
   }
+
+  @Override
+  protected DdlAlterTable alterTable(DdlWrite writer, String tableName) {
+    return writer.alterTable(tableName, HanaAlterTableWrite::new);
+  }
+
+  private static class HanaAlterTableWrite extends BaseAlterTableWrite {
+
+    public HanaAlterTableWrite(String tableName) {
+      super(tableName);
+    }
+
+
+    @Override
+    public void write(Appendable target) throws IOException {
+      // TODO Auto-generated method stub
+      List<AlterCmd> newCmds = new ArrayList<>();
+      Map<String, List<AlterCmd>> batches = new LinkedHashMap<>();
+      Set<String> columns = new HashSet<>();
+      for (AlterCmd cmd : cmds) {
+        switch (cmd.operation) {
+        case "add":
+        case "alter":
+        case "drop":
+          if (cmd.column != null && !columns.add(cmd.column)) {
+            // column already seen
+            flushBatches(newCmds, batches);
+            columns.clear();
+          }
+          batches.computeIfAbsent(cmd.operation, k -> new ArrayList<>()).add(cmd);
+          break;
+        default:
+          flushBatches(newCmds, batches);
+          columns.clear();
+          newCmds.add(cmd);
+        }
+      }
+      flushBatches(newCmds, batches);
+      cmds = newCmds;
+
+      super.write(target);
+    }
+
+
+    private void flushBatches(List<AlterCmd> newCmds, Map<String, List<AlterCmd>> batches) {
+      for (List<AlterCmd> cmds : batches.values()) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < cmds.size(); i++) {
+          AlterCmd cmd = cmds.get(i);
+          if (i == 0) {
+            sb.append(cmd.operation).append(" (");
+          } else {
+            sb.append(",\n   ");
+          }
+          sb.append(cmd.column);
+          if (cmd.suffix != null) {
+            sb.append(' ').append(cmd.suffix);
+          }
+        }
+        sb.append(")");
+        newCmds.add(new AlterCmd(sb.toString(), null, null));
+      }
+      batches.clear();
+    }
+  }
+
+//  @Override
+//  protected StringBuilder alterTable(DdlWrite writer, String tableName, String column, String cmd) {
+//    boolean batchableCmd = cmd.equals("add") || cmd.equals("alter") || cmd.equals("drop");
+//    if (batchableCmd) {
+//      return writer.alterTables().computeIfAbsent(tableName + ":" + cmd, k -> {
+//        DdlAlterTableWrite alterWrite = new DdlAlterTableWrite(tableName);
+//        if (batchableCmd) {
+//          alterWrite.setMerge(cmd + " (", ",", ")");
+//        }
+//        return alterWrite;
+//      }).append("");
+//    } else {
+//      return super.alterTable(writer, tableName, column, cmd);
+//    }
+//  }
+
 
   @Override
   public void alterColumnDefaultValue(DdlWrite writer, String tableName, String columnName, String defaultValue) {
-    throw new UnsupportedOperationException();
+    // done in alterColumnBaseAttributes
   }
 
-  
   @Override
   public void alterColumnNotnull(DdlWrite writer, String tableName, String columnName, boolean notnull) {
+    // done in alterColumnBaseAttributes
   }
 
   @Override
-  public DdlHandler createDdlHandler(DatabaseConfig config) {
-    return new HanaDdlHandler(config, this);
-  }
-
-  
-  @Override
-  public void alterColumnType(DdlWrite writer, String tableName, String columnName, String type) {
-
+  public void alterColumnType(DdlWrite writer, String tableName, String columnName, String type,
+      boolean onHistoryTable) {
+    // done in alterColumnBaseAttributes
   }
 
   @Override
@@ -113,7 +198,7 @@ public abstract class AbstractHanaDdl extends PlatformDdl {
 
   @Override
   public void alterTableDropUniqueConstraint(DdlWrite writer, String tableName, String uniqueConstraintName) {
-    DdlBuffer buffer = writer.index();
+    DdlBuffer buffer = writer.dropDependencies();
 
     buffer.append("delimiter $$").newLine();
     buffer.append("do").newLine();
@@ -136,10 +221,37 @@ public abstract class AbstractHanaDdl extends PlatformDdl {
    * foreign keys. That's why we call a user stored procedure here
    */
   @Override
-  public void alterTableDropColumn(DdlWrite writer, String tableName, String columnName) {
+  public void alterTableDropColumn(DdlWrite writer, String tableName, String columnName, boolean onHistoryTable) {
+    disableHistoryDuringAlter(writer, tableName);
     writer.apply().append("CALL usp_ebean_drop_column('").append(tableName)
         .append("', '").append(columnName).append("')").endOfStatement();
+    if (!onHistoryTable) {
+      disableHistoryDuringAlter(writer, tableName);
+    }
+
   }
+
+  public void alterTableAddColumn(DdlWrite writer, String tableName, Column column, boolean onHistoryTable,
+      String defaultValue) {
+    super.alterTableAddColumn(writer, tableName, column, onHistoryTable, defaultValue);
+    if (!onHistoryTable) {
+      disableHistoryDuringAlter(writer, tableName);
+    }
+  }
+
+
+  private void disableHistoryDuringAlter(DdlWrite writer, String tableName) {
+    MTable table = writer.getTable(tableName);
+    if (table != null && table.isWithHistory()) {
+      DdlAlterTable alter = alterTable(writer, tableName);
+      if (!alter.isHistoryHandled()) {
+        HanaHistoryDdl historyDdl = (HanaHistoryDdl) this.historyDdl;
+        writer.apply().appendStatement(historyDdl.disableSystemVersioning(tableName));
+        writer.postAlter().appendStatement(historyDdl.enableSystemVersioning(tableName, false));
+        alter.setHistoryHandled();
+      }
+    }
+  };
 
   /**
    * Check if a data type can be converted to another data type. Data types can't

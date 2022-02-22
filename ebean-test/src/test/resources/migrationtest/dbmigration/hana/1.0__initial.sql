@@ -195,34 +195,24 @@ create column table migtest_oto_master (
 );
 
 -- altering tables
-alter table migtest_e_history2 add (
-    sys_period_start TIMESTAMP NOT NULL GENERATED ALWAYS AS ROW START, 
-    sys_period_end TIMESTAMP NOT NULL GENERATED ALWAYS AS ROW END
-);
+alter table migtest_e_history2 add (sys_period_start TIMESTAMP NOT NULL GENERATED ALWAYS AS ROW START,
+   sys_period_end TIMESTAMP NOT NULL GENERATED ALWAYS AS ROW END);
 alter table migtest_e_history2 add period for system_time(sys_period_start,sys_period_end);
 alter table migtest_e_history2 add system versioning history table migtest_e_history2_history;
-alter table migtest_e_history3 add (
-    sys_period_start TIMESTAMP NOT NULL GENERATED ALWAYS AS ROW START, 
-    sys_period_end TIMESTAMP NOT NULL GENERATED ALWAYS AS ROW END
-);
+alter table migtest_e_history3 add (sys_period_start TIMESTAMP NOT NULL GENERATED ALWAYS AS ROW START,
+   sys_period_end TIMESTAMP NOT NULL GENERATED ALWAYS AS ROW END);
 alter table migtest_e_history3 add period for system_time(sys_period_start,sys_period_end);
 alter table migtest_e_history3 add system versioning history table migtest_e_history3_history;
-alter table migtest_e_history4 add (
-    sys_period_start TIMESTAMP NOT NULL GENERATED ALWAYS AS ROW START, 
-    sys_period_end TIMESTAMP NOT NULL GENERATED ALWAYS AS ROW END
-);
+alter table migtest_e_history4 add (sys_period_start TIMESTAMP NOT NULL GENERATED ALWAYS AS ROW START,
+   sys_period_end TIMESTAMP NOT NULL GENERATED ALWAYS AS ROW END);
 alter table migtest_e_history4 add period for system_time(sys_period_start,sys_period_end);
 alter table migtest_e_history4 add system versioning history table migtest_e_history4_history;
-alter table migtest_e_history5 add (
-    sys_period_start TIMESTAMP NOT NULL GENERATED ALWAYS AS ROW START, 
-    sys_period_end TIMESTAMP NOT NULL GENERATED ALWAYS AS ROW END
-);
+alter table migtest_e_history5 add (sys_period_start TIMESTAMP NOT NULL GENERATED ALWAYS AS ROW START,
+   sys_period_end TIMESTAMP NOT NULL GENERATED ALWAYS AS ROW END);
 alter table migtest_e_history5 add period for system_time(sys_period_start,sys_period_end);
 alter table migtest_e_history5 add system versioning history table migtest_e_history5_history;
-alter table migtest_e_history6 add (
-    sys_period_start TIMESTAMP NOT NULL GENERATED ALWAYS AS ROW START, 
-    sys_period_end TIMESTAMP NOT NULL GENERATED ALWAYS AS ROW END
-);
+alter table migtest_e_history6 add (sys_period_start TIMESTAMP NOT NULL GENERATED ALWAYS AS ROW START,
+   sys_period_end TIMESTAMP NOT NULL GENERATED ALWAYS AS ROW END);
 alter table migtest_e_history6 add period for system_time(sys_period_start,sys_period_end);
 alter table migtest_e_history6 add system versioning history table migtest_e_history6_history;
 -- indices/constraints

@@ -94,7 +94,7 @@ public class SqlServerDdl extends PlatformDdl {
   @Override
   public void alterTableDropConstraint(DdlWrite writer, String tableName, String constraintName) {
     writer.index().append("IF (OBJECT_ID('").append(constraintName).append("', 'C') IS NOT NULL) alter table ")
-      .append(tableName).append(" drop constraint ").append(constraintName);
+        .append(tableName).append(" drop constraint ").append(constraintName).endOfStatement();
   }
   /**
    * Drop a unique constraint from the table (Sometimes this is an index).
@@ -139,12 +139,12 @@ public class SqlServerDdl extends PlatformDdl {
     if (DdlHelp.isDropDefault(defaultValue)) {
       writer.apply().append("EXEC usp_ebean_drop_default_constraint ").append(tableName).append(", ").append(columnName).endOfStatement();
     } else {
-      writer.alterTable(tableName, "add default ").append(convertDefaultValue(defaultValue)).append(" for ").append(columnName);
+      alterTable(writer, tableName).add("add default " + convertDefaultValue(defaultValue) + " for " + columnName);
     }
   }
 
   @Override
-  public void alterColumnBaseAttributes(DdlWrite writer, AlterColumn alter) {
+  public void alterColumnBaseAttributes(DdlWrite writer, AlterColumn alter, boolean onHistoryTable) {
     if (alter.getType() == null && alter.isNotnull() == null) {
       // No type change or notNull change
       // defaultValue change already handled in alterColumnDefaultValue
@@ -155,12 +155,12 @@ public class SqlServerDdl extends PlatformDdl {
     String type = alter.getType() != null ? alter.getType() : alter.getCurrentType();
     type = convert(type);
     boolean notnull = (alter.isNotnull() != null) ? alter.isNotnull() : Boolean.TRUE.equals(alter.isCurrentNotnull());
-    String notnullClause = notnull ? " not null" : "";
-    writer.alterTable(tableName, alterColumn).append(' ').append(columnName).append(' ').append(type).append(notnullClause);
+    alterTable(writer, tableName).add(alterColumn, columnName, type, notnull ? "not null" : "");
   }
 
   @Override
-  public void alterColumnType(DdlWrite writer, String tableName, String columnName, String type) {
+  public void alterColumnType(DdlWrite writer, String tableName, String columnName, String type,
+      boolean onHistoryTable) {
     // can't alter itself - done in alterColumnBaseAttributes()
   }
 
@@ -193,7 +193,7 @@ public class SqlServerDdl extends PlatformDdl {
    * (constraints, default values, indices and foreign keys). That's why we call a user stored procedure here
    */
   @Override
-  public void alterTableDropColumn(DdlWrite writer, String tableName, String columnName) {
+  public void alterTableDropColumn(DdlWrite writer, String tableName, String columnName, boolean onHistoryTable) {
     writer.apply().append("EXEC usp_ebean_drop_column ").append(tableName).append(", ").append(columnName).endOfStatement();
   }
 

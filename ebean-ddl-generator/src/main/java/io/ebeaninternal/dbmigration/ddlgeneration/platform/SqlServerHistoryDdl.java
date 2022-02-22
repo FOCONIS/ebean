@@ -94,4 +94,9 @@ public class SqlServerHistoryDdl implements PlatformHistoryDdl {
       .append(getHistoryTable(baseTableName)).append("))").endOfStatement();
 
   }
+
+  @Override
+  public boolean alterHistoryTables() {
+    return false;
+  }
 }

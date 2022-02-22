@@ -13,10 +13,13 @@ import io.ebeaninternal.dbmigration.model.MTable;
  */
 public class MariaDbHistoryDdl implements PlatformHistoryDdl {
 
+  private PlatformDdl platformDdl;
+
   @Override
   public void configure(DatabaseConfig config, PlatformDdl platformDdl) {
-    // do nothing
+    this.platformDdl = platformDdl;
   }
+
 
   @Override
   public void createWithHistory(DdlWrite writer, MTable table) {
@@ -25,19 +28,14 @@ public class MariaDbHistoryDdl implements PlatformHistoryDdl {
   }
 
   private void enableSystemVersioning(DdlWrite writer, String baseTable) {
-    writer.alterTable(baseTable, "add system versioning");
-
-    // Workaround for drop all script
-    BaseDdlWrite tmpWrite = new BaseDdlWrite();
-    tmpWrite.alterTable(baseTable, "drop system versioning");
-    writer.dropAll().append(tmpWrite.toString());
-     
+    platformDdl.alterTable(writer, baseTable).add("add system versioning");
+    writer.dropAll().append("alter table ").append(baseTable).append(" drop system versioning").endOfStatement();
   }
 
   @Override
   public void dropHistoryTable(DdlWrite writer, DropHistoryTable dropHistoryTable) {
     String baseTable = dropHistoryTable.getBaseTable();
-    writer.alterTable(baseTable, "drop system versioning");
+    platformDdl.alterTable(writer, baseTable).add("drop system versioning");
   }
 
   @Override
@@ -49,5 +47,10 @@ public class MariaDbHistoryDdl implements PlatformHistoryDdl {
   @Override
   public void updateTriggers(DdlWrite writer, HistoryTableUpdate baseTable) {
     // do nothing
+  }
+
+  @Override
+  public boolean alterHistoryTables() {
+    return false;
   }
 }

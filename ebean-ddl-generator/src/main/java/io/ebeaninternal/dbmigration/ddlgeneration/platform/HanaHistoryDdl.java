@@ -12,22 +12,20 @@ import io.ebeaninternal.dbmigration.model.MTable;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class HanaHistoryDdl implements PlatformHistoryDdl {
 
   private String systemPeriodStart;
   private String systemPeriodEnd;
-  private PlatformDdl platformDdl;
+  private AbstractHanaDdl platformDdl;
   private String historySuffix;
-  private final AtomicInteger counter = new AtomicInteger(0);
   private Map<String, String> createdHistoryTables = new ConcurrentHashMap<>();
 
   @Override
   public void configure(DatabaseConfig config, PlatformDdl platformDdl) {
     this.systemPeriodStart = config.getAsOfSysPeriod() + "_start";
     this.systemPeriodEnd = config.getAsOfSysPeriod() + "_end";
-    this.platformDdl = platformDdl;
+    this.platformDdl = (AbstractHanaDdl) platformDdl;
     this.historySuffix = config.getHistoryTableSuffix();
   }
 
@@ -42,17 +40,12 @@ public class HanaHistoryDdl implements PlatformHistoryDdl {
     createHistoryTable(writer.apply(), table);
 
     // enable system versioning
-    writer.alterTable(tableName, "add (\n")
-      .append("    ").append(systemPeriodStart).append(" TIMESTAMP NOT NULL GENERATED ALWAYS AS ROW START, \n")
-      .append("    ").append(systemPeriodEnd).append(" TIMESTAMP NOT NULL GENERATED ALWAYS AS ROW END\n")
-      .append(")");
+    platformDdl.alterTable(writer, tableName)
+        .add("add", systemPeriodStart, "TIMESTAMP NOT NULL GENERATED ALWAYS AS ROW START")
+        .add("add", systemPeriodEnd, "TIMESTAMP NOT NULL GENERATED ALWAYS AS ROW END")
+        .add("add period for system_time(" + systemPeriodStart + "," + systemPeriodEnd + ")")
+        .postAdd(enableSystemVersioning(tableName, true)).setHistoryHandled();
 
-    writer.alterTable(tableName, "add period for system_time(").append(systemPeriodStart).append(",").append(systemPeriodEnd).append(")");
-
-    enableSystemVersioning(writer, tableName, historyTableName, true, false);
-
-    createdHistoryTables.put(tableName, historyTableName);
-    
     // Workaround for drop all script
     BaseDdlWrite tmpWrite = new BaseDdlWrite();
     dropHistoryTable(tmpWrite, tableName, historyTableName);
@@ -86,11 +79,15 @@ public class HanaHistoryDdl implements PlatformHistoryDdl {
 
   protected void dropHistoryTable(DdlWrite writer, String baseTable, String historyTable) {
     // disable system versioning
-    disableSystemVersioning(writer, baseTable);
-    writer.alterTable(baseTable, "drop period for system_time");
+    writer.dropDependencies().append(disableSystemVersioning(baseTable)).endOfStatement();
+    writer.dropDependencies().append("alter table ").append(baseTable).append(" drop period for system_time")
+        .endOfStatement();
+
+    // writer.postAlter().append("alter table ").append(baseTable).append(" drop
+    // period for system_time");
 
     // drop the period columns
-    writer.alterTable(baseTable, "drop (").append(systemPeriodStart).append(",").append(systemPeriodEnd).append(")");
+    platformDdl.alterTable(writer, baseTable).add("drop", systemPeriodStart).add("drop", systemPeriodEnd);
 
     // drop the history table
     writer.postAlter().append("drop table ").append(historyTable).append(" cascade").endOfStatement();
@@ -127,38 +124,17 @@ public class HanaHistoryDdl implements PlatformHistoryDdl {
     }
   }
 
-  public void disableSystemVersioning(DdlWrite writer, String tableName) {
-    disableSystemVersioning(writer, tableName, false);
+  public String disableSystemVersioning(String tableName) {
+    return "alter table " + tableName + " drop system versioning";
   }
 
-  public void disableSystemVersioning(DdlWrite writer, String tableName, boolean uniqueStatement) {
-    writer.alterTable(tableName, "drop system versioning");
-    // CHECKME: Do we need this?
-//    apply.append("alter table ").append(tableName).append(" drop system versioning");
-//    if (uniqueStatement) {
-//      // needed for the DB migration test to prevent the statement from being filtered
-//      // out as a duplicate
-//      apply.append(" /* ").append(String.valueOf(counter.getAndIncrement())).append(" */");
-//    }
-//    apply.endOfStatement();
+  public String enableSystemVersioning(String tableName, boolean validated) {
+    return "alter table " + tableName + " add system versioning history table " + tableName + historySuffix
+        + (validated ? "" : " not validated");
   }
 
-  public void enableSystemVersioning(DdlWrite writer, String tableName, String historyTableName, boolean validated,
-                                     boolean uniqueStatement) {
-    StringBuilder stmt = writer.alterTable(tableName, "add system versioning history table ").append(historyTableName);
-    if (!validated) {
-      stmt.append(" not validated");
-    }
-    // CHECKME: Do we need this?
-//    if (uniqueStatement) {
-//      // needed for the DB migration test to prevent the statement from being filtered
-//      // out as a duplicate
-//      apply.append(" /* ").append(String.valueOf(counter.getAndIncrement())).append(" */");
-//    }
-//    apply.endOfStatement();
-  }
-
-  public boolean isSystemVersioningEnabled(String tableName) {
-    return !createdHistoryTables.containsKey(tableName);
+  @Override
+  public boolean alterHistoryTables() {
+    return true;
   }
 }

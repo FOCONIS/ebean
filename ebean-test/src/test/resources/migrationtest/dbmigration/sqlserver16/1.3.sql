@@ -26,16 +26,13 @@ EXEC usp_ebean_drop_default_constraint migtest_e_history6, test_number1;
 update migtest_e_history6 set test_number2 = 7 where test_number2 is null;
 -- altering tables
 alter table migtest_e_basic alter column status varchar(1);
-alter table migtest_e_basic add constraint ck_migtest_e_basic_status check ( status in ('N','A','I'));
 alter table migtest_e_basic add default 'N' for status2;
 alter table migtest_e_basic alter column status2 varchar(1) not null;
-alter table migtest_e_basic add constraint ck_migtest_e_basic_status2 check ( status2 in ('N','A','I'));
 alter table migtest_e_basic add default 23 for user_id;
 alter table migtest_e_basic alter column user_id integer not null;
 alter table migtest_e_basic add old_boolean bit default 0 not null;
 alter table migtest_e_basic add old_boolean2 bit;
 alter table migtest_e_basic add eref_id integer;
-alter table migtest_e_enum add constraint ck_migtest_e_enum_test_status check ( test_status in ('N','A','I'));
 alter table migtest_e_history2 alter column test_string varchar(255);
 alter table migtest_e_history2 add obsolete_string1 varchar(255);
 alter table migtest_e_history2 add obsolete_string2 varchar(255);
@@ -48,7 +45,11 @@ alter table migtest_e_ref add constraint uq_migtest_e_ref_name unique  (name);
 IF OBJECT_ID('fk_migtest_ckey_detail_parent', 'F') IS NOT NULL alter table migtest_ckey_detail drop constraint fk_migtest_ckey_detail_parent;
 alter table migtest_fk_cascade add constraint fk_migtest_fk_cascade_one_id foreign key (one_id) references migtest_fk_cascade_one (id) on delete cascade;
 alter table migtest_fk_set_null add constraint fk_migtest_fk_set_null_one_id foreign key (one_id) references migtest_fk_one (id) on delete set null;
-IF (OBJECT_ID('ck_migtest_e_basic_status', 'C') IS NOT NULL) alter table migtest_e_basic drop constraint ck_migtest_e_basic_statusIF (OBJECT_ID('ck_migtest_e_basic_status2', 'C') IS NOT NULL) alter table migtest_e_basic drop constraint ck_migtest_e_basic_status2IF EXISTS (SELECT name FROM sys.indexes WHERE object_id = OBJECT_ID('migtest_e_basic','U') AND name = 'uq_migtest_e_basic_description') drop index uq_migtest_e_basic_description ON migtest_e_basic;
+IF (OBJECT_ID('ck_migtest_e_basic_status', 'C') IS NOT NULL) alter table migtest_e_basic drop constraint ck_migtest_e_basic_status;
+alter table migtest_e_basic add constraint ck_migtest_e_basic_status check ( status in ('N','A','I'));
+IF (OBJECT_ID('ck_migtest_e_basic_status2', 'C') IS NOT NULL) alter table migtest_e_basic drop constraint ck_migtest_e_basic_status2;
+alter table migtest_e_basic add constraint ck_migtest_e_basic_status2 check ( status2 in ('N','A','I'));
+IF EXISTS (SELECT name FROM sys.indexes WHERE object_id = OBJECT_ID('migtest_e_basic','U') AND name = 'uq_migtest_e_basic_description') drop index uq_migtest_e_basic_description ON migtest_e_basic;
 IF (OBJECT_ID('uq_migtest_e_basic_description', 'UQ') IS NOT NULL) alter table migtest_e_basic drop constraint uq_migtest_e_basic_description;
 create index ix_migtest_e_basic_eref_id on migtest_e_basic (eref_id);
 alter table migtest_e_basic add constraint fk_migtest_e_basic_eref_id foreign key (eref_id) references migtest_e_ref (id);
@@ -63,7 +64,9 @@ IF EXISTS (SELECT name FROM sys.indexes WHERE object_id = OBJECT_ID('migtest_e_b
 IF (OBJECT_ID('uq_migtest_e_basic_indextest5', 'UQ') IS NOT NULL) alter table migtest_e_basic drop constraint uq_migtest_e_basic_indextest5;
 create unique nonclustered index uq_migtest_e_basic_indextest2 on migtest_e_basic(indextest2) where indextest2 is not null
 create unique nonclustered index uq_migtest_e_basic_indextest6 on migtest_e_basic(indextest6) where indextest6 is not null
-IF (OBJECT_ID('ck_migtest_e_enum_test_status', 'C') IS NOT NULL) alter table migtest_e_enum drop constraint ck_migtest_e_enum_test_statuscreate index ix_migtest_e_basic_indextest1 on migtest_e_basic (indextest1);
+IF (OBJECT_ID('ck_migtest_e_enum_test_status', 'C') IS NOT NULL) alter table migtest_e_enum drop constraint ck_migtest_e_enum_test_status;
+alter table migtest_e_enum add constraint ck_migtest_e_enum_test_status check ( test_status in ('N','A','I'));
+create index ix_migtest_e_basic_indextest1 on migtest_e_basic (indextest1);
 create index ix_migtest_e_basic_indextest5 on migtest_e_basic (indextest5);
 -- apply history view
 -- alter table migtest_e_history3 set (system_versioning = off (history_table=dbo.migtest_e_history3_history));

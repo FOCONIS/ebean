@@ -52,7 +52,6 @@ alter table migtest_ckey_parent add assoc_id number(10);
 alter table migtest_e_basic drop constraint ck_migtest_e_basic_status;
 alter table migtest_e_basic modify status default 'A';
 alter table migtest_e_basic modify status not null;
-alter table migtest_e_basic add constraint ck_migtest_e_basic_status check ( status in ('N','A','I','?'));
 alter table migtest_e_basic drop constraint ck_migtest_e_basic_status2;
 alter table migtest_e_basic modify status2 varchar2(127);
 alter table migtest_e_basic modify status2 drop default;
@@ -62,7 +61,6 @@ alter table migtest_e_basic add new_string_field varchar2(255) default 'foo''bar
 alter table migtest_e_basic add new_boolean_field number(1) default 1 not null;
 alter table migtest_e_basic add new_boolean_field2 number(1) default 1 not null;
 alter table migtest_e_basic add progress number(10) default 0 not null;
-alter table migtest_e_basic add constraint ck_migtest_e_basic_progress check ( progress in (0,1,2));
 alter table migtest_e_basic add new_integer number(10) default 42 not null;
 alter table migtest_e_basic drop constraint uq_migtest_e_basic_indextest2;
 alter table migtest_e_basic drop constraint uq_migtest_e_basic_indextest6;
@@ -110,7 +108,9 @@ alter table migtest_fk_cascade add constraint fk_migtest_fk_cascade_one_id forei
 alter table migtest_fk_none add constraint fk_migtest_fk_none_one_id foreign key (one_id) references migtest_fk_one (id);
 alter table migtest_fk_none_via_join add constraint fk_mgtst_fk_nn_v_jn_n_d foreign key (one_id) references migtest_fk_one (id);
 alter table migtest_fk_set_null add constraint fk_migtest_fk_set_null_one_id foreign key (one_id) references migtest_fk_one (id);
+alter table migtest_e_basic add constraint ck_migtest_e_basic_status check ( status in ('N','A','I','?'));
 alter table migtest_e_basic add constraint fk_migtest_e_basic_user_id foreign key (user_id) references migtest_e_user (id);
+alter table migtest_e_basic add constraint ck_migtest_e_basic_progress check ( progress in (0,1,2));
 alter table migtest_oto_child add constraint fk_migtest_oto_child_master_id foreign key (master_id) references migtest_oto_master (id);
 
 create index ix_migtest_e_basic_indextest3 on migtest_e_basic (indextest3);

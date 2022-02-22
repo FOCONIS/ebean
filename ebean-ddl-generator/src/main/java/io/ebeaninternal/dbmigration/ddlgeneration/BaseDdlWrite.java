@@ -3,6 +3,7 @@ package io.ebeaninternal.dbmigration.ddlgeneration;
 import java.io.IOException;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.function.Function;
 
 import io.ebeaninternal.dbmigration.ddlgeneration.platform.BaseDdlBuffer;
 import io.ebeaninternal.dbmigration.model.MConfiguration;
@@ -21,7 +22,7 @@ public class BaseDdlWrite implements DdlWrite {
   
   private final DdlBuffer apply = new BaseDdlBuffer();
 
-  private final Map<String, DdlAlterTableWrite> alterTables = new TreeMap<>();
+  private final Map<String, DdlAlterTable> alterTables = new TreeMap<>();
 
   private final DdlBuffer postAlter = new BaseDdlBuffer();
 
@@ -40,8 +41,6 @@ public class BaseDdlWrite implements DdlWrite {
 
   
   private final DdlOptions options;
-  
-  private boolean mergeAlters;
   
 
   /**
@@ -90,7 +89,7 @@ public class BaseDdlWrite implements DdlWrite {
   }
 
   private boolean alterTablesEmpty() {
-   for (DdlAlterTableWrite alterTable : alterTables.values()) {
+    for (DdlAlterTable alterTable : alterTables.values()) {
      if (!alterTable.isEmpty()) {
        return false;
      }
@@ -105,36 +104,12 @@ public class BaseDdlWrite implements DdlWrite {
     return postAlter;
   }
   
-  /**
-   * Appends an alter table statement.
-   */
-  public StringBuilder alterTable(String tableName, String statement) {
-    return alterTables.computeIfAbsent(tableName, DdlAlterTableWrite::new).alter(statement);
+
+  @Override
+  public <T extends DdlAlterTable> T alterTable(String tableName, Function<String, T> factory) {
+    return (T) alterTables.computeIfAbsent(tableName, factory);
   }
 
-  /**
-   * Sets the reorg statement for given table. The reorg statement is executed
-   * after all alter statements, but before the 'apply' buffer.
-   */
-  public void setReorg(String tableName, String statement) {
-    alterTables.computeIfAbsent(tableName, DdlAlterTableWrite::new).setReorg(statement);
-  }
-
-  /**
-   * Can we do multiple alters to increase performance. This means, we have one
-   * "alter table ALTER1, ALTER2, ALTERn" statement.
-   */
-  public void setMergeAlters(boolean mergeAlters) {
-    this.mergeAlters = mergeAlters;
-  }
-
-  /**
-   * Returns true, if merge alters is enabled. 
-   */
-  public boolean isMergeAlters() {
-    return mergeAlters;
-  }
-  
   /**
    * Return the buffer that APPLY DDL is written to.
    */
@@ -193,8 +168,8 @@ public class BaseDdlWrite implements DdlWrite {
     }
     if (!alterTables.isEmpty()) {
       target.append("-- altering tables\n");
-      for (DdlAlterTableWrite alterTable : alterTables.values()) {
-        alterTable.write(target, mergeAlters);
+      for (DdlAlterTable alterTable : alterTables.values()) {
+        alterTable.write(target);
       }
     }
     if (!postAlter.isEmpty()) {
