@@ -162,6 +162,7 @@ alter table migtest_e_basic alter column status2 set default 'N';
 alter table migtest_e_basic alter column status2 set not null;
 alter table migtest_e_basic alter column user_id set default 23;
 alter table migtest_e_basic alter column user_id set not null;
+alter table migtest_e_basic add column description_file blob(64M);
 alter table migtest_e_basic add column old_boolean smallint default 0 default false not null;
 alter table migtest_e_basic add column old_boolean2 smallint default 0;
 alter table migtest_e_basic add column eref_id integer;

@@ -17,7 +17,6 @@ import io.ebeaninternal.extraddl.model.ExtraDdl;
 import io.ebeaninternal.extraddl.model.ExtraDdlXmlReader;
 import io.ebeaninternal.dbmigration.ddlgeneration.PlatformDdlBuilder;
 
-import java.io.IOException;
 import java.util.List;
 
 import static io.ebeaninternal.api.PlatformMatch.matchPlatform;

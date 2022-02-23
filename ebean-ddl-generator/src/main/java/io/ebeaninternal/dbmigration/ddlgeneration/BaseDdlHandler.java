@@ -75,6 +75,7 @@ public class BaseDdlHandler implements DdlHandler {
   }
 
   @Override
+<<<<<<< HEAD
   public void generateProlog(DdlWrite writer) {
     tableDdl.generateProlog(writer);
   }
@@ -82,6 +83,15 @@ public class BaseDdlHandler implements DdlHandler {
   @Override
   public void generateEpilog(DdlWrite writer) {
     tableDdl.generateEpilog(writer);
+=======
+  public void generateProlog(DdlWrite write) {
+    tableDdl.generateProlog(write);
+  }
+
+  @Override
+  public void generateEpilog(DdlWrite write) {
+    tableDdl.generateEpilog(write);
+>>>>>>> upstream/master
   }
 
   @Override

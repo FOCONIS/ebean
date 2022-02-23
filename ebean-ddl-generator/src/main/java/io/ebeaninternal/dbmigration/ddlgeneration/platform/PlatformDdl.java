@@ -1,6 +1,7 @@
 package io.ebeaninternal.dbmigration.ddlgeneration.platform;
 
 import io.ebean.annotation.ConstraintMode;
+import io.ebean.annotation.Platform;
 import io.ebean.config.DatabaseConfig;
 import io.ebean.config.DbConstraintNaming;
 import io.ebean.config.dbplatform.DatabasePlatform;
@@ -8,12 +9,16 @@ import io.ebean.config.dbplatform.DbDefaultValue;
 import io.ebean.config.dbplatform.DbIdentity;
 import io.ebean.config.dbplatform.IdType;
 import io.ebean.util.StringHelper;
+<<<<<<< HEAD
 import io.ebeaninternal.dbmigration.ddlgeneration.BaseDdlHandler;
 import io.ebeaninternal.dbmigration.ddlgeneration.DdlAlterTable;
 import io.ebeaninternal.dbmigration.ddlgeneration.DdlBuffer;
 import io.ebeaninternal.dbmigration.ddlgeneration.DdlHandler;
 import io.ebeaninternal.dbmigration.ddlgeneration.DdlOptions;
 import io.ebeaninternal.dbmigration.ddlgeneration.DdlWrite;
+=======
+import io.ebeaninternal.dbmigration.ddlgeneration.*;
+>>>>>>> upstream/master
 import io.ebeaninternal.dbmigration.ddlgeneration.platform.util.PlatformTypeConverter;
 import io.ebeaninternal.dbmigration.ddlgeneration.platform.util.VowelRemover;
 import io.ebeaninternal.dbmigration.migration.AddHistoryTable;
@@ -24,6 +29,7 @@ import io.ebeaninternal.dbmigration.model.MTable;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Controls the DDL generation for a specific database platform.
@@ -315,10 +321,30 @@ public class PlatformDdl {
     if (type == null) {
       return null;
     }
+    type = extract(type);
     if (type.contains("[]")) {
       return convertArrayType(type);
     }
     return typeConverter.convert(type);
+  }
+
+  // if columnType is different for different platforms, use pattern
+  // @Column(columnDefinition = PLATFORM1;DEFINITION1;PLATFORM2;DEFINITON2;DEFINITON-DEFAULT)
+  // e.g. @Column(columnDefinition = "db2;blob(64M);sqlserver,h2;varchar(227);varchar(127)")
+  private String extract(String type) {
+    String[] tmp = type.split(";");
+    if (tmp.length % 2 == 0) {
+      throw new IllegalArgumentException("You need an odd number of arguments. See Issue #2559 for details");
+    }
+    for (int i = 0; i < tmp.length - 2; i += 2) {
+      String[] platforms = tmp[i].split(",");
+      for (String plat : platforms) {
+        if (platform.isPlatform(Platform.valueOf(plat.toUpperCase(Locale.ENGLISH)))) {
+          return tmp[i + 1];
+        }
+      }
+    }
+    return tmp[tmp.length - 1]; // else
   }
 
   /**

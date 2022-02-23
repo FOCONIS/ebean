@@ -39,6 +39,7 @@ alter table migtest_e_basic add default 'N' for status2;
 alter table migtest_e_basic alter column status2 nvarchar(1) not null;
 alter table migtest_e_basic add default 23 for user_id;
 alter table migtest_e_basic alter column user_id integer not null;
+alter table migtest_e_basic add description_file image;
 alter table migtest_e_basic add old_boolean bit default 0 not null;
 alter table migtest_e_basic add old_boolean2 bit;
 alter table migtest_e_basic add eref_id integer;

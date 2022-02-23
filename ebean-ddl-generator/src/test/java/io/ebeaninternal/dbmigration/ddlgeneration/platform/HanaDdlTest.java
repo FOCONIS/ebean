@@ -6,14 +6,12 @@ import io.ebeaninternal.dbmigration.ddlgeneration.DdlWrite;
 import io.ebeaninternal.dbmigration.migration.Column;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class HanaDdlTest {
 
   @Test
-  public void alterTableDropColumn() throws IOException {
+  public void alterTableDropColumn() {
     HanaColumnStoreDdl ddl = new HanaColumnStoreDdl(new HanaPlatform());
     DdlWrite write = new BaseDdlWrite();
     ddl.alterTableDropColumn(write, "my_table", "my_column", false);
@@ -21,7 +19,7 @@ public class HanaDdlTest {
   }
 
   @Test
-  public void alterTableAddColumn() throws IOException {
+  public void alterTableAddColumn() {
     HanaColumnStoreDdl ddl = new HanaColumnStoreDdl(new HanaPlatform());
     DdlWrite write = new BaseDdlWrite();
     Column column = new Column();

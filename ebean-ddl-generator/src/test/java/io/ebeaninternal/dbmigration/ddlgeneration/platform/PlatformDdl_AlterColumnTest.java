@@ -19,8 +19,6 @@ import io.ebeaninternal.dbmigration.migration.AlterForeignKey;
 import io.ebeaninternal.dbmigration.migration.Column;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -288,10 +286,17 @@ public class PlatformDdl_AlterColumnTest {
   }
 
   @Test
+<<<<<<< HEAD
   public void oracle_alterTableAddColumn() throws IOException {
     DdlWrite write = new BaseDdlWrite();
     oraDdl.alterTableAddColumn(write, "my_table", simpleColumn(), false, "1");
     assertThat(write.toString()).isEqualTo("-- altering tables\nalter table my_table add my_column int default 1 not null;\n");
+=======
+  public void oracle_alterTableAddColumn() {
+    DdlWrite write = new DdlWrite();
+    oraDdl.alterTableAddColumn(write.apply(), "my_table", simpleColumn(), false, "1");
+    assertThat(write.apply().getBuffer()).isEqualTo("alter table my_table add my_column int default 1 not null;\n");
+>>>>>>> upstream/master
   }
 
   private Column simpleColumn() {
