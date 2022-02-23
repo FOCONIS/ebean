@@ -1,10 +1,13 @@
 -- Migrationscripts for ebean unittest
 -- drop dependencies
-alter table migtest_fk_cascade drop constraint fk_migtest_fk_cascade_one_id;
-alter table migtest_fk_none drop constraint fk_migtest_fk_none_one_id;
-alter table migtest_fk_none_via_join drop constraint fk_mgtst_fk_nn_v_jn_n_d;
-alter table migtest_fk_set_null drop constraint fk_migtest_fk_set_null_one_id;
-alter table migtest_e_basic drop constraint fk_migtest_e_basic_user_id;
+alter table migtest_fk_cascade drop constraintfk_migtest_fk_cascade_one_idalter table migtest_fk_none drop constraintfk_migtest_fk_none_one_idalter table migtest_fk_none_via_join drop constraintfk_mgtst_fk_nn_v_jn_n_dalter table migtest_fk_set_null drop constraintfk_migtest_fk_set_null_one_idalter table migtest_e_basic drop constraint ck_migtest_e_basic_status;
+alter table migtest_e_basic drop constraint ck_migtest_e_basic_status2;
+alter table migtest_e_basic drop constraint uq_migtest_e_basic_description;
+alter table migtest_e_basic drop constraintfk_migtest_e_basic_user_idalter table migtest_e_basic drop constraint uq_mgtst__bsc_stts_ndxtst1;
+alter table migtest_e_basic drop constraint uq_migtest_e_basic_name;
+alter table migtest_e_basic drop constraint uq_migtest_e_basic_indextest4;
+alter table migtest_e_basic drop constraint uq_migtest_e_basic_indextest5;
+alter table migtest_e_enum drop constraint ck_migtest_e_enum_test_status;
 drop index ix_migtest_e_basic_indextest3;
 drop index ix_migtest_e_basic_indextest6;
 -- apply changes
@@ -19,30 +22,20 @@ create table migtest_e_ref (
 update migtest_e_basic set status2 = 'N' where status2 is null;
 
 update migtest_e_basic set user_id = 23 where user_id is null;
--- NOT YET IMPLEMENTED: unique constraint with nulls: uq_migtest_e_basic_indextest2
--- NOT YET IMPLEMENTED: unique constraint with nulls: uq_migtest_e_basic_indextest6
 
 -- NOTE: table has @History - special migration may be necessary
 update migtest_e_history6 set test_number2 = 7 where test_number2 is null;
 -- altering tables
-alter table migtest_e_basic drop constraint ck_migtest_e_basic_status;
 alter table migtest_e_basic modify status drop default;
 alter table migtest_e_basic modify status null;
-alter table migtest_e_basic drop constraint ck_migtest_e_basic_status2;
 alter table migtest_e_basic modify status2 varchar2(1);
 alter table migtest_e_basic modify status2 default 'N';
 alter table migtest_e_basic modify status2 not null;
-alter table migtest_e_basic drop constraint uq_migtest_e_basic_description;
 alter table migtest_e_basic modify user_id default 23;
 alter table migtest_e_basic modify user_id not null;
 alter table migtest_e_basic add old_boolean number(1) default 0 not null;
 alter table migtest_e_basic add old_boolean2 number(1);
 alter table migtest_e_basic add eref_id number(10);
-alter table migtest_e_basic drop constraint uq_mgtst__bsc_stts_ndxtst1;
-alter table migtest_e_basic drop constraint uq_migtest_e_basic_name;
-alter table migtest_e_basic drop constraint uq_migtest_e_basic_indextest4;
-alter table migtest_e_basic drop constraint uq_migtest_e_basic_indextest5;
-alter table migtest_e_enum drop constraint ck_migtest_e_enum_test_status;
 alter table migtest_e_history2 modify test_string drop default;
 alter table migtest_e_history2 modify test_string null;
 alter table migtest_e_history2 add obsolete_string1 varchar2(255);
@@ -56,14 +49,15 @@ alter table migtest_e_history6 modify test_number2 not null;
 comment on column migtest_e_history.test_string is '';
 comment on table migtest_e_history is '';
 -- indices/constraints
-alter table migtest_ckey_detail drop constraint fk_migtest_ckey_detail_parent;
-alter table migtest_fk_cascade add constraint fk_migtest_fk_cascade_one_id foreign key (one_id) references migtest_fk_cascade_one (id) on delete cascade;
+alter table migtest_ckey_detail drop constraintfk_migtest_ckey_detail_parentalter table migtest_fk_cascade add constraint fk_migtest_fk_cascade_one_id foreign key (one_id) references migtest_fk_cascade_one (id) on delete cascade;
 alter table migtest_fk_set_null add constraint fk_migtest_fk_set_null_one_id foreign key (one_id) references migtest_fk_one (id) on delete set null;
 alter table migtest_e_basic add constraint ck_migtest_e_basic_status check ( status in ('N','A','I'));
 alter table migtest_e_basic add constraint ck_migtest_e_basic_status2 check ( status2 in ('N','A','I'));
 create index ix_migtest_e_basic_eref_id on migtest_e_basic (eref_id);
 alter table migtest_e_basic add constraint fk_migtest_e_basic_eref_id foreign key (eref_id) references migtest_e_ref (id);
 
+-- NOT YET IMPLEMENTED: unique constraint with nulls: uq_migtest_e_basic_indextest2
+-- NOT YET IMPLEMENTED: unique constraint with nulls: uq_migtest_e_basic_indextest6
 alter table migtest_e_enum add constraint ck_migtest_e_enum_test_status check ( test_status in ('N','A','I'));
 create index ix_migtest_e_basic_indextest1 on migtest_e_basic (indextest1);
 create index ix_migtest_e_basic_indextest5 on migtest_e_basic (indextest5);

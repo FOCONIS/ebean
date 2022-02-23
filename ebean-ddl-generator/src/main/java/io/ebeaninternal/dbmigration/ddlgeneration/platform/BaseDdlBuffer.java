@@ -87,4 +87,9 @@ public class BaseDdlBuffer implements DdlBuffer {
   public String getBuffer() {
     return writer.toString();
   }
+
+  @Override
+  public String toString() {
+    return writer.toString();
+  }
 }

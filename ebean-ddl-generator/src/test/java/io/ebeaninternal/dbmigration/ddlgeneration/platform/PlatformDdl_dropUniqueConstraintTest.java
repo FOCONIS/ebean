@@ -7,7 +7,7 @@ import io.ebean.config.dbplatform.mysql.MySqlPlatform;
 import io.ebean.config.dbplatform.oracle.OraclePlatform;
 import io.ebean.config.dbplatform.postgres.PostgresPlatform;
 import io.ebean.config.dbplatform.sqlserver.SqlServer17Platform;
-import io.ebeaninternal.dbmigration.ddlgeneration.BaseDdlWrite;
+import io.ebeaninternal.dbmigration.ddlgeneration.DdlBuffer;
 import io.ebeaninternal.dbmigration.ddlgeneration.PlatformDdlBuilder;
 import org.junit.jupiter.api.Test;
 
@@ -23,7 +23,7 @@ public class PlatformDdl_dropUniqueConstraintTest {
   private final PlatformDdl hanaDdl = PlatformDdlBuilder.create(new HanaPlatform());
 
   String alterTableDropUniqueConstraint(PlatformDdl ddl) {
-    BaseDdlWrite write = new BaseDdlWrite();
+    DdlBuffer write = new BaseDdlBuffer();
     ddl.alterTableDropUniqueConstraint(write, "mytab", "uq_name");
     return write.toString();
   }

@@ -158,8 +158,6 @@ create table migtest_oto_master (
   constraint pk_migtest_oto_master primary key (id)
 );
 
--- altering tables
-alter table migtest_e_ref add constraint uq_migtest_e_ref_name unique  (name);
 -- indices/constraints
 create index ix_migtest_fk_cascade_one_id on migtest_fk_cascade (one_id);
 alter table migtest_fk_cascade add constraint fk_migtest_fk_cascade_one_id foreign key (one_id) references migtest_fk_cascade_one (id) on delete cascade;
@@ -167,11 +165,12 @@ alter table migtest_fk_cascade add constraint fk_migtest_fk_cascade_one_id forei
 create index ix_migtest_fk_set_null_one_id on migtest_fk_set_null (one_id);
 alter table migtest_fk_set_null add constraint fk_migtest_fk_set_null_one_id foreign key (one_id) references migtest_fk_one (id) on delete set null;
 
-create unique nonclustered index uq_migtest_e_basic_indextest2 on migtest_e_basic(indextest2) where indextest2 is not null
-create unique nonclustered index uq_migtest_e_basic_indextest6 on migtest_e_basic(indextest6) where indextest6 is not null
+create unique nonclustered index uq_migtest_e_basic_indextest2 on migtest_e_basic(indextest2) where indextest2 is not null;
+create unique nonclustered index uq_migtest_e_basic_indextest6 on migtest_e_basic(indextest6) where indextest6 is not null;
 create index ix_migtest_e_basic_eref_id on migtest_e_basic (eref_id);
 alter table migtest_e_basic add constraint fk_migtest_e_basic_eref_id foreign key (eref_id) references migtest_e_ref (id);
 
+alter table migtest_e_ref add constraint uq_migtest_e_ref_name unique  (name);
 create index ix_migtest_e_basic_indextest1 on migtest_e_basic (indextest1);
 create index ix_migtest_e_basic_indextest5 on migtest_e_basic (indextest5);
 -- apply history view

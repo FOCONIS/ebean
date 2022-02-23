@@ -11,6 +11,7 @@ import io.ebean.config.dbplatform.oracle.OraclePlatform;
 import io.ebean.config.dbplatform.postgres.PostgresPlatform;
 import io.ebean.config.dbplatform.sqlserver.SqlServer17Platform;
 import io.ebeaninternal.dbmigration.ddlgeneration.BaseDdlWrite;
+import io.ebeaninternal.dbmigration.ddlgeneration.DdlBuffer;
 import io.ebeaninternal.dbmigration.ddlgeneration.DdlWrite;
 import io.ebeaninternal.dbmigration.ddlgeneration.PlatformDdlBuilder;
 import io.ebeaninternal.dbmigration.migration.AlterColumn;
@@ -375,7 +376,7 @@ public class PlatformDdl_AlterColumnTest {
     AlterForeignKey afk = new AlterForeignKey();
     afk.setOnDelete(onDelete);
     afk.setOnUpdate(onUpdate);
-    StringBuilder buffer = new StringBuilder();
+    DdlBuffer buffer = new BaseDdlBuffer();
     h2Ddl.appendForeignKeySuffix(new WriteForeignKey(afk), buffer);
     return buffer.toString();
   }

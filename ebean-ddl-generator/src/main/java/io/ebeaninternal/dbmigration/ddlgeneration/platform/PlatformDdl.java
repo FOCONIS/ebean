@@ -301,9 +301,11 @@ public class PlatformDdl {
   /**
    * Return the drop foreign key clause.
    */
-  public String alterTableDropForeignKey(String tableName, String fkName) {
-    return "alter table " + alterTableIfExists + tableName + " " + dropConstraintIfExists + " "
-        + maxConstraintName(fkName);
+  public void alterTableDropForeignKey(DdlBuffer buffer, String tableName, String fkName) {
+    buffer.append("alter table ").append(alterTableIfExists)
+      .append(tableName)
+      .appendWithSpace(dropConstraintIfExists)
+      .appendWithSpace(maxConstraintName(fkName));
   }
 
   /**
@@ -388,65 +390,62 @@ public class PlatformDdl {
   /**
    * Return the drop table statement (potentially with if exists clause).
    */
-  public String dropTable(String tableName) {
-    return dropTableIfExists + tableName + dropTableCascade;
+  public void dropTable(DdlBuffer buffer, String tableName) {
+    buffer.append(dropTableIfExists).append(tableName).append(dropTableCascade).endOfStatement();
   }
 
   /**
    * Return the drop index statement for known non concurrent index.
    */
-  public String dropIndex(String indexName, String tableName) {
-    return dropIndex(indexName, tableName, false);
+  public void dropIndex(DdlBuffer buffer, String indexName, String tableName) {
+    dropIndex(buffer, indexName, tableName, false);
   }
 
   /**
    * Return the drop index statement.
    */
-  public String dropIndex(String indexName, String tableName, boolean concurrent) {
-    return dropIndexIfExists + maxConstraintName(indexName);
+  public void dropIndex(DdlBuffer buffer, String indexName, String tableName, boolean concurrent) {
+    buffer.append(dropIndexIfExists).append(maxConstraintName(indexName)).endOfStatement();
   }
 
   public String createIndex(WriteCreateIndex create) {
     if (create.useDefinition()) {
       return create.getDefinition();
+    } else {
+      DdlBuffer buffer = new BaseDdlBuffer();
+      buffer.append("create ");
+      if (create.isUnique()) {
+        buffer.append(uniqueIndex).append(" ");
+      }
+      buffer.append("index ");
+      if (create.isConcurrent()) {
+        buffer.append(indexConcurrent);
+      }
+      if (create.isNotExistsCheck()) {
+        buffer.append(createIndexIfNotExists);
+      }
+      buffer.append(maxConstraintName(create.getIndexName())).append(" on ").append(create.getTableName());
+      appendColumns(create.getColumns(), buffer);
+      return buffer.getBuffer();
     }
-    StringBuilder buffer = new StringBuilder();
-    buffer.append("create ");
-    if (create.isUnique()) {
-      buffer.append(uniqueIndex).append(" ");
-    }
-    buffer.append("index ");
-    if (create.isConcurrent()) {
-      buffer.append(indexConcurrent);
-    }
-    if (create.isNotExistsCheck()) {
-      buffer.append(createIndexIfNotExists);
-    }
-    buffer.append(maxConstraintName(create.getIndexName())).append(" on ").append(create.getTableName());
-    appendColumns(create.getColumns(), buffer);
-    return buffer.toString();
   }
 
   /**
    * Return the foreign key constraint when used inline with create table.
    */
-  public String tableInlineForeignKey(WriteForeignKey request) {
-
-    StringBuilder buffer = new StringBuilder(90);
+  public void tableInlineForeignKey(DdlBuffer buffer, WriteForeignKey request) {
     buffer.append("foreign key");
     appendColumns(request.cols(), buffer);
     buffer.append(" references ").append(lowerTableName(request.refTable()));
     appendColumns(request.refCols(), buffer);
     appendForeignKeySuffix(request, buffer);
-    return buffer.toString();
   }
 
   /**
    * Add foreign key.
    */
-  public String alterTableAddForeignKey(DdlOptions options, WriteForeignKey request) {
+  public void alterTableAddForeignKey(DdlBuffer buffer, DdlOptions options, WriteForeignKey request) {
 
-    StringBuilder buffer = new StringBuilder(90);
     buffer.append("alter table ").append(lowerTableName(request.table())).append(" add constraint ")
         .append(maxConstraintName(request.fkName())).append(" foreign key");
     appendColumns(request.cols(), buffer);
@@ -456,27 +455,28 @@ public class PlatformDdl {
     if (options.isForeignKeySkipCheck()) {
       buffer.append(addForeignKeySkipCheck);
     }
-    return buffer.toString();
+    buffer.endOfStatement();
   }
 
-  protected void appendForeignKeySuffix(WriteForeignKey request, StringBuilder buffer) {
+  protected void appendForeignKeySuffix(WriteForeignKey request, DdlBuffer buffer) {
     appendForeignKeyOnDelete(buffer, withDefault(request.onDelete()));
     appendForeignKeyOnUpdate(buffer, withDefault(request.onUpdate()));
+
   }
 
   protected ConstraintMode withDefault(ConstraintMode mode) {
     return (mode == null) ? ConstraintMode.RESTRICT : mode;
   }
 
-  protected void appendForeignKeyOnDelete(StringBuilder buffer, ConstraintMode mode) {
+  protected void appendForeignKeyOnDelete(DdlBuffer buffer, ConstraintMode mode) {
     appendForeignKeyMode(buffer, foreignKeyOnDelete, mode);
   }
 
-  protected void appendForeignKeyOnUpdate(StringBuilder buffer, ConstraintMode mode) {
+  protected void appendForeignKeyOnUpdate(DdlBuffer buffer, ConstraintMode mode) {
     appendForeignKeyMode(buffer, foreignKeyOnUpdate, mode);
   }
 
-  protected void appendForeignKeyMode(StringBuilder buffer, String onMode, ConstraintMode mode) {
+  protected void appendForeignKeyMode(DdlBuffer buffer, String onMode, ConstraintMode mode) {
     buffer.append(" ").append(onMode).append(" ").append(translate(mode));
   }
 
@@ -498,15 +498,20 @@ public class PlatformDdl {
   /**
    * Drop a unique constraint from the table (Sometimes this is an index).
    */
-  public void alterTableDropUniqueConstraint(DdlWrite writer, String tableName, String uniqueConstraintName) {
-    alterTable(writer, tableName).add(dropUniqueConstraint + " " + maxConstraintName(uniqueConstraintName));
+  public void alterTableDropUniqueConstraint(DdlBuffer buffer, String tableName, String uniqueConstraintName) {
+    buffer.append("alter table ").append(tableName)
+      .appendWithSpace(dropUniqueConstraint).appendWithSpace(maxConstraintName(uniqueConstraintName))
+      .endOfStatement();
+
   }
 
   /**
    * Drop a unique constraint from the table.
    */
-  public void alterTableDropConstraint(DdlWrite writer, String tableName, String constraintName) {
-    alterTable(writer, tableName).add(dropConstraintIfExists + " " + maxConstraintName(constraintName));
+  public void alterTableDropConstraint(DdlBuffer buffer, String tableName, String constraintName) {
+    buffer.append("alter table ").append(tableName)
+      .appendWithSpace(dropConstraintIfExists).appendWithSpace(maxConstraintName(constraintName))
+      .endOfStatement();
   }
 
   /**
@@ -514,12 +519,12 @@ public class PlatformDdl {
    * <p>
    * Overridden by MsSqlServer for specific null handling on unique constraints.
    */
-  public void alterTableAddUniqueConstraint(DdlWrite writer, String tableName, String uqName, String[] columns,
+  public void alterTableAddUniqueConstraint(DdlBuffer buffer, String tableName, String uqName, String[] columns,
       String[] nullableColumns) {
-    StringBuilder buffer = new StringBuilder();
-    buffer.append("add constraint ").append(maxConstraintName(uqName)).append(" unique ");
+    buffer.append("alter table ").append(tableName).append(" add constraint ").append(maxConstraintName(uqName))
+      .append(" unique ");
     appendColumns(columns, buffer);
-    alterTable(writer, tableName).add(buffer.toString());
+    buffer.endOfStatement();
   }
 
   public void alterTableAddColumn(DdlWrite writer, String tableName, Column column, boolean onHistoryTable,
@@ -626,7 +631,7 @@ public class PlatformDdl {
     // modify the column with the full column definition
   }
 
-  protected void appendColumns(String[] columns, StringBuilder buffer) {
+  protected void appendColumns(String[] columns, DdlBuffer buffer) {
     buffer.append(" (");
     for (int i = 0; i < columns.length; i++) {
       if (i > 0) {

@@ -48,7 +48,6 @@ public class DbMigrationTest extends BaseTestCase {
   }
 
   @IgnorePlatform({
-    Platform.DB2, // currently does not work due missing reorg feature
     //Platform.CLICKHOUSE, // test(s) do not start at all
     //Platform.COCKROACH, // does not see applied DDL? commit missing?
     // Platform.NUODB nuodb container does not start

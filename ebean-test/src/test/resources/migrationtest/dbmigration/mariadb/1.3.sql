@@ -4,9 +4,14 @@ alter table migtest_fk_cascade drop foreign key fk_migtest_fk_cascade_one_id;
 alter table migtest_fk_none drop foreign key fk_migtest_fk_none_one_id;
 alter table migtest_fk_none_via_join drop foreign key fk_migtest_fk_none_via_join_one_id;
 alter table migtest_fk_set_null drop foreign key fk_migtest_fk_set_null_one_id;
+alter table migtest_e_basic drop index uq_migtest_e_basic_description;
 alter table migtest_e_basic drop foreign key fk_migtest_e_basic_user_id;
-drop index ix_migtest_e_basic_indextest3 on migtest_e_basic;
-drop index ix_migtest_e_basic_indextest6 on migtest_e_basic;
+alter table migtest_e_basic drop index uq_migtest_e_basic_status_indextest1;
+alter table migtest_e_basic drop index uq_migtest_e_basic_name;
+alter table migtest_e_basic drop index uq_migtest_e_basic_indextest4;
+alter table migtest_e_basic drop index uq_migtest_e_basic_indextest5;
+drop index if exists ix_migtest_e_basic_indextest3;
+drop index if exists ix_migtest_e_basic_indextest6;
 -- apply changes
 create table migtest_e_ref (
   id                            integer auto_increment not null,
@@ -26,17 +31,10 @@ update migtest_e_history6 set test_number2 = 7 where test_number2 is null;
 -- altering tables
 alter table migtest_e_basic modify status varchar(1);
 alter table migtest_e_basic modify status2 varchar(1) not null default 'N';
-alter table migtest_e_basic drop index uq_migtest_e_basic_description;
 alter table migtest_e_basic modify user_id integer not null default 23;
 alter table migtest_e_basic add column old_boolean tinyint(1) default 0 not null;
 alter table migtest_e_basic add column old_boolean2 tinyint(1);
 alter table migtest_e_basic add column eref_id integer;
-alter table migtest_e_basic drop index uq_migtest_e_basic_status_indextest1;
-alter table migtest_e_basic drop index uq_migtest_e_basic_name;
-alter table migtest_e_basic drop index uq_migtest_e_basic_indextest4;
-alter table migtest_e_basic drop index uq_migtest_e_basic_indextest5;
-alter table migtest_e_basic add constraint uq_migtest_e_basic_indextest2 unique  (indextest2);
-alter table migtest_e_basic add constraint uq_migtest_e_basic_indextest6 unique  (indextest6);
 alter table migtest_e_history2 modify test_string varchar(255);
 alter table migtest_e_history2 add column obsolete_string1 varchar(255);
 alter table migtest_e_history2 add column obsolete_string2 varchar(255);
@@ -52,5 +50,7 @@ alter table migtest_fk_set_null add constraint fk_migtest_fk_set_null_one_id for
 create index ix_migtest_e_basic_eref_id on migtest_e_basic (eref_id);
 alter table migtest_e_basic add constraint fk_migtest_e_basic_eref_id foreign key (eref_id) references migtest_e_ref (id) on delete restrict on update restrict;
 
+alter table migtest_e_basic add constraint uq_migtest_e_basic_indextest2 unique  (indextest2);
+alter table migtest_e_basic add constraint uq_migtest_e_basic_indextest6 unique  (indextest6);
 create index ix_migtest_e_basic_indextest1 on migtest_e_basic (indextest1);
 create index ix_migtest_e_basic_indextest5 on migtest_e_basic (indextest5);

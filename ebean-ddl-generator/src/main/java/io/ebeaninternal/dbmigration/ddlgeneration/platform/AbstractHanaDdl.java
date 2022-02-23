@@ -181,18 +181,17 @@ public abstract class AbstractHanaDdl extends PlatformDdl {
   }
 
   @Override
-  public void alterTableAddUniqueConstraint(DdlWrite writer, String tableName, String uqName, String[] columns, String[] nullableColumns) {
+  public void alterTableAddUniqueConstraint(DdlBuffer buffer, String tableName, String uqName, String[] columns,
+    String[] nullableColumns) {
     if (nullableColumns == null || nullableColumns.length == 0) {
-      super.alterTableAddUniqueConstraint(writer, tableName, uqName, columns, nullableColumns);
+      super.alterTableAddUniqueConstraint(buffer, tableName, uqName, columns, nullableColumns);
     } else {
-      writer.index().appendStatement("-- cannot create unique index \"" + uqName + "\" on table \"" + tableName + "\" with nullable columns");
+      buffer.append("-- cannot create unique index \"").append(uqName)
+        .append("\" on table \"").append(tableName).append("\" with nullable columns").endOfStatement();
     }
   }
 
-  @Override
-  public void alterTableDropUniqueConstraint(DdlWrite writer, String tableName, String uniqueConstraintName) {
-    DdlBuffer buffer = writer.dropDependencies();
-
+  public void alterTableDropUniqueConstraint(DdlBuffer buffer, String tableName, String uniqueConstraintName) {
     buffer.append("delimiter $$").newLine();
     buffer.append("do").newLine();
     buffer.append("begin").newLine();
@@ -201,13 +200,12 @@ public abstract class AbstractHanaDdl extends PlatformDdl {
       .append(maxConstraintName(uniqueConstraintName)).append("'").endOfStatement();
     buffer.append("end").endOfStatement();
     buffer.append("$$");
-    buffer.endOfStatement();
+    buffer.end();
   }
 
-  @Override
-  public void alterTableDropConstraint(DdlWrite writer, String tableName, String constraintName) {
-    alterTableDropUniqueConstraint(writer, tableName, constraintName);
-  }
+  public void alterTableDropConstraint(DdlBuffer buffer, String tableName, String constraintName) {
+    alterTableDropUniqueConstraint(buffer, tableName, constraintName);
+  };
 
   /**
    * It is rather complex to delete a column on HANA as there must not exist any

@@ -23,30 +23,31 @@ public class SqlServerDdl extends PlatformDdl {
   }
 
   @Override
-  protected void appendForeignKeyMode(StringBuilder buffer, String onMode, ConstraintMode mode) {
+  protected void appendForeignKeyMode(DdlBuffer buffer, String onMode, ConstraintMode mode) {
     if (mode != ConstraintMode.RESTRICT) {
       super.appendForeignKeyMode(buffer, onMode, mode);
     }
   }
 
   @Override
-  public String dropTable(String tableName) {
-    StringBuilder buffer = new StringBuilder();
+  public void dropTable(DdlBuffer buffer, String tableName) {
     buffer.append("IF OBJECT_ID('");
     buffer.append(tableName);
     buffer.append("', 'U') IS NOT NULL drop table ");
     buffer.append(tableName);
-    return buffer.toString();
+    buffer.endOfStatement();
   }
 
+
   @Override
-  public String alterTableDropForeignKey(String tableName, String fkName) {
+  public void alterTableDropForeignKey(DdlBuffer buffer, String tableName, String fkName) {
     int pos = tableName.lastIndexOf('.');
     String objectId = maxConstraintName(fkName);
     if (pos != -1) {
       objectId = tableName.substring(0, pos + 1) + fkName;
     }
-    return "IF OBJECT_ID('" + objectId + "', 'F') IS NOT NULL " + super.alterTableDropForeignKey(tableName, fkName);
+    buffer.append("IF OBJECT_ID('").append(objectId).append("', 'F') IS NOT NULL ");
+    super.alterTableDropForeignKey(buffer, tableName, fkName);
   }
 
   @Override
@@ -54,18 +55,22 @@ public class SqlServerDdl extends PlatformDdl {
     return "IF OBJECT_ID('" + sequenceName + "', 'SO') IS NOT NULL drop sequence " + sequenceName;
   }
 
+
   @Override
-  public String dropIndex(String indexName, String tableName, boolean concurrent) {
-    return "IF EXISTS (SELECT name FROM sys.indexes WHERE object_id = OBJECT_ID('" + tableName + "','U') AND name = '"
-        + maxConstraintName(indexName) + "') drop index " + maxConstraintName(indexName) + " ON " + tableName;
+  public void dropIndex(DdlBuffer buffer, String indexName, String tableName, boolean concurrent) {
+    buffer.append("IF EXISTS (SELECT name FROM sys.indexes WHERE object_id = OBJECT_ID('").append(tableName)
+      .append("','U') AND name = '").append(maxConstraintName(indexName))
+      .append("') drop index ").append(maxConstraintName(indexName)).append(" ON ").append(tableName)
+      .endOfStatement();
   }
   /**
    * MsSqlServer specific null handling on unique constraints.
    */
   @Override
-  public void alterTableAddUniqueConstraint(DdlWrite writer, String tableName, String uqName, String[] columns, String[] nullableColumns) {
+  public void alterTableAddUniqueConstraint(DdlBuffer buffer, String tableName, String uqName, String[] columns,
+    String[] nullableColumns) {
     if (nullableColumns == null || nullableColumns.length == 0) {
-      super.alterTableAddUniqueConstraint(writer, tableName, uqName, columns, nullableColumns);
+      super.alterTableAddUniqueConstraint(buffer, tableName, uqName, columns, nullableColumns);
       return; 
     }
     if (uqName == null) {
@@ -73,7 +78,7 @@ public class SqlServerDdl extends PlatformDdl {
     }
     // issues#233
     
-    DdlBuffer buffer = writer.index().append("create unique nonclustered index ")
+    buffer.append("create unique nonclustered index ")
         .append(uqName).append(" on ").append(tableName).append("(");
 
     for (int i = 0; i < columns.length; i++) {
@@ -88,21 +93,21 @@ public class SqlServerDdl extends PlatformDdl {
       buffer.append(sep).append(column).append(" is not null");
       sep = " and ";
     }
-    buffer.end();
+    buffer.endOfStatement();
   }
 
   @Override
-  public void alterTableDropConstraint(DdlWrite writer, String tableName, String constraintName) {
-    writer.index().append("IF (OBJECT_ID('").append(constraintName).append("', 'C') IS NOT NULL) alter table ")
+  public void alterTableDropConstraint(DdlBuffer buffer, String tableName, String constraintName) {
+    buffer.append("IF (OBJECT_ID('").append(constraintName).append("', 'C') IS NOT NULL) alter table ")
         .append(tableName).append(" drop constraint ").append(constraintName).endOfStatement();
   }
   /**
    * Drop a unique constraint from the table (Sometimes this is an index).
    */
   @Override
-  public void alterTableDropUniqueConstraint(DdlWrite writer, String tableName, String uniqueConstraintName) {
-    writer.index().appendStatement(dropIndex(uniqueConstraintName, tableName));
-    writer.index().append("IF (OBJECT_ID('").append(uniqueConstraintName).append("', 'UQ') IS NOT NULL) alter table ")
+  public void alterTableDropUniqueConstraint(DdlBuffer buffer, String tableName, String uniqueConstraintName) {
+    dropIndex(buffer, uniqueConstraintName, tableName);
+    buffer.append("IF (OBJECT_ID('").append(uniqueConstraintName).append("', 'UQ') IS NOT NULL) alter table ")
       .append(tableName).append(" drop constraint ").append(uniqueConstraintName).endOfStatement();
   }
   /**

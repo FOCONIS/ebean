@@ -2,6 +2,8 @@ package io.ebeaninternal.dbmigration.ddlgeneration.platform;
 
 import io.ebean.annotation.ConstraintMode;
 import io.ebean.config.dbplatform.oracle.OraclePlatform;
+import io.ebeaninternal.dbmigration.ddlgeneration.DdlBuffer;
+
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -17,16 +19,16 @@ public class OracleDdlTest {
 
     OracleDdl oracle = create();
 
-    StringBuilder sb = new StringBuilder();
+    DdlBuffer sb = new BaseDdlBuffer();
     oracle.appendForeignKeyOnDelete(sb, oracle.withDefault(null));
     assertThat(sb.toString()).isEqualTo("");
 
-    sb = new StringBuilder();
+    sb = new BaseDdlBuffer();
     oracle.appendForeignKeyOnDelete(sb, ConstraintMode.RESTRICT);
     assertThat(sb.toString()).isEqualTo("");
 
 
-    sb = new StringBuilder();
+    sb = new BaseDdlBuffer();
     oracle.appendForeignKeyOnDelete(sb, ConstraintMode.SET_DEFAULT);
     assertThat(sb.toString()).isEqualTo("");
   }
@@ -36,7 +38,7 @@ public class OracleDdlTest {
 
     OracleDdl oracle = create();
 
-    StringBuilder sb = new StringBuilder();
+    DdlBuffer sb = new BaseDdlBuffer();
     oracle.appendForeignKeyOnDelete(sb, ConstraintMode.SET_NULL);
     assertThat(sb.toString()).isEqualTo(" on delete set null");
   }
@@ -46,7 +48,7 @@ public class OracleDdlTest {
 
     OracleDdl oracle = create();
 
-    StringBuilder sb = new StringBuilder();
+    DdlBuffer sb = new BaseDdlBuffer();
     oracle.appendForeignKeyOnDelete(sb, ConstraintMode.CASCADE);
     assertThat(sb.toString()).isEqualTo(" on delete cascade");
   }

@@ -15,21 +15,21 @@ public class HanaColumnStoreDdl extends AbstractHanaDdl {
     final String[] columns = create.getColumns();
     if (columns == null || columns.length == 0) {
       return "-- cannot create index: no columns given";
+    } else if (columns.length == 1) {
+      return "-- explicit index \"" + create.getIndexName() + "\" for single column \""
+        + columns[0] + "\" of table \"" + create.getTableName() + "\" is not necessary";
+    } else {
+      DdlBuffer buffer = new BaseDdlBuffer();
+      buffer.append("create inverted hash index ").append(maxConstraintName(create.getIndexName()))
+        .append(" on ").append(create.getTableName());
+      appendColumns(columns, buffer);
+      return buffer.getBuffer();
     }
-    if (columns.length == 1) {
-      return "-- explicit index \"" + create.getIndexName() + "\" for single column \"" + columns[0] + "\" of table \"" + create.getTableName()
-          + "\" is not necessary";
-    }
-
-    StringBuilder buffer = new StringBuilder();
-    buffer.append("create inverted hash index ").append(maxConstraintName(create.getIndexName())).append(" on ").append(create.getTableName());
-    appendColumns(columns, buffer);
-    return buffer.toString();
   }
 
+
   @Override
-  public String dropIndex(String indexName, String tableName, boolean concurrent) {
-    DdlBuffer buffer = new BaseDdlBuffer();
+  public void dropIndex(DdlBuffer buffer, String indexName, String tableName, boolean concurrent) {
     buffer.append("delimiter $$").newLine();
     buffer.append("do").newLine();
     buffer.append("begin").newLine();
@@ -38,7 +38,7 @@ public class HanaColumnStoreDdl extends AbstractHanaDdl {
         .endOfStatement();
     buffer.append("end").endOfStatement();
     buffer.append("$$");
-    return buffer.getBuffer();
+    buffer.end();
   }
 
 }

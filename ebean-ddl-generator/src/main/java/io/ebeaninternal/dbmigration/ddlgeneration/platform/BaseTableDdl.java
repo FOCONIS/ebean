@@ -34,9 +34,7 @@ import io.ebeaninternal.server.deploy.IdentityMode;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import static io.ebean.util.StringHelper.replace;
 import static io.ebeaninternal.api.PlatformMatch.matchPlatform;
@@ -361,8 +359,9 @@ public class BaseTableDdl implements TableDdl {
         uqName = col.getUnique();
       }
       String[] columnNames = {col.getName()};
-      platformDdl.alterTableAddUniqueConstraint(writer, tableName, uqName, columnNames, Boolean.TRUE.equals(col.isNotnull()) ? null : columnNames);
-      writer.dropAllIndex().appendStatement(platformDdl.dropIndex(uqName, tableName));
+      String[] nullableColumnNames = Boolean.TRUE.equals(col.isNotnull()) ? null : columnNames;
+      platformDdl.alterTableAddUniqueConstraint(writer.index(), tableName, uqName, columnNames, nullableColumnNames);
+      platformDdl.dropIndex(writer.dropAllIndex(), uqName, tableName);
     }
 
     for (UniqueConstraint constraint : externalCompoundUnique) {
@@ -370,8 +369,8 @@ public class BaseTableDdl implements TableDdl {
       String[] columnNames = split(constraint.getColumnNames());
       String[] nullableColumns = split(constraint.getNullableColumns());
 
-      platformDdl.alterTableAddUniqueConstraint(writer, tableName, uqName, columnNames, nullableColumns);
-      writer.dropAllIndex().appendStatement(platformDdl.dropIndex(uqName, tableName));
+      platformDdl.alterTableAddUniqueConstraint(writer.index(), tableName, uqName, columnNames, nullableColumns);
+      platformDdl.dropIndex(writer.dropAllIndex(), uqName, tableName);
     }
   }
 
@@ -400,14 +399,14 @@ public class BaseTableDdl implements TableDdl {
   }
 
   protected void writeInlineForeignKey(DdlBuffer apply, Column column) {
-    String fkConstraint = platformDdl.tableInlineForeignKey(new WriteForeignKey(null, column));
-    apply.append(",").newLine().append("  ").append(fkConstraint);
+    apply.append(",").newLine().append("  ");
+    platformDdl.tableInlineForeignKey(apply, new WriteForeignKey(null, column));
   }
 
   protected void writeInlineCompoundForeignKeys(DdlBuffer apply, CreateTable createTable) {
     for (ForeignKey key : createTable.getForeignKey()) {
-      String fkConstraint = platformDdl.tableInlineForeignKey(new WriteForeignKey(null, key));
-      apply.append(",").newLine().append("  ").append(fkConstraint);
+      apply.append(",").newLine().append("  ");
+      platformDdl.tableInlineForeignKey(apply, new WriteForeignKey(null, key));
     }
   }
 
@@ -435,21 +434,20 @@ public class BaseTableDdl implements TableDdl {
     String tableName = lowerTableName(request.table());
     if (request.indexName() != null) {
       // no matching unique constraint so add the index
-      writer.index().appendStatement(platformDdl.createIndex(new WriteCreateIndex(request.indexName(), tableName, request.cols(), false)));
+      WriteCreateIndex create = new WriteCreateIndex(request.indexName(), tableName, request.cols(), false);
+      writer.index().appendStatement(platformDdl.createIndex(create));
     }
-    alterTableAddForeignKey(writer.getOptions(), writer.index(), request);
+    platformDdl.alterTableAddForeignKey(writer.index(), writer.getOptions(), request);
     writer.index().end();
 
-    writer.dropAllIndex().appendStatement(platformDdl.alterTableDropForeignKey(tableName, request.fkName()));
+    platformDdl.alterTableDropForeignKey(writer.dropAllIndex(), tableName, request.fkName());
     if (hasValue(request.indexName())) {
-      writer.dropAllIndex().appendStatement(platformDdl.dropIndex(request.indexName(), tableName));
+      platformDdl.dropIndex(writer.dropAllIndex(), request.indexName(), tableName);
     }
     writer.dropAllIndex().end();
   }
 
-  protected void alterTableAddForeignKey(DdlOptions options, DdlBuffer buffer, WriteForeignKey request) {
-    buffer.appendStatement(platformDdl.alterTableAddForeignKey(options, request));
-  }
+
 
   protected void appendColumns(String[] columns, DdlBuffer buffer) {
     buffer.append(" (");
@@ -466,7 +464,7 @@ public class BaseTableDdl implements TableDdl {
    * Add 'drop table' statement to the buffer.
    */
   protected void dropTable(DdlBuffer buffer, String tableName) {
-    buffer.appendStatement(platformDdl.dropTable(tableName));
+    platformDdl.dropTable(buffer, tableName);
   }
 
   /**
@@ -579,14 +577,16 @@ public class BaseTableDdl implements TableDdl {
   public void generate(DdlWrite writer, CreateIndex index) {
     if (platformInclude(index.getPlatforms())) {
       writer.index().appendStatement(platformDdl.createIndex(new WriteCreateIndex(index)));
-      writer.dropAllIndex().appendStatement(platformDdl.dropIndex(index.getIndexName(), index.getTableName(), Boolean.TRUE.equals(index.isConcurrent())));
+      boolean concurrent = Boolean.TRUE.equals(index.isConcurrent());
+      platformDdl.dropIndex(writer.dropAllIndex(), index.getIndexName(), index.getTableName(), concurrent);
     }
   }
 
   @Override
   public void generate(DdlWrite writer, DropIndex dropIndex) {
     if (platformInclude(dropIndex.getPlatforms())) {
-      writer.dropDependencies().appendStatement(platformDdl.dropIndex(dropIndex.getIndexName(), dropIndex.getTableName(), Boolean.TRUE.equals(dropIndex.isConcurrent())));
+      boolean concurrent = Boolean.TRUE.equals(dropIndex.isConcurrent());
+      platformDdl.dropIndex(writer.dropDependencies(), dropIndex.getIndexName(), dropIndex.getTableName(), concurrent);
     }
   }
 
@@ -594,12 +594,14 @@ public class BaseTableDdl implements TableDdl {
   public void generate(DdlWrite writer, AddUniqueConstraint constraint) {
     if (platformInclude(constraint.getPlatforms())) {
       if (DdlHelp.isDropConstraint(constraint.getColumnNames())) {
-        platformDdl.alterTableDropUniqueConstraint(writer, constraint.getTableName(), constraint.getConstraintName());
+        platformDdl.alterTableDropUniqueConstraint(writer.dropDependencies(), constraint.getTableName(),
+          constraint.getConstraintName());
 
       } else {
         String[] cols = split(constraint.getColumnNames());
         String[] nullableColumns = split(constraint.getNullableColumns());
-        platformDdl.alterTableAddUniqueConstraint(writer, constraint.getTableName(), constraint.getConstraintName(), cols, nullableColumns);
+        platformDdl.alterTableAddUniqueConstraint(writer.index(), constraint.getTableName(),
+          constraint.getConstraintName(), cols, nullableColumns);
       }
     }
   }
@@ -607,9 +609,9 @@ public class BaseTableDdl implements TableDdl {
   @Override
   public void generate(DdlWrite writer, AlterForeignKey alterForeignKey) {
     if (DdlHelp.isDropForeignKey(alterForeignKey.getColumnNames())) {
-      writer.index().appendStatement(platformDdl.alterTableDropForeignKey(alterForeignKey.getTableName(), alterForeignKey.getName()));
+      platformDdl.alterTableDropForeignKey(writer.index(), alterForeignKey.getTableName(), alterForeignKey.getName());
     } else {
-      writer.index().appendStatement(platformDdl.alterTableAddForeignKey(writer.getOptions(), new WriteForeignKey(alterForeignKey)));
+      platformDdl.alterTableAddForeignKey(writer.index(), writer.getOptions(), new WriteForeignKey(alterForeignKey));
     }
   }
 
@@ -828,7 +830,7 @@ public class BaseTableDdl implements TableDdl {
   }
 
   protected void dropCheckConstraint(DdlWrite writer, AlterColumn alter, String constraintName) {
-    platformDdl.alterTableDropConstraint(writer, alter.getTableName(), constraintName);
+    platformDdl.alterTableDropConstraint(writer.dropDependencies(), alter.getTableName(), constraintName);
   }
 
   protected void addCheckConstraint(DdlWrite writer, AlterColumn alter) {
@@ -853,15 +855,15 @@ public class BaseTableDdl implements TableDdl {
   }
 
   protected void alterColumnAddForeignKey(DdlWrite writer, AlterColumn alterColumn) {
-    alterTableAddForeignKey(writer.getOptions(), writer.index(), new WriteForeignKey(alterColumn));
+    platformDdl.alterTableAddForeignKey(writer.index(), writer.getOptions(), new WriteForeignKey(alterColumn));
   }
 
   protected void alterColumnDropForeignKey(DdlWrite writer, AlterColumn alter) {
-    writer.dropDependencies().appendStatement(platformDdl.alterTableDropForeignKey(alter.getTableName(), alter.getDropForeignKey()));
+    platformDdl.alterTableDropForeignKey(writer.dropDependencies(), alter.getTableName(), alter.getDropForeignKey());
   }
 
   protected void alterColumnDropUniqueConstraint(DdlWrite writer, AlterColumn alter) {
-    platformDdl.alterTableDropUniqueConstraint(writer, alter.getTableName(), alter.getDropUnique());
+    platformDdl.alterTableDropUniqueConstraint(writer.dropDependencies(), alter.getTableName(), alter.getDropUnique());
   }
 
   protected void alterColumnAddUniqueOneToOneConstraint(DdlWrite writer, AlterColumn alter) {
@@ -873,11 +875,12 @@ public class BaseTableDdl implements TableDdl {
   }
 
   protected void addUniqueConstraint(DdlWrite writer, AlterColumn alter, String uqName) {
-    String[] cols = {alter.getColumnName()};
+    String[] cols = { alter.getColumnName() };
     boolean notNull = alter.isNotnull() != null ? alter.isNotnull() : Boolean.TRUE.equals(alter.isNotnull());
-    platformDdl.alterTableAddUniqueConstraint(writer, alter.getTableName(), uqName, cols, notNull ? null : cols);
+    platformDdl.alterTableAddUniqueConstraint(writer.index(), alter.getTableName(), uqName, cols,
+      notNull ? null : cols);
 
-    writer.dropAllIndex().appendStatement(platformDdl.dropIndex(uqName, alter.getTableName()));
+    platformDdl.dropIndex(writer.dropAllIndex(), uqName, alter.getTableName());
   }
 
 

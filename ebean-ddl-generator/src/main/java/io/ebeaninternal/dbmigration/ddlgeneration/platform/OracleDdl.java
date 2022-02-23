@@ -2,6 +2,7 @@ package io.ebeaninternal.dbmigration.ddlgeneration.platform;
 
 import io.ebean.annotation.ConstraintMode;
 import io.ebean.config.dbplatform.DatabasePlatform;
+import io.ebeaninternal.dbmigration.ddlgeneration.DdlBuffer;
 import io.ebeaninternal.dbmigration.ddlgeneration.DdlWrite;
 
 /**
@@ -25,22 +26,23 @@ public class OracleDdl extends PlatformDdl {
   }
 
   @Override
-  public void alterTableAddUniqueConstraint(DdlWrite writer, String tableName, String uqName, String[] columns, String[] nullableColumns) {
+  public void alterTableAddUniqueConstraint(DdlBuffer buffer, String tableName, String uqName, String[] columns,
+    String[] nullableColumns) {
     if (nullableColumns == null || nullableColumns.length == 0) {
-      super.alterTableAddUniqueConstraint(writer, tableName, uqName, columns, nullableColumns);
+      super.alterTableAddUniqueConstraint(buffer, tableName, uqName, columns, nullableColumns);
     } else {
       // Hmm: https://stackoverflow.com/questions/11893134/oracle-create-unique-index-but-ignore-nulls
-      writer.apply().append("-- NOT YET IMPLEMENTED: unique constraint with nulls: ").append(uqName).end();
+      buffer.append("-- NOT YET IMPLEMENTED: unique constraint with nulls: ").append(uqName).end();
     }
   }
 
   @Override
-  protected void appendForeignKeyOnUpdate(StringBuilder buffer, ConstraintMode mode) {
+  protected void appendForeignKeyOnUpdate(DdlBuffer buffer, ConstraintMode mode) {
     // do nothing, no on update clause for oracle
   }
 
   @Override
-  protected void appendForeignKeyMode(StringBuilder buffer, String onMode, ConstraintMode mode) {
+  protected void appendForeignKeyMode(DdlBuffer buffer, String onMode, ConstraintMode mode) {
     switch (mode) {
       case SET_NULL:
       case CASCADE:

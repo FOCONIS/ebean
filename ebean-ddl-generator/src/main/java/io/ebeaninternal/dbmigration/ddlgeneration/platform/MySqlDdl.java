@@ -33,8 +33,8 @@ public class MySqlDdl extends PlatformDdl {
    * Return the drop index statement.
    */
   @Override
-  public String dropIndex(String indexName, String tableName, boolean concurrent) {
-    return "drop index " + maxConstraintName(indexName) + " on " + tableName;
+  public void dropIndex(DdlBuffer buffer, String indexName, String tableName) {
+    buffer.append("drop index ").append(maxConstraintName(indexName)).append(" on ").append(tableName).endOfStatement();
   }
 
   @Override
@@ -50,9 +50,11 @@ public class MySqlDdl extends PlatformDdl {
   /**
    * Return the drop foreign key clause.
    */
+
   @Override
-  public String alterTableDropForeignKey(String tableName, String fkName) {
-    return "alter table " + tableName + " drop foreign key " + maxConstraintName(fkName);
+  public void alterTableDropForeignKey(DdlBuffer buffer, String tableName, String fkName) {
+    buffer.append("alter table ").append(tableName).append(" drop foreign key ").append(maxConstraintName(fkName))
+      .endOfStatement();
   }
 
   @Override
@@ -73,18 +75,18 @@ public class MySqlDdl extends PlatformDdl {
   }
 
   @Override
-  public void alterTableDropConstraint(DdlWrite writer, String tableName, String constraintName) {
+  public void alterTableDropConstraint(DdlBuffer buffer, String tableName, String constraintName) {
     // drop constraint not supported in MySQL 5.7 and 8.0 but starting with MariaDB
     // 10.2.1 CHECK is evaluated
     if (USE_CHECK_CONSTRAINT) {
-      DdlBuffer sb = writer.index();
       // statement for MySQL >= 8.0.16
-      sb.append("/*!80016 alter table ").append(tableName);
-      sb.append(" drop check ").append(maxConstraintName(constraintName)).append(" */;\n");
+      buffer.append("/*!80016 alter table ").append(tableName)
+        .append(" drop check ").append(maxConstraintName(constraintName)).append(" */")
+        .endOfStatement();
       // statement for MariaDB >= 10.2.1
-      sb.append("/*M!100201  alter table ").append(tableName);
-      sb.append(" drop constraint if exists ").append(maxConstraintName(constraintName)).append(" */;\n");
-      sb.append(" */");
+      buffer.append("/*M!100201  alter table ").append(tableName)
+        .append(" drop constraint if exists ").append(maxConstraintName(constraintName)).append(" */")
+        .endOfStatement();
     }
   }
 

@@ -2,8 +2,10 @@
 -- drop dependencies
 alter table migtest_fk_cascade drop foreign key fk_migtest_fk_cascade_one_id;
 alter table migtest_fk_set_null drop foreign key fk_migtest_fk_set_null_one_id;
-drop index ix_migtest_e_basic_indextest1 on migtest_e_basic;
-drop index ix_migtest_e_basic_indextest5 on migtest_e_basic;
+alter table migtest_e_basic drop index uq_migtest_e_basic_indextest2;
+alter table migtest_e_basic drop index uq_migtest_e_basic_indextest6;
+drop index if exists ix_migtest_e_basic_indextest1;
+drop index if exists ix_migtest_e_basic_indextest5;
 -- apply changes
 create table migtest_e_user (
   id                            integer auto_increment not null,
@@ -46,19 +48,12 @@ alter table migtest_ckey_detail add column two_key varchar(127);
 alter table migtest_ckey_parent add column assoc_id integer;
 alter table migtest_e_basic modify status varchar(1) not null default 'A';
 alter table migtest_e_basic modify status2 varchar(127);
-alter table migtest_e_basic add constraint uq_migtest_e_basic_description unique  (description);
 alter table migtest_e_basic modify user_id integer;
 alter table migtest_e_basic add column new_string_field varchar(255) default 'foo''bar' not null;
 alter table migtest_e_basic add column new_boolean_field tinyint(1) default 1 not null;
 alter table migtest_e_basic add column new_boolean_field2 tinyint(1) default 1 not null;
 alter table migtest_e_basic add column progress integer default 0 not null;
 alter table migtest_e_basic add column new_integer integer default 42 not null;
-alter table migtest_e_basic drop index uq_migtest_e_basic_indextest2;
-alter table migtest_e_basic drop index uq_migtest_e_basic_indextest6;
-alter table migtest_e_basic add constraint uq_migtest_e_basic_status_indextest1 unique  (status,indextest1);
-alter table migtest_e_basic add constraint uq_migtest_e_basic_name unique  (name);
-alter table migtest_e_basic add constraint uq_migtest_e_basic_indextest4 unique  (indextest4);
-alter table migtest_e_basic add constraint uq_migtest_e_basic_indextest5 unique  (indextest5);
 alter table migtest_e_history add system versioning;
 alter table migtest_e_history modify test_string bigint;
 alter table migtest_e_history2 modify test_string varchar(255) not null default 'unknown';
@@ -100,7 +95,12 @@ alter table migtest_fk_cascade add constraint fk_migtest_fk_cascade_one_id forei
 alter table migtest_fk_none add constraint fk_migtest_fk_none_one_id foreign key (one_id) references migtest_fk_one (id) on delete restrict on update restrict;
 alter table migtest_fk_none_via_join add constraint fk_migtest_fk_none_via_join_one_id foreign key (one_id) references migtest_fk_one (id) on delete restrict on update restrict;
 alter table migtest_fk_set_null add constraint fk_migtest_fk_set_null_one_id foreign key (one_id) references migtest_fk_one (id) on delete restrict on update restrict;
+alter table migtest_e_basic add constraint uq_migtest_e_basic_description unique  (description);
 alter table migtest_e_basic add constraint fk_migtest_e_basic_user_id foreign key (user_id) references migtest_e_user (id) on delete restrict on update restrict;
+alter table migtest_e_basic add constraint uq_migtest_e_basic_status_indextest1 unique  (status,indextest1);
+alter table migtest_e_basic add constraint uq_migtest_e_basic_name unique  (name);
+alter table migtest_e_basic add constraint uq_migtest_e_basic_indextest4 unique  (indextest4);
+alter table migtest_e_basic add constraint uq_migtest_e_basic_indextest5 unique  (indextest5);
 alter table migtest_oto_child add constraint fk_migtest_oto_child_master_id foreign key (master_id) references migtest_oto_master (id) on delete restrict on update restrict;
 
 create index ix_migtest_e_basic_indextest3 on migtest_e_basic (indextest3);

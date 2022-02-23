@@ -44,8 +44,13 @@ public class PostgresDdl extends PlatformDdl {
   }
 
   @Override
-  public String dropIndex(String indexName, String tableName, boolean concurrent) {
-    return (concurrent ? dropIndexConcurrentlyIfExists : dropIndexIfExists) + maxConstraintName(indexName);
+  public void dropIndex(DdlBuffer buffer, String indexName, String tableName, boolean concurrent) {
+    if (concurrent) {
+      buffer.append(dropIndexConcurrentlyIfExists);
+    } else {
+      buffer.append(dropIndexIfExists);
+    }
+    buffer.appendStatement(maxConstraintName(indexName));
   }
 
   /**

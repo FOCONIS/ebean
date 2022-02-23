@@ -41,23 +41,22 @@ public class ClickHouseDdl extends PlatformDdl {
   }
 
   @Override
-  public String alterTableAddForeignKey(DdlOptions options, WriteForeignKey request) {
-    return null;
+  public void alterTableAddForeignKey(DdlBuffer buffer, DdlOptions options, WriteForeignKey request) {
   }
 
   @Override
-  public String alterTableDropForeignKey(String tableName, String fkName) {
-    return null;
+  public void alterTableDropForeignKey(DdlBuffer buffer, String tableName, String fkName) {
+
   }
 
   @Override
-  public String tableInlineForeignKey(WriteForeignKey request) {
-    return null;
+  public void tableInlineForeignKey(DdlBuffer buffer, WriteForeignKey request) {
+
   }
 
   @Override
-  public String dropIndex(String indexName, String tableName, boolean concurrent) {
-    return null;
+  public void dropIndex(DdlBuffer buffer, String indexName, String tableName, boolean concurrent) {
+
   }
 
   @Override
@@ -69,7 +68,6 @@ public class ClickHouseDdl extends PlatformDdl {
   public String createCheckConstraint(String ckName, String checkConstraint) {
     return null;
   }
-
 
   @Override
   public void addTableComment(DdlWrite writer, String tableName, String tableComment) {

@@ -27,8 +27,7 @@ public class SQLiteDdl extends PlatformDdl {
   }
 
   @Override
-  public String alterTableAddForeignKey(DdlOptions options, WriteForeignKey request) {
+  public void alterTableAddForeignKey(DdlBuffer buffer, DdlOptions options, WriteForeignKey request) {
     // not supported
-    return null;
   }
 }

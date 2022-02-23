@@ -25,12 +25,12 @@ public class NuoDbDdl extends PlatformDdl {
   }
 
   @Override
-  protected void appendForeignKeyOnUpdate(StringBuilder buffer, ConstraintMode mode) {
+  protected void appendForeignKeyOnUpdate(DdlBuffer buffer, ConstraintMode mode) {
     // do nothing
   }
 
   @Override
-  protected void appendForeignKeyOnDelete(StringBuilder buffer, ConstraintMode mode) {
+  protected void appendForeignKeyOnDelete(DdlBuffer buffer, ConstraintMode mode) {
     if (mode == ConstraintMode.RESTRICT) {
       // do nothing
     } else if (mode == ConstraintMode.SET_NULL) {
