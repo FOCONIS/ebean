@@ -105,9 +105,9 @@ alter table migtest_e_history2 add system versioning history table migtest_e_his
 alter table migtest_e_history3 drop system versioning /* 4 */;
 alter table migtest_e_history3 add system versioning history table migtest_e_history3_history not validated /* 5 */;
 alter table migtest_e_history4 drop system versioning /* 6 */;
-alter table migtest_e_history4 alter ( test_number decimal );
+alter table migtest_e_history4 alter ( test_number decimal);
 alter table migtest_e_history4 alter ( test_number integer);
-alter table migtest_e_history4_history alter ( test_number decimal );
+alter table migtest_e_history4_history alter ( test_number decimal);
 alter table migtest_e_history4_history alter ( test_number integer);
 alter table migtest_e_history4 add system versioning history table migtest_e_history4_history not validated /* 7 */;
 alter table migtest_e_history6 drop system versioning /* 8 */;
