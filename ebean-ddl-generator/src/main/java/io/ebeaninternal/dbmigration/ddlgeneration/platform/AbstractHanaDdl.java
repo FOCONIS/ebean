@@ -5,6 +5,7 @@ import io.ebean.config.dbplatform.DatabasePlatform;
 import io.ebean.config.dbplatform.DbPlatformType;
 import io.ebeaninternal.dbmigration.ddlgeneration.DdlBuffer;
 import io.ebeaninternal.dbmigration.ddlgeneration.DdlHandler;
+import io.ebeaninternal.dbmigration.ddlgeneration.DdlWrite;
 import io.ebeaninternal.dbmigration.migration.AlterColumn;
 
 import java.util.Objects;
@@ -38,7 +39,7 @@ public abstract class AbstractHanaDdl extends PlatformDdl {
   }
 
   @Override
-  public String alterColumnBaseAttributes(AlterColumn alter) {
+  public void alterColumn(DdlWrite writer, AlterColumn alter) {
     String tableName = alter.getTableName();
     String columnName = alter.getColumnName();
     String currentType = alter.getCurrentType();
@@ -51,13 +52,14 @@ public abstract class AbstractHanaDdl extends PlatformDdl {
       : (alter.getDefaultValue() != null ? alter.getDefaultValue() : alter.getCurrentDefaultValue());
     String defaultValueClause = (defaultValue == null || defaultValue.isEmpty()) ? "" : " default " + defaultValue;
 
-    DdlBuffer buffer = new BaseDdlBuffer();
+    DdlBuffer buffer = writer.apply();
+
     if (!isConvertible(currentType, type)) {
       // add an intermediate conversion if possible
       if (isNumberType(currentType)) {
         // numbers can always be converted to decimal
         buffer.append("alter table ").append(tableName).append(" ").append(alterColumn).append(" ").append(columnName)
-            .append(" decimal ").append(notnullClause).append(alterColumnSuffix)
+            .append(" decimal").append(notnullClause).append(alterColumnSuffix)
             .endOfStatement();
 
       } else if (isStringType(currentType)) {
@@ -71,29 +73,14 @@ public abstract class AbstractHanaDdl extends PlatformDdl {
     }
 
     buffer.append("alter table ").append(tableName).append(" ").append(alterColumn).append(" ").append(columnName)
-        .append(" ").append(type).append(defaultValueClause).append(notnullClause).append(alterColumnSuffix);
-
-    return buffer.getBuffer();
+        .append(" ").append(type).append(defaultValueClause).append(notnullClause).append(alterColumnSuffix)
+        .endOfStatement();
   }
 
-  @Override
-  public String alterColumnDefaultValue(String tableName, String columnName, String defaultValue) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public String alterColumnNotnull(String tableName, String columnName, boolean notnull) {
-    return null;
-  }
 
   @Override
   public DdlHandler createDdlHandler(DatabaseConfig config) {
     return new HanaDdlHandler(config, this);
-  }
-
-  @Override
-  public String alterColumnType(String tableName, String columnName, String type) {
-    return null;
   }
 
   @Override

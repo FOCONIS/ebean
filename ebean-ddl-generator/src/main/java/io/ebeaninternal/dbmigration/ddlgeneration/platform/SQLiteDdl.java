@@ -58,19 +58,4 @@ public class SQLiteDdl extends PlatformDdl {
     return "-- not supported: " + super.alterTableDropUniqueConstraint(tableName, uniqueConstraintName);
   }
 
-  @Override
-  public String alterColumnDefaultValue(String tableName, String columnName, String defaultValue) {
-    return "-- not supported: " + super.alterColumnDefaultValue(tableName, columnName, defaultValue);
-  }
-
-  @Override
-  public String alterColumnType(String tableName, String columnName, String type) {
-    return "-- not supported: " + super.alterColumnType(tableName, columnName, type);
-  }
-
-  @Override
-  public String alterColumnNotnull(String tableName, String columnName, boolean notnull) {
-    return "-- not supported: " + super.alterColumnNotnull(tableName, columnName, notnull);
-  }
-
 }
