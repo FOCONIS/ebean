@@ -108,8 +108,7 @@ public class MySqlDdl extends PlatformDdl {
       boolean notnull = (alter.isNotnull() != null) ? alter.isNotnull() : Boolean.TRUE.equals(alter.isCurrentNotnull());
       String defaultValue = alter.getDefaultValue() != null ? alter.getDefaultValue() : alter.getCurrentDefaultValue();
 
-      DdlBuffer buffer = writer.apply();
-      buffer.append("alter table ").append(tableName).append(" modify ").append(columnName);
+      DdlBuffer buffer = alterTable(writer, tableName).add("modify", columnName);
       buffer.appendWithSpace(type);
       if (notnull) {
         buffer.append(" not null");
@@ -117,7 +116,6 @@ public class MySqlDdl extends PlatformDdl {
       if (hasValue(defaultValue) && !DdlHelp.isDropDefault(defaultValue)) {
         buffer.append(" default ").append(convertDefaultValue(defaultValue));
       }
-      buffer.endOfStatement();
     }
   }
 

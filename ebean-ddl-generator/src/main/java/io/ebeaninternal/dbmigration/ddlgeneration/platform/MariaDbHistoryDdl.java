@@ -12,9 +12,11 @@ import io.ebeaninternal.dbmigration.model.MTable;
  */
 public class MariaDbHistoryDdl implements PlatformHistoryDdl {
 
+  private PlatformDdl platformDdl;
+
   @Override
   public void configure(DatabaseConfig config, PlatformDdl platformDdl) {
-    // do nothing
+    this.platformDdl = platformDdl;
   }
 
   @Override
@@ -24,8 +26,7 @@ public class MariaDbHistoryDdl implements PlatformHistoryDdl {
   }
 
   private void enableSystemVersioning(DdlWrite writer, String baseTable) {
-    DdlBuffer apply = writer.applyHistoryView();
-    apply.append("alter table ").append(baseTable).append(" add system versioning").endOfStatement();
+    platformDdl.alterTable(writer, baseTable).add("add system versioning");
 
     DdlBuffer drop = writer.dropAll();
     drop.append("alter table ").append(baseTable).append(" drop system versioning").endOfStatement();
@@ -34,8 +35,7 @@ public class MariaDbHistoryDdl implements PlatformHistoryDdl {
   @Override
   public void dropHistoryTable(DdlWrite writer, DropHistoryTable dropHistoryTable) {
     String baseTable = dropHistoryTable.getBaseTable();
-    DdlBuffer apply = writer.applyHistoryView();
-    apply.append("alter table ").append(baseTable).append(" drop system versioning").endOfStatement();
+    platformDdl.alterTable(writer, baseTable).add("drop system versioning");
   }
 
   @Override

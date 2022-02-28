@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.StringJoiner;
 
 import io.ebeaninternal.dbmigration.ddlgeneration.DdlAlterTable;
+import io.ebeaninternal.dbmigration.ddlgeneration.DdlBuffer;
 
 /**
  * Contains alter statements per table.
@@ -20,15 +21,18 @@ public class BaseAlterTableWrite implements DdlAlterTable {
     // the affected column (note: each column can only be altered once on MariaDB)
     public final String column;
 
-    // the alter definition
-    public final String suffix;
+    public final DdlBuffer buffer = new BaseDdlBuffer() {
+      @Override
+      public DdlBuffer endOfStatement() {
+        throw new UnsupportedOperationException();
+      };
+    };
 
     public final boolean raw;
 
-    AlterCmd(String operation, String column, String suffix, boolean raw) {
+    AlterCmd(String operation, String column, boolean raw) {
       this.operation = operation;
       this.column = column;
-      this.suffix = suffix;
       this.raw = raw;
     }
   }
@@ -53,46 +57,26 @@ public class BaseAlterTableWrite implements DdlAlterTable {
    * The returned StringBuilder can be used, to complete the statement
    */
   @Override
-  public BaseAlterTableWrite add(String operation, String column, String... suffix) {
-    if (suffix == null || suffix.length == 0) {
-      cmds.add(new AlterCmd(operation, column, null, false));
-
-    } else if (suffix.length == 1) {
-      assert !suffix[0].startsWith(" ") &&  !suffix[0].endsWith(" ") : "Space should be avoided" + suffix[0];
-      cmds.add(new AlterCmd(operation, column, suffix[0], false));
-
-    } else {
-      StringJoiner sj = new StringJoiner(" ");
-      for (String s: suffix) {
-        if (s == null || s.isEmpty())
-          continue;
-        assert !s.startsWith(" ") &&  !s.endsWith(" ") : "Space should be avoided" + s; 
-        sj.add(s);
-      }
-      cmds.add(new AlterCmd(operation, column, sj.toString(), false));
-
-    }
-
-    return this;
+  public DdlBuffer add(String operation, String column) {
+    AlterCmd cmd = new AlterCmd(operation, column, false);
+    cmds.add(cmd);
+    return cmd.buffer;
   }
 
-  @Override
-  public DdlAlterTable add(String operation, String column) {
-    cmds.add(new AlterCmd(operation, column, null, false));
-    return this;
-  }
 
   @Override
-  public DdlAlterTable add(String operation) {
+  public DdlBuffer add(String operation) {
     return add(operation, null);
   }
 
   @Override
-  public DdlAlterTable raw(String sql) {
-    cmds.add(new AlterCmd(sql, null, null, true));
-    return this;
+  public DdlBuffer raw(String sql) {
+    AlterCmd cmd = new AlterCmd(sql, null, true);
+    cmds.add(cmd);
+    return cmd.buffer;
   }
 
+  @Override
   public boolean isEmpty() {
     return cmds.isEmpty();
   }
@@ -100,6 +84,7 @@ public class BaseAlterTableWrite implements DdlAlterTable {
   /**
    * Writes the DDL to <code>target</code>.
    */
+  @Override
   public void write(Appendable target) throws IOException {
     for (AlterCmd cmd : cmds) {
       if (cmd.raw) {
@@ -109,8 +94,8 @@ public class BaseAlterTableWrite implements DdlAlterTable {
         if (cmd.column != null) {
           target.append(' ').append(cmd.column);
         }
-        if (cmd.suffix != null) {
-          target.append(' ').append(cmd.suffix);
+        if (!cmd.buffer.isEmpty()) {
+          target.append(' ').append(cmd.buffer.getBuffer());
         }
       }
       target.append(";\n");
@@ -127,8 +112,7 @@ public class BaseAlterTableWrite implements DdlAlterTable {
   }
 
   @Override
-  public DdlAlterTable setHistoryHandled() {
+  public void setHistoryHandled() {
     historyHandled = true;
-    return this;
   }
 }

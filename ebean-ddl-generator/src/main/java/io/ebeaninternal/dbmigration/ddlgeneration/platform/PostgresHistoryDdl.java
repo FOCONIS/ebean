@@ -20,8 +20,8 @@ public class PostgresHistoryDdl extends DbTriggerBasedHistoryDdl {
    * Use Postgres create table like to create the history table.
    */
   @Override
-  protected void createHistoryTable(DdlBuffer apply, MTable table) {
-    apply.append("create table ").append(table.getName()).append(historySuffix)
+  protected void createHistoryTable(DdlWrite writer, MTable table) {
+    writer.apply().append("create table ").append(table.getName()).append(historySuffix)
       .append("(like ").append(table.getName()).append(")").endOfStatement();
   }
 

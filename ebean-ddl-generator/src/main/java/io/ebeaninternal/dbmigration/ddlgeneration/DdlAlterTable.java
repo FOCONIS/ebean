@@ -11,17 +11,15 @@ public interface DdlAlterTable {
   /**
    * Adds an alter table command.
    */
-  DdlAlterTable add(String operation);
+  DdlBuffer add(String operation);
 
-  DdlAlterTable add(String operation, String columnName);
+  DdlBuffer add(String operation, String columnName);
 
-  DdlAlterTable add(String operation, String columnName, String... suffix);
-
-  DdlAlterTable raw(String string);
+  DdlBuffer raw(String string);
 
   boolean isHistoryHandled();
 
-  DdlAlterTable setHistoryHandled();
+  void setHistoryHandled();
 
 
 }

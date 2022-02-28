@@ -169,12 +169,13 @@ public class SqlServerDdl extends PlatformDdl {
         // default value present -> drop default constraint before altering
         buffer.appendStatement(execUspDropDefaultConstraint(tableName, columnName));
       }
-      buffer.append("alter table ").append(tableName).appendWithSpace(alterColumn).appendWithSpace(columnName);
+
+      buffer = alterTable(writer, tableName).add(alterColumn, columnName);
       buffer.appendWithSpace(type);
       if (notnull) {
         buffer.append(" not null");
       }
-      buffer.endOfStatement();
+
 
       // re add - default constraint
       if (hasValue(defaultValue) && !DdlHelp.isDropDefault(defaultValue)) {

@@ -60,12 +60,10 @@ public class PostgresDdl extends PlatformDdl {
   @Override
   protected void alterColumnType(DdlWrite writer, AlterColumn alter) {
     String type = convert(alter.getType());
-    writer.apply().append("alter table ").append(alter.getTableName())
-      .appendWithSpace(alterColumn).appendWithSpace(alter.getColumnName())
+    alterTable(writer, alter.getTableName()).add(alterColumn, alter.getColumnName())
       .appendWithSpace(columnSetType).appendWithSpace(type)
       .append(alterColumnSuffix)
-      .append(" using ").append(alter.getColumnName()).append("::").append(type)
-      .endOfStatement();
+      .append(" using ").append(alter.getColumnName()).append("::").append(type);
   }
 
 }

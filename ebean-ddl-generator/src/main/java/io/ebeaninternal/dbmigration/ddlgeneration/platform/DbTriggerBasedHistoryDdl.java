@@ -109,7 +109,7 @@ public abstract class DbTriggerBasedHistoryDdl implements PlatformHistoryDdl {
   public void createWithHistory(DdlWrite writer, MTable table) {
 
     String baseTable = table.getName();
-    createHistoryTable(writer.apply(), table);
+    createHistoryTable(writer, table);
 
     addSysPeriodColumns(writer.apply(), baseTable, table.getWhenCreatedColumn());
 
@@ -162,7 +162,7 @@ public abstract class DbTriggerBasedHistoryDdl implements PlatformHistoryDdl {
     DdlBuffer apply = writer.applyHistoryView();
 
     addSysPeriodColumns(apply, baseTableName, whenCreatedColumn);
-    createHistoryTable(apply, table);
+    createHistoryTable(writer, table);
     createWithHistoryView(apply, baseTableName);
   }
 
@@ -178,9 +178,9 @@ public abstract class DbTriggerBasedHistoryDdl implements PlatformHistoryDdl {
     }
   }
 
-  protected void createHistoryTable(DdlBuffer apply, MTable table) {
-    createHistoryTableAs(apply, table);
-    createHistoryTableWithPeriod(apply);
+  protected void createHistoryTable(DdlWrite writer, MTable table) {
+    createHistoryTableAs(writer.apply(), table);
+    createHistoryTableWithPeriod(writer.apply());
   }
 
   protected void createHistoryTableAs(DdlBuffer apply, MTable table) {

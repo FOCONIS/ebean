@@ -178,7 +178,7 @@ public class DdlWrite {
       target.append(apply.getBuffer());
     }
     if (!applyAlterTables.isEmpty()) {
-      target.append("-- apply aleter tables\n");
+      target.append("-- apply alter tables\n");
       for (DdlAlterTable alterTable : applyAlterTables.values()) {
         alterTable.write(target);
       }
