@@ -127,8 +127,8 @@ public abstract class AbstractHanaDdl extends PlatformDdl {
    * foreign keys. That's why we call a user stored procedure here
    */
   @Override
-  public void alterTableDropColumn(DdlBuffer buffer, String tableName, String columnName) {
-    buffer.append("CALL usp_ebean_drop_column('").append(tableName).append("', '").append(columnName).append("')")
+  public void alterTableDropColumn(DdlWrite writer, String tableName, String columnName) {
+    writer.apply().append("CALL usp_ebean_drop_column('").append(tableName).append("', '").append(columnName).append("')")
       .endOfStatement();
   }
 

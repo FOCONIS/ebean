@@ -206,9 +206,9 @@ public class SqlServerDdl extends PlatformDdl {
    * (constraints, default values, indices and foreign keys). That's why we call a user stored procedure here
    */
   @Override
-  public void alterTableDropColumn(DdlBuffer buffer, String tableName, String columnName) {
+  public void alterTableDropColumn(DdlWrite writer, String tableName, String columnName) {
 
-    buffer.append("EXEC usp_ebean_drop_column ").append(tableName).append(", ").append(columnName).endOfStatement();
+    writer.apply().append("EXEC usp_ebean_drop_column ").append(tableName).append(", ").append(columnName).endOfStatement();
   }
 
   /**

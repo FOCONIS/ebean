@@ -21,9 +21,9 @@ public class DdlWrite {
 
   private final DdlBuffer apply = new BaseDdlBuffer();
 
-  private final Map<String, DdlAlterTable> alterTables = new TreeMap<>();
+  private final Map<String, DdlAlterTable> applyAlterTables = new TreeMap<>();
 
-  private final DdlBuffer postAlter = new BaseDdlBuffer();
+  private final DdlBuffer applyPostAlter = new BaseDdlBuffer();
 
   private final DdlBuffer applyForeignKeys = new BaseDdlBuffer();
 
@@ -77,6 +77,7 @@ public class DdlWrite {
    */
   public boolean isApplyEmpty() {
     return apply.getBuffer().isEmpty()
+      && applyPostAlter.getBuffer().isEmpty()
       && applyForeignKeys.getBuffer().isEmpty()
       && applyHistoryView.getBuffer().isEmpty()
       && applyHistoryTrigger.getBuffer().isEmpty()
@@ -85,7 +86,7 @@ public class DdlWrite {
   }
 
   private boolean alterTablesEmpty() {
-    for (DdlAlterTable alterTable : alterTables.values()) {
+    for (DdlAlterTable alterTable : applyAlterTables.values()) {
      if (!alterTable.isEmpty()) {
        return false;
      }
@@ -96,8 +97,8 @@ public class DdlWrite {
   /**
    * Return the buffer that POST ALTER is written to.
    */
-  public DdlBuffer postAlter() {
-    return postAlter;
+  public DdlBuffer applyPostAlter() {
+    return applyPostAlter;
   }
 
   /**
@@ -114,12 +115,12 @@ public class DdlWrite {
     return applyDropDependencies;
   }
 
-  public DdlAlterTable alterTable(String tableName, Function<String, DdlAlterTable> factory) {
-    return alterTables.computeIfAbsent(tableName, factory);
+  public DdlAlterTable applyAlterTable(String tableName, Function<String, DdlAlterTable> factory) {
+    return applyAlterTables.computeIfAbsent(tableName, factory);
   }
 
-  public DdlAlterTable alterTable(String tableName) {
-    return alterTables.get(tableName);
+  public DdlAlterTable applyAlterTable(String tableName) {
+    return applyAlterTables.get(tableName);
   }
 
 
@@ -176,15 +177,15 @@ public class DdlWrite {
       target.append("-- apply changes\n");
       target.append(apply.getBuffer());
     }
-    if (!alterTables.isEmpty()) {
-      target.append("-- altering tables\n");
-      for (DdlAlterTable alterTable : alterTables.values()) {
+    if (!applyAlterTables.isEmpty()) {
+      target.append("-- apply aleter tables\n");
+      for (DdlAlterTable alterTable : applyAlterTables.values()) {
         alterTable.write(target);
       }
     }
-    if (!postAlter.isEmpty()) {
-      target.append("-- post alter\n");
-      target.append(postAlter.getBuffer());
+    if (!applyPostAlter.isEmpty()) {
+      target.append("-- apply post alter\n");
+      target.append(applyPostAlter.getBuffer());
     }
     if (!applyForeignKeys.isEmpty()) {
       target.append("-- foreign keys and indices\n");

@@ -184,7 +184,7 @@ public class BaseDdlHandlerTest extends BaseTestCase {
 
     handler.generate(writer, Helper.getDropColumn());
 
-    assertThat(writer.apply().getBuffer()).isEqualTo("alter table foo drop column col2;\n\n");
+    assertThat(writer.apply().getBuffer()).isEqualTo("alter table foo drop column col2;\n");
     assertThat(writer.dropAll().getBuffer()).isEqualTo("");
 
     writer = new DdlWrite();
@@ -192,7 +192,7 @@ public class BaseDdlHandlerTest extends BaseTestCase {
 
     hanaHandler.generate(writer, Helper.getDropColumn());
 
-    assertThat(writer.apply().getBuffer()).isEqualTo("CALL usp_ebean_drop_column('foo', 'col2');\n\n");
+    assertThat(writer.apply().getBuffer()).isEqualTo("CALL usp_ebean_drop_column('foo', 'col2');\n");
     assertThat(writer.dropAll().getBuffer()).isEqualTo("");
   }
 

@@ -38,11 +38,11 @@ public class MySqlDdl extends PlatformDdl {
   }
 
   @Override
-  public void alterTableDropColumn(final DdlBuffer buffer, final String tableName, final String columnName) {
+  public void alterTableDropColumn(final DdlWrite writer, final String tableName, final String columnName) {
     if (this.useMigrationStoredProcedures) {
-      buffer.append("CALL usp_ebean_drop_column('").append(tableName).append("', '").append(columnName).append("')").endOfStatement();
+      writer.apply().append("CALL usp_ebean_drop_column('").append(tableName).append("', '").append(columnName).append("')").endOfStatement();
     } else {
-      super.alterTableDropColumn(buffer, tableName, columnName);
+      super.alterTableDropColumn(writer, tableName, columnName);
     }
   }
 

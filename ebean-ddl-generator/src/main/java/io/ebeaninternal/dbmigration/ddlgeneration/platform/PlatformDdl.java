@@ -533,10 +533,10 @@ public class PlatformDdl {
     return buffer.toString();
   }
 
-  public void alterTableAddColumn(DdlBuffer buffer, String tableName, Column column, boolean onHistoryTable, String defaultValue) {
+  public void alterTableAddColumn(DdlWrite writer, String tableName, Column column, boolean onHistoryTable, String defaultValue) {
 
     String convertedType = convert(column.getType());
-
+    DdlBuffer buffer = writer.apply();
     buffer.append("alter table ").append(tableName)
       .append(" ").append(addColumn).append(" ").append(column.getName())
       .append(" ").append(convertedType);
@@ -570,8 +570,8 @@ public class PlatformDdl {
 
   }
 
-  public void alterTableDropColumn(DdlBuffer buffer, String tableName, String columnName) {
-    buffer.append("alter table ").append(tableName).append(" ").append(dropColumn).append(" ").append(columnName)
+  public void alterTableDropColumn(DdlWrite writer, String tableName, String columnName) {
+    writer.apply().append("alter table ").append(tableName).append(" ").append(dropColumn).append(" ").append(columnName)
       .append(dropColumnSuffix).endOfStatement();
   }
 
@@ -661,7 +661,7 @@ public class PlatformDdl {
   }
 
   protected DdlAlterTable alterTable(DdlWrite writer, String tableName) {
-    return writer.alterTable(tableName, BaseAlterTableWrite::new);
+    return writer.applyAlterTable(tableName, BaseAlterTableWrite::new);
   }
 
   protected void appendColumns(String[] columns, StringBuilder buffer) {
