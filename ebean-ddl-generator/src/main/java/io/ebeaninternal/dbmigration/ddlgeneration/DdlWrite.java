@@ -1,5 +1,10 @@
 package io.ebeaninternal.dbmigration.ddlgeneration;
 
+import java.io.IOException;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.function.Function;
+
 import io.ebeaninternal.dbmigration.ddlgeneration.platform.BaseDdlBuffer;
 import io.ebeaninternal.dbmigration.model.MConfiguration;
 import io.ebeaninternal.dbmigration.model.MTable;
@@ -16,6 +21,10 @@ public class DdlWrite {
 
   private final DdlBuffer apply = new BaseDdlBuffer();
 
+  private final Map<String, DdlAlterTable> alterTables = new TreeMap<>();
+
+  private final DdlBuffer postAlter = new BaseDdlBuffer();
+
   private final DdlBuffer applyForeignKeys = new BaseDdlBuffer();
 
   private final DdlBuffer applyHistoryView = new BaseDdlBuffer();
@@ -25,6 +34,8 @@ public class DdlWrite {
   private final DdlBuffer dropAllForeignKeys = new BaseDdlBuffer();
 
   private final DdlBuffer dropAll = new BaseDdlBuffer();
+  
+  private final DdlBuffer dropAllProcs = new BaseDdlBuffer();
 
   private final DdlOptions options;
 
@@ -69,7 +80,24 @@ public class DdlWrite {
       && applyForeignKeys.getBuffer().isEmpty()
       && applyHistoryView.getBuffer().isEmpty()
       && applyHistoryTrigger.getBuffer().isEmpty()
-      && applyDropDependencies.getBuffer().isEmpty();
+      && applyDropDependencies.getBuffer().isEmpty()
+      && alterTablesEmpty();
+  }
+
+  private boolean alterTablesEmpty() {
+    for (DdlAlterTable alterTable : alterTables.values()) {
+     if (!alterTable.isEmpty()) {
+       return false;
+     }
+   }
+   return true;
+  }
+
+  /**
+   * Return the buffer that POST ALTER is written to.
+   */
+  public DdlBuffer postAlter() {
+    return postAlter;
   }
 
   /**
@@ -86,11 +114,20 @@ public class DdlWrite {
     return applyDropDependencies;
   }
 
+  public DdlAlterTable alterTable(String tableName, Function<String, DdlAlterTable> factory) {
+    return alterTables.computeIfAbsent(tableName, factory);
+  }
+
+  public DdlAlterTable alterTable(String tableName) {
+    return alterTables.get(tableName);
+  }
+
+
   /**
    * Return the buffer that APPLY DDL is written to for foreign keys and their associated indexes.
    * <p>
-   * Statements added to this buffer are executed after all the normal apply statements and
-   * typically 'add foreign key' is added to this buffer.
+   * Statements added to this buffer are executed after all the normal apply statements and typically 'add foreign key' is added
+   * to this buffer.
    */
   public DdlBuffer applyForeignKeys() {
     return applyForeignKeys;
@@ -123,5 +160,78 @@ public class DdlWrite {
   public DdlBuffer dropAll() {
     return dropAll;
   }
+
+  public DdlBuffer dropAllProcs() {
+    return dropAllProcs;
+  }
+  /**
+   * Writes the apply ddl to the target.
+   */
+  public void writeApply(Appendable target) throws IOException {
+    if (!applyDropDependencies.isEmpty()) {
+      target.append("-- drop dependencies\n");
+      target.append(applyDropDependencies.getBuffer());
+    }
+    if (!apply.isEmpty()) {
+      target.append("-- apply changes\n");
+      target.append(apply.getBuffer());
+    }
+    if (!alterTables.isEmpty()) {
+      target.append("-- altering tables\n");
+      for (DdlAlterTable alterTable : alterTables.values()) {
+        alterTable.write(target);
+      }
+    }
+    if (!postAlter.isEmpty()) {
+      target.append("-- post alter\n");
+      target.append(postAlter.getBuffer());
+    }
+    if (!applyForeignKeys.isEmpty()) {
+      target.append("-- foreign keys and indices\n");
+      target.append(applyForeignKeys.getBuffer());
+    }
+    if (!applyHistoryView.isEmpty()) {
+      target.append("-- apply history view\n");
+      target.append(applyHistoryView.getBuffer());
+    }
+    if (!applyHistoryTrigger.isEmpty()) {
+      target.append("-- apply history trigger\n");
+      target.append(applyHistoryTrigger.getBuffer());
+    }
+  }
+
+  /**
+   * Writes the drop all ddl to the target.
+   */
+  public void writeDropAll(Appendable target) throws IOException {
+    if (!dropAllForeignKeys.isEmpty()) {
+      target.append("-- drop all foreign keys\n");
+      target.append(dropAllForeignKeys.getBuffer());
+    }
+    if (!dropAll.isEmpty()) {
+      target.append("-- drop all\n");
+      target.append(dropAll.getBuffer());
+    }
+    if (!dropAllProcs.isEmpty()) { 
+      target.append("-- drop all procs\n");
+      target.append(dropAllProcs.getBuffer());
+    }
+  }
+  
+  /**
+   * Returns all create statements. Mainly used for unit-tests
+   */
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+    try {
+      writeDropAll(sb);
+      writeApply(sb);
+    } catch (IOException e) {
+      // can not happen
+    }
+    return sb.toString();
+  }
+
 
 }

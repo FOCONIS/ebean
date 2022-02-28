@@ -660,6 +660,10 @@ public class PlatformDdl {
     }
   }
 
+  protected DdlAlterTable alterTable(DdlWrite writer, String tableName) {
+    return writer.alterTable(tableName, BaseAlterTableWrite::new);
+  }
+
   protected void appendColumns(String[] columns, StringBuilder buffer) {
     buffer.append(" (");
     for (int i = 0; i < columns.length; i++) {
