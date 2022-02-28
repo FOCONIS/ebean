@@ -162,6 +162,7 @@ create column table migtest_oto_master (
   constraint pk_migtest_oto_master primary key (id)
 );
 
+-- apply post alter
 -- explicit index "ix_migtest_e_basic_indextest1" for single column "indextest1" of table "migtest_e_basic" is not necessary;
 -- explicit index "ix_migtest_e_basic_indextest5" for single column "indextest5" of table "migtest_e_basic" is not necessary;
 -- foreign keys and indices
