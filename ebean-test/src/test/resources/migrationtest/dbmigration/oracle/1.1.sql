@@ -77,59 +77,60 @@ create table migtest_mtm_m_phone_numbers (
   value                         varchar2(255) not null
 );
 
-alter table migtest_ckey_detail add one_key number(10);
-alter table migtest_ckey_detail add two_key varchar2(127);
 
-alter table migtest_ckey_parent add assoc_id number(10);
 
 
 update migtest_e_basic set status = 'A' where status is null;
 alter table migtest_e_basic modify status default 'A';
-alter table migtest_e_basic modify status not null;
-alter table migtest_e_basic modify status2 varchar2(127);
 alter table migtest_e_basic modify status2 default null;
-alter table migtest_e_basic modify status2 null;
 
 -- rename all collisions;
 
 insert into migtest_e_user (id) select distinct user_id from migtest_e_basic;
-alter table migtest_e_basic modify user_id null;
-alter table migtest_e_basic add new_string_field varchar2(255) default 'foo''bar' not null;
-alter table migtest_e_basic add new_boolean_field number(1) default 1 not null;
-alter table migtest_e_basic add new_boolean_field2 number(1) default 1 not null;
-alter table migtest_e_basic add progress number(10) default 0 not null;
-alter table migtest_e_basic add constraint ck_migtest_e_basic_progress check ( progress in (0,1,2));
-alter table migtest_e_basic add new_integer number(10) default 42 not null;
 
-alter table migtest_e_history modify test_string number(19);
 
 -- NOTE: table has @History - special migration may be necessary
 update migtest_e_history2 set test_string = 'unknown' where test_string is null;
 alter table migtest_e_history2 modify test_string default 'unknown';
-alter table migtest_e_history2 modify test_string not null;
-alter table migtest_e_history2 add test_string2 varchar2(255);
-alter table migtest_e_history2 add test_string3 varchar2(255) default 'unknown' not null;
-alter table migtest_e_history2 add new_column varchar2(20);
 
-alter table migtest_e_history4 modify test_number number(19);
-alter table migtest_e_history5 add test_boolean number(1) default 0 not null;
 
 
 -- NOTE: table has @History - special migration may be necessary
 update migtest_e_history6 set test_number1 = 42 where test_number1 is null;
 alter table migtest_e_history6 modify test_number1 default 42;
-alter table migtest_e_history6 modify test_number1 not null;
-alter table migtest_e_history6 modify test_number2 null;
+
+
+-- apply alter tables
+alter table migtest_ckey_detail add one_key number(10);
+alter table migtest_ckey_detail add two_key varchar2(127);
+alter table migtest_ckey_parent add assoc_id number(10);
+alter table migtest_e_basic modify status  not null;
+alter table migtest_e_basic modify status2  varchar2(127);
+alter table migtest_e_basic modify status2  null;
+alter table migtest_e_basic modify user_id  null;
+alter table migtest_e_basic add new_string_field varchar2(255) default 'foo''bar' not null;
+alter table migtest_e_basic add new_boolean_field number(1) default 1 not null;
+alter table migtest_e_basic add new_boolean_field2 number(1) default 1 not null;
+alter table migtest_e_basic add progress number(10) default 0 not null;
+alter table migtest_e_basic add new_integer number(10) default 42 not null;
+alter table migtest_e_history modify test_string  number(19);
+alter table migtest_e_history2 modify test_string  not null;
+alter table migtest_e_history2 add test_string2 varchar2(255);
+alter table migtest_e_history2 add test_string3 varchar2(255) default 'unknown' not null;
+alter table migtest_e_history2 add new_column varchar2(20);
+alter table migtest_e_history4 modify test_number  number(19);
+alter table migtest_e_history5 add test_boolean number(1) default 0 not null;
+alter table migtest_e_history6 modify test_number1  not null;
+alter table migtest_e_history6 modify test_number2  null;
 alter table migtest_e_softdelete add deleted number(1) default 0 not null;
-
 alter table migtest_oto_child add master_id number(19);
-
 -- apply post alter
 alter table migtest_e_basic add constraint ck_migtest_e_basic_status check ( status in ('N','A','I','?'));
 -- NOT YET IMPLEMENTED: alter table migtest_e_basic add constraint uq_migtest_e_basic_description unique  (description);
 -- NOTE: table has @History - special migration may be necessary
 update migtest_e_basic set new_boolean_field = old_boolean;
 
+alter table migtest_e_basic add constraint ck_migtest_e_basic_progress check ( progress in (0,1,2));
 -- NOT YET IMPLEMENTED: alter table migtest_e_basic add constraint uq_mgtst__bsc_stts_ndxtst1 unique  (status,indextest1);
 -- NOT YET IMPLEMENTED: alter table migtest_e_basic add constraint uq_migtest_e_basic_name unique  (name);
 -- NOT YET IMPLEMENTED: alter table migtest_e_basic add constraint uq_migtest_e_basic_indextest4 unique  (indextest4);

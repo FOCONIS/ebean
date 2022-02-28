@@ -1,5 +1,5 @@
 -- Migrationscripts for ebean unittest
--- apply changes
+-- apply alter tables
 alter table migtest_ckey_detail drop column one_key;
 alter table migtest_ckey_detail drop column two_key;
 alter table migtest_ckey_parent drop column assoc_id;

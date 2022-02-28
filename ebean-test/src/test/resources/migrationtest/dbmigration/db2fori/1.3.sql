@@ -1,21 +1,116 @@
 -- Migrationscripts for ebean unittest
 -- drop dependencies
-alter table migtest_ckey_detail drop constraint fk_migtest_ckey_detail_parent;
-alter table migtest_fk_cascade drop constraint fk_migtest_fk_cascade_one_id;
-alter table migtest_fk_none drop constraint fk_migtest_fk_none_one_id;
-alter table migtest_fk_none_via_join drop constraint fk_migtest_fk_none_via_join_one_id;
-alter table migtest_fk_set_null drop constraint fk_migtest_fk_set_null_one_id;
-alter table migtest_e_basic drop constraint ck_migtest_e_basic_status;
-alter table migtest_e_basic drop constraint ck_migtest_e_basic_status2;
-alter table migtest_e_basic drop constraint uq_migtest_e_basic_description;
-alter table migtest_e_basic drop constraint fk_migtest_e_basic_user_id;
-alter table migtest_e_basic drop constraint uq_migtest_e_basic_status_indextest1;
-alter table migtest_e_basic drop constraint uq_migtest_e_basic_name;
-alter table migtest_e_basic drop constraint uq_migtest_e_basic_indextest4;
-alter table migtest_e_basic drop constraint uq_migtest_e_basic_indextest5;
-alter table migtest_e_enum drop constraint ck_migtest_e_enum_test_status;
-drop index ix_migtest_e_basic_indextest3;
-drop index ix_migtest_e_basic_indextest6;
+alter table migtest_ckey_detail NOT USED fk_migtest_ckey_detail_parent;
+alter table migtest_fk_cascade NOT USED fk_migtest_fk_cascade_one_id;
+alter table migtest_fk_none NOT USED fk_migtest_fk_none_one_id;
+alter table migtest_fk_none_via_join NOT USED fk_migtest_fk_none_via_join_one_id;
+alter table migtest_fk_set_null NOT USED fk_migtest_fk_set_null_one_id;
+delimiter $$
+begin
+if exists (select constname from syscat.tabconst where tabschema = current_schema and constname = 'CK_MIGTEST_E_BASIC_STATUS' and tabname = 'MIGTEST_E_BASIC') then
+  prepare stmt from 'alter table migtest_e_basic drop constraint ck_migtest_e_basic_status';
+  execute stmt;
+end if;
+end$$;
+delimiter $$
+begin
+if exists (select constname from syscat.tabconst where tabschema = current_schema and constname = 'CK_MIGTEST_E_BASIC_STATUS2' and tabname = 'MIGTEST_E_BASIC') then
+  prepare stmt from 'alter table migtest_e_basic drop constraint ck_migtest_e_basic_status2';
+  execute stmt;
+end if;
+end$$;
+delimiter $$
+begin
+if exists (select constname from syscat.tabconst where tabschema = current_schema and constname = 'UQ_MIGTEST_E_BASIC_DESCRIPTION' and tabname = 'MIGTEST_E_BASIC') then
+  prepare stmt from 'alter table migtest_e_basic drop constraint uq_migtest_e_basic_description';
+  execute stmt;
+end if;
+end$$
+delimiter $$
+begin
+if exists (select indname from syscat.indexes where indschema = current_schema and indname = 'UQ_MIGTEST_E_BASIC_DESCRIPTION') then
+  prepare stmt from 'drop index uq_migtest_e_basic_description';
+  execute stmt;
+end if;
+end$$;
+alter table migtest_e_basic NOT USED fk_migtest_e_basic_user_id;
+delimiter $$
+begin
+if exists (select constname from syscat.tabconst where tabschema = current_schema and constname = 'UQ_MIGTEST_E_BASIC_STATUS_INDEXTEST1' and tabname = 'MIGTEST_E_BASIC') then
+  prepare stmt from 'alter table migtest_e_basic drop constraint uq_migtest_e_basic_status_indextest1';
+  execute stmt;
+end if;
+end$$
+delimiter $$
+begin
+if exists (select indname from syscat.indexes where indschema = current_schema and indname = 'UQ_MIGTEST_E_BASIC_STATUS_INDEXTEST1') then
+  prepare stmt from 'drop index uq_migtest_e_basic_status_indextest1';
+  execute stmt;
+end if;
+end$$;
+delimiter $$
+begin
+if exists (select constname from syscat.tabconst where tabschema = current_schema and constname = 'UQ_MIGTEST_E_BASIC_NAME' and tabname = 'MIGTEST_E_BASIC') then
+  prepare stmt from 'alter table migtest_e_basic drop constraint uq_migtest_e_basic_name';
+  execute stmt;
+end if;
+end$$
+delimiter $$
+begin
+if exists (select indname from syscat.indexes where indschema = current_schema and indname = 'UQ_MIGTEST_E_BASIC_NAME') then
+  prepare stmt from 'drop index uq_migtest_e_basic_name';
+  execute stmt;
+end if;
+end$$;
+delimiter $$
+begin
+if exists (select constname from syscat.tabconst where tabschema = current_schema and constname = 'UQ_MIGTEST_E_BASIC_INDEXTEST4' and tabname = 'MIGTEST_E_BASIC') then
+  prepare stmt from 'alter table migtest_e_basic drop constraint uq_migtest_e_basic_indextest4';
+  execute stmt;
+end if;
+end$$
+delimiter $$
+begin
+if exists (select indname from syscat.indexes where indschema = current_schema and indname = 'UQ_MIGTEST_E_BASIC_INDEXTEST4') then
+  prepare stmt from 'drop index uq_migtest_e_basic_indextest4';
+  execute stmt;
+end if;
+end$$;
+delimiter $$
+begin
+if exists (select constname from syscat.tabconst where tabschema = current_schema and constname = 'UQ_MIGTEST_E_BASIC_INDEXTEST5' and tabname = 'MIGTEST_E_BASIC') then
+  prepare stmt from 'alter table migtest_e_basic drop constraint uq_migtest_e_basic_indextest5';
+  execute stmt;
+end if;
+end$$
+delimiter $$
+begin
+if exists (select indname from syscat.indexes where indschema = current_schema and indname = 'UQ_MIGTEST_E_BASIC_INDEXTEST5') then
+  prepare stmt from 'drop index uq_migtest_e_basic_indextest5';
+  execute stmt;
+end if;
+end$$;
+delimiter $$
+begin
+if exists (select constname from syscat.tabconst where tabschema = current_schema and constname = 'CK_MIGTEST_E_ENUM_TEST_STATUS' and tabname = 'MIGTEST_E_ENUM') then
+  prepare stmt from 'alter table migtest_e_enum drop constraint ck_migtest_e_enum_test_status';
+  execute stmt;
+end if;
+end$$;
+delimiter $$
+begin
+if exists (select indname from syscat.indexes where indschema = current_schema and indname = 'IX_MIGTEST_E_BASIC_INDEXTEST3') then
+  prepare stmt from 'drop index ix_migtest_e_basic_indextest3';
+  execute stmt;
+end if;
+end$$;
+delimiter $$
+begin
+if exists (select indname from syscat.indexes where indschema = current_schema and indname = 'IX_MIGTEST_E_BASIC_INDEXTEST6') then
+  prepare stmt from 'drop index ix_migtest_e_basic_indextest6';
+  execute stmt;
+end if;
+end$$;
 -- apply changes
 create table migtest_e_ref (
   id                            integer generated by default as identity not null,
@@ -24,34 +119,35 @@ create table migtest_e_ref (
 );
 
 alter table migtest_e_basic alter column status drop default;
-alter table migtest_e_basic alter column status drop not null;
 
 update migtest_e_basic set status2 = 'N' where status2 is null;
-alter table migtest_e_basic alter column status2 set data type varchar(1);
 alter table migtest_e_basic alter column status2 set default 'N';
-alter table migtest_e_basic alter column status2 set not null;
 
 update migtest_e_basic set user_id = 23 where user_id is null;
 alter table migtest_e_basic alter column user_id set default 23;
-alter table migtest_e_basic alter column user_id set not null;
-alter table migtest_e_basic add column description_file blob(64M);
-alter table migtest_e_basic add column old_boolean smallint default 0 default false not null;
-alter table migtest_e_basic add column old_boolean2 smallint default 0;
-alter table migtest_e_basic add column eref_id integer;
 
 alter table migtest_e_history2 alter column test_string drop default;
-alter table migtest_e_history2 alter column test_string drop not null;
-alter table migtest_e_history2 add column obsolete_string1 varchar(255);
-alter table migtest_e_history2 add column obsolete_string2 varchar(255);
 
-alter table migtest_e_history4 alter column test_number set data type integer;
 alter table migtest_e_history6 alter column test_number1 drop default;
-alter table migtest_e_history6 alter column test_number1 drop not null;
 
 -- NOTE: table has @History - special migration may be necessary
 update migtest_e_history6 set test_number2 = 7 where test_number2 is null;
 alter table migtest_e_history6 alter column test_number2 set default 7;
-alter table migtest_e_history6 alter column test_number2 set not null;
+-- apply alter tables
+alter table migtest_e_basic alter column status  drop not null;
+alter table migtest_e_basic alter column status2  set data type varchar(1);
+alter table migtest_e_basic alter column status2  set not null;
+alter table migtest_e_basic alter column user_id  set not null;
+alter table migtest_e_basic add column description_file blob(64M);
+alter table migtest_e_basic add column old_boolean smallint default 0 default false not null;
+alter table migtest_e_basic add column old_boolean2 smallint default 0;
+alter table migtest_e_basic add column eref_id integer;
+alter table migtest_e_history2 alter column test_string  drop not null;
+alter table migtest_e_history2 add column obsolete_string1 varchar(255);
+alter table migtest_e_history2 add column obsolete_string2 varchar(255);
+alter table migtest_e_history4 alter column test_number  set data type integer;
+alter table migtest_e_history6 alter column test_number1  drop not null;
+alter table migtest_e_history6 alter column test_number2  set not null;
 -- apply post alter
 alter table migtest_e_ref add constraint uq_migtest_e_ref_name unique  (name);
 alter table migtest_e_basic add constraint ck_migtest_e_basic_status check ( status in ('N','A','I'));

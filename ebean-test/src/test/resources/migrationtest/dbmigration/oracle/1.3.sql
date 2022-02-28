@@ -97,34 +97,35 @@ create table migtest_e_ref (
 );
 
 alter table migtest_e_basic modify status default null;
-alter table migtest_e_basic modify status null;
 
 update migtest_e_basic set status2 = 'N' where status2 is null;
-alter table migtest_e_basic modify status2 varchar2(1);
 alter table migtest_e_basic modify status2 default 'N';
-alter table migtest_e_basic modify status2 not null;
 
 update migtest_e_basic set user_id = 23 where user_id is null;
 alter table migtest_e_basic modify user_id default 23;
-alter table migtest_e_basic modify user_id not null;
-alter table migtest_e_basic add description_file blob;
-alter table migtest_e_basic add old_boolean number(1) default 0 not null;
-alter table migtest_e_basic add old_boolean2 number(1);
-alter table migtest_e_basic add eref_id number(10);
 
 alter table migtest_e_history2 modify test_string default null;
-alter table migtest_e_history2 modify test_string null;
-alter table migtest_e_history2 add obsolete_string1 varchar2(255);
-alter table migtest_e_history2 add obsolete_string2 varchar2(255);
 
-alter table migtest_e_history4 modify test_number number(10);
 alter table migtest_e_history6 modify test_number1 default null;
-alter table migtest_e_history6 modify test_number1 null;
 
 -- NOTE: table has @History - special migration may be necessary
 update migtest_e_history6 set test_number2 = 7 where test_number2 is null;
 alter table migtest_e_history6 modify test_number2 default 7;
-alter table migtest_e_history6 modify test_number2 not null;
+-- apply alter tables
+alter table migtest_e_basic modify status  null;
+alter table migtest_e_basic modify status2  varchar2(1);
+alter table migtest_e_basic modify status2  not null;
+alter table migtest_e_basic modify user_id  not null;
+alter table migtest_e_basic add description_file blob;
+alter table migtest_e_basic add old_boolean number(1) default 0 not null;
+alter table migtest_e_basic add old_boolean2 number(1);
+alter table migtest_e_basic add eref_id number(10);
+alter table migtest_e_history2 modify test_string  null;
+alter table migtest_e_history2 add obsolete_string1 varchar2(255);
+alter table migtest_e_history2 add obsolete_string2 varchar2(255);
+alter table migtest_e_history4 modify test_number  number(10);
+alter table migtest_e_history6 modify test_number1  null;
+alter table migtest_e_history6 modify test_number2  not null;
 -- apply post alter
 alter table migtest_e_basic add constraint ck_migtest_e_basic_status check ( status in ('N','A','I'));
 alter table migtest_e_basic add constraint ck_migtest_e_basic_status2 check ( status2 in ('N','A','I'));

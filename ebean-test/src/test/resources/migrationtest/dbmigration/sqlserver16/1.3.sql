@@ -29,36 +29,37 @@ create table migtest_e_ref (
 );
 
 EXEC usp_ebean_drop_default_constraint migtest_e_basic, status;
-alter table migtest_e_basic alter column status varchar(1);
 
 update migtest_e_basic set status2 = 'N' where status2 is null;
 EXEC usp_ebean_drop_default_constraint migtest_e_basic, status2;
-alter table migtest_e_basic alter column status2 varchar(1) not null;
 alter table migtest_e_basic add default 'N' for status2;
 
 update migtest_e_basic set user_id = 23 where user_id is null;
 EXEC usp_ebean_drop_default_constraint migtest_e_basic, user_id;
-alter table migtest_e_basic alter column user_id integer not null;
 alter table migtest_e_basic add default 23 for user_id;
-alter table migtest_e_basic add description_file image;
-alter table migtest_e_basic add old_boolean bit default 0 not null;
-alter table migtest_e_basic add old_boolean2 bit;
-alter table migtest_e_basic add eref_id integer;
 
 EXEC usp_ebean_drop_default_constraint migtest_e_history2, test_string;
-alter table migtest_e_history2 alter column test_string varchar(255);
-alter table migtest_e_history2 add obsolete_string1 varchar(255);
-alter table migtest_e_history2 add obsolete_string2 varchar(255);
 
-alter table migtest_e_history4 alter column test_number integer;
 EXEC usp_ebean_drop_default_constraint migtest_e_history6, test_number1;
-alter table migtest_e_history6 alter column test_number1 integer;
 
 -- NOTE: table has @History - special migration may be necessary
 update migtest_e_history6 set test_number2 = 7 where test_number2 is null;
 EXEC usp_ebean_drop_default_constraint migtest_e_history6, test_number2;
-alter table migtest_e_history6 alter column test_number2 integer not null;
 alter table migtest_e_history6 add default 7 for test_number2;
+-- apply alter tables
+alter table migtest_e_basic alter column status  varchar(1);
+alter table migtest_e_basic alter column status2  varchar(1) not null;
+alter table migtest_e_basic alter column user_id  integer not null;
+alter table migtest_e_basic add description_file image;
+alter table migtest_e_basic add old_boolean bit default 0 not null;
+alter table migtest_e_basic add old_boolean2 bit;
+alter table migtest_e_basic add eref_id integer;
+alter table migtest_e_history2 alter column test_string  varchar(255);
+alter table migtest_e_history2 add obsolete_string1 varchar(255);
+alter table migtest_e_history2 add obsolete_string2 varchar(255);
+alter table migtest_e_history4 alter column test_number  integer;
+alter table migtest_e_history6 alter column test_number1  integer;
+alter table migtest_e_history6 alter column test_number2  integer not null;
 -- apply post alter
 alter table migtest_e_ref add constraint uq_migtest_e_ref_name unique  (name);
 alter table migtest_e_basic add constraint ck_migtest_e_basic_status check ( status in ('N','A','I'));

@@ -160,8 +160,8 @@ create table migtest_oto_master (
 );
 
 -- apply post alter
-create unique index uq_migtest_e_basic_indextest2 on migtest_e_basic(indextest2) exclude null keys;
-create unique index uq_migtest_e_basic_indextest6 on migtest_e_basic(indextest6) exclude null keys;
+create unique index uq_mgtst__b_4aybzy on migtest_e_basic(indextest2) exclude null keys;
+create unique index uq_mgtst__b_4ayc02 on migtest_e_basic(indextest6) exclude null keys;
 alter table migtest_e_ref add constraint uq_mgtst__rf_nm unique  (name);
 create index ix_mgtst__b_eu8csq on migtest_e_basic (indextest1);
 create index ix_mgtst__b_eu8csu on migtest_e_basic (indextest5);

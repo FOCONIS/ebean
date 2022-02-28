@@ -34,25 +34,14 @@ create table migtest_mtm_m_phone_numbers (
   value                         varchar(255) not null
 );
 
-alter table migtest_ckey_detail add column one_key integer;
-alter table migtest_ckey_detail add column two_key varchar(127);
 
-alter table migtest_ckey_parent add column assoc_id integer;
 
 
 update migtest_e_basic set status = 'A' where status is null;
-alter table migtest_e_basic modify status varchar(1) not null default 'A';
-alter table migtest_e_basic modify status2 varchar(127);
 
 -- rename all collisions;
 
 insert into migtest_e_user (id) select distinct user_id from migtest_e_basic;
-alter table migtest_e_basic modify user_id integer;
-alter table migtest_e_basic add column new_string_field varchar(255) default 'foo''bar' not null;
-alter table migtest_e_basic add column new_boolean_field tinyint(1) default 1 not null;
-alter table migtest_e_basic add column new_boolean_field2 tinyint(1) default 1 not null;
-alter table migtest_e_basic add column progress integer default 0 not null;
-alter table migtest_e_basic add column new_integer integer default 42 not null;
 
 create table migtest_e_history_history(
   id                            integer,
@@ -62,33 +51,45 @@ create table migtest_e_history_history(
 );
 alter table migtest_e_history add column sys_period_start datetime(6) default now(6);
 alter table migtest_e_history add column sys_period_end datetime(6);
-alter table migtest_e_history modify test_string bigint;
 
 -- NOTE: table has @History - special migration may be necessary
 update migtest_e_history2 set test_string = 'unknown' where test_string is null;
-alter table migtest_e_history2 modify test_string varchar(255) not null default 'unknown';
+
+
+
+-- NOTE: table has @History - special migration may be necessary
+update migtest_e_history6 set test_number1 = 42 where test_number1 is null;
+
+
+-- apply alter tables
+alter table migtest_ckey_detail add column one_key integer;
+alter table migtest_ckey_detail add column two_key varchar(127);
+alter table migtest_ckey_parent add column assoc_id integer;
+alter table migtest_e_basic modify status  varchar(1) not null default 'A';
+alter table migtest_e_basic modify status2  varchar(127);
+alter table migtest_e_basic modify user_id  integer;
+alter table migtest_e_basic add column new_string_field varchar(255) default 'foo''bar' not null;
+alter table migtest_e_basic add column new_boolean_field tinyint(1) default 1 not null;
+alter table migtest_e_basic add column new_boolean_field2 tinyint(1) default 1 not null;
+alter table migtest_e_basic add column progress integer default 0 not null;
+alter table migtest_e_basic add column new_integer integer default 42 not null;
+alter table migtest_e_history modify test_string  bigint;
+alter table migtest_e_history2 modify test_string  varchar(255) not null default 'unknown';
 alter table migtest_e_history2 add column test_string2 varchar(255);
 alter table migtest_e_history2 add column test_string3 varchar(255) default 'unknown' not null;
 alter table migtest_e_history2 add column new_column varchar(20);
 alter table migtest_e_history2_history add column test_string2 varchar(255);
 alter table migtest_e_history2_history add column test_string3 varchar(255) default 'unknown';
 alter table migtest_e_history2_history add column new_column varchar(20);
-
-alter table migtest_e_history4 modify test_number bigint;
-alter table migtest_e_history4_history modify test_number bigint;
+alter table migtest_e_history4 modify test_number  bigint;
+alter table migtest_e_history4_history modify test_number  bigint;
 alter table migtest_e_history5 add column test_boolean tinyint(1) default 0 not null;
 alter table migtest_e_history5_history add column test_boolean tinyint(1) default 0;
-
-
--- NOTE: table has @History - special migration may be necessary
-update migtest_e_history6 set test_number1 = 42 where test_number1 is null;
-alter table migtest_e_history6 modify test_number1 integer not null default 42;
-alter table migtest_e_history6 modify test_number2 integer;
-alter table migtest_e_history6_history modify test_number2 integer;
+alter table migtest_e_history6 modify test_number1  integer not null default 42;
+alter table migtest_e_history6 modify test_number2  integer;
+alter table migtest_e_history6_history modify test_number2  integer;
 alter table migtest_e_softdelete add column deleted tinyint(1) default 0 not null;
-
 alter table migtest_oto_child add column master_id bigint;
-
 -- apply post alter
 alter table migtest_e_basic add constraint uq_migtest_e_basic_description unique  (description);
 -- NOTE: table has @History - special migration may be necessary

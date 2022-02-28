@@ -25,34 +25,35 @@ create table migtest_e_ref (
 );
 
 alter table migtest_e_basic alter column status drop default;
-alter table migtest_e_basic alter column status set null;
 
 update migtest_e_basic set status2 = 'N' where status2 is null;
-alter table migtest_e_basic alter column status2 varchar(1);
 alter table migtest_e_basic alter column status2 set default 'N';
-alter table migtest_e_basic alter column status2 set not null;
 
 update migtest_e_basic set user_id = 23 where user_id is null;
 alter table migtest_e_basic alter column user_id set default 23;
-alter table migtest_e_basic alter column user_id set not null;
-alter table migtest_e_basic add column description_file binary(4500);
-alter table migtest_e_basic add column old_boolean bit default false not null;
-alter table migtest_e_basic add column old_boolean2 bit;
-alter table migtest_e_basic add column eref_id integer;
 
 alter table migtest_e_history2 alter column test_string drop default;
-alter table migtest_e_history2 alter column test_string set null;
-alter table migtest_e_history2 add column obsolete_string1 varchar(255);
-alter table migtest_e_history2 add column obsolete_string2 varchar(255);
 
-alter table migtest_e_history4 alter column test_number integer;
 alter table migtest_e_history6 alter column test_number1 drop default;
-alter table migtest_e_history6 alter column test_number1 set null;
 
 -- NOTE: table has @History - special migration may be necessary
 update migtest_e_history6 set test_number2 = 7 where test_number2 is null;
 alter table migtest_e_history6 alter column test_number2 set default 7;
-alter table migtest_e_history6 alter column test_number2 set not null;
+-- apply alter tables
+alter table migtest_e_basic alter column status  set null;
+alter table migtest_e_basic alter column status2  varchar(1);
+alter table migtest_e_basic alter column status2  set not null;
+alter table migtest_e_basic alter column user_id  set not null;
+alter table migtest_e_basic add column description_file binary(4500);
+alter table migtest_e_basic add column old_boolean bit default false not null;
+alter table migtest_e_basic add column old_boolean2 bit;
+alter table migtest_e_basic add column eref_id integer;
+alter table migtest_e_history2 alter column test_string  set null;
+alter table migtest_e_history2 add column obsolete_string1 varchar(255);
+alter table migtest_e_history2 add column obsolete_string2 varchar(255);
+alter table migtest_e_history4 alter column test_number  integer;
+alter table migtest_e_history6 alter column test_number1  set null;
+alter table migtest_e_history6 alter column test_number2  set not null;
 -- apply post alter
 alter table migtest_e_basic add constraint ck_migtest_e_basic_status check ( status in ('N','A','I'));
 alter table migtest_e_basic add constraint ck_migtest_e_basic_status2 check ( status2 in ('N','A','I'));

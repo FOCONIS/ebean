@@ -74,76 +74,77 @@ create column table migtest_mtm_m_phone_numbers (
   value                         nvarchar(255) not null
 );
 
-alter table migtest_ckey_detail add ( one_key integer);
-alter table migtest_ckey_detail add ( two_key nvarchar(127));
 
-alter table migtest_ckey_parent add ( assoc_id integer);
 
 
 update migtest_e_basic set status = 'A' where status is null;
-alter table migtest_e_basic alter ( status nvarchar(1) default 'A' not null);
-alter table migtest_e_basic alter ( status2 nvarchar(127) default null);
 
 -- rename all collisions;
 
 insert into migtest_e_user (id) select distinct user_id from migtest_e_basic;
-alter table migtest_e_basic alter ( user_id integer);
-alter table migtest_e_basic add ( new_string_field nvarchar(255) default 'foo''bar' not null);
-alter table migtest_e_basic add ( new_boolean_field boolean default true not null);
-alter table migtest_e_basic add ( new_boolean_field2 boolean default true not null);
-alter table migtest_e_basic add ( progress integer default 0 not null);
-alter table migtest_e_basic add constraint ck_migtest_e_basic_progress check ( progress in (0,1,2));
-alter table migtest_e_basic add ( new_integer integer default 42 not null);
 
-alter table migtest_e_history alter ( test_string bigint);
 alter table migtest_e_history2 drop system versioning /* 0 */;
 
 -- NOTE: table has @History - special migration may be necessary
 update migtest_e_history2 set test_string = 'unknown' where test_string is null;
-alter table migtest_e_history2 alter ( test_string nvarchar(255) default 'unknown' not null);
-alter table migtest_e_history2_history alter ( test_string nvarchar(255) default 'unknown' not null);
 alter table migtest_e_history2 add system versioning history table migtest_e_history2_history not validated /* 1 */;
 alter table migtest_e_history2 drop system versioning /* 2 */;
-alter table migtest_e_history2 add ( test_string2 nvarchar(255));
-alter table migtest_e_history2 add ( test_string3 nvarchar(255) default 'unknown' not null);
-alter table migtest_e_history2 add ( new_column nvarchar(20));
 
-alter table migtest_e_history2_history add ( test_string2 nvarchar(255));
-alter table migtest_e_history2_history add ( test_string3 nvarchar(255) default 'unknown');
-alter table migtest_e_history2_history add ( new_column nvarchar(20));
 alter table migtest_e_history2 add system versioning history table migtest_e_history2_history not validated /* 3 */;
 alter table migtest_e_history3 drop system versioning /* 4 */;
 alter table migtest_e_history3 add system versioning history table migtest_e_history3_history not validated /* 5 */;
 alter table migtest_e_history4 drop system versioning /* 6 */;
-alter table migtest_e_history4 alter ( test_number bigint);
-alter table migtest_e_history4_history alter ( test_number bigint);
 alter table migtest_e_history4 add system versioning history table migtest_e_history4_history not validated /* 7 */;
 alter table migtest_e_history5 drop system versioning /* 8 */;
-alter table migtest_e_history5 add ( test_boolean boolean default false not null);
 
-alter table migtest_e_history5_history add ( test_boolean boolean default false);
 alter table migtest_e_history5 add system versioning history table migtest_e_history5_history not validated /* 9 */;
 alter table migtest_e_history6 drop system versioning /* 10 */;
 
 -- NOTE: table has @History - special migration may be necessary
 update migtest_e_history6 set test_number1 = 42 where test_number1 is null;
-alter table migtest_e_history6 alter ( test_number1 integer default 42 not null);
-alter table migtest_e_history6_history alter ( test_number1 integer default 42 not null);
 alter table migtest_e_history6 add system versioning history table migtest_e_history6_history not validated /* 11 */;
 alter table migtest_e_history6 drop system versioning /* 12 */;
-alter table migtest_e_history6 alter ( test_number2 integer);
-alter table migtest_e_history6_history alter ( test_number2 integer);
 alter table migtest_e_history6 add system versioning history table migtest_e_history6_history not validated /* 13 */;
+
+
+-- apply alter tables
+alter table migtest_ckey_detail add ( one_key integer);
+alter table migtest_ckey_detail add ( two_key nvarchar(127));
+alter table migtest_ckey_parent add ( assoc_id integer);
+alter table migtest_e_basic alter ( status nvarchar(1) default 'A' not null);
+alter table migtest_e_basic alter ( status2 nvarchar(127) default null);
+alter table migtest_e_basic alter ( user_id integer);
+alter table migtest_e_basic add ( new_string_field nvarchar(255) default 'foo''bar' not null);
+alter table migtest_e_basic add ( new_boolean_field boolean default true not null);
+alter table migtest_e_basic add ( new_boolean_field2 boolean default true not null);
+alter table migtest_e_basic add ( progress integer default 0 not null);
+alter table migtest_e_basic add ( new_integer integer default 42 not null);
+alter table migtest_e_history alter ( test_string bigint);
+alter table migtest_e_history2 alter ( test_string nvarchar(255) default 'unknown' not null);
+alter table migtest_e_history2 add ( test_string2 nvarchar(255));
+alter table migtest_e_history2 add ( test_string3 nvarchar(255) default 'unknown' not null);
+alter table migtest_e_history2 add ( new_column nvarchar(20));
+alter table migtest_e_history2_history alter ( test_string nvarchar(255) default 'unknown' not null);
+alter table migtest_e_history2_history add ( test_string2 nvarchar(255));
+alter table migtest_e_history2_history add ( test_string3 nvarchar(255) default 'unknown');
+alter table migtest_e_history2_history add ( new_column nvarchar(20));
+alter table migtest_e_history4 alter ( test_number bigint);
+alter table migtest_e_history4_history alter ( test_number bigint);
+alter table migtest_e_history5 add ( test_boolean boolean default false not null);
+alter table migtest_e_history5_history add ( test_boolean boolean default false);
+alter table migtest_e_history6 alter ( test_number1 integer default 42 not null);
+alter table migtest_e_history6 alter ( test_number2 integer);
+alter table migtest_e_history6_history alter ( test_number1 integer default 42 not null);
+alter table migtest_e_history6_history alter ( test_number2 integer);
 alter table migtest_e_softdelete add ( deleted boolean default false not null);
-
 alter table migtest_oto_child add ( master_id bigint);
-
 -- apply post alter
 alter table migtest_e_basic add constraint ck_migtest_e_basic_status check ( status in ('N','A','I','?'));
 -- cannot create unique index "uq_migtest_e_basic_description" on table "migtest_e_basic" with nullable columns;
 -- NOTE: table has @History - special migration may be necessary
 update migtest_e_basic set new_boolean_field = old_boolean;
 
+alter table migtest_e_basic add constraint ck_migtest_e_basic_progress check ( progress in (0,1,2));
 -- cannot create unique index "uq_migtest_e_basic_status_indextest1" on table "migtest_e_basic" with nullable columns;
 -- cannot create unique index "uq_migtest_e_basic_name" on table "migtest_e_basic" with nullable columns;
 -- cannot create unique index "uq_migtest_e_basic_indextest4" on table "migtest_e_basic" with nullable columns;
