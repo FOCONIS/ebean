@@ -164,6 +164,7 @@ create table migtest_oto_master (
 
 create index if not exists ix_migtest_e_basic_indextest1 on migtest_e_basic (indextest1);
 create index if not exists ix_migtest_e_basic_indextest5 on migtest_e_basic (indextest5);
+-- foreign keys and indices
 create index ix_migtest_fk_cascade_one_id on migtest_fk_cascade (one_id);
 alter table migtest_fk_cascade add constraint fk_migtest_fk_cascade_one_id foreign key (one_id) references migtest_fk_cascade_one (id) on delete cascade on update restrict;
 
@@ -173,6 +174,7 @@ alter table migtest_fk_set_null add constraint fk_migtest_fk_set_null_one_id for
 create index ix_migtest_e_basic_eref_id on migtest_e_basic (eref_id);
 alter table migtest_e_basic add constraint fk_migtest_e_basic_eref_id foreign key (eref_id) references migtest_e_ref (id) on delete restrict on update restrict;
 
+-- apply history view
 alter table migtest_e_history2 add column sys_period tstzrange not null default tstzrange(current_timestamp, null);
 create table migtest_e_history2_history(
   id                            integer,
@@ -216,6 +218,7 @@ create table migtest_e_history6_history(
 );
 create view migtest_e_history6_with_history as select * from migtest_e_history6 union all select * from migtest_e_history6_history;
 
+-- apply history trigger
 create or replace function migtest_e_history2_history_version() returns trigger as $$
 declare
   lowerTs timestamptz;

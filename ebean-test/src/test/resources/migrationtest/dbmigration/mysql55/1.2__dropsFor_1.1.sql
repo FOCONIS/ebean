@@ -1,7 +1,6 @@
 -- Migrationscripts for ebean unittest
 -- drop dependencies
 drop view if exists migtest_e_history2_with_history;
-
 -- apply changes
 CALL usp_ebean_drop_column('migtest_e_basic', 'description_file');
 
@@ -18,8 +17,10 @@ CALL usp_ebean_drop_column('migtest_e_history2', 'obsolete_string2');
 CALL usp_ebean_drop_column('migtest_e_history2_history', 'obsolete_string2');
 
 drop table if exists migtest_e_ref;
+-- apply history view
 create view migtest_e_history2_with_history as select * from migtest_e_history2 union all select * from migtest_e_history2_history;
 
+-- apply history trigger
 lock tables migtest_e_history2 write;
 -- changes: [drop obsolete_string1, drop obsolete_string2]
 drop trigger migtest_e_history2_history_upd;

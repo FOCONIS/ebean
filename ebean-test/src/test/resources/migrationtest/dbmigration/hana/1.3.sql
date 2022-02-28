@@ -137,6 +137,7 @@ declare exit handler for sql_error_code 261 begin end;
 exec 'drop index ix_migtest_e_basic_indextest6';
 end;
 $$;
+-- foreign keys and indices
 -- explicit index "ix_migtest_e_basic_eref_id" for single column "eref_id" of table "migtest_e_basic" is not necessary;
 alter table migtest_e_basic add constraint fk_migtest_e_basic_eref_id foreign key (eref_id) references migtest_e_ref (id) on delete restrict on update restrict;
 

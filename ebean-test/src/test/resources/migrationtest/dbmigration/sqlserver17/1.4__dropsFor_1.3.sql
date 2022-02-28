@@ -35,6 +35,7 @@ IF OBJECT_ID('migtest_e_user_seq', 'SO') IS NOT NULL drop sequence migtest_e_use
 IF OBJECT_ID('migtest_mtm_c_migtest_mtm_m', 'U') IS NOT NULL drop table migtest_mtm_c_migtest_mtm_m;
 IF OBJECT_ID('migtest_mtm_m_migtest_mtm_c', 'U') IS NOT NULL drop table migtest_mtm_m_migtest_mtm_c;
 IF OBJECT_ID('migtest_mtm_m_phone_numbers', 'U') IS NOT NULL drop table migtest_mtm_m_phone_numbers;
+-- apply history view
 -- dropping history support for migtest_e_history;
 alter table migtest_e_history set (system_versioning = off);
 alter table migtest_e_history drop period for system_time;

@@ -99,6 +99,7 @@ create index ix_migtest_e_basic_indextest3 on migtest_e_basic (indextest3);
 create index ix_migtest_e_basic_indextest6 on migtest_e_basic (indextest6);
 drop index if exists ix_migtest_e_basic_indextest1;
 drop index if exists ix_migtest_e_basic_indextest5;
+-- foreign keys and indices
 create index ix_migtest_ckey_parent_assoc_id on migtest_ckey_parent (assoc_id);
 -- not supported: alter table migtest_ckey_parent add constraint fk_migtest_ckey_parent_assoc_id foreign key (assoc_id) references migtest_ckey_assoc (id) on delete restrict on update restrict;
 

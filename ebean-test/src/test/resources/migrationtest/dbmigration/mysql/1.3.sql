@@ -4,7 +4,6 @@ drop view if exists migtest_e_history2_with_history;
 drop view if exists migtest_e_history3_with_history;
 drop view if exists migtest_e_history4_with_history;
 drop view if exists migtest_e_history6_with_history;
-
 -- apply changes
 create table migtest_e_ref (
   id                            integer auto_increment not null,
@@ -64,9 +63,11 @@ create index ix_m12_otoc72 on migtest_oto_child (name);
 create index ix_migtest_oto_master_name on migtest_oto_master (name);
 drop index ix_migtest_e_basic_indextest3 on migtest_e_basic;
 drop index ix_migtest_e_basic_indextest6 on migtest_e_basic;
+-- foreign keys and indices
 create index ix_migtest_e_basic_eref_id on migtest_e_basic (eref_id);
 alter table migtest_e_basic add constraint fk_migtest_e_basic_eref_id foreign key (eref_id) references migtest_e_ref (id) on delete restrict on update restrict;
 
+-- apply history view
 create view migtest_e_history2_with_history as select * from migtest_e_history2 union all select * from migtest_e_history2_history;
 
 create view migtest_e_history3_with_history as select * from migtest_e_history3 union all select * from migtest_e_history3_history;
@@ -75,6 +76,7 @@ create view migtest_e_history4_with_history as select * from migtest_e_history4 
 
 create view migtest_e_history6_with_history as select * from migtest_e_history6 union all select * from migtest_e_history6_history;
 
+-- apply history trigger
 lock tables migtest_e_history2 write, migtest_e_history3 write, migtest_e_history4 write, migtest_e_history6 write;
 -- changes: [alter test_string, add obsolete_string1, add obsolete_string2]
 drop trigger migtest_e_history2_history_upd;

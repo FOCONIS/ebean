@@ -164,6 +164,7 @@ create table migtest_oto_master (
 
 create index ix_mgtst__b_eu8csq on migtest_e_basic (indextest1);
 create index ix_mgtst__b_eu8csu on migtest_e_basic (indextest5);
+-- foreign keys and indices
 create index ix_mgtst_fk_mok1xj on migtest_fk_cascade (one_id);
 alter table migtest_fk_cascade add constraint fk_mgtst_fk_65kf6l foreign key (one_id) references migtest_fk_cascade_one (id) on delete cascade;
 

@@ -97,6 +97,7 @@ create index ix_mgtst__b_eu8css on migtest_e_basic (indextest3);
 create index ix_mgtst__b_eu8csv on migtest_e_basic (indextest6);
 drop index ix_mgtst__b_eu8csq;
 drop index ix_mgtst__b_eu8csu;
+-- foreign keys and indices
 create index ix_mgtst_mt_3ug4ok on migtest_mtm_c_migtest_mtm_m (migtest_mtm_c_id);
 alter table migtest_mtm_c_migtest_mtm_m add constraint fk_mgtst_mt_93awga foreign key (migtest_mtm_c_id) references migtest_mtm_c (id) on delete restrict;
 

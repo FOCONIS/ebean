@@ -5,7 +5,6 @@ drop view if exists migtest_e_history3_with_history;
 drop view if exists migtest_e_history4_with_history;
 drop view if exists migtest_e_history5_with_history;
 drop view if exists migtest_e_history6_with_history;
-
 -- apply changes
 create table migtest_e_user (
   id                            integer auto_increment not null,
@@ -98,6 +97,7 @@ create index ix_migtest_e_basic_indextest3 on migtest_e_basic (indextest3);
 create index ix_migtest_e_basic_indextest6 on migtest_e_basic (indextest6);
 drop index ix_migtest_e_basic_indextest1 on migtest_e_basic;
 drop index ix_migtest_e_basic_indextest5 on migtest_e_basic;
+-- foreign keys and indices
 create index ix_migtest_mtm_c_migtest_mtm_m_migtest_mtm_c on migtest_mtm_c_migtest_mtm_m (migtest_mtm_c_id);
 alter table migtest_mtm_c_migtest_mtm_m add constraint fk_migtest_mtm_c_migtest_mtm_m_migtest_mtm_c foreign key (migtest_mtm_c_id) references migtest_mtm_c (id) on delete restrict on update restrict;
 
@@ -118,6 +118,7 @@ alter table migtest_ckey_parent add constraint fk_migtest_ckey_parent_assoc_id f
 
 alter table migtest_oto_child add constraint fk_migtest_oto_child_master_id foreign key (master_id) references migtest_oto_master (id) on delete restrict on update restrict;
 
+-- apply history view
 alter table migtest_e_history add column sys_period_start datetime(6) default now(6);
 alter table migtest_e_history add column sys_period_end datetime(6);
 create table migtest_e_history_history(
@@ -138,6 +139,7 @@ create view migtest_e_history5_with_history as select * from migtest_e_history5 
 
 create view migtest_e_history6_with_history as select * from migtest_e_history6 union all select * from migtest_e_history6_history;
 
+-- apply history trigger
 delimiter $$
 create trigger migtest_e_history_history_upd before update on migtest_e_history for each row begin
     insert into migtest_e_history_history (sys_period_start,sys_period_end,id, test_string) values (OLD.sys_period_start, now(6),OLD.id, OLD.test_string);

@@ -86,6 +86,7 @@ create index ix_migtest_e_basic_indextest3 on migtest_e_basic (indextest3);
 create index ix_migtest_e_basic_indextest6 on migtest_e_basic (indextest6);
 drop index ix_migtest_e_basic_indextest1 on migtest_e_basic;
 drop index ix_migtest_e_basic_indextest5 on migtest_e_basic;
+-- foreign keys and indices
 create index ix_migtest_mtm_c_migtest_mtm_m_migtest_mtm_c on migtest_mtm_c_migtest_mtm_m (migtest_mtm_c_id);
 alter table migtest_mtm_c_migtest_mtm_m add constraint fk_migtest_mtm_c_migtest_mtm_m_migtest_mtm_c foreign key (migtest_mtm_c_id) references migtest_mtm_c (id) on delete restrict on update restrict;
 
@@ -106,6 +107,8 @@ alter table migtest_ckey_parent add constraint fk_migtest_ckey_parent_assoc_id f
 
 alter table migtest_oto_child add constraint fk_migtest_oto_child_master_id foreign key (master_id) references migtest_oto_master (id) on delete restrict on update restrict;
 
+-- apply history view
 alter table migtest_e_history add system versioning;
+-- apply history trigger
 lock tables migtest_e_history3 write;
 unlock tables;

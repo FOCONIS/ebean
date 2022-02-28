@@ -142,6 +142,7 @@ create index ix_migtest_e_basic_indextest3 on migtest_e_basic (indextest3);
 create index ix_migtest_e_basic_indextest6 on migtest_e_basic (indextest6);
 drop index ix_migtest_e_basic_indextest1;
 drop index ix_migtest_e_basic_indextest5;
+-- foreign keys and indices
 create index ix_mgtst_mtm_c_mgtst_mt_3ug4ok on migtest_mtm_c_migtest_mtm_m (migtest_mtm_c_id);
 alter table migtest_mtm_c_migtest_mtm_m add constraint fk_mgtst_mtm_c_mgtst_mt_93awga foreign key (migtest_mtm_c_id) references migtest_mtm_c (id);
 

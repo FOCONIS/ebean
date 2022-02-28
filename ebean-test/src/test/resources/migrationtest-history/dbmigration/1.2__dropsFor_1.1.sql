@@ -6,5 +6,3 @@ alter table migtest_e_history7 drop column sys_period_start;
 alter table migtest_e_history7 drop column sys_period_end;
 drop table migtest_e_history7_history;
 
-
--- apply changes

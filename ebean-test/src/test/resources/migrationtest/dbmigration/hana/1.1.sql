@@ -155,6 +155,7 @@ declare exit handler for sql_error_code 261 begin end;
 exec 'drop index ix_migtest_e_basic_indextest5';
 end;
 $$;
+-- foreign keys and indices
 -- explicit index "ix_migtest_mtm_c_migtest_mtm_m_migtest_mtm_c" for single column "migtest_mtm_c_id" of table "migtest_mtm_c_migtest_mtm_m" is not necessary;
 alter table migtest_mtm_c_migtest_mtm_m add constraint fk_migtest_mtm_c_migtest_mtm_m_migtest_mtm_c foreign key (migtest_mtm_c_id) references migtest_mtm_c (id) on delete restrict on update restrict;
 
@@ -175,6 +176,7 @@ alter table migtest_ckey_parent add constraint fk_migtest_ckey_parent_assoc_id f
 
 alter table migtest_oto_child add constraint fk_migtest_oto_child_master_id foreign key (master_id) references migtest_oto_master (id) on delete restrict on update restrict;
 
+-- apply history view
 create column table migtest_e_history_history (
  id integer,
  test_string bigint,

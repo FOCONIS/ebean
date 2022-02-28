@@ -186,6 +186,7 @@ create sequence migtest_oto_master_seq;
 
 create index ix_migtest_e_basic_indextest1 on migtest_e_basic (indextest1);
 create index ix_migtest_e_basic_indextest5 on migtest_e_basic (indextest5);
+-- foreign keys and indices
 create index ix_migtest_fk_cascade_one_id on migtest_fk_cascade (one_id);
 alter table migtest_fk_cascade add constraint fk_migtest_fk_cascade_one_id foreign key (one_id) references migtest_fk_cascade_one (id) on delete cascade;
 
