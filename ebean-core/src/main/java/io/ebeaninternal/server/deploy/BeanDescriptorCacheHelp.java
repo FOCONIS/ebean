@@ -716,7 +716,7 @@ final class BeanDescriptorCacheHelp<T> {
         if (beanLog.isTraceEnabled()) {
           beanLog.trace("   load {}({}) - cache miss on property({})", cacheName, key, propertyName);
         }
-        iterator.remove();
+        //iterator.remove();
       } else {
         CachedBeanDataToBean.load(desc, ebi.getOwner(), cacheData, context);
         loaded.add(ebi);
