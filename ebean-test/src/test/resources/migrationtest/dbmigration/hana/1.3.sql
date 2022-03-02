@@ -106,28 +106,28 @@ alter table migtest_e_history6 drop system versioning /* 10 */;
 update migtest_e_history6 set test_number2 = 7 where test_number2 is null;
 alter table migtest_e_history6 add system versioning history table migtest_e_history6_history not validated /* 11 */;
 -- apply alter tables
-alter table migtest_e_basic alter ( status nvarchar(1) default null);
-alter table migtest_e_basic alter ( status2 nclob not null);
-alter table migtest_e_basic alter ( status2 nvarchar(1) default 'N' not null);
-alter table migtest_e_basic alter ( user_id integer default 23 not null);
-alter table migtest_e_basic add ( description_file blob);
-alter table migtest_e_basic add ( old_boolean boolean default false not null);
-alter table migtest_e_basic add ( old_boolean2 boolean);
-alter table migtest_e_basic add ( eref_id integer);
-alter table migtest_e_history2 alter ( test_string nvarchar(255) default null);
-alter table migtest_e_history2 add ( obsolete_string1 nvarchar(255));
-alter table migtest_e_history2 add ( obsolete_string2 nvarchar(255));
-alter table migtest_e_history2_history alter ( test_string nvarchar(255) default null);
-alter table migtest_e_history2_history add ( obsolete_string1 nvarchar(255));
-alter table migtest_e_history2_history add ( obsolete_string2 nvarchar(255));
-alter table migtest_e_history4 alter ( test_number decimal);
-alter table migtest_e_history4 alter ( test_number integer);
-alter table migtest_e_history4_history alter ( test_number decimal);
-alter table migtest_e_history4_history alter ( test_number integer);
-alter table migtest_e_history6 alter ( test_number1 integer default null);
-alter table migtest_e_history6 alter ( test_number2 integer default 7 not null);
-alter table migtest_e_history6_history alter ( test_number1 integer default null);
-alter table migtest_e_history6_history alter ( test_number2 integer default 7 not null);
+alter (status nvarchar(1) default null,
+   status2 nclob not null);
+alter (status2 nvarchar(1) default 'N' not null,
+   user_id integer default 23 not null);
+add (description_file blob,
+   old_boolean boolean default false not null,
+   old_boolean2 boolean,
+   eref_id integer);
+alter (test_string nvarchar(255) default null);
+add (obsolete_string1 nvarchar(255),
+   obsolete_string2 nvarchar(255));
+alter (test_string nvarchar(255) default null);
+add (obsolete_string1 nvarchar(255),
+   obsolete_string2 nvarchar(255));
+alter (test_number decimal);
+alter (test_number integer);
+alter (test_number decimal);
+alter (test_number integer);
+alter (test_number1 integer default null,
+   test_number2 integer default 7 not null);
+alter (test_number1 integer default null,
+   test_number2 integer default 7 not null);
 -- apply post alter
 alter table migtest_e_basic add constraint ck_migtest_e_basic_status check ( status in ('N','A','I'));
 alter table migtest_e_basic add constraint ck_migtest_e_basic_status2 check ( status2 in ('N','A','I'));

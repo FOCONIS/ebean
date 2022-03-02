@@ -41,8 +41,6 @@ create table migtest_mtm_m_phone_numbers (
 
 
 update migtest_e_basic set status = 'A' where status is null;
-alter table migtest_e_basic alter column status set default 'A';
-alter table migtest_e_basic alter column status2 drop default;
 
 -- rename all collisions;
 
@@ -59,30 +57,31 @@ alter table migtest_e_history add column sys_period_end datetime(6);
 
 -- NOTE: table has @History - special migration may be necessary
 update migtest_e_history2 set test_string = 'unknown' where test_string is null;
-alter table migtest_e_history2 alter column test_string set default 'unknown';
 
 
 
 -- NOTE: table has @History - special migration may be necessary
 update migtest_e_history6 set test_number1 = 42 where test_number1 is null;
-alter table migtest_e_history6 alter column test_number1 set default 42;
 
 
 -- apply alter tables
 alter table migtest_ckey_detail add column one_key integer;
 alter table migtest_ckey_detail add column two_key varchar(127);
 alter table migtest_ckey_parent add column assoc_id integer;
-alter table migtest_e_basic alter column status  set not null;
+alter table migtest_e_basic alter column status set default 'A';
+alter table migtest_e_basic alter column status set not null;
 alter table migtest_e_basic alter column status2  varchar(127);
-alter table migtest_e_basic alter column status2  set null;
-alter table migtest_e_basic alter column user_id  set null;
+alter table migtest_e_basic alter column status2 drop default;
+alter table migtest_e_basic alter column status2 set null;
+alter table migtest_e_basic alter column user_id set null;
 alter table migtest_e_basic add column new_string_field varchar(255) default 'foo''bar' not null;
 alter table migtest_e_basic add column new_boolean_field boolean default true not null;
 alter table migtest_e_basic add column new_boolean_field2 boolean default true not null;
 alter table migtest_e_basic add column progress integer default 0 not null;
 alter table migtest_e_basic add column new_integer integer default 42 not null;
 alter table migtest_e_history alter column test_string  bigint;
-alter table migtest_e_history2 alter column test_string  set not null;
+alter table migtest_e_history2 alter column test_string set default 'unknown';
+alter table migtest_e_history2 alter column test_string set not null;
 alter table migtest_e_history2 add column test_string2 varchar(255);
 alter table migtest_e_history2 add column test_string3 varchar(255) default 'unknown' not null;
 alter table migtest_e_history2 add column new_column varchar(20);
@@ -93,9 +92,10 @@ alter table migtest_e_history4 alter column test_number  bigint;
 alter table migtest_e_history4_history alter column test_number  bigint;
 alter table migtest_e_history5 add column test_boolean boolean default false not null;
 alter table migtest_e_history5_history add column test_boolean boolean default false;
-alter table migtest_e_history6 alter column test_number1  set not null;
-alter table migtest_e_history6 alter column test_number2  set null;
-alter table migtest_e_history6_history alter column test_number2  set null;
+alter table migtest_e_history6 alter column test_number1 set default 42;
+alter table migtest_e_history6 alter column test_number1 set not null;
+alter table migtest_e_history6 alter column test_number2 set null;
+alter table migtest_e_history6_history alter column test_number2 set null;
 alter table migtest_e_softdelete add column deleted boolean default false not null;
 alter table migtest_oto_child add column master_id bigint;
 -- apply post alter
