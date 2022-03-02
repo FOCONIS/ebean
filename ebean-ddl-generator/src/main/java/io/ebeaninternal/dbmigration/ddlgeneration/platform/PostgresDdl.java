@@ -62,7 +62,6 @@ public class PostgresDdl extends PlatformDdl {
     String type = convert(alter.getType());
     alterTable(writer, alter.getTableName()).add(alterColumn, alter.getColumnName())
       .appendWithSpace(columnSetType).appendWithSpace(type)
-      .append(alterColumnSuffix)
       .append(" using ").append(alter.getColumnName()).append("::").append(type);
   }
 

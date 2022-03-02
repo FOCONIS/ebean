@@ -1,8 +1,8 @@
 package io.ebeaninternal.dbmigration.ddlgeneration.platform;
 
-import io.ebean.annotation.ConstraintMode;
+import java.io.IOException;
+
 import io.ebean.config.dbplatform.DatabasePlatform;
-import io.ebeaninternal.dbmigration.ddlgeneration.DdlBuffer;
 
 /**
  * DB2 platform specific DDL.
@@ -97,9 +97,19 @@ public class DB2Ddl extends PlatformDdl {
   }
 
 
-  @Override
-  protected void appendForeignKeyOnUpdate(StringBuilder buffer, ConstraintMode mode) {
-    // do nothing, no on update clause for db2
-  }
 
+  static class Db2AlterTableWrite extends BaseAlterTableWrite {
+
+    public Db2AlterTableWrite(String tableName) {
+      super(tableName);
+    }
+
+    @Override
+    public void write(Appendable target) throws IOException {
+      // TODO Auto-generated method stub
+      raw("call sysproc.admin_cmd('reorg table " + tableName() + "')");
+      super.write(target);
+    }
+
+  }
 }

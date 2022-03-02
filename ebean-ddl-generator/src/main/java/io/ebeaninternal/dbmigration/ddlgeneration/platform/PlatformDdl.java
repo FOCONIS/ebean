@@ -77,15 +77,11 @@ public class PlatformDdl {
 
   protected String alterColumn = "alter column";
 
-  protected String alterColumnSuffix = "";
-
   protected String dropUniqueConstraint = "drop constraint";
 
   protected String addConstraint = "add constraint";
 
   protected String addColumn = "add column";
-
-  protected String addColumnSuffix = "";
 
   protected String columnSetType = "";
 
@@ -104,8 +100,6 @@ public class PlatformDdl {
   protected String createTable = "create table";
 
   protected String dropColumn = "drop column";
-
-  protected String dropColumnSuffix = "";
 
   protected String addForeignKeySkipCheck = "";
 
@@ -551,22 +545,18 @@ public class PlatformDdl {
       if (isTrue(column.isNotnull())) {
         buffer.appendWithSpace(columnNotNull);
       }
-      buffer.append(addColumnSuffix);
-
 
       // check constraints cannot be added in one statement for h2
       if (!StringHelper.isNull(column.getCheckConstraint())) {
         String ddl = alterTableAddCheckConstraint(tableName, column.getCheckConstraintName(), column.getCheckConstraint());
         writer.applyPostAlter().appendStatement(ddl);
       }
-    } else {
-      buffer.append(addColumnSuffix);
     }
 
   }
 
   public void alterTableDropColumn(DdlWrite writer, String tableName, String columnName) {
-    alterTable(writer, tableName).add(dropColumn, columnName).append(dropColumnSuffix);
+    alterTable(writer, tableName).add(dropColumn, columnName);
   }
 
   /**
@@ -586,7 +576,7 @@ public class PlatformDdl {
    */
   protected void alterColumnType(DdlWrite writer, AlterColumn alter) {
     alterTable(writer, alter.getTableName()).add(alterColumn, alter.getColumnName())
-      .appendWithSpace(columnSetType).appendWithSpace(convert(alter.getType())).append(alterColumnSuffix);
+      .append(columnSetType).appendWithSpace(convert(alter.getType()));
   }
 
   /**
@@ -598,11 +588,10 @@ public class PlatformDdl {
   protected void alterColumnNotnull(DdlWrite writer, AlterColumn alter) {
     DdlBuffer buffer = alterTable(writer, alter.getTableName()).add(alterColumn, alter.getColumnName());
     if (Boolean.TRUE.equals(alter.isNotnull())) {
-      buffer.appendWithSpace(columnSetNotnull);
+      buffer.append(columnSetNotnull);
     } else {
-      buffer.appendWithSpace(columnSetNull);
+      buffer.append(columnSetNull);
     }
-    buffer.append(alterColumnSuffix);
   }
 
   /**
@@ -619,15 +608,12 @@ public class PlatformDdl {
    * </p>
    */
   protected void alterColumnDefault(DdlWrite writer, AlterColumn alter) {
-    DdlBuffer buffer = writer.apply();
-    buffer.append("alter table ").append(alter.getTableName())
-        .appendWithSpace(alterColumn).appendWithSpace(alter.getColumnName());
+    DdlBuffer buffer = alterTable(writer, alter.getTableName()).add(alterColumn, alter.getColumnName());
     if (DdlHelp.isDropDefault(alter.getDefaultValue())) {
-      buffer.appendWithSpace(columnDropDefault);
+      buffer.append(columnDropDefault);
     } else {
-      buffer.appendWithSpace(columnSetDefault).appendWithSpace(convertDefaultValue(alter.getDefaultValue()));
+      buffer.append(columnSetDefault).appendWithSpace(convertDefaultValue(alter.getDefaultValue()));
     }
-    buffer.endOfStatement();
   }
 
   /**

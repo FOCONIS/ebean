@@ -208,8 +208,7 @@ public class SqlServerDdl extends PlatformDdl {
    */
   @Override
   public void alterTableDropColumn(DdlWrite writer, String tableName, String columnName) {
-
-    writer.apply().append("EXEC usp_ebean_drop_column ").append(tableName).append(", ").append(columnName).endOfStatement();
+    alterTable(writer, tableName).raw("EXEC usp_ebean_drop_column ").append(tableName).append(", ").append(columnName);
   }
 
   /**

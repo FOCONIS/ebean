@@ -28,12 +28,9 @@ public class BaseAlterTableWrite implements DdlAlterTable {
       };
     };
 
-    public final boolean raw;
-
-    AlterCmd(String operation, String column, boolean raw) {
+    AlterCmd(String operation, String column) {
       this.operation = operation;
       this.column = column;
-      this.raw = raw;
     }
   }
 
@@ -58,7 +55,7 @@ public class BaseAlterTableWrite implements DdlAlterTable {
    */
   @Override
   public DdlBuffer add(String operation, String column) {
-    AlterCmd cmd = new AlterCmd(operation, column, false);
+    AlterCmd cmd = new AlterCmd(operation, column);
     cmds.add(cmd);
     return cmd.buffer;
   }
@@ -71,9 +68,9 @@ public class BaseAlterTableWrite implements DdlAlterTable {
 
   @Override
   public DdlBuffer raw(String sql) {
-    AlterCmd cmd = new AlterCmd(sql, null, true);
+    AlterCmd cmd = new AlterCmd("$RAW", null);
     cmds.add(cmd);
-    return cmd.buffer;
+    return cmd.buffer.append(sql);
   }
 
   @Override
@@ -87,8 +84,10 @@ public class BaseAlterTableWrite implements DdlAlterTable {
   @Override
   public void write(Appendable target) throws IOException {
     for (AlterCmd cmd : cmds) {
-      if (cmd.raw) {
-        target.append(cmd.operation);
+      if (cmd.operation.equals("$RAW")) {
+        // this is a raw command. e.g. an USP call. Must be done in the correct order
+        // of all alter commands
+        target.append(cmd.buffer.getBuffer());
       } else {
         target.append("alter table ").append(tableName).append(' ').append(cmd.operation);
         if (cmd.column != null) {
