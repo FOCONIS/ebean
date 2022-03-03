@@ -33,7 +33,12 @@ public class NoHistorySupportDdl implements PlatformHistoryDdl {
   }
 
   @Override
-  public void updateTriggers(DdlWrite writer, HistoryTableUpdate update) {
+  public void regenerateHistory(DdlWrite writer, String tableName) {
     // does nothing
+  }
+
+  @Override
+  public boolean alterHistoryTables() {
+    return false;
   }
 }

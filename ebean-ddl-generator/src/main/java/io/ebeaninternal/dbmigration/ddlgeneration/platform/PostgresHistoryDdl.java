@@ -21,7 +21,7 @@ public class PostgresHistoryDdl extends DbTriggerBasedHistoryDdl {
    */
   @Override
   protected void createHistoryTable(DdlWrite writer, MTable table) {
-    writer.apply().append("create table ").append(table.getName()).append(historySuffix)
+    writer.applyPostAlter().append("create table ").append(table.getName()).append(historySuffix)
       .append("(like ").append(table.getName()).append(")").endOfStatement();
   }
 
@@ -52,13 +52,13 @@ public class PostgresHistoryDdl extends DbTriggerBasedHistoryDdl {
   }
 
   @Override
-  protected void createTriggers(DdlWrite writer, MTable table) {
+  protected void createTriggers(DdlBuffer buffer, MTable table) {
     String baseTableName = table.getName();
     String procedureName = procedureName(baseTableName);
     String triggerName = triggerName(baseTableName);
-
-    DdlBuffer apply = writer.applyHistoryTrigger();
-    apply
+    List<String> columnNames = columnNamesForApply(table);
+    createOrReplaceFunction(buffer, procedureName, historyTableName(baseTableName), columnNames);
+    buffer
       .append("create trigger ").append(triggerName).newLine()
       .append("  before update or delete on ").append(baseTableName).newLine()
       .append("  for each row execute procedure ").append(procedureName).append("();").newLine().newLine();
@@ -103,21 +103,14 @@ public class PostgresHistoryDdl extends DbTriggerBasedHistoryDdl {
     apply.end();
   }
 
-  @Override
-  protected void createStoredFunction(DdlWrite writer, MTable table) {
-    String procedureName = procedureName(table.getName());
-    String historyTable = historyTableName(table.getName());
+  
 
-    List<String> columnNames = columnNamesForApply(table);
-    createOrReplaceFunction(writer.applyHistoryTrigger(), procedureName, historyTable, columnNames);
-  }
-
-  @Override
-  protected void updateHistoryTriggers(DbTriggerUpdate update) {
-    String procedureName = procedureName(update.getBaseTable());
-    recreateHistoryView(update);
-    createOrReplaceFunction(update.historyTriggerBuffer(), procedureName, update.getHistoryTable(), update.getColumns());
-  }
+  //  @Override
+  //  protected void updateHistoryTriggers(DbTriggerUpdate update) {
+  //    String procedureName = procedureName(update.getBaseTable());
+  //    recreateHistoryView(update);
+  //    createOrReplaceFunction(update.historyTriggerBuffer(), procedureName, update.getHistoryTable(), update.getColumns());
+  //  }
 
   @Override
   protected void appendInsertIntoHistory(DdlBuffer buffer, String historyTable, List<String> columns) {

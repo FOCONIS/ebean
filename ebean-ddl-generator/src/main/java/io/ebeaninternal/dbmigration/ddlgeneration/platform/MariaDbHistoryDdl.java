@@ -13,6 +13,7 @@ import io.ebeaninternal.dbmigration.model.MTable;
 public class MariaDbHistoryDdl implements PlatformHistoryDdl {
 
   private PlatformDdl platformDdl;
+  private boolean alterHistorySet = false;
 
   @Override
   public void configure(DatabaseConfig config, PlatformDdl platformDdl) {
@@ -45,7 +46,16 @@ public class MariaDbHistoryDdl implements PlatformHistoryDdl {
   }
 
   @Override
-  public void updateTriggers(DdlWrite writer, HistoryTableUpdate baseTable) {
-    // do nothing
+  public void regenerateHistory(DdlWrite writer, String tableName) {
+    MTable table = writer.getTable(tableName);
+    if (table != null && table.isWithHistory() && !alterHistorySet) {
+      writer.apply().appendStatement("SET @@system_versioning_alter_history = 1");
+      alterHistorySet = true;
+    }
+  }
+
+  @Override
+  public boolean alterHistoryTables() {
+    return false;
   }
 }

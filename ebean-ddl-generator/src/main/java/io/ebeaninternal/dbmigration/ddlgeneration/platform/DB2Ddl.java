@@ -1,8 +1,11 @@
 package io.ebeaninternal.dbmigration.ddlgeneration.platform;
 
-import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import io.ebean.config.dbplatform.DatabasePlatform;
+import io.ebeaninternal.dbmigration.ddlgeneration.DdlAlterTable;
+import io.ebeaninternal.dbmigration.ddlgeneration.DdlWrite;
 
 /**
  * DB2 platform specific DDL.
@@ -43,12 +46,17 @@ public class DB2Ddl extends PlatformDdl {
     return sb.toString();
   }
 
+  @Override
+  public String alterTableDropForeignKey(String tableName, String fkName) {
+    return alterTableDropConstraint(tableName, fkName);
+  };
 
   @Override
   public String alterTableDropUniqueConstraint(String tableName, String uniqueConstraintName) {
     return alterTableDropConstraint(tableName, uniqueConstraintName)
       + "\n" + dropIndex(uniqueConstraintName, tableName);
   }
+
   @Override
   public String alterTableDropConstraint(String tableName, String constraintName) {
     StringBuilder sb = new StringBuilder(300);
@@ -96,8 +104,10 @@ public class DB2Ddl extends PlatformDdl {
     return sb.toString();
   }
 
-
-
+@Override
+protected DdlAlterTable alterTable(DdlWrite writer, String tableName) {
+  return writer.applyAlterTable(tableName, Db2AlterTableWrite::new);
+};
   static class Db2AlterTableWrite extends BaseAlterTableWrite {
 
     public Db2AlterTableWrite(String tableName) {
@@ -105,11 +115,49 @@ public class DB2Ddl extends PlatformDdl {
     }
 
     @Override
-    public void write(Appendable target) throws IOException {
-      // TODO Auto-generated method stub
-      raw("call sysproc.admin_cmd('reorg table " + tableName() + "')");
-      super.write(target);
+    protected List<AlterCmd> postProcessCommands(List<AlterCmd> cmds) {
+      List<AlterCmd> ret = new ArrayList<>(cmds.size() + 1);
+      boolean requiresReorg = false;
+      for (AlterCmd cmd : cmds) {
+        ret.add(cmd);
+        if (!requiresReorg && checkReorg(cmd)) {
+          requiresReorg = true;
+        }
+      }
+      if (requiresReorg) {
+        ret.add(newRawCommand("call sysproc.admin_cmd('reorg table " + tableName() + "')"));
+      }
+      return ret;
     }
 
+    /**
+     * determine, if we need a reorg.
+     * 
+     * See: https://www.ibm.com/docs/en/db2/11.5?topic=statements-alter-table The following is the full list of REORG-recommended
+     * ALTER statements that cause a version change and place the table into a REORG-pending state:
+     * <ul>
+     * <li>DROP COLUMN
+     * <li>ALTER COLUMN SET NOT NULL
+     * <li>ALTER COLUMN DROP NOT NULL
+     * <li>ALTER COLUMN SET DATA TYPE, except in the following situations:<br>
+     * Increasing the length of a VARCHAR or VARGRAPHIC column<br>
+     * Decreasing the length of a VARCHAR or VARGRAPHIC column without truncating trailing blanks from existing data, when no indexes
+     * exist on the column
+     * </ul>
+     * 
+     */
+    private boolean checkReorg(AlterCmd cmd) {
+      switch (cmd.getOperation()) {
+      case "drop column":
+        return true;
+      case "alter column":
+        String alter = cmd.getAlternation();
+        return alter.equals("set not null")
+          || alter.equals("drop not default")
+          || alter.startsWith("set data type"); // note: altering varchar length only is not detected here
+      default:
+        return false;
+      }
+    }
   }
 }

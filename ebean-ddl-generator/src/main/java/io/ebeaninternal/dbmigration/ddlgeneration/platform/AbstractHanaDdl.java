@@ -1,11 +1,9 @@
 package io.ebeaninternal.dbmigration.ddlgeneration.platform;
 
-import io.ebean.config.DatabaseConfig;
 import io.ebean.config.dbplatform.DatabasePlatform;
 import io.ebean.config.dbplatform.DbPlatformType;
 import io.ebeaninternal.dbmigration.ddlgeneration.DdlAlterTable;
 import io.ebeaninternal.dbmigration.ddlgeneration.DdlBuffer;
-import io.ebeaninternal.dbmigration.ddlgeneration.DdlHandler;
 import io.ebeaninternal.dbmigration.ddlgeneration.DdlWrite;
 import io.ebeaninternal.dbmigration.migration.AlterColumn;
 
@@ -74,12 +72,6 @@ public abstract class AbstractHanaDdl extends PlatformDdl {
     }
 
     alterTable(writer, tableName).add(alterColumn, columnName).append(type).append(defaultValueClause).append(notnullClause);
-  }
-
-
-  @Override
-  public DdlHandler createDdlHandler(DatabaseConfig config) {
-    return new HanaDdlHandler(config, this);
   }
 
   @Override
@@ -220,16 +212,16 @@ public abstract class AbstractHanaDdl extends PlatformDdl {
       Map<String, List<AlterCmd>> batches = new LinkedHashMap<>();
       Set<String> columns = new HashSet<>();
       for (AlterCmd cmd : cmds) {
-        switch (cmd.operation) {
+        switch (cmd.getOperation()) {
         case "add":
         case "alter":
         case "drop":
-          if (cmd.column != null && !columns.add(cmd.column)) {
+          if (cmd.getColumn() != null && !columns.add(cmd.getColumn())) {
             // column already seen
             flushBatches(newCmds, batches);
             columns.clear();
           }
-          batches.computeIfAbsent(cmd.operation, k -> new ArrayList<>()).add(cmd);
+          batches.computeIfAbsent(cmd.getOperation(), k -> new ArrayList<>()).add(cmd);
           break;
         default:
           flushBatches(newCmds, batches);
@@ -245,20 +237,18 @@ public abstract class AbstractHanaDdl extends PlatformDdl {
 
     private void flushBatches(List<AlterCmd> newCmds, Map<String, List<AlterCmd>> batches) {
       for (List<AlterCmd> cmds : batches.values()) {
-        AlterCmd raw = new AlterCmd("$RAW", null);
+        AlterCmd raw = newRawCommand(cmds.get(0).getOperation()).append(" (");
         for (int i = 0; i < cmds.size(); i++) {
           AlterCmd cmd = cmds.get(i);
-          if (i == 0) {
-            raw.buffer.append(cmd.operation).append(" (");
-          } else {
-            raw.buffer.append(",\n   ");
+          if (i > 0) {
+            raw.append(",\n   ");
           }
-          raw.buffer.append(cmd.column);
-          if (!cmd.buffer.isEmpty()) {
-            raw.buffer.appendWithSpace(cmd.buffer.getBuffer());
+          raw.append(cmd.getColumn());
+          if (!cmd.getAlternation().isEmpty()) {
+            raw.append(" ").append(cmd.getAlternation());
           }
         }
-        raw.buffer.append(")");
+        raw.append(")");
         newCmds.add(raw);
       }
       batches.clear();

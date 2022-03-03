@@ -156,32 +156,4 @@ public class MySqlDdl extends PlatformDdl {
     // alter comment currently not supported as it requires to repeat whole column definition
   }
 
-
-  /**
-   * Locks all tables for triggers that have to be updated.
-   */
-  @Override
-  public void lockTables(DdlBuffer buffer, Collection<String> tables) {
-    if (!tables.isEmpty()) {
-      buffer.append("lock tables ");
-      int i = 0;
-      for (String table : tables) {
-        if (i > 0) {
-          buffer.append(", ");
-        }
-        buffer.append(table).append(" write");
-        i++;
-      }
-      buffer.endOfStatement();
-    }
-  }
-
-  /**
-   * Unlocks all tables for triggers that have to be updated.
-   */
-  @Override
-  public void unlockTables(DdlBuffer buffer, Collection<String> tables) {
-    buffer.append("unlock tables").endOfStatement();
-  }
-
 }

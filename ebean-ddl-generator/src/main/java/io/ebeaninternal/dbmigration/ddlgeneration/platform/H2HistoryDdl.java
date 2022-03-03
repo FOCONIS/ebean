@@ -23,20 +23,10 @@ public class H2HistoryDdl extends DbTriggerBasedHistoryDdl {
   }
 
   @Override
-  protected void createTriggers(DdlWrite writer, MTable table) {
+  protected void createTriggers(DdlBuffer apply, MTable table) {
     String baseTableName = table.getName();
-    DdlBuffer apply = writer.applyHistoryTrigger();
     addCreateTrigger(apply, updateTriggerName(baseTableName), baseTableName);
   }
-
-  @Override
-  protected void updateHistoryTriggers(DbTriggerUpdate update) {
-    recreateHistoryView(update);
-    DdlBuffer buffer = update.historyTriggerBuffer();
-    dropTriggers(buffer, update.getBaseTable());
-    addCreateTrigger(buffer, updateTriggerName(update.getBaseTable()), update.getBaseTable());
-  }
-
   private void addCreateTrigger(DdlBuffer apply, String triggerName, String baseTable) {
     // Note that this does not take into account the historyTable name (excepts _history suffix) and
     // does not take into account excluded columns (all columns included in history)

@@ -31,8 +31,9 @@ public interface PlatformHistoryDdl {
    */
   void addHistoryTable(DdlWrite writer, AddHistoryTable addHistoryTable);
 
+  boolean alterHistoryTables();
   /**
    * Regenerate the history triggers/stored function due to column added/dropped/included or excluded.
    */
-  void updateTriggers(DdlWrite writer, HistoryTableUpdate baseTable);
+  void regenerateHistory(DdlWrite writer, String tableName);
 }

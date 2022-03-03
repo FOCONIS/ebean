@@ -91,7 +91,7 @@ public class SqlServerDdl extends PlatformDdl {
 
   @Override
   public String alterTableDropConstraint(String tableName, String constraintName) {
-    return ifObjectExists(tableName, CONSTRAINT) + super.alterTableDropConstraint(tableName, constraintName);
+    return ifObjectExists(constraintName, CONSTRAINT) + super.alterTableDropConstraint(tableName, constraintName);
   }
 
   /**

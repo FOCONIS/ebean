@@ -27,10 +27,6 @@ public class DdlWrite {
 
   private final DdlBuffer applyForeignKeys = new BaseDdlBuffer();
 
-  private final DdlBuffer applyHistoryView = new BaseDdlBuffer();
-
-  private final DdlBuffer applyHistoryTrigger = new BaseDdlBuffer();
-
   private final DdlBuffer dropAllForeignKeys = new BaseDdlBuffer();
 
   private final DdlBuffer dropAll = new BaseDdlBuffer();
@@ -79,8 +75,6 @@ public class DdlWrite {
     return apply.getBuffer().isEmpty()
       && applyPostAlter.getBuffer().isEmpty()
       && applyForeignKeys.getBuffer().isEmpty()
-      && applyHistoryView.getBuffer().isEmpty()
-      && applyHistoryTrigger.getBuffer().isEmpty()
       && applyDropDependencies.getBuffer().isEmpty()
       && alterTablesEmpty();
   }
@@ -135,20 +129,6 @@ public class DdlWrite {
   }
 
   /**
-   * Return the buffer that apply history-view DDL is written to.
-   */
-  public DdlBuffer applyHistoryView() {
-    return applyHistoryView;
-  }
-
-  /**
-   * Return the buffer that apply history-trigger DDL is written to.
-   */
-  public DdlBuffer applyHistoryTrigger() {
-    return applyHistoryTrigger;
-  }
-
-  /**
    * Return the buffer used for the 'drop all DDL' for dropping foreign keys and associated indexes.
    */
   public DdlBuffer dropAllForeignKeys() {
@@ -190,14 +170,6 @@ public class DdlWrite {
     if (!applyForeignKeys.isEmpty()) {
       target.append("-- foreign keys and indices\n");
       target.append(applyForeignKeys.getBuffer());
-    }
-    if (!applyHistoryView.isEmpty()) {
-      target.append("-- apply history view\n");
-      target.append(applyHistoryView.getBuffer());
-    }
-    if (!applyHistoryTrigger.isEmpty()) {
-      target.append("-- apply history trigger\n");
-      target.append(applyHistoryTrigger.getBuffer());
     }
   }
 

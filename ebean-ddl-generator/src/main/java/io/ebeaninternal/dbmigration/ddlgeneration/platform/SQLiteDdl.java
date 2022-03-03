@@ -1,14 +1,20 @@
 package io.ebeaninternal.dbmigration.ddlgeneration.platform;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 import io.ebean.config.dbplatform.DatabasePlatform;
+import io.ebeaninternal.dbmigration.ddlgeneration.DdlAlterTable;
 import io.ebeaninternal.dbmigration.ddlgeneration.DdlBuffer;
 import io.ebeaninternal.dbmigration.ddlgeneration.DdlOptions;
+import io.ebeaninternal.dbmigration.ddlgeneration.DdlWrite;
 
 /**
  * SQLite platform specific DDL.
  * 
- * Note: SQLite has very limited alter capabilities. Altering a column is not
- * supported and may need a recreation of the whole table
+ * Note: SQLite has very limited alter capabilities. Altering a column is not supported and may need a recreation of the whole
+ * table
  */
 public class SQLiteDdl extends PlatformDdl {
 
@@ -58,4 +64,29 @@ public class SQLiteDdl extends PlatformDdl {
     return "-- not supported: " + super.alterTableDropUniqueConstraint(tableName, uniqueConstraintName);
   }
 
+  @Override
+  protected DdlAlterTable alterTable(DdlWrite writer, String tableName) {
+    return writer.applyAlterTable(tableName, SQLiteAlterTableWrite::new);
+  }
+
+  static class SQLiteAlterTableWrite extends BaseAlterTableWrite {
+    public SQLiteAlterTableWrite(String tableName) {
+      super(tableName);
+    }
+
+    @Override
+    protected List<AlterCmd> postProcessCommands(List<AlterCmd> cmds) {
+      List<AlterCmd> ret = new ArrayList<AlterCmd>();
+      for (AlterCmd cmd : cmds) {
+        switch (cmd.getOperation()) {
+        case "alter column":
+          ret.add(newRawCommand("-- not supported: " + cmd));
+          break;
+        default:
+          ret.add(cmd);
+        }
+      }
+      return ret;
+    }
+  }
 }

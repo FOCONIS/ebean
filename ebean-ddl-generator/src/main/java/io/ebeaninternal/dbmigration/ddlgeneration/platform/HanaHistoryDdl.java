@@ -34,7 +34,7 @@ public class HanaHistoryDdl implements PlatformHistoryDdl {
   public void createWithHistory(DdlWrite writer, MTable table) {
     String tableName = table.getName();
     String historyTableName = tableName + historySuffix;
-    DdlBuffer apply = writer.applyHistoryView();
+    DdlBuffer apply = writer.applyPostAlter();
     if (apply.isEmpty()) {
       createdHistoryTables.clear();
     }
@@ -101,7 +101,12 @@ public class HanaHistoryDdl implements PlatformHistoryDdl {
   }
 
   @Override
-  public void updateTriggers(DdlWrite writer, HistoryTableUpdate baseTable) {
+  public boolean alterHistoryTables() {
+    return true;
+  }
+
+  @Override
+  public void regenerateHistory(DdlWrite writer, String tableName) {
     // nothing to do
   }
 
