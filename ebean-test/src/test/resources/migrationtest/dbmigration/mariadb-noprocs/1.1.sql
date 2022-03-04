@@ -42,6 +42,7 @@ insert into migtest_e_user (id) select distinct user_id from migtest_e_basic;
 -- NOTE: table has @History - special migration may be necessary
 SET @@system_versioning_alter_history = 1;
 update migtest_e_history2 set test_string = 'unknown' where test_string is null;
+SET @@system_versioning_alter_history = 1;
 
 
 
@@ -112,6 +113,3 @@ alter table migtest_fk_set_null add constraint fk_migtest_fk_set_null_one_id for
 alter table migtest_e_basic add constraint fk_migtest_e_basic_user_id foreign key (user_id) references migtest_e_user (id) on delete restrict on update restrict;
 alter table migtest_oto_child add constraint fk_migtest_oto_child_master_id foreign key (master_id) references migtest_oto_master (id) on delete restrict on update restrict;
 
--- apply history trigger
-lock tables migtest_e_history3 write;
-unlock tables;

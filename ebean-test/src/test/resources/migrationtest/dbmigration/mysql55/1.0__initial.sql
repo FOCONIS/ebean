@@ -203,14 +203,69 @@ create table migtest_oto_master (
 );
 
 -- apply post alter
+lock tables migtest_e_history2 write;
+delimiter $$
+create trigger migtest_e_history2_history_upd before update on migtest_e_history2 for each row begin
+    insert into migtest_e_history2_history (sys_period_start,sys_period_end,id, test_string, obsolete_string2) values (OLD.sys_period_start, now(6),OLD.id, OLD.test_string, OLD.obsolete_string2);
+    set NEW.sys_period_start = now(6);
+end$$
+delimiter $$
+create trigger migtest_e_history2_history_del before delete on migtest_e_history2 for each row begin
+    insert into migtest_e_history2_history (sys_period_start,sys_period_end,id, test_string, obsolete_string2) values (OLD.sys_period_start, now(6),OLD.id, OLD.test_string, OLD.obsolete_string2);
+end$$
+unlock tables;
 create view migtest_e_history2_with_history as select * from migtest_e_history2 union all select * from migtest_e_history2_history;
 
+lock tables migtest_e_history3 write;
+delimiter $$
+create trigger migtest_e_history3_history_upd before update on migtest_e_history3 for each row begin
+    insert into migtest_e_history3_history (sys_period_start,sys_period_end,id, test_string) values (OLD.sys_period_start, now(6),OLD.id, OLD.test_string);
+    set NEW.sys_period_start = now(6);
+end$$
+delimiter $$
+create trigger migtest_e_history3_history_del before delete on migtest_e_history3 for each row begin
+    insert into migtest_e_history3_history (sys_period_start,sys_period_end,id, test_string) values (OLD.sys_period_start, now(6),OLD.id, OLD.test_string);
+end$$
+unlock tables;
 create view migtest_e_history3_with_history as select * from migtest_e_history3 union all select * from migtest_e_history3_history;
 
+lock tables migtest_e_history4 write;
+delimiter $$
+create trigger migtest_e_history4_history_upd before update on migtest_e_history4 for each row begin
+    insert into migtest_e_history4_history (sys_period_start,sys_period_end,id, test_number) values (OLD.sys_period_start, now(6),OLD.id, OLD.test_number);
+    set NEW.sys_period_start = now(6);
+end$$
+delimiter $$
+create trigger migtest_e_history4_history_del before delete on migtest_e_history4 for each row begin
+    insert into migtest_e_history4_history (sys_period_start,sys_period_end,id, test_number) values (OLD.sys_period_start, now(6),OLD.id, OLD.test_number);
+end$$
+unlock tables;
 create view migtest_e_history4_with_history as select * from migtest_e_history4 union all select * from migtest_e_history4_history;
 
+lock tables migtest_e_history5 write;
+delimiter $$
+create trigger migtest_e_history5_history_upd before update on migtest_e_history5 for each row begin
+    insert into migtest_e_history5_history (sys_period_start,sys_period_end,id, test_number) values (OLD.sys_period_start, now(6),OLD.id, OLD.test_number);
+    set NEW.sys_period_start = now(6);
+end$$
+delimiter $$
+create trigger migtest_e_history5_history_del before delete on migtest_e_history5 for each row begin
+    insert into migtest_e_history5_history (sys_period_start,sys_period_end,id, test_number) values (OLD.sys_period_start, now(6),OLD.id, OLD.test_number);
+end$$
+unlock tables;
 create view migtest_e_history5_with_history as select * from migtest_e_history5 union all select * from migtest_e_history5_history;
 
+lock tables migtest_e_history6 write;
+delimiter $$
+create trigger migtest_e_history6_history_upd before update on migtest_e_history6 for each row begin
+    insert into migtest_e_history6_history (sys_period_start,sys_period_end,id, test_number1, test_number2) values (OLD.sys_period_start, now(6),OLD.id, OLD.test_number1, OLD.test_number2);
+    set NEW.sys_period_start = now(6);
+end$$
+delimiter $$
+create trigger migtest_e_history6_history_del before delete on migtest_e_history6 for each row begin
+    insert into migtest_e_history6_history (sys_period_start,sys_period_end,id, test_number1, test_number2) values (OLD.sys_period_start, now(6),OLD.id, OLD.test_number1, OLD.test_number2);
+end$$
+unlock tables;
 create view migtest_e_history6_with_history as select * from migtest_e_history6 union all select * from migtest_e_history6_history;
 
 create index ix_migtest_e_basic_indextest1 on migtest_e_basic (indextest1);
@@ -225,49 +280,3 @@ alter table migtest_fk_set_null add constraint fk_migtest_fk_set_null_one_id for
 create index ix_migtest_e_basic_eref_id on migtest_e_basic (eref_id);
 alter table migtest_e_basic add constraint fk_migtest_e_basic_eref_id foreign key (eref_id) references migtest_e_ref (id) on delete restrict on update restrict;
 
--- apply history trigger
-delimiter $$
-create trigger migtest_e_history2_history_upd before update on migtest_e_history2 for each row begin
-    insert into migtest_e_history2_history (sys_period_start,sys_period_end,id, test_string, obsolete_string2) values (OLD.sys_period_start, now(6),OLD.id, OLD.test_string, OLD.obsolete_string2);
-    set NEW.sys_period_start = now(6);
-end$$
-delimiter $$
-create trigger migtest_e_history2_history_del before delete on migtest_e_history2 for each row begin
-    insert into migtest_e_history2_history (sys_period_start,sys_period_end,id, test_string, obsolete_string2) values (OLD.sys_period_start, now(6),OLD.id, OLD.test_string, OLD.obsolete_string2);
-end$$
-delimiter $$
-create trigger migtest_e_history3_history_upd before update on migtest_e_history3 for each row begin
-    insert into migtest_e_history3_history (sys_period_start,sys_period_end,id, test_string) values (OLD.sys_period_start, now(6),OLD.id, OLD.test_string);
-    set NEW.sys_period_start = now(6);
-end$$
-delimiter $$
-create trigger migtest_e_history3_history_del before delete on migtest_e_history3 for each row begin
-    insert into migtest_e_history3_history (sys_period_start,sys_period_end,id, test_string) values (OLD.sys_period_start, now(6),OLD.id, OLD.test_string);
-end$$
-delimiter $$
-create trigger migtest_e_history4_history_upd before update on migtest_e_history4 for each row begin
-    insert into migtest_e_history4_history (sys_period_start,sys_period_end,id, test_number) values (OLD.sys_period_start, now(6),OLD.id, OLD.test_number);
-    set NEW.sys_period_start = now(6);
-end$$
-delimiter $$
-create trigger migtest_e_history4_history_del before delete on migtest_e_history4 for each row begin
-    insert into migtest_e_history4_history (sys_period_start,sys_period_end,id, test_number) values (OLD.sys_period_start, now(6),OLD.id, OLD.test_number);
-end$$
-delimiter $$
-create trigger migtest_e_history5_history_upd before update on migtest_e_history5 for each row begin
-    insert into migtest_e_history5_history (sys_period_start,sys_period_end,id, test_number) values (OLD.sys_period_start, now(6),OLD.id, OLD.test_number);
-    set NEW.sys_period_start = now(6);
-end$$
-delimiter $$
-create trigger migtest_e_history5_history_del before delete on migtest_e_history5 for each row begin
-    insert into migtest_e_history5_history (sys_period_start,sys_period_end,id, test_number) values (OLD.sys_period_start, now(6),OLD.id, OLD.test_number);
-end$$
-delimiter $$
-create trigger migtest_e_history6_history_upd before update on migtest_e_history6 for each row begin
-    insert into migtest_e_history6_history (sys_period_start,sys_period_end,id, test_number1, test_number2) values (OLD.sys_period_start, now(6),OLD.id, OLD.test_number1, OLD.test_number2);
-    set NEW.sys_period_start = now(6);
-end$$
-delimiter $$
-create trigger migtest_e_history6_history_del before delete on migtest_e_history6 for each row begin
-    insert into migtest_e_history6_history (sys_period_start,sys_period_end,id, test_number1, test_number2) values (OLD.sys_period_start, now(6),OLD.id, OLD.test_number1, OLD.test_number2);
-end$$

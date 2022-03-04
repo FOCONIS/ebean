@@ -1,10 +1,40 @@
 -- Migrationscripts for ebean unittest
 -- drop dependencies
-alter table migtest_ckey_detail NOT USED fk_mgtst_ck_e1qkb5;
-alter table migtest_fk_cascade NOT USED fk_mgtst_fk_65kf6l;
-alter table migtest_fk_none NOT USED fk_mgtst_fk_nn_n_d;
-alter table migtest_fk_none_via_join NOT USED fk_mgtst_fk_9tknzj;
-alter table migtest_fk_set_null NOT USED fk_mgtst_fk_wicx8x;
+delimiter $$
+begin
+if exists (select constname from syscat.tabconst where tabschema = current_schema and constname = 'FK_MGTST_CK_E1QKB5' and tabname = 'MIGTEST_CKEY_DETAIL') then
+  prepare stmt from 'alter table migtest_ckey_detail drop constraint fk_mgtst_ck_e1qkb5';
+  execute stmt;
+end if;
+end$$;
+delimiter $$
+begin
+if exists (select constname from syscat.tabconst where tabschema = current_schema and constname = 'FK_MGTST_FK_65KF6L' and tabname = 'MIGTEST_FK_CASCADE') then
+  prepare stmt from 'alter table migtest_fk_cascade drop constraint fk_mgtst_fk_65kf6l';
+  execute stmt;
+end if;
+end$$;
+delimiter $$
+begin
+if exists (select constname from syscat.tabconst where tabschema = current_schema and constname = 'FK_MGTST_FK_NN_N_D' and tabname = 'MIGTEST_FK_NONE') then
+  prepare stmt from 'alter table migtest_fk_none drop constraint fk_mgtst_fk_nn_n_d';
+  execute stmt;
+end if;
+end$$;
+delimiter $$
+begin
+if exists (select constname from syscat.tabconst where tabschema = current_schema and constname = 'FK_MGTST_FK_9TKNZJ' and tabname = 'MIGTEST_FK_NONE_VIA_JOIN') then
+  prepare stmt from 'alter table migtest_fk_none_via_join drop constraint fk_mgtst_fk_9tknzj';
+  execute stmt;
+end if;
+end$$;
+delimiter $$
+begin
+if exists (select constname from syscat.tabconst where tabschema = current_schema and constname = 'FK_MGTST_FK_WICX8X' and tabname = 'MIGTEST_FK_SET_NULL') then
+  prepare stmt from 'alter table migtest_fk_set_null drop constraint fk_mgtst_fk_wicx8x';
+  execute stmt;
+end if;
+end$$;
 delimiter $$
 begin
 if exists (select constname from syscat.tabconst where tabschema = current_schema and constname = 'CK_MGTST__BSC_STTS' and tabname = 'MIGTEST_E_BASIC') then
@@ -33,7 +63,13 @@ if exists (select indname from syscat.indexes where indschema = current_schema a
   execute stmt;
 end if;
 end$$;
-alter table migtest_e_basic NOT USED fk_mgtst__bsc_sr_d;
+delimiter $$
+begin
+if exists (select constname from syscat.tabconst where tabschema = current_schema and constname = 'FK_MGTST__BSC_SR_D' and tabname = 'MIGTEST_E_BASIC') then
+  prepare stmt from 'alter table migtest_e_basic drop constraint fk_mgtst__bsc_sr_d';
+  execute stmt;
+end if;
+end$$;
 delimiter $$
 begin
 if exists (select constname from syscat.tabconst where tabschema = current_schema and constname = 'UQ_MGTST__B_UCFCNE' and tabname = 'MIGTEST_E_BASIC') then
@@ -139,15 +175,18 @@ alter table migtest_e_basic add column description_file blob(64M);
 alter table migtest_e_basic add column old_boolean boolean default false not null;
 alter table migtest_e_basic add column old_boolean2 boolean;
 alter table migtest_e_basic add column eref_id integer;
+call sysproc.admin_cmd('reorg table migtest_e_basic');
 alter table migtest_e_history2 alter column test_string drop default;
 alter table migtest_e_history2 alter column test_string drop not null;
 alter table migtest_e_history2 add column obsolete_string1 varchar(255);
 alter table migtest_e_history2 add column obsolete_string2 varchar(255);
 alter table migtest_e_history4 alter column test_number set data type integer;
+call sysproc.admin_cmd('reorg table migtest_e_history4');
 alter table migtest_e_history6 alter column test_number1 drop default;
 alter table migtest_e_history6 alter column test_number1 drop not null;
 alter table migtest_e_history6 alter column test_number2 set default 7;
 alter table migtest_e_history6 alter column test_number2 set not null;
+call sysproc.admin_cmd('reorg table migtest_e_history6');
 -- apply post alter
 alter table migtest_e_ref add constraint uq_mgtst__rf_nm unique  (name);
 alter table migtest_e_basic add constraint ck_mgtst__bsc_stts check ( status in ('N','A','I'));

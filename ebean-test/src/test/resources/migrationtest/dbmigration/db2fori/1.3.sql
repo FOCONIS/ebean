@@ -1,10 +1,40 @@
 -- Migrationscripts for ebean unittest
 -- drop dependencies
-alter table migtest_ckey_detail NOT USED fk_migtest_ckey_detail_parent;
-alter table migtest_fk_cascade NOT USED fk_migtest_fk_cascade_one_id;
-alter table migtest_fk_none NOT USED fk_migtest_fk_none_one_id;
-alter table migtest_fk_none_via_join NOT USED fk_migtest_fk_none_via_join_one_id;
-alter table migtest_fk_set_null NOT USED fk_migtest_fk_set_null_one_id;
+delimiter $$
+begin
+if exists (select constname from syscat.tabconst where tabschema = current_schema and constname = 'FK_MIGTEST_CKEY_DETAIL_PARENT' and tabname = 'MIGTEST_CKEY_DETAIL') then
+  prepare stmt from 'alter table migtest_ckey_detail drop constraint fk_migtest_ckey_detail_parent';
+  execute stmt;
+end if;
+end$$;
+delimiter $$
+begin
+if exists (select constname from syscat.tabconst where tabschema = current_schema and constname = 'FK_MIGTEST_FK_CASCADE_ONE_ID' and tabname = 'MIGTEST_FK_CASCADE') then
+  prepare stmt from 'alter table migtest_fk_cascade drop constraint fk_migtest_fk_cascade_one_id';
+  execute stmt;
+end if;
+end$$;
+delimiter $$
+begin
+if exists (select constname from syscat.tabconst where tabschema = current_schema and constname = 'FK_MIGTEST_FK_NONE_ONE_ID' and tabname = 'MIGTEST_FK_NONE') then
+  prepare stmt from 'alter table migtest_fk_none drop constraint fk_migtest_fk_none_one_id';
+  execute stmt;
+end if;
+end$$;
+delimiter $$
+begin
+if exists (select constname from syscat.tabconst where tabschema = current_schema and constname = 'FK_MIGTEST_FK_NONE_VIA_JOIN_ONE_ID' and tabname = 'MIGTEST_FK_NONE_VIA_JOIN') then
+  prepare stmt from 'alter table migtest_fk_none_via_join drop constraint fk_migtest_fk_none_via_join_one_id';
+  execute stmt;
+end if;
+end$$;
+delimiter $$
+begin
+if exists (select constname from syscat.tabconst where tabschema = current_schema and constname = 'FK_MIGTEST_FK_SET_NULL_ONE_ID' and tabname = 'MIGTEST_FK_SET_NULL') then
+  prepare stmt from 'alter table migtest_fk_set_null drop constraint fk_migtest_fk_set_null_one_id';
+  execute stmt;
+end if;
+end$$;
 delimiter $$
 begin
 if exists (select constname from syscat.tabconst where tabschema = current_schema and constname = 'CK_MIGTEST_E_BASIC_STATUS' and tabname = 'MIGTEST_E_BASIC') then
@@ -33,7 +63,13 @@ if exists (select indname from syscat.indexes where indschema = current_schema a
   execute stmt;
 end if;
 end$$;
-alter table migtest_e_basic NOT USED fk_migtest_e_basic_user_id;
+delimiter $$
+begin
+if exists (select constname from syscat.tabconst where tabschema = current_schema and constname = 'FK_MIGTEST_E_BASIC_USER_ID' and tabname = 'MIGTEST_E_BASIC') then
+  prepare stmt from 'alter table migtest_e_basic drop constraint fk_migtest_e_basic_user_id';
+  execute stmt;
+end if;
+end$$;
 delimiter $$
 begin
 if exists (select constname from syscat.tabconst where tabschema = current_schema and constname = 'UQ_MIGTEST_E_BASIC_STATUS_INDEXTEST1' and tabname = 'MIGTEST_E_BASIC') then
@@ -139,15 +175,18 @@ alter table migtest_e_basic add column description_file blob(64M);
 alter table migtest_e_basic add column old_boolean smallint default 0 default false not null;
 alter table migtest_e_basic add column old_boolean2 smallint default 0;
 alter table migtest_e_basic add column eref_id integer;
+call sysproc.admin_cmd('reorg table migtest_e_basic');
 alter table migtest_e_history2 alter column test_string drop default;
 alter table migtest_e_history2 alter column test_string drop not null;
 alter table migtest_e_history2 add column obsolete_string1 varchar(255);
 alter table migtest_e_history2 add column obsolete_string2 varchar(255);
 alter table migtest_e_history4 alter column test_number set data type integer;
+call sysproc.admin_cmd('reorg table migtest_e_history4');
 alter table migtest_e_history6 alter column test_number1 drop default;
 alter table migtest_e_history6 alter column test_number1 drop not null;
 alter table migtest_e_history6 alter column test_number2 set default 7;
 alter table migtest_e_history6 alter column test_number2 set not null;
+call sysproc.admin_cmd('reorg table migtest_e_history6');
 -- apply post alter
 alter table migtest_e_ref add constraint uq_migtest_e_ref_name unique  (name);
 alter table migtest_e_basic add constraint ck_migtest_e_basic_status check ( status in ('N','A','I'));

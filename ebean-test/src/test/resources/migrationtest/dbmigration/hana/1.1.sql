@@ -83,28 +83,14 @@ update migtest_e_basic set status = 'A' where status is null;
 
 insert into migtest_e_user (id) select distinct user_id from migtest_e_basic;
 
-alter table migtest_e_history2 drop system versioning /* 0 */;
 
 -- NOTE: table has @History - special migration may be necessary
 update migtest_e_history2 set test_string = 'unknown' where test_string is null;
-alter table migtest_e_history2 add system versioning history table migtest_e_history2_history not validated /* 1 */;
-alter table migtest_e_history2 drop system versioning /* 2 */;
 
-alter table migtest_e_history2 add system versioning history table migtest_e_history2_history not validated /* 3 */;
-alter table migtest_e_history3 drop system versioning /* 4 */;
-alter table migtest_e_history3 add system versioning history table migtest_e_history3_history not validated /* 5 */;
-alter table migtest_e_history4 drop system versioning /* 6 */;
-alter table migtest_e_history4 add system versioning history table migtest_e_history4_history not validated /* 7 */;
-alter table migtest_e_history5 drop system versioning /* 8 */;
 
-alter table migtest_e_history5 add system versioning history table migtest_e_history5_history not validated /* 9 */;
-alter table migtest_e_history6 drop system versioning /* 10 */;
 
 -- NOTE: table has @History - special migration may be necessary
 update migtest_e_history6 set test_number1 = 42 where test_number1 is null;
-alter table migtest_e_history6 add system versioning history table migtest_e_history6_history not validated /* 11 */;
-alter table migtest_e_history6 drop system versioning /* 12 */;
-alter table migtest_e_history6 add system versioning history table migtest_e_history6_history not validated /* 13 */;
 
 
 -- apply alter tables
@@ -124,7 +110,6 @@ alter (test_string nvarchar(255) default 'unknown' not null);
 add (test_string2 nvarchar(255),
    test_string3 nvarchar(255) default 'unknown' not null,
    new_column nvarchar(20));
-alter (test_string nvarchar(255) default 'unknown' not null);
 add (test_string2 nvarchar(255),
    test_string3 nvarchar(255) default 'unknown',
    new_column nvarchar(20));
@@ -134,8 +119,7 @@ add (test_boolean boolean default false not null);
 add (test_boolean boolean default false);
 alter (test_number1 integer default 42 not null,
    test_number2 integer);
-alter (test_number1 integer default 42 not null,
-   test_number2 integer);
+alter (test_number2 integer);
 add (deleted boolean default false not null);
 add (master_id bigint);
 -- apply post alter
@@ -149,6 +133,18 @@ alter table migtest_e_basic add constraint ck_migtest_e_basic_progress check ( p
 -- cannot create unique index "uq_migtest_e_basic_name" on table "migtest_e_basic" with nullable columns;
 -- cannot create unique index "uq_migtest_e_basic_indextest4" on table "migtest_e_basic" with nullable columns;
 -- cannot create unique index "uq_migtest_e_basic_indextest5" on table "migtest_e_basic" with nullable columns;
+create column table migtest_e_history_history (
+ id integer,
+ test_string bigint,
+ sys_period_start timestamp,
+ sys_period_end timestamp
+);
+alter table migtest_e_history add (
+    sys_period_start TIMESTAMP NOT NULL GENERATED ALWAYS AS ROW START, 
+    sys_period_end TIMESTAMP NOT NULL GENERATED ALWAYS AS ROW END
+);
+alter table migtest_e_history add period for system_time(sys_period_start,sys_period_end);
+alter table migtest_e_history add system versioning history table migtest_e_history_history;
 comment on column migtest_e_history.test_string is 'Column altered to long now';
 comment on table migtest_e_history is 'We have history now';
 -- explicit index "ix_migtest_e_basic_indextest3" for single column "indextest3" of table "migtest_e_basic" is not necessary;
@@ -180,16 +176,3 @@ alter table migtest_fk_set_null add constraint fk_migtest_fk_set_null_one_id for
 alter table migtest_e_basic add constraint fk_migtest_e_basic_user_id foreign key (user_id) references migtest_e_user (id) on delete restrict on update restrict;
 alter table migtest_oto_child add constraint fk_migtest_oto_child_master_id foreign key (master_id) references migtest_oto_master (id) on delete restrict on update restrict;
 
--- apply history view
-create column table migtest_e_history_history (
- id integer,
- test_string bigint,
- sys_period_start timestamp,
- sys_period_end timestamp
-);
-alter table migtest_e_history add (
-    sys_period_start TIMESTAMP NOT NULL GENERATED ALWAYS AS ROW START, 
-    sys_period_end TIMESTAMP NOT NULL GENERATED ALWAYS AS ROW END
-);
-alter table migtest_e_history add period for system_time(sys_period_start,sys_period_end);
-alter table migtest_e_history add system versioning history table migtest_e_history_history;

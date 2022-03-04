@@ -1,7 +1,19 @@
 -- Migrationscripts for ebean unittest
 -- drop dependencies
-alter table migtest_fk_cascade NOT USED fk_mgtst_fk_65kf6l;
-alter table migtest_fk_set_null NOT USED fk_mgtst_fk_wicx8x;
+delimiter $$
+begin
+if exists (select constname from syscat.tabconst where tabschema = current_schema and constname = 'FK_MGTST_FK_65KF6L' and tabname = 'MIGTEST_FK_CASCADE') then
+  prepare stmt from 'alter table migtest_fk_cascade drop constraint fk_mgtst_fk_65kf6l';
+  execute stmt;
+end if;
+end$$;
+delimiter $$
+begin
+if exists (select constname from syscat.tabconst where tabschema = current_schema and constname = 'FK_MGTST_FK_WICX8X' and tabname = 'MIGTEST_FK_SET_NULL') then
+  prepare stmt from 'alter table migtest_fk_set_null drop constraint fk_mgtst_fk_wicx8x';
+  execute stmt;
+end if;
+end$$;
 delimiter $$
 begin
 if exists (select constname from syscat.tabconst where tabschema = current_schema and constname = 'CK_MGTST__BSC_STTS' and tabname = 'MIGTEST_E_BASIC') then
@@ -123,17 +135,22 @@ alter table migtest_e_basic add column new_boolean_field boolean default true no
 alter table migtest_e_basic add column new_boolean_field2 boolean default true not null;
 alter table migtest_e_basic add column progress integer default 0 not null;
 alter table migtest_e_basic add column new_integer integer default 42 not null;
+call sysproc.admin_cmd('reorg table migtest_e_basic');
 alter table migtest_e_history alter column test_string set data type bigint;
+call sysproc.admin_cmd('reorg table migtest_e_history');
 alter table migtest_e_history2 alter column test_string set default 'unknown';
 alter table migtest_e_history2 alter column test_string set not null;
 alter table migtest_e_history2 add column test_string2 varchar(255);
 alter table migtest_e_history2 add column test_string3 varchar(255) default 'unknown' not null;
 alter table migtest_e_history2 add column new_column varchar(20);
+call sysproc.admin_cmd('reorg table migtest_e_history2');
 alter table migtest_e_history4 alter column test_number set data type bigint;
+call sysproc.admin_cmd('reorg table migtest_e_history4');
 alter table migtest_e_history5 add column test_boolean boolean default false not null;
 alter table migtest_e_history6 alter column test_number1 set default 42;
 alter table migtest_e_history6 alter column test_number1 set not null;
 alter table migtest_e_history6 alter column test_number2 drop not null;
+call sysproc.admin_cmd('reorg table migtest_e_history6');
 alter table migtest_e_softdelete add column deleted boolean default false not null;
 alter table migtest_oto_child add column master_id bigint;
 -- apply post alter

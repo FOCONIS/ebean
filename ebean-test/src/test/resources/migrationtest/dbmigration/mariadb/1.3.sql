@@ -26,6 +26,7 @@ update migtest_e_basic set status2 = 'N' where status2 is null;
 
 update migtest_e_basic set user_id = 23 where user_id is null;
 
+SET @@system_versioning_alter_history = 1;
 
 
 -- NOTE: table has @History - special migration may be necessary
@@ -56,6 +57,3 @@ alter table migtest_fk_set_null add constraint fk_migtest_fk_set_null_one_id for
 create index ix_migtest_e_basic_eref_id on migtest_e_basic (eref_id);
 alter table migtest_e_basic add constraint fk_migtest_e_basic_eref_id foreign key (eref_id) references migtest_e_ref (id) on delete restrict on update restrict;
 
--- apply history trigger
-lock tables migtest_e_history3 write;
-unlock tables;
