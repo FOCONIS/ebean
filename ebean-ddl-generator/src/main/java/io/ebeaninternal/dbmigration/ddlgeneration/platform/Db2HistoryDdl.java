@@ -3,6 +3,7 @@ package io.ebeaninternal.dbmigration.ddlgeneration.platform;
 import java.util.Collection;
 
 import io.ebean.config.DatabaseConfig;
+import io.ebean.config.DbConstraintNaming;
 import io.ebeaninternal.dbmigration.ddlgeneration.DdlAlterTable;
 import io.ebeaninternal.dbmigration.ddlgeneration.DdlBuffer;
 import io.ebeaninternal.dbmigration.ddlgeneration.DdlWrite;
@@ -22,6 +23,7 @@ public class Db2HistoryDdl implements PlatformHistoryDdl {
   private String systemPeriodEnd;
   private String transactionId;
   private PlatformDdl platformDdl;
+  private DbConstraintNaming constraintNaming;
   private String historySuffix;
 
   @Override
@@ -30,13 +32,14 @@ public class Db2HistoryDdl implements PlatformHistoryDdl {
     this.systemPeriodEnd = config.getAsOfSysPeriod() + "_end";
     this.transactionId = config.getAsOfSysPeriod() + "_txn"; // required for DB2
     this.platformDdl = platformDdl;
+    this.constraintNaming = config.getConstraintNaming();
     this.historySuffix = config.getHistoryTableSuffix();
   }
 
   @Override
   public void createWithHistory(DdlWrite writer, MTable table) {
     String tableName = table.getName();
-    String historyTableName = tableName + historySuffix;
+    String historyTableName = historyTable(tableName);
 
     DdlBuffer apply = writer.applyPostAlter();
     apply.append(platformDdl.getCreateTableCommandPrefix()).append(" ").append(historyTableName).append(" (").newLine();
@@ -76,10 +79,10 @@ public class Db2HistoryDdl implements PlatformHistoryDdl {
 
   @Override
   public void dropHistoryTable(DdlWrite writer, DropHistoryTable dropHistoryTable) {
-    dropHistoryTable(writer, dropHistoryTable.getBaseTable(), dropHistoryTable.getBaseTable() + historySuffix);
+    dropHistoryTable(writer, dropHistoryTable.getBaseTable());
   }
 
-  protected void dropHistoryTable(DdlWrite writer, String baseTable, String historyTable) {
+  protected void dropHistoryTable(DdlWrite writer, String baseTable) {
     disableSystemVersioning(writer.apply(), baseTable);
     writer.apply().append("alter table ").append(baseTable).append(" drop period system_time").endOfStatement();
 
@@ -89,7 +92,7 @@ public class Db2HistoryDdl implements PlatformHistoryDdl {
     platformDdl.alterTableDropColumn(writer, baseTable, transactionId);
 
     // drop the history table
-    writer.applyPostAlter().append("drop table ").append(historyTable).endOfStatement();
+    writer.applyPostAlter().append("drop table ").append(historyTable(baseTable)).endOfStatement();
   }
 
   @Override
@@ -133,6 +136,10 @@ public class Db2HistoryDdl implements PlatformHistoryDdl {
 
   public void enableSystemVersioning(DdlBuffer apply, String tableName) {
     apply.append("alter table ").append(tableName).append(" add versioning use history table ").append(tableName).append(historySuffix).endOfStatement();
+  }
+
+  protected String historyTable(String tableName) {
+    return constraintNaming.normaliseTable(tableName) + historySuffix;
   }
 
 }
