@@ -158,13 +158,13 @@ public class DB2Ddl extends PlatformDdl {
 
   @Override
   protected DdlAlterTable alterTable(DdlWrite writer, String tableName) {
-    return writer.applyAlterTable(tableName, Db2AlterTableWrite::new);
+    return writer.applyAlterTable(tableName, t -> new Db2AlterTableWrite(t, this));
   };
 
   static class Db2AlterTableWrite extends BaseAlterTableWrite {
 
-    public Db2AlterTableWrite(String tableName) {
-      super(tableName);
+    public Db2AlterTableWrite(String tableName, PlatformDdl platformDdl) {
+      super(tableName, platformDdl);
     }
 
     @Override

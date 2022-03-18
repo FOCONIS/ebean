@@ -106,6 +106,9 @@ public class PlatformDdl {
   protected String indexConcurrent = "";
   protected String createIndexIfNotExists = "";
 
+  protected char openQuote = '"';
+  protected char closeQuote = '"';
+
   /**
    * Set false for MsSqlServer to allow multiple nulls for OneToOne mapping.
    */
@@ -258,7 +261,7 @@ public class PlatformDdl {
     }
 
     buffer.append("  ");
-    buffer.append(column.getName(), 29);
+    buffer.append(quote(column.getName()), 29);
     buffer.append(columnDefn);
     if (!Boolean.TRUE.equals(column.isPrimaryKey())) {
       String defaultValue = convertDefaultValue(column.getDefaultValue());
@@ -278,7 +281,7 @@ public class PlatformDdl {
    * Returns the check constraint.
    */
   public String createCheckConstraint(String ckName, String checkConstraint) {
-    return "  constraint " + ckName + " " + checkConstraint;
+    return "  constraint " + maxConstraintName(ckName) + " " + checkConstraint;
   }
 
   /**
@@ -292,7 +295,7 @@ public class PlatformDdl {
    * Return the drop foreign key clause.
    */
   public String alterTableDropForeignKey(String tableName, String fkName) {
-    return "alter table " + alterTableIfExists + tableName + " " + dropConstraintIfExists + " " + maxConstraintName(fkName);
+    return "alter table " + alterTableIfExists + quote(tableName) + " " + dropConstraintIfExists + " " + maxConstraintName(fkName);
   }
 
   /**
@@ -389,7 +392,7 @@ public class PlatformDdl {
    * Return the drop table statement (potentially with if exists clause).
    */
   public String dropTable(String tableName) {
-    return dropTableIfExists + tableName + dropTableCascade;
+    return dropTableIfExists + quote(tableName) + dropTableCascade;
   }
 
   /**
@@ -422,7 +425,7 @@ public class PlatformDdl {
     if (create.isNotExistsCheck()) {
       buffer.append(createIndexIfNotExists);
     }
-    buffer.append(maxConstraintName(create.getIndexName())).append(" on ").append(create.getTableName());
+    buffer.append(maxConstraintName(create.getIndexName())).append(" on ").append(quote(create.getTableName()));
     appendColumns(create.getColumns(), buffer);
     return buffer.toString();
   }
@@ -435,7 +438,7 @@ public class PlatformDdl {
     StringBuilder buffer = new StringBuilder(90);
     buffer.append("foreign key");
     appendColumns(request.cols(), buffer);
-    buffer.append(" references ").append(request.refTable());
+    buffer.append(" references ").append(quote(request.refTable()));
     appendColumns(request.refCols(), buffer);
     appendForeignKeySuffix(request, buffer);
     return buffer.toString();
@@ -448,13 +451,13 @@ public class PlatformDdl {
 
     StringBuilder buffer = new StringBuilder(90);
     buffer
-      .append("alter table ").append(request.table())
+      .append("alter table ").append(quote(request.table()))
       .append(" add constraint ").append(maxConstraintName(request.fkName()))
       .append(" foreign key");
     appendColumns(request.cols(), buffer);
     buffer
       .append(" references ")
-      .append(request.refTable());
+      .append(quote(request.refTable()));
     appendColumns(request.refCols(), buffer);
     appendForeignKeySuffix(request, buffer);
     if (options.isForeignKeySkipCheck()) {
@@ -503,14 +506,14 @@ public class PlatformDdl {
    * Drop a unique constraint from the table (Sometimes this is an index).
    */
   public String alterTableDropUniqueConstraint(String tableName, String uniqueConstraintName) {
-    return "alter table " + tableName + " " + dropUniqueConstraint + " " + maxConstraintName(uniqueConstraintName);
+    return "alter table " + quote(tableName) + " " + dropUniqueConstraint + " " + maxConstraintName(uniqueConstraintName);
   }
 
   /**
    * Drop a unique constraint from the table.
    */
   public String alterTableDropConstraint(String tableName, String constraintName) {
-    return "alter table " + tableName + " " + dropConstraintIfExists + " " + maxConstraintName(constraintName);
+    return "alter table " + quote(tableName) + " " + dropConstraintIfExists + " " + maxConstraintName(constraintName);
   }
 
   /**
@@ -521,7 +524,7 @@ public class PlatformDdl {
   public String alterTableAddUniqueConstraint(String tableName, String uqName, String[] columns, String[] nullableColumns) {
 
     StringBuilder buffer = new StringBuilder(90);
-    buffer.append("alter table ").append(tableName).append(" add constraint ").append(maxConstraintName(uqName)).append(" unique ");
+    buffer.append("alter table ").append(quote(tableName)).append(" add constraint ").append(maxConstraintName(uqName)).append(" unique ");
     appendColumns(columns, buffer);
     return buffer.toString();
   }
@@ -612,7 +615,7 @@ public class PlatformDdl {
    * Alter table adding the check constraint.
    */
   public String alterTableAddCheckConstraint(String tableName, String checkConstraintName, String checkConstraint) {
-    return "alter table " + tableName + " " + addConstraint + " " + maxConstraintName(checkConstraintName) + " " + checkConstraint;
+    return "alter table " + quote(tableName) + " " + addConstraint + " " + maxConstraintName(checkConstraintName) + " " + checkConstraint;
   }
 
   /**
@@ -656,7 +659,7 @@ public class PlatformDdl {
    * Creates or replace a new DdlAlterTable for given tableName.
    */
   protected DdlAlterTable alterTable(DdlWrite writer, String tableName) {
-    return writer.applyAlterTable(tableName, BaseAlterTableWrite::new);
+    return writer.applyAlterTable(quote(tableName), t -> new BaseAlterTableWrite(t, this));
   }
 
   protected void appendColumns(String[] columns, StringBuilder buffer) {
@@ -665,7 +668,7 @@ public class PlatformDdl {
       if (i > 0) {
         buffer.append(",");
       }
-      buffer.append(columns[i].trim());
+      buffer.append(quote(columns[i].trim()));
     }
     buffer.append(")");
   }
@@ -723,7 +726,7 @@ public class PlatformDdl {
     if (DdlHelp.isDropComment(comment)) {
       comment = "";
     }
-    apply.append(String.format("comment on column %s.%s is '%s'", table, column, comment)).endOfStatement();
+    apply.append(String.format("comment on column %s.%s is '%s'", quote(table), quote(column), comment)).endOfStatement();
   }
 
   /**
@@ -776,5 +779,20 @@ public class PlatformDdl {
 
   public void addTablePartition(DdlBuffer apply, String partitionMode, String partitionColumn) {
     // only supported by postgres initially
+  }
+
+  protected String quote(String dbName) {
+    if (dbName != null && !dbName.isEmpty() && (openQuote != '"' || closeQuote != '"')) {
+      if (dbName.charAt(0) == '"') {
+        if (dbName.charAt(dbName.length() - 1) == '"') {
+          return openQuote + dbName.substring(1, dbName.length() - 1) + closeQuote;
+          //          } else {
+          //            log.error("Missing backquote on [" + dbName + "]");
+        }
+        //        } else if (allQuotedIdentifiers) {
+        //          return openQuote + dbName + closeQuote;
+      }
+    }
+    return dbName;
   }
 }

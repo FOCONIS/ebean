@@ -6,6 +6,7 @@ import io.ebean.annotation.Platform;
 import io.ebean.config.DatabaseConfig;
 import io.ebean.config.dbplatform.DbHistorySupport;
 import io.ebean.datasource.pool.ConnectionPool;
+import misc.migration.v1_0.ETable;
 import misc.migration.v1_1.EHistory;
 import misc.migration.v1_1.EHistory2;
 import org.junit.jupiter.api.Test;
@@ -59,32 +60,35 @@ public class DbMigrationTest extends BaseTestCase {
     ((ConnectionPool)server().dataSource()).offline();
     ((ConnectionPool)server().dataSource()).online();
     cleanup("migtest_ckey_assoc",
-        "migtest_ckey_detail",
-        "migtest_ckey_parent",
-        "migtest_e_basic",
-        "migtest_e_enum",
-        "migtest_e_history",
-        "migtest_e_history2",
-        "migtest_e_history3",
-        "migtest_e_history4",
-        "migtest_e_history5",
-        "migtest_e_history6",
-        "migtest_e_ref",
-        "migtest_e_softdelete",
-        "migtest_e_user",
-        "migtest_fk_cascade",
-        "migtest_fk_cascade_one",
-        "migtest_fk_none",
-        "migtest_fk_none_via_join",
-        "migtest_fk_one",
-        "migtest_fk_set_null",
-        "migtest_mtm_c",
-        "migtest_mtm_m",
-        "migtest_mtm_m_phone_numbers",
-        "migtest_mtm_c_migtest_mtm_m",
-        "migtest_mtm_m_migtest_mtm_c",
-        "migtest_oto_child",
-        "migtest_oto_master");
+      "migtest_ckey_detail",
+      "migtest_ckey_parent",
+      "migtest_e_basic",
+      "migtest_e_enum",
+      "migtest_e_history",
+      "migtest_e_history2",
+      "migtest_e_history3",
+      "migtest_e_history4",
+      "migtest_e_history5",
+      "migtest_e_history6",
+      "migtest_e_ref",
+      "migtest_e_softdelete",
+      "migtest_e_user",
+      "migtest_fk_cascade",
+      "migtest_fk_cascade_one",
+      "migtest_fk_none",
+      "migtest_fk_none_via_join",
+      "migtest_fk_one",
+      "migtest_fk_set_null",
+      "migtest_mtm_c",
+      "migtest_mtm_m",
+      "migtest_mtm_m_phone_numbers",
+      "migtest_mtm_c_migtest_mtm_m",
+      "migtest_mtm_m_migtest_mtm_c",
+      "migtest_oto_child",
+      "migtest_oto_master",
+      "table",
+      "\"table\"",
+      "`table`");
     ((ConnectionPool)server().dataSource()).offline();
     ((ConnectionPool)server().dataSource()).online();
 
@@ -113,7 +117,7 @@ public class DbMigrationTest extends BaseTestCase {
 
       assertThat(server().execute(update)).isEqualTo(2);
     }
-
+    testReservedKeywords();
     createHistoryEntities();
     if (isOracle()) {
       // Oracle does not like to convert varchar to integer
@@ -151,6 +155,7 @@ public class DbMigrationTest extends BaseTestCase {
     //assertThat(row.getTimestamp("some_date")).isCloseTo(new Date(), 60_000); // allow 1 minute delta
 
     testVersioning();
+
     if (isSqLite()) {
       // SqLite does not support drops on columns with foreign keys, so we end with the test here.
       return;
@@ -253,6 +258,32 @@ public class DbMigrationTest extends BaseTestCase {
         throw new IllegalArgumentException(server().platform() + " not expected");
       }
 
+    } finally {
+      tmpServer.shutdown(false, false);
+    }
+  }
+
+  // do some history tests with V1.1 models
+  private void testReservedKeywords() {
+    DatabaseConfig config = new DatabaseConfig();
+    config.setName(server().name());
+    config.loadFromProperties(server().pluginApi().config().getProperties());
+    config.setDataSource(server().dataSource());
+    config.setReadOnlyDataSource(server().dataSource());
+    config.setDdlGenerate(false);
+    config.setDdlRun(false);
+    config.setRegister(false);
+    config.setPackages(Collections.singletonList("misc.migration.v1_0"));
+
+    Database tmpServer = DatabaseFactory.create(config);
+    try {
+      ETable table = new misc.migration.v1_0.ETable();
+      table.setFrom("foo");
+      table.setTo("bar");
+      table.setIndex("id");
+      tmpServer.save(table);
+      table = tmpServer.find(ETable.class).where().eq("index", "id").findOne();
+      assert table != null;
     } finally {
       tmpServer.shutdown(false, false);
     }
