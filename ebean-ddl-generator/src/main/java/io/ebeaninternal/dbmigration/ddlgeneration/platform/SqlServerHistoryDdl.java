@@ -1,6 +1,7 @@
 package io.ebeaninternal.dbmigration.ddlgeneration.platform;
 
 import io.ebean.config.DatabaseConfig;
+import io.ebean.config.DbConstraintNaming;
 import io.ebeaninternal.dbmigration.ddlgeneration.DdlAlterTable;
 import io.ebeaninternal.dbmigration.ddlgeneration.DdlBuffer;
 import io.ebeaninternal.dbmigration.ddlgeneration.DdlWrite;
@@ -14,6 +15,8 @@ import io.ebeaninternal.dbmigration.model.MTable;
  */
 public class SqlServerHistoryDdl implements PlatformHistoryDdl {
 
+  protected DbConstraintNaming constraintNaming;
+  protected String historySuffix;
   private String systemPeriodStart;
   private String systemPeriodEnd;
   private PlatformDdl platformDdl;
@@ -22,7 +25,11 @@ public class SqlServerHistoryDdl implements PlatformHistoryDdl {
   public void configure(DatabaseConfig config, PlatformDdl platformDdl) {
     this.systemPeriodStart = config.getAsOfSysPeriod() + "From";
     this.systemPeriodEnd = config.getAsOfSysPeriod() + "To";
+    this.constraintNaming = config.getConstraintNaming();
     this.platformDdl = platformDdl;
+
+    this.historySuffix = config.getHistoryTableSuffix();
+    this.constraintNaming = config.getConstraintNaming();
   }
 
   @Override
@@ -31,32 +38,23 @@ public class SqlServerHistoryDdl implements PlatformHistoryDdl {
     enableSystemVersioning(writer, baseTable);
   }
 
-  String getHistoryTable(String baseTable) {
-    String historyTable = baseTable + "_history";
-    if (baseTable.startsWith("[")) {
-      historyTable = historyTable.replace("]", "") + "]";
-    }
-    if (historyTable.indexOf('.') == -1) {
-      // history must contain schema, add the default schema if none was specified
-      historyTable = "dbo." + historyTable;
-    }
-    return historyTable;
-  }
-
   private void enableSystemVersioning(DdlWrite writer, String baseTable) {
     DdlBuffer apply = writer.applyPostAlter();
-    apply.append("alter table ").append(baseTable).newLine()
+    apply.append("alter table ").append(quote(baseTable)).newLine()
       .append("    add ").append(systemPeriodStart).append(" datetime2 GENERATED ALWAYS AS ROW START NOT NULL DEFAULT SYSUTCDATETIME(),").newLine()
       .append("        ").append(systemPeriodEnd).append("   datetime2 GENERATED ALWAYS AS ROW END   NOT NULL DEFAULT '9999-12-31T23:59:59.9999999',").newLine()
       .append("period for system_time (").append(systemPeriodStart).append(", ").append(systemPeriodEnd).append(")").endOfStatement();
 
     apply.append("alter table ").append(baseTable).append(" set (system_versioning = on (history_table=")
-      .append(getHistoryTable(baseTable)).append("))").endOfStatement();
+      .append(historyTableName(baseTable)).append("))").endOfStatement();
 
     DdlBuffer drop = writer.dropAll();
-    drop.append("IF OBJECT_ID('").append(baseTable).append("', 'U') IS NOT NULL alter table ").append(baseTable).append(" set (system_versioning = off)").endOfStatement();
-    drop.append("IF OBJECT_ID('").append(baseTable).append("_history', 'U') IS NOT NULL drop table ").append(baseTable).append("_history").endOfStatement();
+    drop.append("IF OBJECT_ID('").append(quote(baseTable)).append("', 'U') IS NOT NULL alter table ")
+      .append(quote(baseTable)).append(" set (system_versioning = off)").endOfStatement();
+    drop.append("IF OBJECT_ID('").append(historyTableName(baseTable)).append("', 'U') IS NOT NULL drop table ")
+      .append(historyTableName(baseTable)).endOfStatement();
   }
+
 
   @Override
   public void dropHistoryTable(DdlWrite writer, DropHistoryTable dropHistoryTable) {
@@ -73,8 +71,8 @@ public class SqlServerHistoryDdl implements PlatformHistoryDdl {
     // switch of versioning & period - must be done before altering
     DdlBuffer apply = writer.apply();
     apply.append("-- dropping history support for ").append(baseTable).endOfStatement();
-    apply.append("alter table ").append(baseTable).append(" set (system_versioning = off)").endOfStatement();
-    apply.append("alter table ").append(baseTable).append(" drop period for system_time").endOfStatement();
+    apply.append("alter table ").append(quote(baseTable)).append(" set (system_versioning = off)").endOfStatement();
+    apply.append("alter table ").append(quote(baseTable)).append(" drop period for system_time").endOfStatement();
     apply.end();
     // now drop tables & columns, they will go to alter table/post alter buffers
     platformDdl.alterTableDropColumn(writer, baseTable, systemPeriodStart);
@@ -95,13 +93,29 @@ public class SqlServerHistoryDdl implements PlatformHistoryDdl {
     if (!alter.isHistoryHandled()) {
       // SQL Server 2016 does not need triggers
       DdlBuffer apply = writer.apply();
-      apply.append("-- alter table ").append(tableName).append(" set (system_versioning = off (history_table=")
-        .append(getHistoryTable(tableName)).append("))").endOfStatement();
+      apply.append("-- alter table ").append(historyTableName(tableName)).append(" set (system_versioning = off (history_table=")
+        .append(historyTableName(tableName)).append("))").endOfStatement();
       apply.append("-- history migration goes here").newLine();
-      apply.append("-- alter table ").append(tableName).append(" set (system_versioning = on (history_table=")
-        .append(getHistoryTable(tableName)).append("))").endOfStatement();
+      apply.append("-- alter table ").append(historyTableName(tableName)).append(" set (system_versioning = on (history_table=")
+        .append(historyTableName(tableName)).append("))").endOfStatement();
     }
     alter.setHistoryHandled();
+  }
+
+  protected String quote(String baseTable) {
+    return platformDdl.quote(baseTable);
+  }
+  protected String normalise(String tableName) {
+    return constraintNaming.normaliseTable(tableName);
+  }
+
+  protected String historyTableName(String baseTableName) {
+    String baseTable = normalise(baseTableName);
+    if (baseTable.indexOf('.') == -1) {
+      // history must contain schema, add the default schema if none was specified
+      baseTable = "dbo." + baseTable;
+    }
+    return baseTable + historySuffix;
   }
 
 }

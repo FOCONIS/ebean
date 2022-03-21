@@ -375,7 +375,7 @@ public class PlatformDdl {
    */
   public String createSequence(String sequenceName, DdlIdentity identity) {
     StringBuilder sb = new StringBuilder("create sequence ");
-    sb.append(sequenceName);
+    sb.append(quote(sequenceName));
     sb.append(identity.sequenceOptions(sequenceStartWith, sequenceIncrementBy, sequenceCache));
     sb.append(";");
     return sb.toString();
@@ -385,7 +385,7 @@ public class PlatformDdl {
    * Return the drop sequence statement (potentially with if exists clause).
    */
   public String dropSequence(String sequenceName) {
-    return dropSequenceIfExists + sequenceName;
+    return dropSequenceIfExists + quote(sequenceName);
   }
 
   /**
@@ -716,7 +716,7 @@ public class PlatformDdl {
     if (DdlHelp.isDropComment(tableComment)) {
       tableComment = "";
     }
-    apply.append(String.format("comment on table %s is '%s'", tableName, tableComment)).endOfStatement();
+    apply.append(String.format("comment on table %s is '%s'", quote(tableName), tableComment)).endOfStatement();
   }
 
   /**

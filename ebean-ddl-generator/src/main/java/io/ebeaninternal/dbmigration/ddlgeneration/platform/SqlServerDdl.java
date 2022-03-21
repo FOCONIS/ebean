@@ -26,6 +26,8 @@ public class SqlServerDdl extends PlatformDdl {
     this.columnSetDefault = "add default";
     this.dropConstraintIfExists = "drop constraint";
     this.historyDdl = new SqlServerHistoryDdl();
+    this.openQuote = '[';
+    this.closeQuote = ']';
   }
 
   @Override
