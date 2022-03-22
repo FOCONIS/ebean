@@ -1,9 +1,9 @@
 -- Migrationscripts for ebean unittest
 -- drop dependencies
-alter table migtest_e_history drop system versioning;
-alter table migtest_e_history drop period for system_time;
-alter table migtest_e_history drop (sys_period_start,sys_period_end);
-drop table migtest_e_history_history cascade;
+alter table foo.migtest_e_history drop system versioning;
+alter table foo.migtest_e_history drop period for system_time;
+alter table foo.migtest_e_history drop (sys_period_start,sys_period_end);
+drop table foo.migtest_e_history_history cascade;
 -- apply changes
 alter table migtest_e_history2 drop system versioning;
 alter table migtest_e_history5 drop system versioning;

@@ -1,10 +1,14 @@
 -- Migrationscripts for ebean unittest
 -- apply changes
-alter table migtest_e_history drop versioning;
-alter table migtest_e_history drop period system_time;
+alter table foo.migtest_e_history drop versioning;
+alter table foo.migtest_e_history drop period system_time;
 alter table migtest_e_history2 drop versioning;
 alter table migtest_e_history5 drop versioning;
 -- apply alter tables
+alter table foo.migtest_e_history drop column sys_period_start;
+alter table foo.migtest_e_history drop column sys_period_end;
+alter table foo.migtest_e_history drop column sys_period_txn;
+call sysproc.admin_cmd('reorg table foo.migtest_e_history');
 alter table migtest_ckey_detail drop column one_key;
 alter table migtest_ckey_detail drop column two_key;
 call sysproc.admin_cmd('reorg table migtest_ckey_detail');
@@ -16,10 +20,6 @@ alter table migtest_e_basic drop column new_boolean_field2;
 alter table migtest_e_basic drop column progress;
 alter table migtest_e_basic drop column new_integer;
 call sysproc.admin_cmd('reorg table migtest_e_basic');
-alter table migtest_e_history drop column sys_period_start;
-alter table migtest_e_history drop column sys_period_end;
-alter table migtest_e_history drop column sys_period_txn;
-call sysproc.admin_cmd('reorg table migtest_e_history');
 alter table migtest_e_history2 drop column test_string2;
 alter table migtest_e_history2 drop column test_string3;
 alter table migtest_e_history2 drop column new_column;
@@ -37,7 +37,7 @@ call sysproc.admin_cmd('reorg table migtest_e_softdelete');
 alter table migtest_oto_child drop column master_id;
 call sysproc.admin_cmd('reorg table migtest_oto_child');
 -- apply post alter
-drop table migtest_e_history_history;
+drop table foo.migtest_e_history_history;
 alter table migtest_e_history2 add versioning use history table migtest_e_history2_history;
 alter table migtest_e_history5 add versioning use history table migtest_e_history5_history;
 drop table migtest_e_user;

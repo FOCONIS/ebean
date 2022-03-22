@@ -11,7 +11,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "migtest_e_history")
+@Table(name = "migtest_e_history", schema = "foo")
 @History
 @DbComment("We have history now")
 public class EHistory {

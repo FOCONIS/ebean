@@ -66,6 +66,7 @@ update migtest_e_history6 set test_number1 = 42 where test_number1 is null;
 -- alter table [table] set (system_versioning = on (history_table=dbo.table_history));
 -- apply alter tables
 alter table [table] add [select] varchar(255);
+alter table foo.migtest_e_history alter column test_string numeric(19);
 alter table migtest_ckey_detail add one_key integer;
 alter table migtest_ckey_detail add two_key varchar(127);
 alter table migtest_ckey_parent add assoc_id integer;
@@ -82,7 +83,6 @@ alter table migtest_e_basic add new_boolean_field bit default 1 not null;
 alter table migtest_e_basic add new_boolean_field2 bit default 1 not null;
 alter table migtest_e_basic add progress integer default 0 not null;
 alter table migtest_e_basic add new_integer integer default 42 not null;
-alter table migtest_e_history alter column test_string numeric(19);
 EXEC usp_ebean_drop_default_constraint migtest_e_history2, test_string;
 alter table migtest_e_history2 alter column test_string varchar(255) not null;
 alter table migtest_e_history2 add default 'unknown' for test_string;
@@ -108,11 +108,11 @@ create unique nonclustered index uq_migtest_e_basic_status_indextest1 on migtest
 create unique nonclustered index uq_migtest_e_basic_name on migtest_e_basic(name) where name is not null;
 create unique nonclustered index uq_migtest_e_basic_indextest4 on migtest_e_basic(indextest4) where indextest4 is not null;
 create unique nonclustered index uq_migtest_e_basic_indextest5 on migtest_e_basic(indextest5) where indextest5 is not null;
-alter table migtest_e_history
+alter table foo.migtest_e_history
     add sys_periodFrom datetime2 GENERATED ALWAYS AS ROW START NOT NULL DEFAULT SYSUTCDATETIME(),
         sys_periodTo   datetime2 GENERATED ALWAYS AS ROW END   NOT NULL DEFAULT '9999-12-31T23:59:59.9999999',
 period for system_time (sys_periodFrom, sys_periodTo);
-alter table migtest_e_history set (system_versioning = on (history_table=dbo.migtest_e_history_history));
+alter table foo.migtest_e_history set (system_versioning = on (history_table=foo.migtest_e_history_history));
 create unique nonclustered index uq_table_select on "table"("select") where "select" is not null;
 -- foreign keys and indices
 create index ix_migtest_mtm_c_migtest_mtm_m_migtest_mtm_c on migtest_mtm_c_migtest_mtm_m (migtest_mtm_c_id);

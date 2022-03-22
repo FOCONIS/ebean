@@ -91,6 +91,7 @@ update migtest_e_history2 set test_string = 'unknown' where test_string is null;
 update migtest_e_history6 set test_number1 = 42 where test_number1 is null;
 -- apply alter tables
 alter table "table" add "select" varchar2(255);
+alter table foo.migtest_e_history modify test_string number(19);
 alter table migtest_ckey_detail add one_key number(10);
 alter table migtest_ckey_detail add two_key varchar2(127);
 alter table migtest_ckey_parent add assoc_id number(10);
@@ -107,7 +108,6 @@ alter table migtest_e_basic add new_boolean_field number(1) default 1 not null;
 alter table migtest_e_basic add new_boolean_field2 number(1) default 1 not null;
 alter table migtest_e_basic add progress number(10) default 0 not null;
 alter table migtest_e_basic add new_integer number(10) default 42 not null;
-alter table migtest_e_history modify test_string number(19);
 alter table migtest_e_history2 modify test_string default 'unknown';
 alter table migtest_e_history2 modify test_string not null;
 alter table migtest_e_history2 add test_string2 varchar2(255);
@@ -131,8 +131,8 @@ alter table migtest_e_basic add constraint ck_migtest_e_basic_progress check ( p
 -- NOT YET IMPLEMENTED: alter table migtest_e_basic add constraint uq_migtest_e_basic_name unique  (name);
 -- NOT YET IMPLEMENTED: alter table migtest_e_basic add constraint uq_migtest_e_basic_indextest4 unique  (indextest4);
 -- NOT YET IMPLEMENTED: alter table migtest_e_basic add constraint uq_migtest_e_basic_indextest5 unique  (indextest5);
-comment on column migtest_e_history.test_string is 'Column altered to long now';
-comment on table migtest_e_history is 'We have history now';
+comment on column foo.migtest_e_history.test_string is 'Column altered to long now';
+comment on table foo.migtest_e_history is 'We have history now';
 comment on column "table"."index" is 'this is an other comment';
 -- NOT YET IMPLEMENTED: alter table "table" add constraint uq_table_select unique  ("select");
 -- foreign keys and indices

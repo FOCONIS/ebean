@@ -58,6 +58,9 @@ drop trigger table_history_upd;
 drop view table_with_history;
 -- apply alter tables
 alter table "table" add column "select" varchar(255);
+alter table foo.migtest_e_history add column sys_period_start timestamp default now();
+alter table foo.migtest_e_history add column sys_period_end timestamp;
+alter table foo.migtest_e_history alter column test_string bigint;
 alter table migtest_ckey_detail add column one_key integer;
 alter table migtest_ckey_detail add column two_key varchar(127);
 alter table migtest_ckey_parent add column assoc_id integer;
@@ -74,9 +77,6 @@ alter table migtest_e_basic add column new_boolean_field boolean default true no
 alter table migtest_e_basic add column new_boolean_field2 boolean default true not null;
 alter table migtest_e_basic add column progress integer default 0 not null;
 alter table migtest_e_basic add column new_integer integer default 42 not null;
-alter table migtest_e_history add column sys_period_start timestamp default now();
-alter table migtest_e_history add column sys_period_end timestamp;
-alter table migtest_e_history alter column test_string bigint;
 alter table migtest_e_history2 alter column test_string set default 'unknown';
 alter table migtest_e_history2 alter column test_string set not null;
 alter table migtest_e_history2 add column test_string2 varchar(255);
@@ -107,17 +107,17 @@ alter table migtest_e_basic add constraint uq_migtest_e_basic_status_indextest1 
 alter table migtest_e_basic add constraint uq_migtest_e_basic_name unique  (name);
 alter table migtest_e_basic add constraint uq_migtest_e_basic_indextest4 unique  (indextest4);
 alter table migtest_e_basic add constraint uq_migtest_e_basic_indextest5 unique  (indextest5);
-create table migtest_e_history_history(
+create table foo.migtest_e_history_history(
   id                            integer,
   test_string                   bigint,
   sys_period_start              timestamp,
   sys_period_end                timestamp
 );
-create view migtest_e_history_with_history as select * from migtest_e_history union all select * from migtest_e_history_history;
-create trigger migtest_e_history_history_upd before update,delete on migtest_e_history for each row call "io.ebean.config.dbplatform.h2.H2HistoryTrigger";
+create view foo.migtest_e_history_with_history as select * from foo.migtest_e_history union all select * from foo.migtest_e_history_history;
+create trigger foo.migtest_e_history_history_upd before update,delete on foo.migtest_e_history for each row call "io.ebean.config.dbplatform.h2.H2HistoryTrigger";
 
-comment on column migtest_e_history.test_string is 'Column altered to long now';
-comment on table migtest_e_history is 'We have history now';
+comment on column foo.migtest_e_history.test_string is 'Column altered to long now';
+comment on table foo.migtest_e_history is 'We have history now';
 create view migtest_e_history2_with_history as select * from migtest_e_history2 union all select * from migtest_e_history2_history;
 create trigger migtest_e_history2_history_upd before update,delete on migtest_e_history2 for each row call "io.ebean.config.dbplatform.h2.H2HistoryTrigger";
 create view migtest_e_history3_with_history as select * from migtest_e_history3 union all select * from migtest_e_history3_history;

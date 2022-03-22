@@ -84,8 +84,8 @@ alter table migtest_e_basic add constraint ck_migtest_e_basic_status2 check ( st
 alter table migtest_e_basic add constraint uq_migtest_e_basic_indextest2 unique  (indextest2);
 alter table migtest_e_basic add constraint uq_migtest_e_basic_indextest6 unique  (indextest6);
 alter table migtest_e_enum add constraint ck_migtest_e_enum_test_status check ( test_status in ('N','A','I'));
-comment on column migtest_e_history.test_string is '';
-comment on table migtest_e_history is '';
+comment on column foo.migtest_e_history.test_string is '';
+comment on table foo.migtest_e_history is '';
 create view migtest_e_history2_with_history as select * from migtest_e_history2 union all select * from migtest_e_history2_history;
 create or replace function migtest_e_history2_history_version() returns trigger as $$
 declare

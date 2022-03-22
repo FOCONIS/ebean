@@ -44,6 +44,8 @@ SET @@system_versioning_alter_history = 1;
 update migtest_e_history6 set test_number1 = 42 where test_number1 is null;
 -- apply alter tables
 alter table `table` add column `select` varchar(255);
+alter table foo.migtest_e_history add system versioning;
+alter table foo.migtest_e_history modify test_string bigint;
 alter table migtest_ckey_detail add column one_key integer;
 alter table migtest_ckey_detail add column two_key varchar(127);
 alter table migtest_ckey_parent add column assoc_id integer;
@@ -56,8 +58,6 @@ alter table migtest_e_basic add column new_boolean_field tinyint(1) default 1 no
 alter table migtest_e_basic add column new_boolean_field2 tinyint(1) default 1 not null;
 alter table migtest_e_basic add column progress integer default 0 not null;
 alter table migtest_e_basic add column new_integer integer default 42 not null;
-alter table migtest_e_history add system versioning;
-alter table migtest_e_history modify test_string bigint;
 alter table migtest_e_history2 modify test_string varchar(255) not null default 'unknown';
 alter table migtest_e_history2 add column test_string2 varchar(255);
 alter table migtest_e_history2 add column test_string3 varchar(255) default 'unknown' not null;
@@ -77,7 +77,7 @@ alter table migtest_e_basic add constraint uq_migtest_e_basic_status_indextest1 
 alter table migtest_e_basic add constraint uq_migtest_e_basic_name unique  (name);
 alter table migtest_e_basic add constraint uq_migtest_e_basic_indextest4 unique  (indextest4);
 alter table migtest_e_basic add constraint uq_migtest_e_basic_indextest5 unique  (indextest5);
-alter table migtest_e_history comment = 'We have history now';
+alter table foo.migtest_e_history comment = 'We have history now';
 alter table `table` add constraint uq_table_select unique  (`select`);
 -- foreign keys and indices
 create index ix_migtest_mtm_c_migtest_mtm_m_migtest_mtm_c on migtest_mtm_c_migtest_mtm_m (migtest_mtm_c_id);

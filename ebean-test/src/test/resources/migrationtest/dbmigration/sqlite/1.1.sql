@@ -51,6 +51,7 @@ update migtest_e_history2 set test_string = 'unknown' where test_string is null;
 update migtest_e_history6 set test_number1 = 42 where test_number1 is null;
 -- apply alter tables
 alter table "table" add column "select" varchar(255);
+-- not supported: alter table foo.migtest_e_history alter column test_string integer;
 alter table migtest_ckey_detail add column one_key integer;
 alter table migtest_ckey_detail add column two_key varchar(127);
 alter table migtest_ckey_parent add column assoc_id integer;
@@ -67,7 +68,6 @@ alter table migtest_e_basic add column new_boolean_field int default 1 not null;
 alter table migtest_e_basic add column new_boolean_field2 int default 1 not null;
 alter table migtest_e_basic add column progress integer default 0 not null;
 alter table migtest_e_basic add column new_integer integer default 42 not null;
--- not supported: alter table migtest_e_history alter column test_string integer;
 -- not supported: alter table migtest_e_history2 alter column test_string set default 'unknown';
 -- not supported: alter table migtest_e_history2 alter column test_string set not null;
 alter table migtest_e_history2 add column test_string2 varchar(255);

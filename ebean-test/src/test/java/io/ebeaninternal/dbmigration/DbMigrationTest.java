@@ -65,6 +65,7 @@ public class DbMigrationTest extends BaseTestCase {
         "migtest_e_basic",
         "migtest_e_enum",
         "migtest_e_history",
+      "foo.migtest_e_history",
         "migtest_e_history2",
         "migtest_e_history3",
         "migtest_e_history4",
@@ -91,6 +92,8 @@ public class DbMigrationTest extends BaseTestCase {
         "`table`");
     ((ConnectionPool)server().dataSource()).offline();
     ((ConnectionPool)server().dataSource()).online();
+
+    server().script().runScript("schema", "create schema foo", true);
 
     if (isSqlServer() || isMariaDB() || isMySql() || isHana()) {
       runScript("I__create_procs.sql");
@@ -289,9 +292,9 @@ public class DbMigrationTest extends BaseTestCase {
   }
 
   private void createHistoryEntities() {
-    SqlUpdate update = server().sqlUpdate("insert into migtest_e_history (id, test_string) values (1, '42')");
+    SqlUpdate update = server().sqlUpdate("insert into foo.migtest_e_history (id, test_string) values (1, '42')");
     assertThat(server().execute(update)).isEqualTo(1);
-    update = server().sqlUpdate("update migtest_e_history set test_string = '45' where id = 1");
+    update = server().sqlUpdate("update foo.migtest_e_history set test_string = '45' where id = 1");
     assertThat(server().execute(update)).isEqualTo(1);
 
     update = server().sqlUpdate("insert into migtest_e_history2 (id, test_string, obsolete_string1, obsolete_string2) values (1, 'foo', 'bar', null)");

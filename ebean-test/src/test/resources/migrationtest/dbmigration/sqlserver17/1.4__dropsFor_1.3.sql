@@ -1,8 +1,8 @@
 -- Migrationscripts for ebean unittest
 -- apply changes
--- dropping history support for migtest_e_history;
-alter table migtest_e_history set (system_versioning = off);
-alter table migtest_e_history drop period for system_time;
+-- dropping history support for foo.migtest_e_history;
+alter table foo.migtest_e_history set (system_versioning = off);
+alter table foo.migtest_e_history drop period for system_time;
 
 -- alter table migtest_e_history2 set (system_versioning = off (history_table=dbo.migtest_e_history2_history));
 -- history migration goes here
@@ -11,6 +11,10 @@ alter table migtest_e_history drop period for system_time;
 -- history migration goes here
 -- alter table migtest_e_history5 set (system_versioning = on (history_table=dbo.migtest_e_history5_history));
 -- apply alter tables
+EXEC usp_ebean_drop_default_constraint foo.migtest_e_history, sys_periodFrom;
+EXEC usp_ebean_drop_default_constraint foo.migtest_e_history, sys_periodTo;
+EXEC usp_ebean_drop_column foo.migtest_e_history, sys_periodFrom;
+EXEC usp_ebean_drop_column foo.migtest_e_history, sys_periodTo;
 EXEC usp_ebean_drop_column migtest_ckey_detail, one_key;
 EXEC usp_ebean_drop_column migtest_ckey_detail, two_key;
 EXEC usp_ebean_drop_column migtest_ckey_parent, assoc_id;
@@ -19,10 +23,6 @@ EXEC usp_ebean_drop_column migtest_e_basic, new_boolean_field;
 EXEC usp_ebean_drop_column migtest_e_basic, new_boolean_field2;
 EXEC usp_ebean_drop_column migtest_e_basic, progress;
 EXEC usp_ebean_drop_column migtest_e_basic, new_integer;
-EXEC usp_ebean_drop_default_constraint migtest_e_history, sys_periodFrom;
-EXEC usp_ebean_drop_default_constraint migtest_e_history, sys_periodTo;
-EXEC usp_ebean_drop_column migtest_e_history, sys_periodFrom;
-EXEC usp_ebean_drop_column migtest_e_history, sys_periodTo;
 EXEC usp_ebean_drop_column migtest_e_history2, test_string2;
 EXEC usp_ebean_drop_column migtest_e_history2, test_string3;
 EXEC usp_ebean_drop_column migtest_e_history2, new_column;

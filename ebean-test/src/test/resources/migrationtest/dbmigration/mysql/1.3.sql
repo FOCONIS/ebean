@@ -65,7 +65,7 @@ alter table migtest_e_history6_history modify test_number1 integer;
 -- apply post alter
 alter table migtest_e_basic add constraint uq_migtest_e_basic_indextest2 unique  (indextest2);
 alter table migtest_e_basic add constraint uq_migtest_e_basic_indextest6 unique  (indextest6);
-alter table migtest_e_history comment = '';
+alter table foo.migtest_e_history comment = '';
 create view migtest_e_history2_with_history as select * from migtest_e_history2 union all select * from migtest_e_history2_history;
 lock tables migtest_e_history2 write;
 delimiter $$

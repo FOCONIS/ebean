@@ -64,7 +64,7 @@
             <column name="id" type="integer" primaryKey="true"/>
             <column name="test_status" type="varchar(1)" checkConstraint="check ( test_status in ('N','A','I'))" checkConstraintName="ck_migtest_e_enum_test_status"/>
         </createTable>
-        <createTable name="migtest_e_history" pkName="pk_migtest_e_history">
+        <createTable name="foo.migtest_e_history" pkName="pk_migtest_e_history">
             <column name="id" type="integer" primaryKey="true"/>
             <column name="test_string" type="varchar"/>
         </createTable>

@@ -72,7 +72,7 @@ create table migtest_e_enum (
   test_status                   String
 ) ENGINE = Log();
 
-create table migtest_e_history (
+create table foo.migtest_e_history (
   id                            UInt32,
   test_string                   String
 ) ENGINE = Log();

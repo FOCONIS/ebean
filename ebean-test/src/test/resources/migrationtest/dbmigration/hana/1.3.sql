@@ -126,8 +126,8 @@ alter table migtest_e_basic add constraint ck_migtest_e_basic_status2 check ( st
 -- cannot create unique index "uq_migtest_e_basic_indextest2" on table "migtest_e_basic" with nullable columns;
 -- cannot create unique index "uq_migtest_e_basic_indextest6" on table "migtest_e_basic" with nullable columns;
 alter table migtest_e_enum add constraint ck_migtest_e_enum_test_status check ( test_status in ('N','A','I'));
-comment on column migtest_e_history.test_string is '';
-comment on table migtest_e_history is '';
+comment on column foo.migtest_e_history.test_string is '';
+comment on table foo.migtest_e_history is '';
 alter table migtest_e_history2 add system versioning history table migtest_e_history2_history not validated;
 alter table migtest_e_history3 add system versioning history table migtest_e_history3_history not validated;
 alter table migtest_e_history4 add system versioning history table migtest_e_history4_history not validated;

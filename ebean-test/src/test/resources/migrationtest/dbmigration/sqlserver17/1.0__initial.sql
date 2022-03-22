@@ -96,12 +96,12 @@ create table migtest_e_enum (
 );
 create sequence migtest_e_enum_seq as bigint start with 1;
 
-create table migtest_e_history (
+create table foo.migtest_e_history (
   id                            integer not null,
   test_string                   nvarchar(255),
   constraint pk_migtest_e_history primary key (id)
 );
-create sequence migtest_e_history_seq as bigint start with 1;
+create sequence foo.migtest_e_history_seq as bigint start with 1;
 
 create table migtest_e_history2 (
   id                            integer not null,

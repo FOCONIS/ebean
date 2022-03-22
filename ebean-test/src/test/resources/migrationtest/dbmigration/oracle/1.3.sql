@@ -135,8 +135,8 @@ alter table migtest_e_basic add constraint ck_migtest_e_basic_status2 check ( st
 -- NOT YET IMPLEMENTED: alter table migtest_e_basic add constraint uq_migtest_e_basic_indextest2 unique  (indextest2);
 -- NOT YET IMPLEMENTED: alter table migtest_e_basic add constraint uq_migtest_e_basic_indextest6 unique  (indextest6);
 alter table migtest_e_enum add constraint ck_migtest_e_enum_test_status check ( test_status in ('N','A','I'));
-comment on column migtest_e_history.test_string is '';
-comment on table migtest_e_history is '';
+comment on column foo.migtest_e_history.test_string is '';
+comment on table foo.migtest_e_history is '';
 comment on column "table"."index" is 'this is a comment';
 -- foreign keys and indices
 alter table migtest_fk_cascade add constraint fk_migtest_fk_cascade_one_id foreign key (one_id) references migtest_fk_cascade_one (id) on delete cascade;

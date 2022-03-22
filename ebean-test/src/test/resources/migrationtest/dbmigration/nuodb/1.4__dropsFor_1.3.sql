@@ -1,9 +1,9 @@
 -- Migrationscripts for ebean unittest
 -- drop dependencies
-drop trigger migtest_e_history_history_upd;
-drop trigger migtest_e_history_history_del;
-drop view migtest_e_history_with_history;
-drop table migtest_e_history_history;
+drop trigger foo.migtest_e_history_history_upd;
+drop trigger foo.migtest_e_history_history_del;
+drop view foo.migtest_e_history_with_history;
+drop table foo.migtest_e_history_history;
 
 -- apply changes
 drop trigger migtest_e_history2_history_upd;
@@ -13,6 +13,8 @@ drop trigger migtest_e_history5_history_upd;
 drop trigger migtest_e_history5_history_del;
 drop view migtest_e_history5_with_history;
 -- apply alter tables
+alter table foo.migtest_e_history drop column sys_period_start;
+alter table foo.migtest_e_history drop column sys_period_end;
 alter table migtest_ckey_detail drop column one_key;
 alter table migtest_ckey_detail drop column two_key;
 alter table migtest_ckey_parent drop column assoc_id;
@@ -21,8 +23,6 @@ alter table migtest_e_basic drop column new_boolean_field;
 alter table migtest_e_basic drop column new_boolean_field2;
 alter table migtest_e_basic drop column progress;
 alter table migtest_e_basic drop column new_integer;
-alter table migtest_e_history drop column sys_period_start;
-alter table migtest_e_history drop column sys_period_end;
 alter table migtest_e_history2 drop column test_string2;
 alter table migtest_e_history2 drop column test_string3;
 alter table migtest_e_history2 drop column new_column;

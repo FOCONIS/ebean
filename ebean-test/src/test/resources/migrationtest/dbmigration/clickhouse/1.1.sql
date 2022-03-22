@@ -39,6 +39,7 @@ update migtest_e_history2 set test_string = 'unknown' where test_string is null;
 update migtest_e_history6 set test_number1 = 42 where test_number1 is null;
 -- apply alter tables
 alter table "table" add column "select" String;
+alter table foo.migtest_e_history alter column test_string UInt64;
 alter table migtest_ckey_detail add column one_key UInt32;
 alter table migtest_ckey_detail add column two_key String;
 alter table migtest_ckey_parent add column assoc_id UInt32;
@@ -55,7 +56,6 @@ alter table migtest_e_basic add column new_boolean_field UInt8 default 1;
 alter table migtest_e_basic add column new_boolean_field2 UInt8 default 1;
 alter table migtest_e_basic add column progress UInt32 default 0;
 alter table migtest_e_basic add column new_integer UInt32 default 42;
-alter table migtest_e_history alter column test_string UInt64;
 alter table migtest_e_history2 alter column test_string set default 'unknown';
 alter table migtest_e_history2 alter column test_string set not null;
 alter table migtest_e_history2 add column test_string2 String;

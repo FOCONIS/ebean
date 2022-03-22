@@ -9,7 +9,7 @@
         <dropColumn columnName="new_boolean_field2" tableName="migtest_e_basic"/>
         <dropColumn columnName="progress" tableName="migtest_e_basic"/>
         <dropColumn columnName="new_integer" tableName="migtest_e_basic"/>
-        <dropHistoryTable baseTable="migtest_e_history"/>
+        <dropHistoryTable baseTable="foo.migtest_e_history"/>
         <dropColumn columnName="test_string2" tableName="migtest_e_history2" withHistory="true"/>
         <dropColumn columnName="test_string3" tableName="migtest_e_history2" withHistory="true"/>
         <dropColumn columnName="new_column" tableName="migtest_e_history2" withHistory="true"/>

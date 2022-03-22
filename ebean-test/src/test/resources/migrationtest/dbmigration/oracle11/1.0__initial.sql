@@ -98,12 +98,12 @@ create table migtest_e_enum (
 );
 create sequence migtest_e_enum_seq;
 
-create table migtest_e_history (
+create table foo.migtest_e_history (
   id                            number(10) not null,
   test_string                   varchar2(255),
   constraint pk_migtest_e_history primary key (id)
 );
-create sequence migtest_e_history_seq;
+create sequence foo.migtest_e_history_seq;
 
 create table migtest_e_history2 (
   id                            number(10) not null,

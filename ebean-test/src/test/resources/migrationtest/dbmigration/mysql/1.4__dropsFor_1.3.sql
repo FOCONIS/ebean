@@ -1,9 +1,9 @@
 -- Migrationscripts for ebean unittest
 -- drop dependencies
-drop trigger migtest_e_history_history_upd;
-drop trigger migtest_e_history_history_del;
-drop view migtest_e_history_with_history;
-drop table migtest_e_history_history;
+drop trigger foo.migtest_e_history_history_upd;
+drop trigger foo.migtest_e_history_history_del;
+drop view foo.migtest_e_history_with_history;
+drop table foo.migtest_e_history_history;
 
 -- apply changes
 drop trigger migtest_e_history2_history_upd;
@@ -13,6 +13,8 @@ drop trigger migtest_e_history5_history_upd;
 drop trigger migtest_e_history5_history_del;
 drop view migtest_e_history5_with_history;
 -- apply alter tables
+CALL usp_ebean_drop_column('migtest_e_history', 'sys_period_start');
+CALL usp_ebean_drop_column('migtest_e_history', 'sys_period_end');
 CALL usp_ebean_drop_column('migtest_ckey_detail', 'one_key');
 CALL usp_ebean_drop_column('migtest_ckey_detail', 'two_key');
 CALL usp_ebean_drop_column('migtest_ckey_parent', 'assoc_id');
@@ -21,8 +23,6 @@ CALL usp_ebean_drop_column('migtest_e_basic', 'new_boolean_field');
 CALL usp_ebean_drop_column('migtest_e_basic', 'new_boolean_field2');
 CALL usp_ebean_drop_column('migtest_e_basic', 'progress');
 CALL usp_ebean_drop_column('migtest_e_basic', 'new_integer');
-CALL usp_ebean_drop_column('migtest_e_history', 'sys_period_start');
-CALL usp_ebean_drop_column('migtest_e_history', 'sys_period_end');
 CALL usp_ebean_drop_column('migtest_e_history2', 'test_string2');
 CALL usp_ebean_drop_column('migtest_e_history2', 'test_string3');
 CALL usp_ebean_drop_column('migtest_e_history2', 'new_column');

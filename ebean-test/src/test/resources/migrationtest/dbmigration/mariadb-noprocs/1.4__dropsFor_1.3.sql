@@ -2,6 +2,7 @@
 -- apply changes
 SET @@system_versioning_alter_history = 1;
 -- apply alter tables
+alter table foo.migtest_e_history drop system versioning;
 alter table migtest_ckey_detail drop column one_key;
 alter table migtest_ckey_detail drop column two_key;
 alter table migtest_ckey_parent drop column assoc_id;
@@ -10,7 +11,6 @@ alter table migtest_e_basic drop column new_boolean_field;
 alter table migtest_e_basic drop column new_boolean_field2;
 alter table migtest_e_basic drop column progress;
 alter table migtest_e_basic drop column new_integer;
-alter table migtest_e_history drop system versioning;
 alter table migtest_e_history2 drop column test_string2;
 alter table migtest_e_history2 drop column test_string3;
 alter table migtest_e_history2 drop column new_column;

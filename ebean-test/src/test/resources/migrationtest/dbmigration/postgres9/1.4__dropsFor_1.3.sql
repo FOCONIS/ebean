@@ -1,10 +1,10 @@
 -- Migrationscripts for ebean unittest
 -- drop dependencies
-drop trigger if exists migtest_e_history_history_upd on migtest_e_history cascade;
+drop trigger if exists migtest_e_history_history_upd on foo.migtest_e_history cascade;
 drop function if exists migtest_e_history_history_version();
 
-drop view migtest_e_history_with_history;
-drop table migtest_e_history_history;
+drop view foo.migtest_e_history_with_history;
+drop table foo.migtest_e_history_history;
 
 -- apply changes
 drop trigger if exists migtest_e_history2_history_upd on migtest_e_history2 cascade;
@@ -16,6 +16,7 @@ drop function if exists migtest_e_history5_history_version();
 
 drop view migtest_e_history5_with_history;
 -- apply alter tables
+alter table foo.migtest_e_history drop column sys_period;
 alter table migtest_ckey_detail drop column one_key;
 alter table migtest_ckey_detail drop column two_key;
 alter table migtest_ckey_parent drop column assoc_id;
@@ -24,7 +25,6 @@ alter table migtest_e_basic drop column new_boolean_field;
 alter table migtest_e_basic drop column new_boolean_field2;
 alter table migtest_e_basic drop column progress;
 alter table migtest_e_basic drop column new_integer;
-alter table migtest_e_history drop column sys_period;
 alter table migtest_e_history2 drop column test_string2;
 alter table migtest_e_history2 drop column test_string3;
 alter table migtest_e_history2 drop column new_column;

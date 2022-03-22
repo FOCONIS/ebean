@@ -94,6 +94,7 @@ alter table migtest_e_history6 drop system versioning;
 alter table "table" drop system versioning;
 -- apply alter tables
 alter table "table" add ("select" nvarchar(255));
+alter table foo.migtest_e_history alter (test_string bigint);
 alter table migtest_ckey_detail add (one_key integer,
    two_key nvarchar(127));
 alter table migtest_ckey_parent add (assoc_id integer);
@@ -106,7 +107,6 @@ alter table migtest_e_basic add (new_string_field nvarchar(255) default 'foo''ba
    new_boolean_field2 boolean default true not null,
    progress integer default 0 not null,
    new_integer integer default 42 not null);
-alter table migtest_e_history alter (test_string bigint);
 alter table migtest_e_history2 alter (test_string nvarchar(255) default 'unknown' not null);
 alter table migtest_e_history2 add (test_string2 nvarchar(255),
    test_string3 nvarchar(255) default 'unknown' not null,
@@ -135,20 +135,20 @@ alter table migtest_e_basic add constraint ck_migtest_e_basic_progress check ( p
 -- cannot create unique index "uq_migtest_e_basic_name" on table "migtest_e_basic" with nullable columns;
 -- cannot create unique index "uq_migtest_e_basic_indextest4" on table "migtest_e_basic" with nullable columns;
 -- cannot create unique index "uq_migtest_e_basic_indextest5" on table "migtest_e_basic" with nullable columns;
-create column table migtest_e_history_history (
+create column table foo.migtest_e_history_history (
  id integer,
  test_string bigint,
  sys_period_start timestamp,
  sys_period_end timestamp
 );
-alter table migtest_e_history add (
+alter table foo.migtest_e_history add (
     sys_period_start TIMESTAMP NOT NULL GENERATED ALWAYS AS ROW START, 
     sys_period_end TIMESTAMP NOT NULL GENERATED ALWAYS AS ROW END
 );
-alter table migtest_e_history add period for system_time(sys_period_start,sys_period_end);
-alter table migtest_e_history add system versioning history table migtest_e_history_history;
-comment on column migtest_e_history.test_string is 'Column altered to long now';
-comment on table migtest_e_history is 'We have history now';
+alter table foo.migtest_e_history add period for system_time(sys_period_start,sys_period_end);
+alter table foo.migtest_e_history add system versioning history table foo.migtest_e_history_history;
+comment on column foo.migtest_e_history.test_string is 'Column altered to long now';
+comment on table foo.migtest_e_history is 'We have history now';
 alter table migtest_e_history2 add system versioning history table migtest_e_history2_history not validated;
 alter table migtest_e_history3 add system versioning history table migtest_e_history3_history not validated;
 alter table migtest_e_history4 add system versioning history table migtest_e_history4_history not validated;
