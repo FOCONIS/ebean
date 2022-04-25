@@ -68,6 +68,10 @@ public class Customer extends BasicDomain {
   @NotNull
   @Size(max = 40)
   String name;
+  
+  @Size(max = 40)
+  @Column(name = "inputName")
+  String in;
 
   @DbComment("Short notes regarding the customer")
   @Size(max = 100)
