@@ -34,7 +34,8 @@ public class LocalTimeTest {
    * The test checks the write and read of LocalTime values. The database is in GMT time zone.
    * In order to verify the test in different java time zones (where the application runs),
    * use the <code>-Duser.timezone</code> as JVM argument,
-   * e.g. <code>-Duser.timezone="America/New_York"</code> or <code>-Duser.timezone="PST"</code>>.
+   * e.g. <code>-Duser.timezone="America/New_York"</code> or <code>-Duser.timezone="PST"</code>>
+   * or any other timezone: <a href="https://garygregory.wordpress.com/2013/06/18/what-are-the-java-timezone-ids/">https://garygregory.wordpress.com/2013/06/18/what-are-the-java-timezone-ids/</a>.
    */
   @Test
   public void testLocalTime() {
