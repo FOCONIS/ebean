@@ -21,20 +21,21 @@ public class DatesAndTimesTest{
   protected TimeZone tz;
   protected DatabaseConfig config;
 
-  @BeforeEach
+ // @BeforeEach
+  @BeforeAll
   public void startTest() {
-    tz = TimeZone.getDefault();
-    if (db == null) {
+  //  tz = TimeZone.getDefault();
+   // if (db == null) {
       db = createServer("GMT", null, null); // test uses GMT database
-    } else {
-      restartServer(null, "GMT");
-    }
+//    } else {
+//      restartServer(null, "GMT");
+//    }
   }
 
-  @AfterEach
-  public void stopTest() {
-    setJavaTimeZone(tz);
-  }
+//  @AfterEach
+//  public void stopTest() {
+//    setJavaTimeZone(tz);
+//  }
 
   @AfterAll
   public void shutdown() {
@@ -44,21 +45,21 @@ public class DatesAndTimesTest{
     }
   }
 
-  protected void restartServer(String javaTimeZone, String dbTimeZone) {
-    DataSource existingDs = db.dataSource();
-    DataSource existingRoDs = db.readOnlyDataSource();
-    db.shutdown(false, false);
-    if (javaTimeZone != null) {
-      setJavaTimeZone(TimeZone.getTimeZone(javaTimeZone));
-    }
-    db = createServer(dbTimeZone, existingDs, existingRoDs);
-  }
+//  protected void restartServer(String javaTimeZone, String dbTimeZone) {
+//    DataSource existingDs = db.dataSource();
+//    DataSource existingRoDs = db.readOnlyDataSource();
+//    db.shutdown(false, false);
+//    if (javaTimeZone != null) {
+//      setJavaTimeZone(TimeZone.getTimeZone(javaTimeZone));
+//    }
+//    db = createServer(dbTimeZone, existingDs, existingRoDs);
+//  }
 
-  private void setJavaTimeZone(TimeZone newTz) {
-    TimeZone.setDefault(newTz);
-    DateTimeZone.setDefault(DateTimeZone.forTimeZone(newTz));
-    org.h2.util.DateTimeUtils.resetCalendar();
-  }
+//  private void setJavaTimeZone(TimeZone newTz) {
+//    TimeZone.setDefault(newTz);
+//    DateTimeZone.setDefault(DateTimeZone.forTimeZone(newTz));
+//    org.h2.util.DateTimeUtils.resetCalendar();
+//  }
 
   private Database createServer(String dbTimeZone, DataSource existingDs, DataSource existingRoDs) {
 
@@ -77,13 +78,13 @@ public class DatesAndTimesTest{
     config.setDumpMetricsOnShutdown(false);
     config.setDataTimeZone(dbTimeZone);
     config.setDataSource(existingDs);
-    reconfigure(config);
+   // reconfigure(config);
 
     return DatabaseFactory.create(config);
   }
 
-  protected void reconfigure(DatabaseConfig config) {
-
-  }
+//  protected void reconfigure(DatabaseConfig config) {
+//
+//  }
 
 }
