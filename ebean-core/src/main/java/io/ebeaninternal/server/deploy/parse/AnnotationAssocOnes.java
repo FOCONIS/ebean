@@ -4,14 +4,22 @@ import io.ebean.annotation.DbForeignKey;
 import io.ebean.annotation.FetchPreference;
 import io.ebean.annotation.TenantId;
 import io.ebean.annotation.Where;
+import io.ebean.annotation.ext.OwnedBy;
+import io.ebean.bean.EntityBean;
 import io.ebean.config.NamingConvention;
 import io.ebeaninternal.api.CoreLog;
 import io.ebeaninternal.server.deploy.BeanDescriptorManager;
 import io.ebeaninternal.server.deploy.BeanTable;
+import io.ebeaninternal.server.deploy.ManyType;
 import io.ebeaninternal.server.deploy.PropertyForeignKey;
+import io.ebeaninternal.server.deploy.meta.DeployBeanDescriptor;
 import io.ebeaninternal.server.deploy.meta.DeployBeanProperty;
+import io.ebeaninternal.server.deploy.meta.DeployBeanPropertyAssoc;
+import io.ebeaninternal.server.deploy.meta.DeployBeanPropertyAssocMany;
 import io.ebeaninternal.server.deploy.meta.DeployBeanPropertyAssocOne;
 import io.ebeaninternal.server.deploy.meta.DeployTableJoinColumn;
+import io.ebeaninternal.server.properties.BeanPropertyGetter;
+import io.ebeaninternal.server.properties.BeanPropertySetter;
 import io.ebeaninternal.server.query.SqlJoinType;
 
 import javax.persistence.*;
@@ -51,6 +59,50 @@ final class AnnotationAssocOnes extends AnnotationAssoc {
     OneToOne oneToOne = get(prop, OneToOne.class);
     if (oneToOne != null) {
       readOneToOne(oneToOne, prop);
+    }
+    OwnedBy ownedBy = get(prop, OwnedBy.class);
+    if (ownedBy != null) {
+      DeployBeanDescriptor<?> desc = descriptor.getDeploy(prop.getTargetType()).getDescriptor();
+      DeployBeanPropertyAssoc<?> p = null;
+      if (oneToOne != null) {
+        DeployBeanPropertyAssocOne<?> assocOne = new DeployBeanPropertyAssocOne<>(desc, prop.getDesc().getBeanType());
+        assocOne.setPrimaryKeyJoin(true);
+        p = assocOne;
+      } else if (manyToOne != null ) {
+        p = new DeployBeanPropertyAssocMany<>(desc, prop.getDesc().getBeanType(), ManyType.LIST);
+        p.setGetter(new BeanPropertyGetter() {
+          @Override
+          public Object get(EntityBean bean) {
+            return null;
+          }
+
+          @Override
+          public Object getIntercept(EntityBean bean) {
+            return null;
+          }
+        });
+        p.setSetter(new BeanPropertySetter() {
+          @Override
+          public void set(EntityBean bean, Object value) {
+
+          }
+
+          @Override
+          public void setIntercept(EntityBean bean, Object value) {
+
+          }
+        });
+      }
+      if (p != null) {
+        p.setName(ownedBy.value());
+        p.setOrphanRemoval();
+        p.setDbInsertable(false);
+        p.setMappedBy(prop.getName());
+        p.setFetchType(FetchType.LAZY);
+        p.getCascadeInfo().setDelete(true);
+        setBeanTable(p);
+        desc.addBeanProperty(p);
+      }
     }
     Embedded embedded = get(prop, Embedded.class);
     if (embedded != null) {

@@ -53,7 +53,7 @@ final class AnnotationAssocManys extends AnnotationAssoc {
   @Override
   public void parse() {
     for (DeployBeanProperty prop : descriptor.propertiesAll()) {
-      if (prop instanceof DeployBeanPropertyAssocMany<?>) {
+      if (prop instanceof DeployBeanPropertyAssocMany<?> && prop.getField() != null) {
         read((DeployBeanPropertyAssocMany<?>) prop);
       }
     }
