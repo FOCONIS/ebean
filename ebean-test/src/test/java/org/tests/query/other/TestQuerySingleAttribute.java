@@ -83,6 +83,112 @@ public class TestQuerySingleAttribute extends BaseTestCase {
   }
 
   @Test
+  public void oneToMany_normal() {
+
+    ResetBasicData.reset();
+
+    List<Order.Status> statusList =
+      DB.find(Customer.class)
+        .fetch("orders", "status")
+        .findSingleAttributeList();
+
+    assertThat(statusList).hasSize(7);
+  }
+
+  @Test
+  public void oneToMany_notNull() {
+
+    ResetBasicData.reset();
+
+    List<Order.Status> statusList =
+      DB.find(Customer.class)
+        .fetch("orders", "status")
+        .where()
+        .isNotNull("orders.status")
+        .findSingleAttributeList();
+
+    assertThat(statusList).hasSize(5);
+  }
+
+  @Test
+  public void oneToMany_orderBy() {
+
+    ResetBasicData.reset();
+
+    List<Order.Status> statusList =
+      DB.find(Customer.class)
+        .fetch("orders", "status")
+        .orderBy("orders.status")
+        .findSingleAttributeList();
+
+    assertThat(statusList).hasSize(7);
+    assertThat(statusList.get(0)).isEqualTo(null);
+    assertThat(statusList.get(6)).isEqualTo(Order.Status.COMPLETE);
+  }
+
+  @Test
+  public void oneToMany_distinct() {
+
+    ResetBasicData.reset();
+
+    List<Order.Status> statusList =
+      DB.find(Customer.class)
+        .fetch("orders", "status")
+        .setDistinct(true)
+        .findSingleAttributeList();
+
+    assertThat(statusList).hasSize(4);
+  }
+
+  @Test
+  public void oneToMany_distinct_orderBy() {
+
+    ResetBasicData.reset();
+
+    List<Order.Status> statusList =
+      DB.find(Customer.class)
+        .fetch("orders", "status")
+        .setDistinct(true)
+        .orderBy("orders.status")
+        .findSingleAttributeList();
+
+    assertThat(statusList).hasSize(4);
+    assertThat(statusList.get(0)).isEqualTo(null);
+    assertThat(statusList.get(3)).isEqualTo(Order.Status.COMPLETE);
+  }
+
+  @Test
+  public void oneToMany_maxRows() {
+
+    ResetBasicData.reset();
+
+    List<Order.Status> statusList =
+      DB.find(Customer.class)
+        .fetch("orders", "status")
+        .setMaxRows(2)
+        .findSingleAttributeList();
+
+    assertThat(statusList).hasSize(2);
+  }
+
+  @Test
+  public void oneToMany_maxRows_orderBy() {
+
+    ResetBasicData.reset();
+
+    List<Order.Status> statusList =
+      DB.find(Customer.class)
+        .fetch("orders", "status")
+        .setMaxRows(2)
+        .orderBy("orders.status")
+        .findSingleAttributeList();
+
+    assertThat(statusList).hasSize(2);
+    assertThat(statusList.get(0)).isEqualTo(null);
+    assertThat(statusList.get(1)).isEqualTo(Order.Status.NEW);
+  }
+
+  @Test
   public void exampleUsage_otherType() {
 
     ResetBasicData.reset();
