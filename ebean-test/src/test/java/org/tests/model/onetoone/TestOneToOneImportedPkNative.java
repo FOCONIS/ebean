@@ -46,7 +46,7 @@ public class TestOneToOneImportedPkNative extends BaseTestCase {
 
     List<String> lazyLoadSql = LoggedSql.stop();
     assertThat(lazyLoadSql).hasSize(2);
-    assertSql(lazyLoadSql.get(0)).contains("select t0.id, t0.name, t0.id from oto_bmaster t0 where t0.id = ?");
+    assertSql(lazyLoadSql.get(0)).contains("select t0.id, t0.name, t1.master_id from oto_bmaster t0 left join oto_bchild t1 on t1.master_id = t0.id where t0.id = ?");
     assertSql(lazyLoadSql.get(1)).contains("select t0.master_id, t0.child, t0.master_id from oto_bchild t0 where t0.master_id = ?");
   }
 
