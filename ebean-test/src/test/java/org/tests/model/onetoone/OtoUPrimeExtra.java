@@ -6,17 +6,12 @@ import javax.persistence.*;
 import java.util.UUID;
 
 @Entity
-
 public class OtoUPrimeExtra {
 
   @Id
   UUID eid;
 
   String extra;
-
-  @OneToOne(optional = false)
-  @PrimaryKeyJoinColumn
-  private OtoUPrime prime;
 
   @Version
   Long version;
@@ -54,11 +49,4 @@ public class OtoUPrimeExtra {
     this.version = version;
   }
 
-  public OtoUPrime getPrime() {
-    return prime;
-  }
-
-  public void setPrime(OtoUPrime prime) {
-    this.prime = prime;
-  }
 }

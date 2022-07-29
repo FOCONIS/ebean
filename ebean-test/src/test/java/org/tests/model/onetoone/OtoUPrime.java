@@ -15,12 +15,20 @@ public class OtoUPrime {
 
   /**
    * Effectively Ebean automatically sets Cascade PERSIST and mapped by for PrimaryKeyJoinColumn.
-   * This OneToOne is optional so left join to extra.
+   * This OneToOne is not optional so use inner join to extra.
+   * Note: Violating the contract (Storing OtoUPrime without extra) may cause problems:
+   * - due the inner join, you might not get results from the query
+   * - you might get a "Beah has been deleted" if lazy load occurs on 'extra'
    */
   @OneToOne(mappedBy = "prime", orphanRemoval = true, optional = false)
   @DbForeignKey(noConstraint = true)
   OtoUPrimeExtra extra;
 
+  /**
+   * Effectively Ebean automatically sets Cascade PERSIST and mapped by for PrimaryKeyJoinColumn.
+   * This OneToOne is optional so left join to extra.
+   * Setting FetchType.LAZY will NOT add the left join by default to the query.
+   */
   @OneToOne(mappedBy = "prime", fetch = FetchType.LAZY, orphanRemoval = true, optional = true)
   @DbForeignKey(noConstraint = true)
   OtoUPrimeOptionalExtra optionalExtra;

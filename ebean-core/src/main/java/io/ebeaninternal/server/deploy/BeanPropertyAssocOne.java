@@ -607,8 +607,7 @@ public class BeanPropertyAssocOne<T> extends BeanPropertyAssoc<T> implements STr
   }
 
   /**
-   * If column is a primaryKeyExport colum, we can directly use our own ID and do not need to add a join.
-   * (unless the property is nullable)
+   * If column is a primaryKeyExport colum, we can directly use our own ID and do not need to add a join if the relation is not optional
    */
   boolean requiresJoin() {
     return !primaryKeyExport || isNullable();
