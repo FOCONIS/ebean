@@ -28,17 +28,30 @@ public class TestOneToOnePrimaryKeyJoinOptional extends BaseTestCase {
 
     String desc = "" + System.currentTimeMillis();
     OtoUPrime p1 = new OtoUPrime("u" + desc);
-    //p1.setPid(UUID.randomUUID());
-    DB.save(p1);
-
-
     OtoUPrimeExtra p2 = new OtoUPrimeExtra();
-    //p2.setEid(UUID.randomUUID());
     p1.setExtra(p2);
     DB.save(p1);
 
+
+    DB.find(OtoUPrime.class).fetch("extra").findList();
     DB.find(OtoUPrimeExtra.class).fetch("prime").findList();
 
+    UUID id = p1.getPid();
+    p1 = DB.find(OtoUPrime.class, id);
+    p2 = DB.find(OtoUPrimeExtra.class, id);
+    assertThat(p1.getPid()).isEqualTo(id);
+    assertThat(p2.getEid()).isEqualTo(id);
+
+    p1.setExtra(null);
+    DB.save(p1);
+    //DB.delete(p2);
+
+    p1 = DB.find(OtoUPrime.class, id);
+    p2 = DB.find(OtoUPrimeExtra.class, id);
+    assertThat(p1).isNotNull();
+    assertThat(p2).isNull();
+
+/*
     Query<OtoUPrime> query = DB.find(OtoUPrime.class)
       .setId(p1.getPid())
      // .select("pid,name,version")
@@ -50,7 +63,7 @@ public class TestOneToOnePrimaryKeyJoinOptional extends BaseTestCase {
     if (found.getExtra() != null) {
       found.getExtra().getExtra(); // fails here, because getExtra should be null
     }
-   // assertThat(found.getExtra()).isNull();
+   // assertThat(found.getExtra()).isNull();*/
     LoggedSql.stop().forEach(System.out::println);
   }
 

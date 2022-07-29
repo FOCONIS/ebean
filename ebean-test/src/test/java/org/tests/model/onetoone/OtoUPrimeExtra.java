@@ -17,9 +17,9 @@ public class OtoUPrimeExtra {
 
   //@OneToOne//(mappedBy = "extra")
   @OneToOne(optional = false)
-  @PrimaryKeyJoinColumn
+  //@PrimaryKeyJoinColumn
   //@DbForeignKey(noConstraint = true)
-  //@Formula(select = "eid") // funktioniert
+  @Formula(select = "${ta}.eid") // funktioniert
   //@JoinColumn(name = "eid")
   private OtoUPrime prime;
 
