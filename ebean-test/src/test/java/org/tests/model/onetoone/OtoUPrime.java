@@ -20,7 +20,7 @@ public class OtoUPrime {
    * - due the inner join, you might not get results from the query
    * - you might get a "Beah has been deleted" if lazy load occurs on 'extra'
    */
-  @OneToOne(mappedBy = "prime", orphanRemoval = true, optional = false)
+  @OneToOne(orphanRemoval = true, optional = false)
   @DbForeignKey(noConstraint = true)
   OtoUPrimeExtra extra;
 
