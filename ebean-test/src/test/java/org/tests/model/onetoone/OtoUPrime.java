@@ -17,9 +17,7 @@ public class OtoUPrime {
    * Effectively Ebean automatically sets Cascade PERSIST and mapped by for PrimaryKeyJoinColumn.
    * This OneToOne is optional so left join to extra.
    */
-  @OneToOne
-  @PrimaryKeyJoinColumn
-  @DbForeignKey(noConstraint = true)
+  @OneToOne(mappedBy = "prime")
   OtoUPrimeExtra extra;
 
   @Version

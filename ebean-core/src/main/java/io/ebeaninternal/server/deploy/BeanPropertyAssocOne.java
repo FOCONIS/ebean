@@ -604,7 +604,7 @@ public class BeanPropertyAssocOne<T> extends BeanPropertyAssoc<T> implements STr
   @Override
   public void appendSelect(DbSqlContext ctx, boolean subQuery) {
     if (!isTransient) {
-      if (primaryKeyExport) {
+      if (primaryKeyExport && !isNullable()) {
         descriptor.idProperty().appendSelect(ctx, subQuery);
       } else {
         localHelp.appendSelect(ctx, subQuery);
@@ -614,7 +614,7 @@ public class BeanPropertyAssocOne<T> extends BeanPropertyAssoc<T> implements STr
 
   @Override
   public void appendFrom(DbSqlContext ctx, SqlJoinType joinType, String manyWhere) {
-    if (!isTransient && !primaryKeyExport) {
+    if (!isTransient && (!primaryKeyExport || isNullable())) {
       localHelp.appendFrom(ctx, joinType);
       if (sqlFormulaJoin != null) {
         ctx.appendFormulaJoin(sqlFormulaJoin, joinType, manyWhere);

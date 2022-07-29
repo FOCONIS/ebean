@@ -1,11 +1,13 @@
 package org.tests.model.onetoone;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Version;
+import io.ebean.annotation.DbForeignKey;
+import io.ebean.annotation.Formula;
+
+import javax.persistence.*;
 import java.util.UUID;
 
 @Entity
+
 public class OtoUPrimeExtra {
 
   @Id
@@ -13,9 +15,20 @@ public class OtoUPrimeExtra {
 
   String extra;
 
+  //@OneToOne//(mappedBy = "extra")
+  @OneToOne(optional = false)
+  @PrimaryKeyJoinColumn
+  //@DbForeignKey(noConstraint = true)
+  //@Formula(select = "eid") // funktioniert
+  //@JoinColumn(name = "eid")
+  private OtoUPrime prime;
+
   @Version
   Long version;
 
+  public OtoUPrimeExtra() {
+
+  }
   public OtoUPrimeExtra(String extra) {
     this.extra = extra;
   }
@@ -47,5 +60,13 @@ public class OtoUPrimeExtra {
 
   public void setVersion(Long version) {
     this.version = version;
+  }
+
+  public OtoUPrime getPrime() {
+    return prime;
+  }
+
+  public void setPrime(OtoUPrime prime) {
+    this.prime = prime;
   }
 }

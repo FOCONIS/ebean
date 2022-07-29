@@ -7,6 +7,7 @@ import io.ebean.test.LoggedSql;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -23,21 +24,34 @@ public class TestOneToOnePrimaryKeyJoinOptional extends BaseTestCase {
 
   @Test
   public void insertWithoutExtra() {
+    LoggedSql.start();
 
     String desc = "" + System.currentTimeMillis();
     OtoUPrime p1 = new OtoUPrime("u" + desc);
+    //p1.setPid(UUID.randomUUID());
     DB.save(p1);
+
+
+    OtoUPrimeExtra p2 = new OtoUPrimeExtra();
+    //p2.setEid(UUID.randomUUID());
+    p1.setExtra(p2);
+    DB.save(p1);
+
+    DB.find(OtoUPrimeExtra.class).fetch("prime").findList();
 
     Query<OtoUPrime> query = DB.find(OtoUPrime.class)
       .setId(p1.getPid())
-      .fetch("extra", "eid");
+     // .select("pid,name,version")
+      ;
+      //.fetch("extra", "eid");
 
     OtoUPrime found = query.findOne();
 
     if (found.getExtra() != null) {
       found.getExtra().getExtra(); // fails here, because getExtra should be null
     }
-    assertThat(found.getExtra()).isNull();
+   // assertThat(found.getExtra()).isNull();
+    LoggedSql.stop().forEach(System.out::println);
   }
 
   @Test
