@@ -1,9 +1,6 @@
 package org.tests.model.onetoone;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.OneToOne;
-import javax.persistence.Version;
+import javax.persistence.*;
 import java.util.UUID;
 
 @Entity
@@ -17,7 +14,7 @@ public class OtoUBPrime {
   /**
    * Master side of bi-directional PrimaryJoinColumn.
    */
-  @OneToOne(mappedBy = "prime")
+  @OneToOne(mappedBy = "prime", optional = false)
   OtoUBPrimeExtra extra;
 
   @Version

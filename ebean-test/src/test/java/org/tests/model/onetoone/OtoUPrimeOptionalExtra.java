@@ -1,13 +1,10 @@
 package org.tests.model.onetoone;
 
-import io.ebean.annotation.Formula;
-
 import javax.persistence.*;
 import java.util.UUID;
 
 @Entity
-
-public class OtoUPrimeExtra {
+public class OtoUPrimeOptionalExtra {
 
   @Id
   UUID eid;
@@ -21,7 +18,7 @@ public class OtoUPrimeExtra {
   @Version
   Long version;
 
-  public OtoUPrimeExtra(String extra) {
+  public OtoUPrimeOptionalExtra(String extra) {
     this.extra = extra;
   }
 
