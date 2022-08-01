@@ -2,6 +2,7 @@ package org.tests.model.onetoone;
 
 import io.ebean.DB;
 import io.ebean.Query;
+import io.ebean.plugin.Property;
 import io.ebean.test.LoggedSql;
 import io.ebean.xtest.BaseTestCase;
 import org.junit.jupiter.api.AfterEach;
@@ -10,6 +11,7 @@ import org.junit.jupiter.api.Test;
 
 import javax.persistence.PersistenceException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -67,14 +69,14 @@ public class TestOneToOnePrimaryKeyJoinOptional extends BaseTestCase {
     }
     List<OtoUPrime> primes = query1.findList();
     if (extraFetch && optionalFetch) {
-      assertThat(query1.getGeneratedSql()).isEqualTo("select t0.pid, t0.name, t0.version, t0.pid, t2.eid, " +
-        "t1.eid, t1.extra, t1.version, t1.eid, " +
+      assertThat(query1.getGeneratedSql()).isEqualTo("select t0.pid, t0.name, t0.version, t2.eid, " +
+        "t1.eid, t1.extra, t1.version, " +
         "t2.eid, t2.extra, t2.version, t2.eid " +
         "from oto_uprime t0 " +
         "left join oto_uprime_optional_extra t2 on t2.eid = t0.pid " +
         "left join oto_uprime_extra t1 on t1.eid = t0.pid");
     } else if (extraFetch) {
-      assertThat(query1.getGeneratedSql()).isEqualTo("select t0.pid, t0.name, t0.version, t0.pid, t1.eid, t1.extra, t1.version, t1.eid from oto_uprime t0 left join oto_uprime_extra t1 on t1.eid = t0.pid");
+      assertThat(query1.getGeneratedSql()).isEqualTo("select t0.pid, t0.name, t0.version, t1.eid, t1.extra, t1.version from oto_uprime t0 left join oto_uprime_extra t1 on t1.eid = t0.pid");
     } else if (optionalFetch) {
       assertThat(query1.getGeneratedSql()).isEqualTo("select t0.pid, t0.name, t0.pid, t0.version, t1.eid, t1.eid, t1.extra, t1.version, t1.eid from oto_uprime t0 left join oto_uprime_optional_extra t1 on t1.eid = t0.pid");
 
@@ -168,7 +170,8 @@ public class TestOneToOnePrimaryKeyJoinOptional extends BaseTestCase {
     OtoUPrime oneWith = queryWithFetch.findOne();
 
     assertThat(oneWith).isNotNull();
-    assertThat(sqlOf(queryWithFetch, 6)).contains("select t0.pid, t0.name, t0.version, t0.pid, t1.eid, t1.extra, t1.version, t1.eid from oto_uprime t0 left join oto_uprime_extra t1 on t1.eid = t0.pid where t0.pid = ?")
+    assertThat(sqlOf(queryWithFetch, 6))
+      .contains("select t0.pid, t0.name, t0.version, t1.eid, t1.extra, t1.version from oto_uprime t0 left join oto_uprime_extra t1 on t1.eid = t0.pid where t0.pid = ?")
       .as("we join to oto_prime_extra");
 
 
@@ -205,5 +208,14 @@ public class TestOneToOnePrimaryKeyJoinOptional extends BaseTestCase {
     assertSql(sql.get(0)).contains("delete from oto_uprime_extra where");
     assertSql(sql.get(1)).contains("delete from oto_uprime_optional_extra where");
     assertSql(sql.get(2)).contains("delete from oto_uprime where");
+  }
+
+  @Test
+  void testDdl() {
+    Collection<? extends Property> props = DB.getDefault().pluginApi().beanType(OtoUPrime.class).allProperties();
+
+         for (Property prop : props) {
+           System.out.println(prop);
+         }
   }
 }
