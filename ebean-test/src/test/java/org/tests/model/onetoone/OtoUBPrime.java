@@ -14,7 +14,7 @@ public class OtoUBPrime {
   /**
    * Master side of bi-directional PrimaryJoinColumn.
    */
-  @OneToOne(mappedBy = "prime", fetch = FetchType.LAZY)
+  @OneToOne(mappedBy = "prime", optional = false)
   OtoUBPrimeExtra extra;
 
   @Version

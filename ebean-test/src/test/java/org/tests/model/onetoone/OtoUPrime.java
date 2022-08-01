@@ -1,5 +1,7 @@
 package org.tests.model.onetoone;
 
+import io.ebean.annotation.DbForeignKey;
+
 import javax.persistence.*;
 import java.util.UUID;
 
@@ -14,12 +16,13 @@ public class OtoUPrime {
 
   /**
    * Effectively Ebean automatically sets Cascade PERSIST and mapped by for PrimaryKeyJoinColumn.
-   * This OneToOne is not optional so use inner join to extra.
+   * This OneToOne is not optional so use inner join to extra (unless DbForeignkey(noConstraint = true) is set)
    * Note: Violating the contract (Storing OtoUPrime without extra) may cause problems:
    * - due the inner join, you might not get results from the query
    * - you might get a "Beah has been deleted" if lazy load occurs on 'extra'
    */
   @OneToOne(orphanRemoval = true, optional = false)
+  @DbForeignKey(noConstraint = true) // enforcing left join - without this, an inner join is used
   @PrimaryKeyJoinColumn
   OtoUPrimeExtra extra;
 
