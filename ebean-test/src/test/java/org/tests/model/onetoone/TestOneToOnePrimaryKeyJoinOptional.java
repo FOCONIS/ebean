@@ -9,13 +9,13 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import javax.persistence.EntityNotFoundException;
 import javax.persistence.PersistenceException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.*;
 
 public class TestOneToOnePrimaryKeyJoinOptional extends BaseTestCase {
 
@@ -214,8 +214,66 @@ public class TestOneToOnePrimaryKeyJoinOptional extends BaseTestCase {
   void testDdl() {
     Collection<? extends Property> props = DB.getDefault().pluginApi().beanType(OtoUPrime.class).allProperties();
 
-         for (Property prop : props) {
-           System.out.println(prop);
-         }
+    for (Property prop : props) {
+      System.out.println(prop);
+    }
+  }
+
+  @Test
+  void testContractViolation1() {
+
+    OtoUPrime p1 = new OtoUPrime("Prime having no extra");
+    // extra is "optional=false" - and this is a violating of the contract
+    DB.save(p1);
+
+    Query<OtoUPrime> query = DB.find(OtoUPrime.class).setId(p1.pid);
+
+    OtoUPrime found1 = query.findOne();
+    assertThat(query.getGeneratedSql()).doesNotContain("join");
+
+    assertThat(found1.getExtra()).isNotNull();
+    assertThatThrownBy(() -> found1.getExtra().getVersion()).isInstanceOf(EntityNotFoundException.class);
+
+    query.fetch("extra");
+    OtoUPrime found2 = query.findOne();
+    // Note: We use "left join" here, because 'DbForeignKey(noConstraint=true)' is set oh the property
+    // if this annotation is not preset, an inner join would be used and 'found2' would be 'null' then
+    assertThat(query.getGeneratedSql()).contains("from oto_uprime t0 left join oto_uprime_extra");
+    assertThat(found2.getExtra()).isNull();
+
+  }
+
+  @Test
+  void testContractViolation2() {
+
+    OtoUPrimeExtraWithConstraint p1Const = new OtoUPrimeExtraWithConstraint("test");
+    try {
+      // a foreign key prevents from saving
+      DB.save(p1Const);
+      fail("PrimExtra cannot exist without Prime");
+    } catch (PersistenceException pe) {
+      // OK
+    }
+
+    OtoUPrimeWithConstraint p1 = new OtoUPrimeWithConstraint("Prime having no extra");
+    // extra is "optional=false" - and this is a violating of the contract
+    // Note there is no real foreign key in the database, that would prevent saving this entity
+    DB.save(p1);
+
+    Query<OtoUPrimeWithConstraint> query = DB.find(OtoUPrimeWithConstraint.class).setId(p1.pid);
+
+    OtoUPrimeWithConstraint found1 = query.findOne();
+    assertThat(query.getGeneratedSql()).doesNotContain("join");
+
+    assertThat(found1.getExtra()).isNotNull();
+    assertThatThrownBy(() -> found1.getExtra().getVersion()).isInstanceOf(EntityNotFoundException.class);
+
+    query.fetch("extra");
+    OtoUPrimeWithConstraint found2 = query.findOne();
+    // Note: We use "left join" here, because 'DbForeignKey(noConstraint=true)' is set oh the property
+    // if this annotation is not preset, an inner join would be used and 'found2' would be 'null' then
+    assertThat(query.getGeneratedSql()).contains("from oto_uprime_with_constraint t0 join oto_uprime_extra_with_constraint");
+    assertThat(found2).isNull();
+
   }
 }
