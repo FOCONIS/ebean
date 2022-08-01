@@ -22,12 +22,12 @@ public class OtoUPrime {
    * - you might get a "Beah has been deleted" if lazy load occurs on 'extra'
    */
   @OneToOne(orphanRemoval = true, optional = false)
-  @DbForeignKey(noConstraint = true) // enforcing left join - without this, an inner join is used
   @PrimaryKeyJoinColumn
+  // enforcing left join - without 'noConstraint = true', an inner join is used
+  @DbForeignKey(noConstraint = true)
   OtoUPrimeExtra extra;
 
   /**
-   * Effectively Ebean automatically sets Cascade PERSIST and mapped by for PrimaryKeyJoinColumn.
    * This OneToOne is optional so left join to extra.
    * Setting FetchType.LAZY will NOT add the left join by default to the query.
    */
