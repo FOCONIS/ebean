@@ -1,17 +1,22 @@
 package org.tests.model.virtualprop;
 
+import io.ebean.bean.BeanCollection;
 import io.ebean.bean.EntityBean;
 import io.ebean.bean.InterceptReadWrite;
+import io.ebean.common.BeanList;
 import io.ebean.config.dbplatform.DatabasePlatform;
 import io.ebean.plugin.CustomDeployParser;
 import io.ebean.plugin.DeployBeanDescriptorMeta;
 import io.ebean.util.AnnotationUtil;
 import io.ebeaninternal.server.deploy.BeanDescriptorManager;
+import io.ebeaninternal.server.deploy.ManyType;
 import io.ebeaninternal.server.deploy.meta.DeployBeanDescriptor;
 import io.ebeaninternal.server.deploy.meta.DeployBeanProperty;
+import io.ebeaninternal.server.deploy.meta.DeployBeanPropertyAssocMany;
 import io.ebeaninternal.server.deploy.meta.DeployBeanPropertyAssocOne;
 import io.ebeaninternal.server.properties.BeanPropertyGetter;
 import io.ebeaninternal.server.properties.BeanPropertySetter;
+import io.ebeaninternal.server.query.SqlJoinType;
 
 import java.lang.reflect.Field;
 
@@ -24,6 +29,77 @@ public class VirtualPropCustomDeployParser implements CustomDeployParser {
   public void parse(DeployBeanDescriptorMeta meta, DatabasePlatform databasePlatform) {
 
     DeployBeanDescriptor<?> currentDesc = (DeployBeanDescriptor) meta;
+    handleOneToOne(currentDesc);
+
+    for (DeployBeanPropertyAssocMany sourceProp : currentDesc.propertiesAssocMany()) {
+      if (sourceProp.getField() == null) {
+        continue;
+      }
+      VirtualManyToMany ann = AnnotationUtil.get(sourceProp.getField(), VirtualManyToMany.class);
+      if (ann != null) {
+        String propName = getPropertyName(ann.propertyName(), currentDesc.getBeanType().getSimpleName(), "s");
+
+        DeployBeanDescriptor parentDescriptor = currentDesc.getDeploy(sourceProp.getPropertyType()).getDescriptor();
+        DeployBeanPropertyAssocMany p = new DeployBeanPropertyAssocMany(parentDescriptor, currentDesc.getBeanType(), ManyType.LIST);
+
+        p.setName(propName);
+        p.setModifyListenMode(BeanCollection.ModifyListenMode.ALL);
+        p.setManyToMany();
+//    p.setO();
+        // TODO: p.setExtraWhere("${mta}.ref_table_name='database_connection'");
+        //p.setDbInsertable(true);
+        //p.setDbUpdateable(true);
+
+        p.setMappedBy(sourceProp.getName());
+        //p.setNullable(true);
+        p.setFetchType(ann.fetch());
+        p.getCascadeInfo().setTypes(ann.cascade());
+
+        p.getTableJoin().setType(SqlJoinType.OUTER);
+
+        // set the intersection table
+    /*
+    DeployTableJoin intJoin = new DeployTableJoin();
+    intJoin.setTable("todo_get_from_ann");
+
+    // add the source to intersection join columns
+    intJoin.addJoinColumn(new DeployTableJoinColumn("id", "target_uuid"));
+
+    // set the intersection to dest table join columns
+    DeployTableJoin destJoin = p.getTableJoin();
+    destJoin.addJoinColumn(new DeployTableJoinColumn("id", "function_package_id").reverse());
+
+    intJoin.setType(SqlJoinType.OUTER);
+
+    // reverse join from dest back to intersection
+    DeployTableJoin inverseDest = destJoin.createInverse("todo_get_from_ann");
+    p.setIntersectionJoin(intJoin);
+    p.setInverseJoin(inverseDest);
+*/
+
+        int virtualIndex = addVirtualProperty(parentDescriptor.getBeanType(), propName);
+        p.setPropertyIndex(virtualIndex);
+
+        BeanDescriptorManager mgr = currentDesc.getManager();
+        p.setBeanTable(mgr.beanTable(currentDesc.getBeanType()));
+
+        p.setSetter(new VirtualSetter(virtualIndex));
+        p.setGetter(new VirtualGetterMany(virtualIndex));
+        parentDescriptor.addBeanProperty(p);
+      }
+    }
+  }
+
+  private String getPropertyName(String ann, String currentDesc, String suffix) {
+    String propName = ann;
+    if (propName.isEmpty()) {
+      String simpleName = currentDesc;
+      propName = Character.toLowerCase(simpleName.charAt(0)) + simpleName.substring(1) + suffix;
+    }
+    return propName;
+  }
+
+  private void handleOneToOne(DeployBeanDescriptor<?> currentDesc) {
     VirtualOneToOne ann = AnnotationUtil.get(currentDesc.getBeanType(), VirtualOneToOne.class);
     if (ann != null) {
       String propName = ann.propertyName();
@@ -52,31 +128,6 @@ public class VirtualPropCustomDeployParser implements CustomDeployParser {
 
       int virtualIndex = addVirtualProperty(parentDescriptor.getBeanType(), propName);
       p.setPropertyIndex(virtualIndex);
-      //String[] props = (String[]) FieldUtils.readStaticField(parentDescriptor.getBeanType(), "_ebean_props", true);
-      //p.setPropertyIndex(props.length);
-      //props = ArrayUtils.add(props, propName);
-      //FieldUtils.writeStaticField(parentDescriptor.getBeanType(), "_ebean_props", props, true);
-
-      /*
-      VirtualProperty vp = new FocVirtualProperty(propName, mapProp.getName(), (AbstractDbModel) currentDesc.getBeanType()
-        .getConstructor().newInstance(), true, ann.optional(), p.getPropertyIndex());
-      Descriptor.INSTANCE.registerVirtualProperty(parentDescriptor.getBeanType(), currentDesc.getBeanType(), vp);
-
-      if (!ann.optional()) {
-        parentDescriptor.addPersistController(new BeanPersistAdapter() {
-          @Override
-          public boolean isRegisterFor(Class<?> cls) {
-            return true;
-          }
-
-          @Override
-          public boolean preInsert(BeanPersistRequest<?> request) {
-            vp.get(request.bean());
-            return true;
-          }
-        });
-      }
-      */
 
       BeanDescriptorManager mgr = currentDesc.getManager();
       p.setBeanTable(mgr.beanTable(currentDesc.getBeanType()));
@@ -131,6 +182,30 @@ public class VirtualPropCustomDeployParser implements CustomDeployParser {
     @Override
     public Object getIntercept(EntityBean bean) {
       return bean._ebean_intercept().getValueIntercept(fieldIndex);
+    }
+  }
+
+  private static final class VirtualGetterMany implements BeanPropertyGetter {
+
+    private final int fieldIndex;
+
+    VirtualGetterMany(int fieldIndex) {
+      this.fieldIndex = fieldIndex;
+    }
+
+    @Override
+    public Object get(EntityBean bean) {
+      return bean._ebean_intercept().getValue(fieldIndex);
+    }
+
+    @Override
+    public Object getIntercept(EntityBean bean) {
+      Object ret = bean._ebean_intercept().getValueIntercept(fieldIndex);
+      if (ret == null) {
+        ret = new BeanList();
+        ((InterceptReadWrite) bean._ebean_intercept()).setValue(false, fieldIndex, ret, true);
+      }
+      return ret;
     }
   }
 

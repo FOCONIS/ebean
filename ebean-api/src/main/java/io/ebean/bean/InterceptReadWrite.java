@@ -1106,7 +1106,11 @@ public final class InterceptReadWrite implements EntityBeanIntercept {
         virtualValues[index - virtualOffset()] = value;
       } else {
         virtualValues[index - virtualOffset()] = value;
-        setLoadedProperty(index);
+        if (many) {
+          initialisedMany(index);
+        } else {
+          setLoadedProperty(index);
+        }
       }
     }
   }

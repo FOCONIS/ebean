@@ -1,27 +1,28 @@
 package org.tests.model.virtualprop.ext;
 
 import org.tests.model.virtualprop.VirtualBase;
-import org.tests.model.virtualprop.VirtualOneToOne;
+import org.tests.model.virtualprop.VirtualManyToMany;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.OneToOne;
-import javax.persistence.PrimaryKeyJoinColumn;
+import javax.persistence.ManyToMany;
+import javax.persistence.Transient;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Roland Praml, FOCONIS AG
  */
-@VirtualOneToOne(value = VirtualBase.class)
 @Entity
-public class VirtualExtendOne {
+public class VirtualExtendManyToMany {
   @Id
   private int id;
 
   private String data;
 
-  @PrimaryKeyJoinColumn
-  @OneToOne(optional = false)
-  private VirtualBase base;
+  @ManyToMany
+  @VirtualManyToMany
+  private List<VirtualBase> bases;
 
   public int getId() {
     return id;
@@ -39,12 +40,11 @@ public class VirtualExtendOne {
     this.data = data;
   }
 
-  public VirtualBase getBase() {
-    return base;
+  public List<VirtualBase> getBases() {
+    return bases;
   }
 
-  public void setBase(VirtualBase base) {
-    this.base = base;
-    this.id = base == null ? 0 : base.getId();
+  public void setBases(List<VirtualBase> bases) {
+    this.bases = bases;
   }
 }

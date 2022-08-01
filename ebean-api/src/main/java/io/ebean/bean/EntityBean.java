@@ -127,5 +127,4 @@ public interface EntityBean extends Serializable, ToStringAware {
   default void toString(ToStringBuilder builder) {
     throw new NotEnhancedException();
   }
-
 }
