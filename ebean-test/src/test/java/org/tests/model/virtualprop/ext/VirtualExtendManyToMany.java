@@ -23,6 +23,8 @@ public class VirtualExtendManyToMany {
     @ManyToMany
     @JoinTable(name = "kreuztabelle")
     private List<VirtualExtendManyToMany> virtualExtendManyToManys;
+
+
   }
 
   @ManyToMany(mappedBy = "virtualExtendManyToManys")

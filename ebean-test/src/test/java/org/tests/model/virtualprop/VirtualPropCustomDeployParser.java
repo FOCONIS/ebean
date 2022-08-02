@@ -2,6 +2,8 @@ package org.tests.model.virtualprop;
 
 import io.ebean.bean.BeanCollection;
 import io.ebean.bean.EntityBean;
+import io.ebean.bean.ExtendableBean;
+import io.ebean.bean.ExtendableBean.ExtensionInfo;
 import io.ebean.bean.InterceptReadWrite;
 import io.ebean.common.BeanList;
 import io.ebean.config.dbplatform.DatabasePlatform;
@@ -60,9 +62,9 @@ public class VirtualPropCustomDeployParser implements CustomDeployParser {
     if (ann != null) {
 
       DeployBeanDescriptor parentDescriptor = currentDesc.getDeploy(ann.value()).getDescriptor();
+         addVirtualExtension(parentDescriptor.getBeanType(), currentDesc.getBeanType());
       for (DeployBeanProperty p:currentDesc.properties()) {
 
-        int virtualIndex = addVirtualProperty(parentDescriptor.getBeanType(), p.getName());
         virtualProperties.add(p);
        /* p.setPropertyIndex(virtualIndex);
         if (p instanceof DeployBeanPropertyAssocMany) {
@@ -79,19 +81,29 @@ public class VirtualPropCustomDeployParser implements CustomDeployParser {
     }
   }
 
-  private int addVirtualProperty(Class beanClass, String name) {
+  private void addVirtualExtension(Class targetClass, Class sourceClass) {
     try {
-      Field field = beanClass.getField("_ebean_props");
-      String[] props = (String[]) field.get(null);
-      String[] newProps = new String[props.length + 1];
-      System.arraycopy(props, 0, newProps, 0, props.length);
-      newProps[props.length] = name;
-      field.set(null, newProps);
+      // append sourceProps to targetProps
 
-      field = beanClass.getField("_ebean_virtual_prop_count");
-      field.set(null, (int) field.get(null) + 1);
+      Field targetField = targetClass.getField("_ebean_props");
+      Field sourceField = sourceClass.getField("_ebean_props");
 
-      return props.length;
+      String[] targetProps = (String[]) targetField.get(null);
+      String[] sourceProps = (String[]) sourceField.get(null);
+      String[] newProps = new String[targetProps.length + sourceProps.length];
+      System.arraycopy(targetProps, 0, newProps, 0, targetProps.length);
+      System.arraycopy(sourceProps, 0, newProps, targetProps.length, sourceProps.length);
+
+
+      targetField.set(null, newProps);
+
+      Field field = targetClass.getField("_ebean_extensions");
+      ExtensionInfo[] extensions = (ExtensionInfo[]) field.get(null);
+      ExtensionInfo[] newExtensionInfo = new ExtensionInfo[extensions.length+1];
+      System.arraycopy(extensions, 0, newExtensionInfo, 0, extensions.length);
+      newExtensionInfo[extensions.length] = new ExtensionInfo(targetProps.length, sourceProps.length, extensions.length, sourceClass);
+      field.set(null, newExtensionInfo);
+
     } catch (Exception e) {
       throw new RuntimeException(e);
     }

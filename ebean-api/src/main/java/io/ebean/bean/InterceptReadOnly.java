@@ -25,7 +25,7 @@ public class InterceptReadOnly implements EntityBeanIntercept {
   public InterceptReadOnly(Object ownerBean) {
 
     this.owner = (EntityBean) ownerBean;
-    int virtualPropertyCount = owner._ebean_getVirtualPropertyCount();
+    int virtualPropertyCount = 0; //owner._ebean_getVirtualPropertyCount();
     if (virtualPropertyCount > 0) {
       this.virtualValues = new Object[virtualPropertyCount];
     } else {

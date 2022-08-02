@@ -23,7 +23,6 @@ import java.util.concurrent.locks.ReentrantLock;
  * and oldValues generation for concurrency checking.
  */
 public final class InterceptReadWrite implements EntityBeanIntercept {
-
   private static final long serialVersionUID = -3664031775464862649L;
 
   private static final int STATE_NEW = 0;
@@ -80,7 +79,7 @@ public final class InterceptReadWrite implements EntityBeanIntercept {
   private boolean fullyLoadedBean;
   private boolean loadedFromCache;
   private final byte[] flags;
-  private final Object[] virtualValues;
+  private int virtualPropertyStart = Integer.MAX_VALUE;
   private Object[] origValues;
   private Exception[] loadErrors;
   private int lazyLoadProperty = -1;
@@ -103,12 +102,16 @@ public final class InterceptReadWrite implements EntityBeanIntercept {
    */
   public InterceptReadWrite(Object ownerBean) {
     this.owner = (EntityBean) ownerBean;
-    int virtualPropertyCount = owner._ebean_getVirtualPropertyCount();
-    if (virtualPropertyCount > 0) {
-      this.virtualValues = new Object[virtualPropertyCount];
-    } else {
-      virtualValues = null;
+    int length = owner._ebean_getPropertyNames().length;
+    if (ownerBean instanceof ExtendableBean) {
+      ExtendableBean eb = (ExtendableBean) ownerBean;
+      ExtendableBean.ExtensionInfo[] extensions = eb._ebean_getExtensions();
+      if (extensions.length > 0) {
+        this.virtualPropertyStart = length = extensions[0].getStart();
+        eb._ebean_setExtensionStorage(new Object[extensions.length]);
+      }
     }
+
     this.flags = new byte[owner._ebean_getPropertyNames().length];
   }
 
@@ -118,7 +121,6 @@ public final class InterceptReadWrite implements EntityBeanIntercept {
   public InterceptReadWrite() {
     this.owner = null;
     this.flags = null;
-    this.virtualValues = null;
   }
 
   @Override
@@ -1069,53 +1071,101 @@ public final class InterceptReadWrite implements EntityBeanIntercept {
     return next != null ? next.content() : null;
   }
 
+  private ExtendableBean.ExtensionInfo getExtension(int index) {
+    if (index >= virtualPropertyStart) {
+      ExtendableBean.ExtensionInfo[] extensions = ((ExtendableBean) owner)._ebean_getExtensions();
+      index -= virtualPropertyStart;
+      for (int i = 0; i < extensions.length; i++) {
+        index -= extensions[i].getLength();
+        if (index < 0) {
+          return extensions[i];
+        }
+      }
+    }
+    throw new IllegalArgumentException("Index invalid");
+  }
+
   @Override
   public Object getValue(int index) {
-    if (virtualValues == null || index < flags.length - virtualValues.length) {
+
+    if (index < virtualPropertyStart) {
       return owner._ebean_getField(index);
     } else {
-      return virtualValues[index - (flags.length - virtualValues.length)];
+      ExtendableBean.ExtensionInfo extension = getExtension(index);
+      ExtendableBean eb = (ExtendableBean) owner;
+      Object[] extensions = eb._ebean_getExtensionStorage();
+      Object extensionBean = extensions[extension.getIndex()];
+      if (extensionBean == null) {
+        extensions[extension.getIndex()] = extensionBean = extension.createInstance();
+      }
+      return ((EntityBean)extensionBean)._ebean_getField(index - extension.getStart());
     }
   }
 
   @Override
   public Object getValueIntercept(int index) {
-    if (virtualValues == null || index < flags.length - virtualValues.length) {
+    if (index < virtualPropertyStart) {
       return owner._ebean_getFieldIntercept(index);
     } else {
-      preGetter(index);
-      return virtualValues[index - (flags.length - virtualValues.length)];
+      ExtendableBean.ExtensionInfo extension = getExtension(index);
+      ExtendableBean eb = (ExtendableBean) owner;
+      Object[] extensions = eb._ebean_getExtensionStorage();
+      Object extensionBean = extensions[extension.getIndex()];
+      if (extensionBean == null) {
+        extensions[extension.getIndex()] = extensionBean = extension.createInstance();
+      }
+      return ((EntityBean)extensionBean)._ebean_getFieldIntercept(index - extension.getStart());
     }
   }
 
   public void setValue(boolean intercept, int index, Object value, boolean many) {
-    if (virtualValues == null || index < virtualOffset()) {
+    if (index < virtualPropertyStart) {
       if (intercept) {
         owner._ebean_setFieldIntercept(index, value);
       } else {
         owner._ebean_setField(index, value);
       }
     } else {
+      ExtendableBean.ExtensionInfo extension = getExtension(index);
+      ExtendableBean eb = (ExtendableBean) owner;
+      Object[] extensions = eb._ebean_getExtensionStorage();
+      Object extensionBean = extensions[extension.getIndex()];
+      if (extensionBean == null) {
+        extensions[extension.getIndex()] = extensionBean = extension.createInstance();
+      }
       if (intercept) {
-        preGetter(index);
-        if (many) {
-          preSetterMany(false, index, virtualValues[index - virtualOffset()], value);
-        } else if (intercept) {
-          preSetter(true, index, virtualValues[index - virtualOffset()], value);
-        }
-        virtualValues[index - virtualOffset()] = value;
+        ((EntityBean)extensionBean)._ebean_setFieldIntercept(index - extension.getStart(), value);
       } else {
-        virtualValues[index - virtualOffset()] = value;
-        if (many) {
-          initialisedMany(index);
-        } else {
-          setLoadedProperty(index);
-        }
+        ((EntityBean)extensionBean)._ebean_setField(index - extension.getStart(), value);
       }
     }
+//
+//
+//    if (virtualValues == null || index < virtualOffset()) {
+//      if (intercept) {
+//        owner._ebean_setFieldIntercept(index, value);
+//      } else {
+//        owner._ebean_setField(index, value);
+//      }
+//    } else {
+//      if (intercept) {
+//        preGetter(index);
+//        if (many) {
+//          preSetterMany(false, index, virtualValues[index - virtualOffset()], value);
+//        } else if (intercept) {
+//          preSetter(true, index, virtualValues[index - virtualOffset()], value);
+//        }
+//        virtualValues[index - virtualOffset()] = value;
+//      } else {
+//        virtualValues[index - virtualOffset()] = value;
+//        if (many) {
+//          initialisedMany(index);
+//        } else {
+//          setLoadedProperty(index);
+//        }
+//      }
+//    }
   }
 
-  private int virtualOffset() {
-    return flags.length - virtualValues.length;
-  }
+
 }
