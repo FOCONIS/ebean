@@ -1,19 +1,23 @@
 package org.tests.model.virtualprop.ext;
 
 import org.tests.model.virtualprop.VirtualBase;
-import org.tests.model.virtualprop.VirtualOneToOne;
+import org.tests.model.virtualprop.VirtualEmbed;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.OneToOne;
-import javax.persistence.PrimaryKeyJoinColumn;
+import javax.persistence.*;
 
 /**
  * @author Roland Praml, FOCONIS AG
  */
-@VirtualOneToOne(value = VirtualBase.class)
+
 @Entity
 public class VirtualExtendOne {
+
+  @VirtualEmbed(value = VirtualBase.class)
+  @Embeddable
+  static class VirtualBaseExtendOneOther {
+    @OneToOne(mappedBy = "base")
+    private VirtualExtendOne virtualExtendOne;
+  }
   @Id
   private int id;
 

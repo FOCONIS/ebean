@@ -100,7 +100,7 @@ public class VirtualPropCustomDeployParser implements CustomDeployParser {
   }
 
   private void handleOneToOne(DeployBeanDescriptor<?> currentDesc) {
-    VirtualOneToOne ann = AnnotationUtil.get(currentDesc.getBeanType(), VirtualOneToOne.class);
+    VirtualEmbed ann = AnnotationUtil.get(currentDesc.getBeanType(), VirtualEmbed.class);
     if (ann != null) {
       String propName = ann.propertyName();
       if (propName.isEmpty()) {

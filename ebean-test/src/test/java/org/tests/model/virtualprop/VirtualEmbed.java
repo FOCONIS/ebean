@@ -37,7 +37,7 @@ import javax.persistence.FetchType;
  * <pre>
  *   package extPkg;
  *   import basePkg.myBaseEntity;
- *   &#64;VirtualOneToOne(class=MyBaseEntity)
+ *   &#64;VirtualEmbed(class=MyBaseEntity)
  *   class MyExtEntity {
  *     &#64;OneToOne(optional = false)
  *     private MyBaseEntity
@@ -49,26 +49,13 @@ import javax.persistence.FetchType;
 @Documented
 @Target({ ElementType.TYPE, ElementType.ANNOTATION_TYPE })
 @Retention(RetentionPolicy.RUNTIME)
-public @interface VirtualOneToOne {
+public @interface VirtualEmbed {
 
   /**
    * The target entity to attach that OneToOne
    */
 	Class<?> value();
 
-  /**
-   * The property name, that should be created in TargetEntity
-   */
-	String propertyName() default "";
 
-  /**
-   * The fetch type of that virtual property
-   */
-	FetchType fetch() default FetchType.LAZY;
-
-  /**
-   * The cascade info.
-   */
-	CascadeType[] cascade() default { CascadeType.ALL };
 
 }

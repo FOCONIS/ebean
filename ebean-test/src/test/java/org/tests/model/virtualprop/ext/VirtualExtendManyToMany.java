@@ -1,7 +1,6 @@
 package org.tests.model.virtualprop.ext;
 
 import org.tests.model.virtualprop.VirtualBase;
-import org.tests.model.virtualprop.VirtualManyToMany;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -21,7 +20,6 @@ public class VirtualExtendManyToMany {
   private String data;
 
   @ManyToMany
-  @VirtualManyToMany
   private List<VirtualBase> bases;
 
   public int getId() {
