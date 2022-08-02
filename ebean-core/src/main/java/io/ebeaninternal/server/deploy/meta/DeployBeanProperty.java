@@ -158,14 +158,14 @@ public class DeployBeanProperty implements DeployBeanPropertyMeta {
    */
   private int dbType;
   private final DeployDocPropertyOptions docMapping = new DeployDocPropertyOptions();
-  private int propertyIndex;
+  private int propertyIndex = -1;
   private BeanPropertyGetter getter;
   private BeanPropertySetter setter;
   /**
    * Generator for insert or update timestamp etc.
    */
   private GeneratedProperty generatedProperty;
-  final DeployBeanDescriptor<?> desc;
+  DeployBeanDescriptor<?> desc;
   private boolean undirectionalShadow;
   private boolean elementProperty;
   private int sortOrder;
@@ -1168,5 +1168,9 @@ public class DeployBeanProperty implements DeployBeanPropertyMeta {
 
   boolean isJsonType() {
     return mutationDetection != null;
+  }
+
+  public void setDesc(DeployBeanDescriptor<?> desc) {
+    this.desc = desc;
   }
 }

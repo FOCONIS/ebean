@@ -1,12 +1,9 @@
 package org.tests.model.virtualprop.ext;
 
 import org.tests.model.virtualprop.VirtualBase;
+import org.tests.model.virtualprop.VirtualEmbed;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.ManyToMany;
-import javax.persistence.Transient;
-import java.util.ArrayList;
+import javax.persistence.*;
 import java.util.List;
 
 /**
@@ -19,7 +16,16 @@ public class VirtualExtendManyToMany {
 
   private String data;
 
-  @ManyToMany
+  @VirtualEmbed(VirtualBase.class)
+  @Entity
+  @Table(name = "virtual_base123")
+  public static class VirtualBaseExtendManyToMany {
+    @ManyToMany
+    @JoinTable(name = "kreuztabelle")
+    private List<VirtualExtendManyToMany> virtualExtendManyToManys;
+  }
+
+  @ManyToMany(mappedBy = "virtualExtendManyToManys")
   private List<VirtualBase> bases;
 
   public int getId() {

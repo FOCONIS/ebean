@@ -1,5 +1,6 @@
 package org.tests.model.virtualprop.ext;
 
+import io.ebean.annotation.Formula;
 import org.tests.model.virtualprop.VirtualBase;
 import org.tests.model.virtualprop.VirtualEmbed;
 
@@ -13,10 +14,17 @@ import javax.persistence.*;
 public class VirtualExtendOne {
 
   @VirtualEmbed(value = VirtualBase.class)
-  @Embeddable
-  static class VirtualBaseExtendOneOther {
+  @Entity
+  public static class VirtualBaseExtendOneOther {
     @OneToOne(mappedBy = "base")
     private VirtualExtendOne virtualExtendOne;
+
+    @Formula(select = "concat('Your name is ', ${ta}.data)")
+    private String firstName;
+
+    /*public static VirtualBaseExtendOneOther wrap(VirtualBase b) {
+
+    }*/
   }
   @Id
   private int id;

@@ -1,7 +1,9 @@
 package org.tests.model.virtualprop;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import org.tests.model.virtualprop.ext.VirtualExtendManyToMany;
+
+import javax.persistence.*;
+import java.util.List;
 
 /**
  * @author Roland Praml, FOCONIS AG
@@ -16,6 +18,7 @@ public class VirtualBase {
     return _ebean_virtual_prop_count;
   }
   // TODO: Enhancer end
+
 
   @Id
   private int id;
