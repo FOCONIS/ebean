@@ -1,21 +1,16 @@
 package org.tests.model.virtualprop;
 
-import io.ebean.bean.BeanCollection;
 import io.ebean.bean.EntityBean;
-import io.ebean.bean.ExtendableBean;
-import io.ebean.bean.ExtendableBean.ExtensionInfo;
+import io.ebean.bean.ExtensionInfo;
 import io.ebean.bean.InterceptReadWrite;
 import io.ebean.common.BeanList;
 import io.ebean.config.dbplatform.DatabasePlatform;
 import io.ebean.plugin.CustomDeployParser;
 import io.ebean.plugin.DeployBeanDescriptorMeta;
 import io.ebean.util.AnnotationUtil;
-import io.ebeaninternal.server.deploy.BeanDescriptorManager;
-import io.ebeaninternal.server.deploy.ManyType;
 import io.ebeaninternal.server.deploy.meta.*;
 import io.ebeaninternal.server.properties.BeanPropertyGetter;
 import io.ebeaninternal.server.properties.BeanPropertySetter;
-import io.ebeaninternal.server.query.SqlJoinType;
 
 import java.lang.reflect.Field;
 import java.util.HashSet;

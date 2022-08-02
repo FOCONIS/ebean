@@ -8,7 +8,7 @@ import java.util.Set;
 /**
  * @author Roland Praml, FOCONIS AG
  */
-public class ExtendedIntercept implements EntityBeanIntercept{
+public class ExtendedIntercept implements EntityBeanIntercept {
   private final EntityBeanIntercept parent;
   private final int offset;
 
@@ -229,7 +229,7 @@ public class ExtendedIntercept implements EntityBeanIntercept{
 
   @Override
   public String getProperty(int propertyIndex) {
-    return parent.getProperty(propertyIndex+offset);
+    return parent.getProperty(propertyIndex + offset);
   }
 
   @Override
@@ -384,7 +384,7 @@ public class ExtendedIntercept implements EntityBeanIntercept{
 
   @Override
   public void loadBeanInternal(int loadProperty, BeanLoader loader) {
-    parent.loadBeanInternal(loadProperty  + offset, loader);
+    parent.loadBeanInternal(loadProperty + offset, loader);
   }
 
   @Override
