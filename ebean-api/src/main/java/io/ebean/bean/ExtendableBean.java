@@ -1,5 +1,7 @@
 package io.ebean.bean;
 
+import java.lang.reflect.Field;
+
 /**
  * @author Roland Praml, FOCONIS AG
  */
@@ -38,9 +40,13 @@ public interface ExtendableBean {
       return index;
     }
 
-    public Object createInstance() {
+    public Object createInstance(EntityBeanIntercept parentEbi) {
       try {
-        return type.getConstructor().newInstance();
+        EntityBean bean = (EntityBean) type.getConstructor().newInstance();
+        Field field = type.getDeclaredField("_ebean_intercept");
+        field.setAccessible(true);
+        field.set(bean, new ExtendedIntercept(start, parentEbi));
+        return bean;
       } catch (Exception e) {
         throw new RuntimeException(e);
       }

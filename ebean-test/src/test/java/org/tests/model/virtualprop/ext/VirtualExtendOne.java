@@ -16,15 +16,36 @@ public class VirtualExtendOne {
   @VirtualEmbed(value = VirtualBase.class)
   @Entity
   public static class VirtualBaseExtendOneOther {
+    public static int _extension_id = -1;
     @OneToOne(mappedBy = "base")
     private VirtualExtendOne virtualExtendOne;
 
     @Formula(select = "concat('Your name is ', ${ta}.data)")
     private String firstName;
 
+    public static VirtualBaseExtendOneOther get(VirtualBase found) {
+      return (VirtualBaseExtendOneOther) found._ebean_getExtensionStorage()[_extension_id];
+    }
+
     /*public static VirtualBaseExtendOneOther wrap(VirtualBase b) {
 
     }*/
+
+    public VirtualExtendOne getVirtualExtendOne() {
+      return virtualExtendOne;
+    }
+
+    public void setVirtualExtendOne(VirtualExtendOne virtualExtendOne) {
+      this.virtualExtendOne = virtualExtendOne;
+    }
+
+    public String getFirstName() {
+      return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+      this.firstName = firstName;
+    }
   }
   @Id
   private int id;

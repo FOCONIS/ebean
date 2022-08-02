@@ -20,9 +20,14 @@ public class VirtualExtendManyToMany {
   @Entity
   @Table(name = "virtual_base123")
   public static class VirtualBaseExtendManyToMany {
+    public static int _extension_id = -1;
     @ManyToMany
     @JoinTable(name = "kreuztabelle")
     private List<VirtualExtendManyToMany> virtualExtendManyToManys;
+
+    public static VirtualBaseExtendManyToMany get(VirtualBase found) {
+      return (VirtualBaseExtendManyToMany) found._ebean_getExtensionStorage()[_extension_id];
+    }
 
 
   }

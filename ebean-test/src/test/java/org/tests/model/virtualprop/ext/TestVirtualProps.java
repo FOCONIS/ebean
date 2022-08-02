@@ -55,17 +55,22 @@ public class TestVirtualProps {
     prop.pathSet(found, ext);
     db.save(found);
 
+    VirtualExtendOne.VirtualBaseExtendOneOther other = VirtualExtendOne.VirtualBaseExtendOneOther.get(found);
+    assertThat(other.getVirtualExtendOne().getData()).isEqualTo("bar");
 
-    found = db.find(VirtualBase.class).where().eq("virtualExtendOne.data", "bar").findOne();
+    other.getVirtualExtendOne().setData("faz");
+    db.save(found);
+
+    found = db.find(VirtualBase.class).where().eq("virtualExtendOne.data", "faz").findOne();
     assertThat(found).isNotNull();
 
     List<Object> attr = db.find(VirtualBase.class).fetch("virtualExtendOne", "data").findSingleAttributeList();
-    assertThat(attr).containsExactly("bar");
+    assertThat(attr).containsExactly("faz");
 
     attr = db.find(VirtualBase.class).select("firstName").findSingleAttributeList();
     assertThat(attr).containsExactly("Your name is Foo");
     VirtualExtendOne oneFound = (VirtualExtendOne) prop.pathGet(found);
-    assertThat(oneFound.getData()).isEqualTo("bar");
+    assertThat(oneFound.getData()).isEqualTo("faz");
 
     db.delete(oneFound); // cleanup
   }

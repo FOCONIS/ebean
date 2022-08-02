@@ -1096,7 +1096,7 @@ public final class InterceptReadWrite implements EntityBeanIntercept {
       Object[] extensions = eb._ebean_getExtensionStorage();
       Object extensionBean = extensions[extension.getIndex()];
       if (extensionBean == null) {
-        extensions[extension.getIndex()] = extensionBean = extension.createInstance();
+        extensions[extension.getIndex()] = extensionBean = extension.createInstance(this);
       }
       return ((EntityBean)extensionBean)._ebean_getField(index - extension.getStart());
     }
@@ -1112,7 +1112,7 @@ public final class InterceptReadWrite implements EntityBeanIntercept {
       Object[] extensions = eb._ebean_getExtensionStorage();
       Object extensionBean = extensions[extension.getIndex()];
       if (extensionBean == null) {
-        extensions[extension.getIndex()] = extensionBean = extension.createInstance();
+        extensions[extension.getIndex()] = extensionBean = extension.createInstance(this);
       }
       return ((EntityBean)extensionBean)._ebean_getFieldIntercept(index - extension.getStart());
     }
@@ -1131,7 +1131,7 @@ public final class InterceptReadWrite implements EntityBeanIntercept {
       Object[] extensions = eb._ebean_getExtensionStorage();
       Object extensionBean = extensions[extension.getIndex()];
       if (extensionBean == null) {
-        extensions[extension.getIndex()] = extensionBean = extension.createInstance();
+        extensions[extension.getIndex()] = extensionBean = extension.createInstance(this);
       }
       if (intercept) {
         ((EntityBean)extensionBean)._ebean_setFieldIntercept(index - extension.getStart(), value);

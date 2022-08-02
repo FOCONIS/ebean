@@ -104,6 +104,9 @@ public class VirtualPropCustomDeployParser implements CustomDeployParser {
       newExtensionInfo[extensions.length] = new ExtensionInfo(targetProps.length, sourceProps.length, extensions.length, sourceClass);
       field.set(null, newExtensionInfo);
 
+      field = sourceClass.getField("_extension_id");
+      field.set(null, extensions.length);
+
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
