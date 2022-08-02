@@ -1,6 +1,7 @@
 package org.tests.model.virtualprop.ext;
 
 import io.ebean.annotation.Formula;
+import io.ebean.bean.EntityBean;
 import org.tests.model.virtualprop.VirtualBase;
 import org.tests.model.virtualprop.VirtualEmbed;
 
@@ -24,7 +25,7 @@ public class VirtualExtendOne {
     private String firstName;
 
     public static VirtualBaseExtendOneOther get(VirtualBase found) {
-      return (VirtualBaseExtendOneOther) found._ebean_getExtensionStorage()[_extension_id];
+      return (VirtualBaseExtendOneOther) found._ebean_getExtension(_extension_id, ((EntityBean)found)._ebean_getIntercept());
     }
 
     /*public static VirtualBaseExtendOneOther wrap(VirtualBase b) {

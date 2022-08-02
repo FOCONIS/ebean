@@ -1,6 +1,7 @@
 package org.tests.model.virtualprop;
 
 import io.ebean.bean.EntityBean;
+import io.ebean.bean.EntityBeanIntercept;
 import io.ebean.bean.ExtendableBean;
 import org.tests.model.virtualprop.ext.VirtualExtendManyToMany;
 
@@ -19,28 +20,25 @@ public class VirtualBase implements ExtendableBean {
   public static ExtensionInfo[] _ebean_extensions = new ExtensionInfo[0];
 
   @Override
-  public ExtensionInfo[] _ebean_getExtensions() {
+  public ExtensionInfo[] _ebean_getExtensionInfos() {
     return _ebean_extensions;
   }
   // TODO: Enhancer end
 
 
   @Transient
-private Object[] extensionStorage;
+  private EntityBean[] extensionStorage;
 
   @Override
-  public void _ebean_setExtensionStorage(Object[] objects) {
-    extensionStorage = objects;
-  }
-
-  @Override
-  public Object[] _ebean_getExtensionStorage() {
-    return extensionStorage;
-  }
-
-  @Override
-  public <T> T getExtension(Class<T> type) {
-      return null;
+  public EntityBean _ebean_getExtension(int index, EntityBeanIntercept ebi) {
+    if (extensionStorage == null) {
+      extensionStorage = new EntityBean[_ebean_getExtensionInfos().length];
+    }
+    EntityBean ret = extensionStorage[index];
+    if (ret == null) {
+      extensionStorage[index] = ret = _ebean_getExtensionInfos()[index].createInstance(ebi);
+    }
+    return ret;
   }
 
 

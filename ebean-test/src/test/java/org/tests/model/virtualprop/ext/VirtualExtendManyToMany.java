@@ -1,5 +1,6 @@
 package org.tests.model.virtualprop.ext;
 
+import io.ebean.bean.EntityBean;
 import org.tests.model.virtualprop.VirtualBase;
 import org.tests.model.virtualprop.VirtualEmbed;
 
@@ -26,7 +27,7 @@ public class VirtualExtendManyToMany {
     private List<VirtualExtendManyToMany> virtualExtendManyToManys;
 
     public static VirtualBaseExtendManyToMany get(VirtualBase found) {
-      return (VirtualBaseExtendManyToMany) found._ebean_getExtensionStorage()[_extension_id];
+      return (VirtualBaseExtendManyToMany) found._ebean_getExtension(_extension_id, ((EntityBean)found)._ebean_getIntercept());
     }
 
 

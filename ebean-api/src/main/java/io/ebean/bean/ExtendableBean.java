@@ -6,9 +6,10 @@ import java.lang.reflect.Field;
  * @author Roland Praml, FOCONIS AG
  */
 public interface ExtendableBean {
-  void _ebean_setExtensionStorage(Object[] objects);
 
-  Object[] _ebean_getExtensionStorage();
+  ExtensionInfo[] _ebean_getExtensionInfos();
+
+  EntityBean _ebean_getExtension(int index, EntityBeanIntercept ebi);
 
   public static class ExtensionInfo {
     private final int start;
@@ -40,7 +41,7 @@ public interface ExtendableBean {
       return index;
     }
 
-    public Object createInstance(EntityBeanIntercept parentEbi) {
+    public EntityBean createInstance(EntityBeanIntercept parentEbi) {
       try {
         EntityBean bean = (EntityBean) type.getConstructor().newInstance();
         Field field = type.getDeclaredField("_ebean_intercept");
@@ -53,8 +54,5 @@ public interface ExtendableBean {
     }
   }
 
-  <T> T getExtension(Class<T> type);
-
-  ExtensionInfo[] _ebean_getExtensions();
 
 }

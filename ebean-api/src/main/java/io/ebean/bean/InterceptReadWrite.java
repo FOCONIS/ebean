@@ -105,10 +105,9 @@ public final class InterceptReadWrite implements EntityBeanIntercept {
     int length = owner._ebean_getPropertyNames().length;
     if (ownerBean instanceof ExtendableBean) {
       ExtendableBean eb = (ExtendableBean) ownerBean;
-      ExtendableBean.ExtensionInfo[] extensions = eb._ebean_getExtensions();
+      ExtendableBean.ExtensionInfo[] extensions = eb._ebean_getExtensionInfos();
       if (extensions.length > 0) {
         this.virtualPropertyStart = length = extensions[0].getStart();
-        eb._ebean_setExtensionStorage(new Object[extensions.length]);
       }
     }
 
@@ -1073,7 +1072,7 @@ public final class InterceptReadWrite implements EntityBeanIntercept {
 
   private ExtendableBean.ExtensionInfo getExtension(int index) {
     if (index >= virtualPropertyStart) {
-      ExtendableBean.ExtensionInfo[] extensions = ((ExtendableBean) owner)._ebean_getExtensions();
+      ExtendableBean.ExtensionInfo[] extensions = ((ExtendableBean) owner)._ebean_getExtensionInfos();
       index -= virtualPropertyStart;
       for (int i = 0; i < extensions.length; i++) {
         index -= extensions[i].getLength();
@@ -1093,11 +1092,7 @@ public final class InterceptReadWrite implements EntityBeanIntercept {
     } else {
       ExtendableBean.ExtensionInfo extension = getExtension(index);
       ExtendableBean eb = (ExtendableBean) owner;
-      Object[] extensions = eb._ebean_getExtensionStorage();
-      Object extensionBean = extensions[extension.getIndex()];
-      if (extensionBean == null) {
-        extensions[extension.getIndex()] = extensionBean = extension.createInstance(this);
-      }
+      EntityBean extensionBean = eb._ebean_getExtension(extension.getIndex(), this);
       return ((EntityBean)extensionBean)._ebean_getField(index - extension.getStart());
     }
   }
@@ -1109,11 +1104,7 @@ public final class InterceptReadWrite implements EntityBeanIntercept {
     } else {
       ExtendableBean.ExtensionInfo extension = getExtension(index);
       ExtendableBean eb = (ExtendableBean) owner;
-      Object[] extensions = eb._ebean_getExtensionStorage();
-      Object extensionBean = extensions[extension.getIndex()];
-      if (extensionBean == null) {
-        extensions[extension.getIndex()] = extensionBean = extension.createInstance(this);
-      }
+      EntityBean extensionBean = eb._ebean_getExtension(extension.getIndex(), this);
       return ((EntityBean)extensionBean)._ebean_getFieldIntercept(index - extension.getStart());
     }
   }
@@ -1128,11 +1119,7 @@ public final class InterceptReadWrite implements EntityBeanIntercept {
     } else {
       ExtendableBean.ExtensionInfo extension = getExtension(index);
       ExtendableBean eb = (ExtendableBean) owner;
-      Object[] extensions = eb._ebean_getExtensionStorage();
-      Object extensionBean = extensions[extension.getIndex()];
-      if (extensionBean == null) {
-        extensions[extension.getIndex()] = extensionBean = extension.createInstance(this);
-      }
+      Object extensionBean = eb._ebean_getExtension(extension.getIndex(), this);
       if (intercept) {
         ((EntityBean)extensionBean)._ebean_setFieldIntercept(index - extension.getStart(), value);
       } else {
