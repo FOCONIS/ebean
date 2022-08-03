@@ -52,6 +52,7 @@ public class TestVirtualProps {
     found = db.find(VirtualBase.class).where().isNull("virtualExtendOne").findOne();
     VirtualExtendOne ext = new VirtualExtendOne();
     ext.setData("bar");
+
     prop.pathSet(found, ext);
     db.save(found);
 

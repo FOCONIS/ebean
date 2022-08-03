@@ -546,4 +546,14 @@ public class ExtendedIntercept implements EntityBeanIntercept {
   public Object getValueIntercept(int propertyIndex) {
     return parent.getValueIntercept(propertyIndex + offset);
   }
+
+  @Override
+  public void setValue(int propertyIndex, Object value) {
+    parent.setValue(propertyIndex + offset, value);
+  }
+
+  @Override
+  public void setValueIntercept(int propertyIndex, Object value) {
+    parent.setValueIntercept(propertyIndex + offset, value);
+  }
 }

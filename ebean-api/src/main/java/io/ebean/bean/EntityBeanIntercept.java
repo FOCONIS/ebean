@@ -562,4 +562,8 @@ public interface EntityBeanIntercept extends Serializable {
    * Returns the value of the property with intercept access. Can also return virtual properties.
    */
   Object getValueIntercept(int propertyIndex);
+
+  void setValue(int propertyIndex, Object value);
+
+  void setValueIntercept(int propertyIndex, Object value);
 }

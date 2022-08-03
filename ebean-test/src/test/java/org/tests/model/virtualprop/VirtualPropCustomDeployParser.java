@@ -25,15 +25,6 @@ public class VirtualPropCustomDeployParser implements CustomDeployParser {
   @Override
   public void parse(DeployBeanDescriptorMeta meta, DatabasePlatform databasePlatform) {
 
-    virtualProperties.forEach(p-> {
-      if (p instanceof DeployBeanPropertyAssocMany) {
-        p.setGetter(new VirtualGetterMany(p.getPropertyIndex()));
-        p.setSetter(new VirtualSetter(p.getPropertyIndex()));
-      } else {
-        p.setSetter(new VirtualSetter(p.getPropertyIndex()));
-        p.setGetter(new VirtualGetter(p.getPropertyIndex()));
-      }
-    });
   }
 
   @Override
@@ -117,67 +108,5 @@ public class VirtualPropCustomDeployParser implements CustomDeployParser {
     throw new IllegalStateException("You need a @PrimaryKeyJoin in " + dbd.getBeanType().getSimpleName());
   }
 
-  private static final class VirtualGetter implements BeanPropertyGetter {
-
-    private final int fieldIndex;
-
-    VirtualGetter(int fieldIndex) {
-      this.fieldIndex = fieldIndex;
-    }
-
-    @Override
-    public Object get(EntityBean bean) {
-      return bean._ebean_intercept().getValue(fieldIndex);
-    }
-
-    @Override
-    public Object getIntercept(EntityBean bean) {
-      return bean._ebean_intercept().getValueIntercept(fieldIndex);
-    }
-  }
-
-  private static final class VirtualGetterMany implements BeanPropertyGetter {
-
-    private final int fieldIndex;
-
-    VirtualGetterMany(int fieldIndex) {
-      this.fieldIndex = fieldIndex;
-    }
-
-    @Override
-    public Object get(EntityBean bean) {
-      return bean._ebean_intercept().getValue(fieldIndex);
-    }
-
-    @Override
-    public Object getIntercept(EntityBean bean) {
-      Object ret = bean._ebean_intercept().getValueIntercept(fieldIndex);
-      if (ret == null) {
-        ret = new BeanList();
-        ((InterceptReadWrite) bean._ebean_intercept()).setValue(false, fieldIndex, ret, true);
-      }
-      return ret;
-    }
-  }
-
-  private static final class VirtualSetter implements BeanPropertySetter {
-
-    private final int fieldIndex;
-
-    VirtualSetter(int fieldIndex) {
-      this.fieldIndex = fieldIndex;
-    }
-
-    @Override
-    public void set(EntityBean bean, Object value) {
-
-      ((InterceptReadWrite) bean._ebean_intercept()).setValue(false, fieldIndex, value, false);
-    }
-
-    @Override
-    public void setIntercept(EntityBean bean, Object value) {
-      ((InterceptReadWrite) bean._ebean_intercept()).setValue(true, fieldIndex, value, false);
-    }
-  }
 
 }

@@ -1109,6 +1109,28 @@ public final class InterceptReadWrite implements EntityBeanIntercept {
     }
   }
 
+  @Override
+  public void setValue(int index, Object value) {
+    if (index < virtualPropertyStart) {
+       owner._ebean_setField(index, value);
+    } else {
+      ExtensionInfo extension = getExtension(index);
+      ExtendableBean eb = (ExtendableBean) owner;
+      EntityBean extensionBean = eb._ebean_getExtension(extension.getIndex(), this);
+       ((EntityBean)extensionBean)._ebean_setField(index - extension.getStart(), value);
+    }
+  }
+
+  public void setValueIntercept(int index, Object value) {
+    if (index < virtualPropertyStart) {
+      owner._ebean_setFieldIntercept(index, value);
+    } else {
+      ExtensionInfo extension = getExtension(index);
+      ExtendableBean eb = (ExtendableBean) owner;
+      EntityBean extensionBean = eb._ebean_getExtension(extension.getIndex(), this);
+      ((EntityBean)extensionBean)._ebean_setFieldIntercept(index - extension.getStart(), value);
+    }
+  }
   public void setValue(boolean intercept, int index, Object value, boolean many) {
     if (index < virtualPropertyStart) {
       if (intercept) {

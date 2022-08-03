@@ -572,6 +572,16 @@ public class InterceptReadOnly implements EntityBeanIntercept {
     }
   }
 
+  @Override
+  public void setValue(int propertyIndex, Object value) {
+    owner._ebean_setField(propertyIndex, value);
+  }
+
+  @Override
+  public void setValueIntercept(int propertyIndex, Object value) {
+    owner._ebean_setFieldIntercept(propertyIndex, value);
+  }
+
   private int virtualOffset() {
     return owner._ebean_getPropertyNames().length - virtualValues.length;
   }
