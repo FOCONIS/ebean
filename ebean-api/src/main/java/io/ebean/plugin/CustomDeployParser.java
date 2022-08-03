@@ -11,8 +11,5 @@ import io.ebean.config.dbplatform.DatabasePlatform;
 @FunctionalInterface
 public interface CustomDeployParser {
 
-  default void prepare(DeployBeanDescriptorMeta descriptor, DatabasePlatform databasePlatform) {
-
-  }
   void parse(DeployBeanDescriptorMeta descriptor, DatabasePlatform databasePlatform);
 }
