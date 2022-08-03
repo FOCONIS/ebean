@@ -1,6 +1,7 @@
 package org.tests.model.virtualprop.ext;
 
 import io.ebean.bean.EntityBean;
+import io.ebean.bean.ExtensionInfo;
 import org.tests.model.virtualprop.VirtualBase;
 import org.tests.model.virtualprop.VirtualEmbed;
 
@@ -21,7 +22,8 @@ public class VirtualExtendManyToMany {
   @Entity
   @Table(name = "virtual_base123")
   public static class VirtualBaseExtendManyToMany {
-    public static int _extension_id = -1;
+    public static final int _extension_id =       ExtensionInfo.extend(VirtualBase.class, VirtualBaseExtendManyToMany.class);
+
     @ManyToMany
     @JoinTable(name = "kreuztabelle")
     private List<VirtualExtendManyToMany> virtualExtendManyToManys;

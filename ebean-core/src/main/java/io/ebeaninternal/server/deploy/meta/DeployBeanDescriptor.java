@@ -57,7 +57,7 @@ import java.util.Set;
 /**
  * Describes Beans including their deployment information.
  */
-public class DeployBeanDescriptor<T> implements DeployBeanDescriptorMeta {
+public class  DeployBeanDescriptor<T> implements DeployBeanDescriptorMeta {
 
   private static final Map<String, String> EMPTY_NAMED_QUERY = new HashMap<>();
 

@@ -45,10 +45,10 @@ public class VirtualPropCustomDeployParser implements CustomDeployParser {
 
   private void handleOneToOne(DeployBeanDescriptor<?> currentDesc) {
     VirtualEmbed ann = AnnotationUtil.get(currentDesc.getBeanType(), VirtualEmbed.class);
-    if (ann != null) {
+    if (ann != null && false) {
 
       DeployBeanDescriptor parentDescriptor = currentDesc.getDeploy(ann.value()).getDescriptor();
-         addVirtualExtension(parentDescriptor.getBeanType(), currentDesc.getBeanType());
+     //    addVirtualExtension(parentDescriptor.getBeanType(), currentDesc.getBeanType());
       for (DeployBeanProperty p:currentDesc.properties()) {
 
         virtualProperties.add(p);
@@ -66,7 +66,7 @@ public class VirtualPropCustomDeployParser implements CustomDeployParser {
       currentDesc.properties().clear();
     }
   }
-
+/*
   private void addVirtualExtension(Class targetClass, Class sourceClass) {
     try {
       // append sourceProps to targetProps
@@ -98,7 +98,7 @@ public class VirtualPropCustomDeployParser implements CustomDeployParser {
     }
 
   }
-
+*/
   private DeployBeanProperty findMappedProperty(DeployBeanDescriptor<?> dbd) {
     for (DeployBeanProperty prop : dbd.propertiesAll()) {
       if (prop instanceof DeployBeanPropertyAssocOne && ((DeployBeanPropertyAssocOne<?>) prop).isPrimaryKeyJoin()) {
