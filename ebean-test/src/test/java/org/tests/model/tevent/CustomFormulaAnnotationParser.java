@@ -36,9 +36,7 @@ public class CustomFormulaAnnotationParser implements CustomDeployParser {
   @Override
   public void parse(final DeployBeanDescriptorMeta descriptor, final DatabasePlatform databasePlatform) {
     for (DeployBeanPropertyMeta prop : descriptor.propertiesAll()) {
-      if (prop.getField() != null) {
-        readField(descriptor, prop);
-      }
+      readField(descriptor, prop);
     }
   }
 
