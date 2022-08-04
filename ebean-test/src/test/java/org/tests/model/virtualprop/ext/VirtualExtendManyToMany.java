@@ -1,12 +1,12 @@
 package org.tests.model.virtualprop.ext;
 
 import io.ebean.bean.extend.EntityExtension;
+import io.ebean.bean.extend.ExtensionManager;
 import io.ebean.bean.extend.ExtensionInfo;
 import org.tests.model.virtualprop.AbstractVirtualBase;
 import org.tests.model.virtualprop.VirtualBase;
 
 import javax.persistence.*;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -19,9 +19,10 @@ public class VirtualExtendManyToMany {
 
   private String data;
 
-  @Entity
-  public static class VirtualBaseExtendManyToMany implements EntityExtension {
-    public static final ExtensionInfo.Entry _extension_id = EntityExtension.extend(AbstractVirtualBase.class, VirtualBaseExtendManyToMany.class);
+  @EntityExtension
+  @MappedSuperclass
+  public static class VirtualBaseExtendManyToMany {
+    public static final ExtensionInfo.Entry _extension_id = ExtensionManager.extend(AbstractVirtualBase.class, VirtualBaseExtendManyToMany.class);
 
     @ManyToMany
     @JoinTable(name = "kreuztabelle")

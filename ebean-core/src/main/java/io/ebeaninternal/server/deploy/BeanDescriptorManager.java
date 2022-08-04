@@ -6,7 +6,6 @@ import io.ebean.RawSqlBuilder;
 import io.ebean.annotation.ConstraintMode;
 import io.ebean.bean.BeanCollection;
 import io.ebean.bean.EntityBean;
-import io.ebean.bean.extend.EntityExtension;
 import io.ebean.config.*;
 import io.ebean.config.dbplatform.*;
 import io.ebean.core.type.ScalarType;
@@ -655,19 +654,15 @@ public final class BeanDescriptorManager implements BeanDescriptorMap, SpiBeanTy
    * BeanTables have all been created.
    */
   private void readEntityDeploymentInitial() {
-    for (Class<?> entityClass : bootupClasses.getEntities()) {
-      if (EntityExtension.class.isAssignableFrom(entityClass)) {
-        try {
-          entityClass.getField("_ebean_props").get(null);
-        } catch (Exception e) {
-          throw new RuntimeException(e);
-        }
+    for (Class<?> extensionClass : bootupClasses.getEntityExtensionList()) {
+      try {
+        // TODO: load class in an early stage
+        extensionClass.getField("_ebean_props").get(null);
+      } catch (Exception e) {
+        throw new RuntimeException(e);
       }
     }
     for (Class<?> entityClass : bootupClasses.getEntities()) {
-      if (EntityExtension.class.isAssignableFrom(entityClass)){
-        continue;
-      }
       DeployBeanInfo<?> info = createDeployBeanInfo(entityClass);
       deployInfoMap.put(entityClass.getName(), info);
       Class<?> embeddedIdType = info.getEmbeddedIdType();
