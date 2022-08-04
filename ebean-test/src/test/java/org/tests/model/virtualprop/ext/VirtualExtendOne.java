@@ -4,6 +4,7 @@ import io.ebean.annotation.Formula;
 import io.ebean.bean.EntityBean;
 import io.ebean.bean.EntityExtension;
 import io.ebean.bean.ExtensionInfo;
+import org.tests.model.virtualprop.AbstractVirtualBase;
 import org.tests.model.virtualprop.VirtualBase;
 import org.tests.model.virtualprop.VirtualEmbed;
 

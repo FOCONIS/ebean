@@ -37,7 +37,7 @@ public final class DeployCreateProperties {
   public void createProperties(DeployBeanDescriptor<?> desc) {
     createProperties(desc, desc.getBeanType(), 0);
     try {
-      ExtensionInfo infos = (ExtensionInfo) desc.getBeanType().getField("_ebean_extensions").get(null);
+      ExtensionInfo<?> infos = (ExtensionInfo) desc.getBeanType().getField("_ebean_extensions").get(null);
       for (ExtensionInfo.Entry info : infos) {
         createProperties(desc, info.getType(), 0);
       }

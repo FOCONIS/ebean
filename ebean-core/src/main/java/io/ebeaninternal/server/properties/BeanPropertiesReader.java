@@ -47,7 +47,7 @@ public final class BeanPropertiesReader {
 
       if (ExtendableBean.class.isAssignableFrom(clazz)) {
         field = clazz.getField("_ebean_extensions");
-        ExtensionInfo extensions = (ExtensionInfo) field.get(null);
+        ExtensionInfo<?> extensions = (ExtensionInfo) field.get(null);
         if (extensions != null) {
           for (ExtensionInfo.Entry extension : extensions) {
             props = concat(props, extension.getProperties());

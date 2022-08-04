@@ -426,7 +426,7 @@ public final class InterceptReadWrite implements EntityBeanIntercept {
       ExtensionInfo.Entry extension = getExtension(propertyIndex);
       ExtendableBean eb = (ExtendableBean) owner;
       EntityBean extensionBean = eb._ebean_getExtension(extension.getIndex(), this);
-      return ((EntityBean) extensionBean)._ebean_getPropertyName(propertyIndex - extension.getStart());
+      return ((EntityBean) extensionBean)._ebean_getPropertyName(propertyIndex - extension.getOffset() - virtualPropertyStart);
     }
   }
 
@@ -1101,7 +1101,7 @@ public final class InterceptReadWrite implements EntityBeanIntercept {
       ExtensionInfo.Entry extension = getExtension(index);
       ExtendableBean eb = (ExtendableBean) owner;
       EntityBean extensionBean = eb._ebean_getExtension(extension.getIndex(), this);
-      return ((EntityBean) extensionBean)._ebean_getField(index - extension.getStart());
+      return ((EntityBean) extensionBean)._ebean_getField(index - extension.getOffset() - virtualPropertyStart);
     }
   }
 
@@ -1113,7 +1113,7 @@ public final class InterceptReadWrite implements EntityBeanIntercept {
       ExtensionInfo.Entry extension = getExtension(index);
       ExtendableBean eb = (ExtendableBean) owner;
       EntityBean extensionBean = eb._ebean_getExtension(extension.getIndex(), this);
-      return ((EntityBean) extensionBean)._ebean_getFieldIntercept(index - extension.getStart());
+      return ((EntityBean) extensionBean)._ebean_getFieldIntercept(index - extension.getOffset() - virtualPropertyStart);
     }
   }
 
@@ -1125,7 +1125,7 @@ public final class InterceptReadWrite implements EntityBeanIntercept {
       ExtensionInfo.Entry extension = getExtension(index);
       ExtendableBean eb = (ExtendableBean) owner;
       EntityBean extensionBean = eb._ebean_getExtension(extension.getIndex(), this);
-      ((EntityBean) extensionBean)._ebean_setField(index - extension.getStart(), value);
+      ((EntityBean) extensionBean)._ebean_setField(index - extension.getOffset() - virtualPropertyStart, value);
     }
   }
 
@@ -1136,7 +1136,7 @@ public final class InterceptReadWrite implements EntityBeanIntercept {
       ExtensionInfo.Entry extension = getExtension(index);
       ExtendableBean eb = (ExtendableBean) owner;
       EntityBean extensionBean = eb._ebean_getExtension(extension.getIndex(), this);
-      ((EntityBean) extensionBean)._ebean_setFieldIntercept(index - extension.getStart(), value);
+      ((EntityBean) extensionBean)._ebean_setFieldIntercept(index - extension.getOffset() - virtualPropertyStart, value);
     }
   }
 }
