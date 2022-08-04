@@ -7,15 +7,7 @@ import java.lang.reflect.Field;
  */
 public interface ExtendableBean {
 
-  default ExtensionInfo _ebean_getExtensionInfos() {
-    try {
-      Field field = getClass().getDeclaredField("_ebean_extensions");
-      field.setAccessible(true);
-      return (ExtensionInfo) field.get(null);
-    } catch (ReflectiveOperationException re) {
-      throw new RuntimeException(re);
-    }
-  }
+  ExtensionInfo _ebean_getExtensionInfos();
 
   default EntityBean _ebean_getExtension(int index, EntityBeanIntercept ebi) {
     // TODO: Code added by enhancer

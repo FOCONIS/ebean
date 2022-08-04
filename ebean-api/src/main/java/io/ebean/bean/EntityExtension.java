@@ -14,9 +14,6 @@ public interface EntityExtension {
 
       String[] sourceProps = (String[]) sourceField.get(null);
 
-
-      //targetField.set(null, newProps);
-
       return ExtensionInfo.get(targetClass).add(sourceProps, sourceClass);
 
     } catch (Exception e) {

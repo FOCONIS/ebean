@@ -8,35 +8,38 @@ import java.util.List;
 /**
  * @author Roland Praml, FOCONIS AG
  */
-public class ExtensionInfo<T extends ExtendableBean> implements Iterable<ExtensionInfo.Entry> {
+public class ExtensionInfo implements Iterable<ExtensionInfo.Entry> {
 
   private final int startOffset;
-  private final List<Entry> entries = new ArrayList<>();
-  private final ExtensionInfo<?> parent;
+  private List<Entry> entries = new ArrayList<>();
+  private final ExtensionInfo parent;
+  private int propertyLength = -1;
 
-  private int propertyLength;
-
-  static <T extends ExtendableBean> ExtensionInfo<T> get(Class<T> clazz) throws ReflectiveOperationException {
+  static <T extends ExtendableBean> ExtensionInfo get(Class<T> clazz) throws ReflectiveOperationException {
     Field field = clazz.getField("_ebean_extensions");
-    ExtensionInfo extensions = (ExtensionInfo) field.get(null);
-    if (extensions == null) {
-      extensions = new ExtensionInfo(clazz);
-      field.set(null, extensions);
-    }
-    return extensions;
+    return (ExtensionInfo) field.get(null);
   }
 
-  private ExtensionInfo(Class<T> clazz) throws ReflectiveOperationException {
-    Field targetField = clazz.getField("_ebean_props");
-    String[] props = (String[]) targetField.get(null);
-    this.startOffset = props.length;
-    Class<? super T> superClazz = clazz.getSuperclass();
-    this.parent = ExtendableBean.class.isAssignableFrom(superClazz) ? get((Class) superClazz) : null;
+  public ExtensionInfo(Class clazz, ExtensionInfo parent) {
+    try {
+      Field targetField = clazz.getField("_ebean_props");
+      String[] props = (String[]) targetField.get(null);
+      this.startOffset = props.length;
+      this.parent = parent;
+    } catch (ReflectiveOperationException re) {
+      throw new RuntimeException(re);
+    }
   }
 
   public Entry add(String[] props, Class type) throws ReflectiveOperationException {
-    Entry entry = new Entry(propertyLength, props, entries.size(), type);
-    propertyLength += props.length;
+    if (propertyLength != -1) {
+      throw new UnsupportedOperationException("The extension is already in use and cannot be extended anymore");
+    }
+    int offset = 0;
+    if (!entries.isEmpty()) {
+      offset = entries.get(entries.size() - 1).offset;
+    }
+    Entry entry = new Entry(offset, props, entries.size(), type);
     entries.add(entry);
     return entry;
   }
@@ -46,69 +49,44 @@ public class ExtensionInfo<T extends ExtendableBean> implements Iterable<Extensi
   }
 
   public int getPropertyLength() {
-    if (parent == null) {
-      return propertyLength;
-    } else {
-      return propertyLength + parent.getPropertyLength();
+    if (propertyLength == -1) {
+      throw new IllegalStateException("Not yet initialized");
     }
+    return propertyLength;
   }
 
   public int size() {
-    return parent == null ? entries.size() : entries.size() + parent.size();
+    return entries.size();
   }
 
-  public Entry get(int index) {
-    if (index < entries.size()) {
-      return entries.get(index);
-    } else {
-      if (parent == null) {
-        throw new ArrayIndexOutOfBoundsException(index);
-      } else {
+  public void init() {
+    if (propertyLength == -1) {
+      propertyLength = 0;
+      for (Entry entry : entries) {
+        propertyLength += entry.getLength();
+      }
+      if (parent != null) {
+        parent.init();
         if (entries.isEmpty()) {
-          return parent.get(index - entries.size());
+          entries = parent.entries;
+          propertyLength = parent.propertyLength;
         } else {
-          Entry ret = parent.get(index - entries.size());
-          int offset = ret.getOffset();
-          for (Entry entry : entries) {
-            offset += entry.getLength();
+          for (Entry entry : parent.entries) {
+            entries.add(new Entry(propertyLength, entry.properties, entries.size(), entry.type, entry.prototype));
+            propertyLength += entry.getLength();
           }
-          return new Entry(offset, ret.properties, ret.getIndex() + entries.size(), ret.getType(), ret.prototype);
         }
       }
     }
   }
 
-  static class EntryIterator implements Iterator<Entry> {
-    private final Iterator<Entry> current;
-    private final Iterator<Entry> parent;
-
-    public EntryIterator(Iterator<Entry> first, Iterator<Entry> next) {
-      this.current = first;
-      this.parent = next;
-    }
-
-    @Override
-    public boolean hasNext() {
-      return current.hasNext() || parent.hasNext();
-    }
-
-    @Override
-    public Entry next() {
-      if (current.hasNext()) {
-        return current.next();
-      } else {
-        return parent.next();
-      }
-    }
+  public Entry get(int index) {
+    return entries.get(index);
   }
 
   @Override
   public Iterator<Entry> iterator() {
-    if (parent == null) {
-      return entries.iterator();
-    } else {
-      return new EntryIterator(entries.iterator(), parent.iterator());
-    }
+    return entries.iterator();
   }
 
   public static class Entry {
