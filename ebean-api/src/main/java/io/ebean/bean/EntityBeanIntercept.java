@@ -563,7 +563,13 @@ public interface EntityBeanIntercept extends Serializable {
    */
   Object getValueIntercept(int propertyIndex);
 
+  /**
+   * Writes the value to the property. Can also write virtual properties.
+   */
   void setValue(int propertyIndex, Object value);
 
+  /**
+   * Writes the value to the property with intercept access. Can also write virtual properties.
+   */
   void setValueIntercept(int propertyIndex, Object value);
 }

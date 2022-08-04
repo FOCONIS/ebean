@@ -1,4 +1,7 @@
-package io.ebean.bean;
+package io.ebean.bean.extend;
+
+import io.ebean.bean.EntityBean;
+import io.ebean.bean.EntityBeanIntercept;
 
 import java.lang.reflect.Field;
 

@@ -1,4 +1,4 @@
-package io.ebean.bean;
+package io.ebean.bean.extend;
 
 import java.lang.reflect.Field;
 
@@ -21,10 +21,4 @@ public interface EntityExtension {
     }
   }
 
-
-
-  static <T> T getExtension(ExtendableBean bean, int extensionId) {
-    EntityBean eb = (EntityBean) bean;
-    return (T) bean._ebean_getExtension(extensionId, eb._ebean_getIntercept());
-  }
 }

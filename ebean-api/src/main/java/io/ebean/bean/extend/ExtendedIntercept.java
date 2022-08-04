@@ -1,6 +1,7 @@
-package io.ebean.bean;
+package io.ebean.bean.extend;
 
 import io.ebean.ValuePair;
+import io.ebean.bean.*;
 
 import java.util.Map;
 import java.util.Set;

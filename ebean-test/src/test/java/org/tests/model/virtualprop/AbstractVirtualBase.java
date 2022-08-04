@@ -1,10 +1,9 @@
 package org.tests.model.virtualprop;
 
 import io.ebean.bean.EntityBean;
-import io.ebean.bean.ExtendableBean;
-import io.ebean.bean.ExtensionInfo;
+import io.ebean.bean.extend.ExtendableBean;
+import io.ebean.bean.extend.ExtensionInfo;
 
-import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;

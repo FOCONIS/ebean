@@ -1,11 +1,9 @@
 package org.tests.model.virtualprop.ext;
 
-import io.ebean.bean.EntityBean;
-import io.ebean.bean.EntityExtension;
-import io.ebean.bean.ExtensionInfo;
+import io.ebean.bean.extend.EntityExtension;
+import io.ebean.bean.extend.ExtensionInfo;
 import org.tests.model.virtualprop.AbstractVirtualBase;
 import org.tests.model.virtualprop.VirtualBase;
-import org.tests.model.virtualprop.VirtualEmbed;
 
 import javax.persistence.*;
 import java.util.List;

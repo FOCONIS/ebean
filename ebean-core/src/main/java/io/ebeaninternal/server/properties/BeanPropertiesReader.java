@@ -1,7 +1,7 @@
 package io.ebeaninternal.server.properties;
 
-import io.ebean.bean.ExtendableBean;
-import io.ebean.bean.ExtensionInfo;
+import io.ebean.bean.extend.ExtendableBean;
+import io.ebean.bean.extend.ExtensionInfo;
 
 import java.lang.reflect.Field;
 import java.util.*;

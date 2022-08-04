@@ -3,6 +3,8 @@ package io.ebean.bean;
 import io.ebean.DB;
 import io.ebean.Database;
 import io.ebean.ValuePair;
+import io.ebean.bean.extend.ExtendableBean;
+import io.ebean.bean.extend.ExtensionInfo;
 
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.PersistenceException;

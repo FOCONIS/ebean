@@ -2,7 +2,7 @@ package io.ebeaninternal.server.deploy.parse;
 
 import io.ebean.Model;
 import io.ebean.annotation.*;
-import io.ebean.bean.ExtensionInfo;
+import io.ebean.bean.extend.ExtensionInfo;
 import io.ebean.core.type.ScalarType;
 import io.ebean.util.AnnotationUtil;
 import io.ebeaninternal.api.CoreLog;

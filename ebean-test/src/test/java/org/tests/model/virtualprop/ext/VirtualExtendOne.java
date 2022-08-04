@@ -1,9 +1,8 @@
 package org.tests.model.virtualprop.ext;
 
 import io.ebean.annotation.Formula;
-import io.ebean.bean.EntityBean;
-import io.ebean.bean.EntityExtension;
-import io.ebean.bean.ExtensionInfo;
+import io.ebean.bean.extend.EntityExtension;
+import io.ebean.bean.extend.ExtensionInfo;
 import org.tests.model.virtualprop.AbstractVirtualBase;
 import org.tests.model.virtualprop.VirtualBase;
 import org.tests.model.virtualprop.VirtualEmbed;
@@ -20,7 +19,7 @@ public class VirtualExtendOne {
   @VirtualEmbed(value = VirtualBase.class)
   @Entity
   public static class VirtualBaseExtendOneOther implements EntityExtension {
-    public static final ExtensionInfo.Entry _extension_id = EntityExtension.extend(VirtualBase.class, VirtualBaseExtendOneOther.class);
+    public static final ExtensionInfo.Entry _extension_id = EntityExtension.extend(AbstractVirtualBase.class, VirtualBaseExtendOneOther.class);
 
     @OneToOne(mappedBy = "base")
     private VirtualExtendOne virtualExtendOne;
