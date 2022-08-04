@@ -2,6 +2,7 @@ package org.tests.model.virtualprop.ext;
 
 import io.ebean.bean.EntityBean;
 import io.ebean.bean.EntityExtension;
+import io.ebean.bean.ExtensionInfo;
 import org.tests.model.virtualprop.VirtualBase;
 import org.tests.model.virtualprop.VirtualEmbed;
 
@@ -20,14 +21,14 @@ public class VirtualExtendManyToMany {
 
   @Entity
   public static class VirtualBaseExtendManyToMany implements EntityExtension {
-    public static final int _extension_id = EntityExtension.extend(VirtualBase.class, VirtualBaseExtendManyToMany.class);
+    public static final ExtensionInfo.Entry _extension_id = EntityExtension.extend(VirtualBase.class, VirtualBaseExtendManyToMany.class);
 
     @ManyToMany
     @JoinTable(name = "kreuztabelle")
     private List<VirtualExtendManyToMany> virtualExtendManyToManys;
 
     public static VirtualBaseExtendManyToMany get(VirtualBase found) {
-      return EntityExtension.getExtension(found, _extension_id);
+      return _extension_id.getExtension(found);
     }
 
 

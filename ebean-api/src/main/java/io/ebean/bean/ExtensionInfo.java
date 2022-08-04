@@ -1,6 +1,5 @@
 package io.ebean.bean;
 
-import java.util.AbstractCollection;
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,17 +12,25 @@ public class ExtensionInfo extends AbstractList<ExtensionInfo.Entry> {
   private final int startOffset;
   private final List<Entry> entries = new ArrayList<>();
 
+  private int propertyLength;
+
   public ExtensionInfo(int offset) {
     this.startOffset = offset;
   }
 
-  public int add(int start, int length, Class type) throws ReflectiveOperationException {
-    entries.add(new Entry(start,length, entries.size(),type));
-    return entries.size()-1;
+  public Entry add(String[] props, Class type) throws ReflectiveOperationException {
+    Entry entry = new Entry(startOffset + propertyLength, props, entries.size(), type);
+    propertyLength+=props.length;
+    entries.add(entry);
+    return entry;
   }
 
   public int getStartOffset() {
     return startOffset;
+  }
+
+  public int getPropertyLength() {
+    return propertyLength;
   }
 
   public int size() {
@@ -36,15 +43,15 @@ public class ExtensionInfo extends AbstractList<ExtensionInfo.Entry> {
 
   public static class Entry {
     private final int start;
-    private final int length;
+    private final String[] properties;
 
     private final int index;
     private final EntityBean prototype;
     private final Class type;
 
-    private Entry(int start, int length, int index, Class type) throws ReflectiveOperationException {
+    private Entry(int start, String[] properties, int index, Class type) throws ReflectiveOperationException {
       this.start = start;
-      this.length = length;
+      this.properties = properties;
       this.index = index;
       this.type = type;
       this.prototype = (EntityBean) type.getConstructor().newInstance();
@@ -55,9 +62,12 @@ public class ExtensionInfo extends AbstractList<ExtensionInfo.Entry> {
     }
 
     public int getLength() {
-      return length;
+      return properties.length;
     }
 
+    public String[] getProperties() {
+      return properties;
+    }
 
     public int getIndex() {
       return index;
@@ -69,6 +79,11 @@ public class ExtensionInfo extends AbstractList<ExtensionInfo.Entry> {
 
     public EntityBean createInstance(EntityBeanIntercept parentEbi) {
       return (EntityBean) prototype._ebean_newInstance(new ExtendedIntercept(start, parentEbi));
+    }
+
+    public <T> T getExtension(ExtendableBean bean) {
+      EntityBean eb = (EntityBean) bean;
+      return (T) bean._ebean_getExtension(index, eb._ebean_getIntercept());
     }
   }
 

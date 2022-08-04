@@ -19,7 +19,7 @@ public class VirtualExtendOne {
   @VirtualEmbed(value = VirtualBase.class)
   @Entity
   public static class VirtualBaseExtendOneOther implements EntityExtension {
-    public static final int _extension_id = EntityExtension.extend(VirtualBase.class, VirtualBaseExtendOneOther.class);
+    public static final ExtensionInfo.Entry _extension_id = EntityExtension.extend(VirtualBase.class, VirtualBaseExtendOneOther.class);
 
     @OneToOne(mappedBy = "base")
     private VirtualExtendOne virtualExtendOne;
@@ -29,7 +29,7 @@ public class VirtualExtendOne {
     private String firstName;
 
     public static VirtualBaseExtendOneOther get(VirtualBase found) {
-      return EntityExtension.getExtension(found, _extension_id);
+      return _extension_id.getExtension(found);
     }
 
     /*public static VirtualBaseExtendOneOther wrap(VirtualBase b) {

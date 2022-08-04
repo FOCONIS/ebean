@@ -6,7 +6,7 @@ import java.lang.reflect.Field;
  * @author Roland Praml, FOCONIS AG
  */
 public interface EntityExtension {
-  static int extend(Class<? extends ExtendableBean> targetClass, Class<? extends EntityExtension> sourceClass) {
+  static ExtensionInfo.Entry extend(Class<? extends ExtendableBean> targetClass, Class<? extends EntityExtension> sourceClass) {
     try {
       // append sourceProps to targetProps
 
@@ -20,7 +20,7 @@ public interface EntityExtension {
       System.arraycopy(sourceProps, 0, newProps, targetProps.length, sourceProps.length);
 
 
-      targetField.set(null, newProps);
+      //targetField.set(null, newProps);
 
       Field field = targetClass.getField("_ebean_extensions");
       ExtensionInfo extensions = (ExtensionInfo) field.get(null);
@@ -28,7 +28,7 @@ public interface EntityExtension {
         extensions = new ExtensionInfo(targetProps.length);
         field.set(null, extensions);
       }
-      return extensions.add(targetProps.length, sourceProps.length, sourceClass);
+      return extensions.add(sourceProps, sourceClass);
 
     } catch (Exception e) {
       throw new RuntimeException(e);
