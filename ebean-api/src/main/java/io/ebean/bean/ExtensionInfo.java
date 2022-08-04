@@ -1,77 +1,75 @@
 package io.ebean.bean;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
+import java.util.AbstractCollection;
+import java.util.AbstractList;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Roland Praml, FOCONIS AG
  */
-public class ExtensionInfo {
-  private final int start;
-  private final int length;
+public class ExtensionInfo extends AbstractList<ExtensionInfo.Entry> {
 
-  private final int index;
-  private final EntityBean prototype;
-  private final Class type;
+  private final int startOffset;
+  private final List<Entry> entries = new ArrayList<>();
 
-  public ExtensionInfo(int start, int length, int index, Class type) throws ReflectiveOperationException {
-    this.start = start;
-    this.length = length;
-    this.index = index;
-    this.type = type;
-    this.prototype = (EntityBean) type.getConstructor().newInstance();
+  public ExtensionInfo(int offset) {
+    this.startOffset = offset;
   }
 
-  public int getStart() {
-    return start;
+  public int add(int start, int length, Class type) throws ReflectiveOperationException {
+    entries.add(new Entry(start,length, entries.size(),type));
+    return entries.size()-1;
   }
 
-  public int getLength() {
-    return length;
+  public int getStartOffset() {
+    return startOffset;
   }
 
-
-  public int getIndex() {
-    return index;
+  public int size() {
+    return entries.size();
   }
 
-  public Class getType() {
-    return type;
+  public Entry get(int index) {
+    return entries.get(index);
   }
 
-  public EntityBean createInstance(EntityBeanIntercept parentEbi) {
-    return (EntityBean) prototype._ebean_newInstance(new ExtendedIntercept(start,parentEbi));
-  }
+  public static class Entry {
+    private final int start;
+    private final int length;
 
-  public static int extend(Class targetClass, Class sourceClass) {
-    try {
-      // append sourceProps to targetProps
+    private final int index;
+    private final EntityBean prototype;
+    private final Class type;
 
-      Field targetField = targetClass.getField("_ebean_props");
-      Field sourceField = sourceClass.getField("_ebean_props");
-
-      String[] targetProps = (String[]) targetField.get(null);
-      String[] sourceProps = (String[]) sourceField.get(null);
-      String[] newProps = new String[targetProps.length + sourceProps.length];
-      System.arraycopy(targetProps, 0, newProps, 0, targetProps.length);
-      System.arraycopy(sourceProps, 0, newProps, targetProps.length, sourceProps.length);
-
-
-      targetField.set(null, newProps);
-      sourceField.set(null, new String[0]);
-
-      Field field = targetClass.getField("_ebean_extensions");
-      ExtensionInfo[] extensions = (ExtensionInfo[]) field.get(null);
-      ExtensionInfo[] newExtensionInfo = new ExtensionInfo[extensions.length+1];
-      System.arraycopy(extensions, 0, newExtensionInfo, 0, extensions.length);
-      newExtensionInfo[extensions.length] = new ExtensionInfo(targetProps.length, sourceProps.length, extensions.length, sourceClass);
-      field.set(null, newExtensionInfo);
-
-      return extensions.length;
-
-    } catch (Exception e) {
-      throw new RuntimeException(e);
+    private Entry(int start, int length, int index, Class type) throws ReflectiveOperationException {
+      this.start = start;
+      this.length = length;
+      this.index = index;
+      this.type = type;
+      this.prototype = (EntityBean) type.getConstructor().newInstance();
     }
 
+    public int getStart() {
+      return start;
+    }
+
+    public int getLength() {
+      return length;
+    }
+
+
+    public int getIndex() {
+      return index;
+    }
+
+    public Class getType() {
+      return type;
+    }
+
+    public EntityBean createInstance(EntityBeanIntercept parentEbi) {
+      return (EntityBean) prototype._ebean_newInstance(new ExtendedIntercept(start, parentEbi));
+    }
   }
+
 }

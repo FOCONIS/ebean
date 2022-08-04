@@ -7,11 +7,11 @@ import java.lang.reflect.Field;
  */
 public interface ExtendableBean {
 
-  default ExtensionInfo[] _ebean_getExtensionInfos() {
+  default ExtensionInfo _ebean_getExtensionInfos() {
     try {
       Field field = getClass().getDeclaredField("_ebean_extensions");
       field.setAccessible(true);
-      return (ExtensionInfo[]) field.get(null);
+      return (ExtensionInfo) field.get(null);
     } catch (ReflectiveOperationException re) {
       throw new RuntimeException(re);
     }
@@ -24,12 +24,12 @@ public interface ExtendableBean {
       field.setAccessible(true);
       EntityBean[] extensionStorage = (EntityBean[]) field.get(this);
       if (extensionStorage == null) {
-        extensionStorage = new EntityBean[_ebean_getExtensionInfos().length];
+        extensionStorage = new EntityBean[_ebean_getExtensionInfos().size()];
         field.set(this, extensionStorage);
       }
       EntityBean ret = extensionStorage[index];
       if (ret == null) {
-        extensionStorage[index] = ret = _ebean_getExtensionInfos()[index].createInstance(ebi);
+        extensionStorage[index] = ret = _ebean_getExtensionInfos().get(index).createInstance(ebi);
       }
       return ret;
     } catch (ReflectiveOperationException re) {

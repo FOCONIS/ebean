@@ -1,5 +1,7 @@
 package io.ebeaninternal.server.properties;
 
+import io.ebean.bean.ExtendableBean;
+
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -36,6 +38,7 @@ public final class BeanPropertiesReader {
   private String[] getProperties(Class<?> clazz) {
     try {
       Field field = clazz.getField("_ebean_props");
+
       return (String[]) field.get(null);
     } catch (Exception e) {
       throw new IllegalStateException("Error getting _ebean_props field on type " + clazz, e);

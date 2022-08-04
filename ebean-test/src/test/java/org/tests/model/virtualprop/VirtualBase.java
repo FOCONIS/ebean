@@ -14,7 +14,7 @@ import javax.persistence.*;
 public class VirtualBase implements ExtendableBean {
 
   // TOOD: add to enhancer
-  public static ExtensionInfo[] _ebean_extensions = new ExtensionInfo[0];
+  public static ExtensionInfo _ebean_extensions;
   @Transient  private EntityBean[] _ebean_extension_storage;
   // TODO: Enhancer end
 

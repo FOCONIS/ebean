@@ -6,6 +6,8 @@ import io.ebean.RawSqlBuilder;
 import io.ebean.annotation.ConstraintMode;
 import io.ebean.bean.BeanCollection;
 import io.ebean.bean.EntityBean;
+import io.ebean.bean.EntityExtension;
+import io.ebean.bean.ExtendableBean;
 import io.ebean.config.*;
 import io.ebean.config.dbplatform.*;
 import io.ebean.core.type.ScalarType;
@@ -655,14 +657,18 @@ public final class BeanDescriptorManager implements BeanDescriptorMap, SpiBeanTy
    */
   private void readEntityDeploymentInitial() {
     for (Class<?> entityClass : bootupClasses.getEntities()) {
-      try {
-        entityClass.getField("_ebean_props").get(null);
-      } catch (Exception e) {
-        throw new RuntimeException(e);
+      if (EntityExtension.class.isAssignableFrom(entityClass)) {
+        try {
+          entityClass.getField("_ebean_props").get(null);
+        } catch (Exception e) {
+          throw new RuntimeException(e);
+        }
       }
     }
     for (Class<?> entityClass : bootupClasses.getEntities()) {
-      if (entityClass.getName().contains("$")) continue; // TODO!!
+      if (EntityExtension.class.isAssignableFrom(entityClass)){
+        continue;
+      }
       DeployBeanInfo<?> info = createDeployBeanInfo(entityClass);
       deployInfoMap.put(entityClass.getName(), info);
       Class<?> embeddedIdType = info.getEmbeddedIdType();
@@ -671,6 +677,7 @@ public final class BeanDescriptorManager implements BeanDescriptorMap, SpiBeanTy
       }
     }
     for (Class<?> entityClass : bootupClasses.getEmbeddables()) {
+
       DeployBeanInfo<?> info = createDeployBeanInfo(entityClass);
       deployInfoMap.put(entityClass.getName(), info);
       if (embeddedIdTypes.contains(entityClass)) {

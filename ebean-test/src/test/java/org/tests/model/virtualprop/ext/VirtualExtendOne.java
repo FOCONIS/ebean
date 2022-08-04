@@ -2,14 +2,12 @@ package org.tests.model.virtualprop.ext;
 
 import io.ebean.annotation.Formula;
 import io.ebean.bean.EntityBean;
+import io.ebean.bean.EntityExtension;
 import io.ebean.bean.ExtensionInfo;
 import org.tests.model.virtualprop.VirtualBase;
 import org.tests.model.virtualprop.VirtualEmbed;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.OneToOne;
-import javax.persistence.PrimaryKeyJoinColumn;
+import javax.persistence.*;
 
 /**
  * @author Roland Praml, FOCONIS AG
@@ -20,8 +18,8 @@ public class VirtualExtendOne {
 
   @VirtualEmbed(value = VirtualBase.class)
   @Entity
-  public static class VirtualBaseExtendOneOther {
-    public static final int _extension_id = ExtensionInfo.extend(VirtualBase.class, VirtualBaseExtendOneOther.class);
+  public static class VirtualBaseExtendOneOther implements EntityExtension {
+    public static final int _extension_id = EntityExtension.extend(VirtualBase.class, VirtualBaseExtendOneOther.class);
 
     @OneToOne(mappedBy = "base")
     private VirtualExtendOne virtualExtendOne;
@@ -31,7 +29,7 @@ public class VirtualExtendOne {
     private String firstName;
 
     public static VirtualBaseExtendOneOther get(VirtualBase found) {
-      return (VirtualBaseExtendOneOther) found._ebean_getExtension(_extension_id, ((EntityBean) found)._ebean_getIntercept());
+      return EntityExtension.getExtension(found, _extension_id);
     }
 
     /*public static VirtualBaseExtendOneOther wrap(VirtualBase b) {
