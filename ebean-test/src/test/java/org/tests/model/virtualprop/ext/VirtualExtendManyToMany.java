@@ -6,6 +6,7 @@ import org.tests.model.virtualprop.AbstractVirtualBase;
 import org.tests.model.virtualprop.VirtualBase;
 
 import javax.persistence.*;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -59,4 +60,6 @@ public class VirtualExtendManyToMany {
   public void setBases(List<VirtualBase> bases) {
     this.bases = bases;
   }
+
+
 }

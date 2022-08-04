@@ -5,6 +5,7 @@ import io.ebean.bean.EntityBeanIntercept;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -17,6 +18,8 @@ public class ExtensionInfo implements Iterable<ExtensionInfo.Entry> {
   private List<Entry> entries = new ArrayList<>();
   private final ExtensionInfo parent;
   private int propertyLength = -1;
+
+  private int[] offsets;
 
   static <T extends ExtendableBean> ExtensionInfo get(Class<T> clazz) throws ReflectiveOperationException {
     Field field = clazz.getField("_ebean_extensions");
@@ -38,11 +41,7 @@ public class ExtensionInfo implements Iterable<ExtensionInfo.Entry> {
     if (propertyLength != -1) {
       throw new UnsupportedOperationException("The extension is already in use and cannot be extended anymore");
     }
-    int offset = 0;
-    if (!entries.isEmpty()) {
-      offset = entries.get(entries.size() - 1).offset;
-    }
-    Entry entry = new Entry(offset, props, entries.size(), type);
+    Entry entry = new Entry(props, type);
     entries.add(entry);
     return entry;
   }
@@ -65,20 +64,22 @@ public class ExtensionInfo implements Iterable<ExtensionInfo.Entry> {
   public void init() {
     if (propertyLength == -1) {
       propertyLength = 0;
-      for (Entry entry : entries) {
-        propertyLength += entry.getLength();
-      }
       if (parent != null) {
         parent.init();
         if (entries.isEmpty()) {
           entries = parent.entries;
-          propertyLength = parent.propertyLength;
         } else {
-          for (Entry entry : parent.entries) {
-            entries.add(new Entry(propertyLength, entry.properties, entries.size(), entry.type, entry.prototype));
-            propertyLength += entry.getLength();
-          }
+          entries.addAll(0, parent.entries);
         }
+      }
+      offsets = new int[entries.size()];
+      int offset = startOffset;
+      for (int i = 0; i < entries.size(); i++) {
+        Entry entry = entries.get(i);
+        entry.index = i;
+        offsets[i] = offset;
+        offset += entry.getLength();
+        propertyLength += entry.getLength();
       }
     }
   }
@@ -87,37 +88,37 @@ public class ExtensionInfo implements Iterable<ExtensionInfo.Entry> {
     return entries.get(index);
   }
 
+  public int getOffset(int extensionIndex) {
+    return offsets[extensionIndex];
+  }
+
+  public Entry findEntry(int propertyIndex) {
+    int pos = Arrays.binarySearch(offsets, propertyIndex);
+    if (pos == -1) {
+      return null;
+    }
+    if (pos < 0) {
+      pos = -2 - pos;
+    }
+    return entries.get(pos);
+  }
+
   @Override
   public Iterator<Entry> iterator() {
     return entries.iterator();
   }
 
   public static class Entry {
-    private final int offset;
     private final String[] properties;
 
-    private final int index;
+    private int index;
     private final EntityBean prototype;
     private final Class type;
 
-    private Entry(int offset, String[] properties, int index, Class type) throws ReflectiveOperationException {
-      this.offset = offset;
+    private Entry(String[] properties, Class type) throws ReflectiveOperationException {
       this.properties = properties;
-      this.index = index;
       this.type = type;
       this.prototype = (EntityBean) type.getConstructor().newInstance();
-    }
-
-    private Entry(int offset, String[] properties, int index, Class type, EntityBean prototype) {
-      this.offset = offset;
-      this.properties = properties;
-      this.index = index;
-      this.type = type;
-      this.prototype = prototype;
-    }
-
-    public int getOffset() {
-      return offset;
     }
 
     public int getLength() {
@@ -137,7 +138,7 @@ public class ExtensionInfo implements Iterable<ExtensionInfo.Entry> {
     }
 
     public EntityBean createInstance(EntityBeanIntercept parentEbi) {
-      return (EntityBean) prototype._ebean_newInstance(new ExtendedIntercept(parentEbi.getOwner()._ebean_getPropertyNames().length + offset, parentEbi));
+      return (EntityBean) prototype._ebean_newInstance(new ExtendedIntercept(parentEbi.getOwner()._ebean_getPropertyNames().length + 0, parentEbi));
     }
 
     public <T> T getExtension(ExtendableBean bean) {
@@ -145,5 +146,4 @@ public class ExtensionInfo implements Iterable<ExtensionInfo.Entry> {
       return (T) bean._ebean_getExtension(index, eb._ebean_getIntercept());
     }
   }
-
 }
