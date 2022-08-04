@@ -11,27 +11,13 @@ import javax.persistence.*;
  * @author Roland Praml, FOCONIS AG
  */
 @Entity
-public class VirtualBase implements ExtendableBean {
+public class VirtualBase extends AbstractVirtualBase {
 
   // TOOD: add to enhancer
   public static ExtensionInfo _ebean_extensions;
-  @Transient  private EntityBean[] _ebean_extension_storage;
   // TODO: Enhancer end
 
-
-
-  @Id
-  private int id;
-
   private String data;
-
-  public int getId() {
-    return id;
-  }
-
-  public void setId(int id) {
-    this.id = id;
-  }
 
   public String getData() {
     return data;

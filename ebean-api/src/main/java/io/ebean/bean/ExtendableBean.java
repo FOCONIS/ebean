@@ -20,7 +20,7 @@ public interface ExtendableBean {
   default EntityBean _ebean_getExtension(int index, EntityBeanIntercept ebi) {
     // TODO: Code added by enhancer
     try {
-      Field field = getClass().getDeclaredField("_ebean_extension_storage");
+      Field field = getClass().getField("_ebean_extension_storage");
       field.setAccessible(true);
       EntityBean[] extensionStorage = (EntityBean[]) field.get(this);
       if (extensionStorage == null) {
