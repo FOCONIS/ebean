@@ -31,7 +31,9 @@ public class VirtualExtendManyToMany {
       return _extension_id.getExtension(found);
     }
 
-
+    public List<VirtualExtendManyToMany> getVirtualExtendManyToManys() {
+      return virtualExtendManyToManys;
+    }
   }
 
   @ManyToMany(mappedBy = "virtualExtendManyToManys")

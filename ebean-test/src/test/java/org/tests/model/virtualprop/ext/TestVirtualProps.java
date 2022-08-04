@@ -58,7 +58,10 @@ public class TestVirtualProps {
 
     VirtualExtendOne.VirtualBaseExtendOneOther other = VirtualExtendOne.VirtualBaseExtendOneOther.get(found);
     assertThat(other.getVirtualExtendOne().getData()).isEqualTo("bar");
+    other.setFirstName("test");
 
+    VirtualExtendManyToMany.VirtualBaseExtendManyToMany many = VirtualExtendManyToMany.VirtualBaseExtendManyToMany.get(found);
+    assertThat(many.getVirtualExtendManyToManys()).isEmpty();
     other.getVirtualExtendOne().setData("faz");
     db.save(found);
 

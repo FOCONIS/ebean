@@ -2,6 +2,7 @@ package io.ebean.bean.extend;
 
 import io.ebean.bean.EntityBean;
 import io.ebean.bean.EntityBeanIntercept;
+import io.ebean.bean.NotEnhancedException;
 
 import java.lang.reflect.Field;
 
@@ -10,7 +11,9 @@ import java.lang.reflect.Field;
  */
 public interface ExtendableBean {
 
-  ExtensionInfo _ebean_getExtensionInfos();
+  default ExtensionInfo _ebean_getExtensionInfos() {
+    throw new NotEnhancedException();
+  }
 
   default EntityBean _ebean_getExtension(int index, EntityBeanIntercept ebi) {
     // TODO: Code added by enhancer
@@ -24,7 +27,8 @@ public interface ExtendableBean {
       }
       EntityBean ret = extensionStorage[index];
       if (ret == null) {
-        extensionStorage[index] = ret = _ebean_getExtensionInfos().get(index).createInstance(ebi);
+        int offset = _ebean_getExtensionInfos().getOffset(index);
+        extensionStorage[index] = ret = _ebean_getExtensionInfos().get(index).createInstance(offset, ebi);
       }
       return ret;
     } catch (ReflectiveOperationException re) {

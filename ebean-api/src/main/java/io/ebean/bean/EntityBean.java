@@ -1,7 +1,6 @@
 package io.ebean.bean;
 
 import java.io.Serializable;
-import java.lang.reflect.Field;
 
 /**
  * Bean that is aware of EntityBeanIntercept.
@@ -42,17 +41,8 @@ public interface EntityBean extends Serializable, ToStringAware {
     throw new NotEnhancedException();
   }
 
-  default Object _ebean_newInstance(EntityBeanIntercept ebi) {
-    // TODO: implement in enhancer
-    Object ret = _ebean_newInstance();
-    try {
-      Field field = getClass().getDeclaredField("_ebean_intercept");
-      field.setAccessible(true);
-      field.set(ret, ebi);
-      return ret;
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
+  default Object _ebean_newInstanceIntercept(EntityBeanIntercept ebi) {
+    throw new NotEnhancedException();
   }
 
   /**

@@ -19,7 +19,8 @@ public class VirtualExtendOne {
   @VirtualEmbed(value = VirtualBase.class)
   @Entity
   public static class VirtualBaseExtendOneOther implements EntityExtension {
-    public static final ExtensionInfo.Entry _extension_id = EntityExtension.extend(AbstractVirtualBase.class, VirtualBaseExtendOneOther.class);
+    //public static final ExtensionInfo.Entry _extension_id = EntityExtension.extend(AbstractVirtualBase.class, VirtualBaseExtendOneOther.class);
+    public static final ExtensionInfo.Entry _extension_id = EntityExtension.extend(VirtualBase.class, VirtualBaseExtendOneOther.class);
 
     @OneToOne(mappedBy = "base")
     private VirtualExtendOne virtualExtendOne;

@@ -42,5 +42,5 @@ module io.ebean.api {
   exports io.ebean.text.csv;
   exports io.ebean.util;
   exports io.ebean.annotation.ext;
-    exports io.ebean.bean.extend;
+  exports io.ebean.bean.extend;
 }

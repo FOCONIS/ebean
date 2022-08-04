@@ -137,8 +137,8 @@ public class ExtensionInfo implements Iterable<ExtensionInfo.Entry> {
       return type;
     }
 
-    public EntityBean createInstance(EntityBeanIntercept parentEbi) {
-      return (EntityBean) prototype._ebean_newInstance(new ExtendedIntercept(parentEbi.getOwner()._ebean_getPropertyNames().length + 0, parentEbi));
+    public EntityBean createInstance(int offset, EntityBeanIntercept parentEbi) {
+      return (EntityBean) prototype._ebean_newInstanceIntercept(new ExtendedIntercept(offset, parentEbi));
     }
 
     public <T> T getExtension(ExtendableBean bean) {
