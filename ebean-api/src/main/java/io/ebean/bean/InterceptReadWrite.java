@@ -107,7 +107,7 @@ public final class InterceptReadWrite implements EntityBeanIntercept {
     int length = owner._ebean_getPropertyNames().length;
     if (ownerBean instanceof ExtendableBean) {
       ExtendableBean eb = (ExtendableBean) ownerBean;
-      ExtensionInfo extensions = eb._ebean_getExtensionInfos();
+      ExtensionInfo extensions = eb._ebean_getExtensionInfo();
       if (extensions != null) {
         this.virtualPropertyStart = extensions.getStartOffset();
         length += extensions.getPropertyLength();
@@ -425,8 +425,8 @@ public final class InterceptReadWrite implements EntityBeanIntercept {
     if (propertyIndex < virtualPropertyStart) {
       return owner._ebean_getPropertyName(propertyIndex);
     } else {
-      ExtensionInfo.Entry extension = ((ExtendableBean) owner)._ebean_getExtensionInfos().findEntry(propertyIndex);
-      int offset = ((ExtendableBean) owner)._ebean_getExtensionInfos().getOffset(extension.getIndex());
+      ExtensionInfo.Entry extension = ((ExtendableBean) owner)._ebean_getExtensionInfo().findEntry(propertyIndex);
+      int offset = ((ExtendableBean) owner)._ebean_getExtensionInfo().getOffset(extension.getIndex());
       ExtendableBean eb = (ExtendableBean) owner;
       EntityBean extensionBean = eb._ebean_getExtension(extension.getIndex(), this);
       return ((EntityBean) extensionBean)._ebean_getPropertyName(propertyIndex - offset );
@@ -1083,7 +1083,7 @@ public final class InterceptReadWrite implements EntityBeanIntercept {
 
   private ExtensionInfo.Entry getExtension(int index) {
     if (index >= virtualPropertyStart) {
-      ExtensionInfo extensions = ((ExtendableBean) owner)._ebean_getExtensionInfos();
+      ExtensionInfo extensions = ((ExtendableBean) owner)._ebean_getExtensionInfo();
       index -= virtualPropertyStart;
       for (int i = 0; i < extensions.size(); i++) {
         index -= extensions.get(i).getLength();
@@ -1101,8 +1101,8 @@ public final class InterceptReadWrite implements EntityBeanIntercept {
     if (index < virtualPropertyStart) {
       return owner._ebean_getField(index);
     } else {
-      ExtensionInfo.Entry extension = ((ExtendableBean) owner)._ebean_getExtensionInfos().findEntry(index);
-      int offset = ((ExtendableBean) owner)._ebean_getExtensionInfos().getOffset(extension.getIndex());
+      ExtensionInfo.Entry extension = ((ExtendableBean) owner)._ebean_getExtensionInfo().findEntry(index);
+      int offset = ((ExtendableBean) owner)._ebean_getExtensionInfo().getOffset(extension.getIndex());
       ExtendableBean eb = (ExtendableBean) owner;
       EntityBean extensionBean = eb._ebean_getExtension(extension.getIndex(), this);
       return ((EntityBean) extensionBean)._ebean_getField(index - offset );
@@ -1114,8 +1114,8 @@ public final class InterceptReadWrite implements EntityBeanIntercept {
     if (index < virtualPropertyStart) {
       return owner._ebean_getFieldIntercept(index);
     } else {
-      ExtensionInfo.Entry extension = ((ExtendableBean) owner)._ebean_getExtensionInfos().findEntry(index);
-      int offset = ((ExtendableBean) owner)._ebean_getExtensionInfos().getOffset(extension.getIndex());
+      ExtensionInfo.Entry extension = ((ExtendableBean) owner)._ebean_getExtensionInfo().findEntry(index);
+      int offset = ((ExtendableBean) owner)._ebean_getExtensionInfo().getOffset(extension.getIndex());
       ExtendableBean eb = (ExtendableBean) owner;
       EntityBean extensionBean = eb._ebean_getExtension(extension.getIndex(), this);
       return ((EntityBean) extensionBean)._ebean_getFieldIntercept(index - offset );
@@ -1127,8 +1127,8 @@ public final class InterceptReadWrite implements EntityBeanIntercept {
     if (index < virtualPropertyStart) {
       owner._ebean_setField(index, value);
     } else {
-      ExtensionInfo.Entry extension = ((ExtendableBean) owner)._ebean_getExtensionInfos().findEntry(index);
-      int offset = ((ExtendableBean) owner)._ebean_getExtensionInfos().getOffset(extension.getIndex());
+      ExtensionInfo.Entry extension = ((ExtendableBean) owner)._ebean_getExtensionInfo().findEntry(index);
+      int offset = ((ExtendableBean) owner)._ebean_getExtensionInfo().getOffset(extension.getIndex());
       ExtendableBean eb = (ExtendableBean) owner;
       EntityBean extensionBean = eb._ebean_getExtension(extension.getIndex(), this);
       ((EntityBean) extensionBean)._ebean_setField(index - offset , value);
@@ -1139,8 +1139,8 @@ public final class InterceptReadWrite implements EntityBeanIntercept {
     if (index < virtualPropertyStart) {
       owner._ebean_setFieldIntercept(index, value);
     } else {
-      ExtensionInfo.Entry extension = ((ExtendableBean) owner)._ebean_getExtensionInfos().findEntry(index);
-      int offset = ((ExtendableBean) owner)._ebean_getExtensionInfos().getOffset(extension.getIndex());
+      ExtensionInfo.Entry extension = ((ExtendableBean) owner)._ebean_getExtensionInfo().findEntry(index);
+      int offset = ((ExtendableBean) owner)._ebean_getExtensionInfo().getOffset(extension.getIndex());
       ExtendableBean eb = (ExtendableBean) owner;
       EntityBean extensionBean = eb._ebean_getExtension(extension.getIndex(), this);
       ((EntityBean) extensionBean)._ebean_setFieldIntercept(index - offset , value);

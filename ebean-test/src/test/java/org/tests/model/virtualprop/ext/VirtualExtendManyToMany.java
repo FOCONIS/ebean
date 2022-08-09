@@ -1,6 +1,7 @@
 package org.tests.model.virtualprop.ext;
 
 import io.ebean.bean.extend.EntityExtension;
+import io.ebean.bean.extend.ExtensionAccessor;
 import io.ebean.bean.extend.ExtensionManager;
 import io.ebean.bean.extend.ExtensionInfo;
 import org.tests.model.virtualprop.AbstractVirtualBase;
@@ -20,9 +21,8 @@ public class VirtualExtendManyToMany {
   private String data;
 
   @EntityExtension
-  @MappedSuperclass
   public static class VirtualBaseExtendManyToMany {
-    public static final ExtensionInfo.Entry _extension_id = ExtensionManager.extend(AbstractVirtualBase.class, VirtualBaseExtendManyToMany.class);
+    public static final ExtensionAccessor _extension_id = ExtensionManager.extend(AbstractVirtualBase.class, VirtualBaseExtendManyToMany.class);
 
     @ManyToMany
     @JoinTable(name = "kreuztabelle")

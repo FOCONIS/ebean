@@ -14,15 +14,10 @@ import javax.persistence.Transient;
 @MappedSuperclass
 public class AbstractVirtualBase implements ExtendableBean {
 
-  // TOOD: add to enhancer
-  public static ExtensionInfo _ebean_extensions = new ExtensionInfo(AbstractVirtualBase.class, null);
-  @Transient  public EntityBean[] _ebean_extension_storage;
-  // TODO: Enhancer end
 
-  @Override
-  public ExtensionInfo _ebean_getExtensionInfos() {
-    return _ebean_extensions;
-  }
+  // TOOD: add to enhancer
+//  @Transient  public EntityBean[] _ebean_extension_storage;
+  // TODO: Enhancer end
   @Id
   private int id;
 

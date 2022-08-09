@@ -2,6 +2,7 @@ package org.tests.model.virtualprop.ext;
 
 import io.ebean.annotation.Formula;
 import io.ebean.bean.extend.EntityExtension;
+import io.ebean.bean.extend.ExtensionAccessor;
 import io.ebean.bean.extend.ExtensionInfo;
 import io.ebean.bean.extend.ExtensionManager;
 import org.tests.model.virtualprop.VirtualBase;
@@ -16,10 +17,9 @@ import javax.persistence.*;
 public class VirtualExtendOne {
 
   @EntityExtension
-  @MappedSuperclass
   public static class VirtualBaseExtendOneOther {
     //public static final ExtensionInfo.Entry _extension_id = EntityExtension.extend(AbstractVirtualBase.class, VirtualBaseExtendOneOther.class);
-    public static final ExtensionInfo.Entry _extension_id = ExtensionManager.extend(VirtualBase.class, VirtualBaseExtendOneOther.class);
+    public static final ExtensionAccessor _extension_id = ExtensionManager.extend(VirtualBase.class, VirtualBaseExtendOneOther.class);
 
     @OneToOne(mappedBy = "base")
     private VirtualExtendOne virtualExtendOne;

@@ -52,7 +52,7 @@ public class ExtensionInfo implements Iterable<ExtensionInfo.Entry> {
 
   public int getPropertyLength() {
     if (propertyLength == -1) {
-      throw new IllegalStateException("Not yet initialized");
+      init();
     }
     return propertyLength;
   }
@@ -61,9 +61,9 @@ public class ExtensionInfo implements Iterable<ExtensionInfo.Entry> {
     return entries.size();
   }
 
-  public void init() {
+  public synchronized void init() {
     if (propertyLength == -1) {
-      propertyLength = 0;
+      int length = 0;
       if (parent != null) {
         parent.init();
         if (entries.isEmpty()) {
@@ -79,8 +79,9 @@ public class ExtensionInfo implements Iterable<ExtensionInfo.Entry> {
         entry.index = i;
         offsets[i] = offset;
         offset += entry.getLength();
-        propertyLength += entry.getLength();
+        length += entry.getLength();
       }
+      propertyLength = length;
     }
   }
 
@@ -108,7 +109,7 @@ public class ExtensionInfo implements Iterable<ExtensionInfo.Entry> {
     return entries.iterator();
   }
 
-  public static class Entry {
+  public static class Entry implements ExtensionAccessor{
     private final String[] properties;
 
     private int index;

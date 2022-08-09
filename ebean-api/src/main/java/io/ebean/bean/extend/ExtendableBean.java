@@ -11,7 +11,7 @@ import java.lang.reflect.Field;
  */
 public interface ExtendableBean {
 
-  default ExtensionInfo _ebean_getExtensionInfos() {
+  default ExtensionInfo _ebean_getExtensionInfo() {
     throw new NotEnhancedException();
   }
 
@@ -22,13 +22,13 @@ public interface ExtendableBean {
       field.setAccessible(true);
       EntityBean[] extensionStorage = (EntityBean[]) field.get(this);
       if (extensionStorage == null) {
-        extensionStorage = new EntityBean[_ebean_getExtensionInfos().size()];
+        extensionStorage = new EntityBean[_ebean_getExtensionInfo().size()];
         field.set(this, extensionStorage);
       }
       EntityBean ret = extensionStorage[index];
       if (ret == null) {
-        int offset = _ebean_getExtensionInfos().getOffset(index);
-        extensionStorage[index] = ret = _ebean_getExtensionInfos().get(index).createInstance(offset, ebi);
+        int offset = _ebean_getExtensionInfo().getOffset(index);
+        extensionStorage[index] = ret = _ebean_getExtensionInfo().get(index).createInstance(offset, ebi);
       }
       return ret;
     } catch (ReflectiveOperationException re) {
