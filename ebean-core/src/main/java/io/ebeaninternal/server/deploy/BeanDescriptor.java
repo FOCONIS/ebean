@@ -1482,7 +1482,7 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType, SpiBeanType {
     iudMetrics.visit(visitor);
     for (CQueryPlan queryPlan : queryPlanCache.values()) {
       if (!queryPlan.isEmptyStats()) {
-        visitor.visitQuery(queryPlan.getSnapshot(visitor.reset()));
+        visitor.visitQuery(queryPlan.visit(visitor));
       }
     }
   }
@@ -1932,13 +1932,6 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType, SpiBeanType {
    */
   public <U> BeanDescriptor<U> descriptor(Class<U> otherType) {
     return owner.descriptor(otherType);
-  }
-
-  /**
-   * Returns true, if the table is managed (i.e. an existing m2m relation).
-   */
-  public boolean isTableManaged(String tableName) {
-    return owner.isTableManaged(tableName);
   }
 
   /**
