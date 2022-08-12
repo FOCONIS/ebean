@@ -287,14 +287,16 @@ final class SaveManyBeans extends SaveManyBase {
     }
 
     transaction.depth(+1);
+    boolean needsFlush = false;
     if (deletions != null && !deletions.isEmpty()) {
       for (Object other : deletions) {
         EntityBean otherDelete = (EntityBean) other;
         // the object from the 'other' side of the ManyToMany
         // build a intersection row for 'delete'
         IntersectionRow intRow = many.buildManyToManyMapBean(parentBean, otherDelete, publish);
-        SpiSqlUpdate sqlDelete = intRow.createDelete(server, DeleteMode.HARD);
+        SpiSqlUpdate sqlDelete = intRow.createDelete(server, DeleteMode.HARD, many.extraWhere());
         persister.executeOrQueue(sqlDelete, transaction, queue);
+        needsFlush = true;
       }
     }
     if (additions != null && !additions.isEmpty()) {
@@ -309,7 +311,22 @@ final class SaveManyBeans extends SaveManyBase {
           CoreLog.log.log(WARNING, msg);
         } else {
           if (!many.hasImportedId(otherBean)) {
-            throw new PersistenceException("ManyToMany bean does not have an Id value? " + otherBean);
+            throw new PersistenceException("ManyToMany bean " + otherBean + " does not have an Id value.");
+          } else if (many.getIntersectionFactory() != null) {
+            // build a intersection bean for 'insert'
+            // They need to be executed very late and would normally go to Queue#2, but we do not have
+            // a SpiSqlUpdate for now.
+            if (needsFlush) {
+              transaction.flushBatchOnCascade();
+            }
+            if (queue) {
+              transaction.depth(+100);
+            }
+            Object intersectionBean = many.getIntersectionFactory().invoke(parentBean, otherBean);
+            persister.saveRecurse((EntityBean) intersectionBean, transaction, parentBean, request.flags());
+            if (queue) {
+              transaction.depth(-100);
+            }
           } else {
             // build a intersection row for 'insert'
             IntersectionRow intRow = many.buildManyToManyMapBean(parentBean, otherBean, publish);
