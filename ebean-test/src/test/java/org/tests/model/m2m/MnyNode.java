@@ -123,6 +123,10 @@ public class MnyNode {
     return withDbTableName;
   }
 
+  public void setAllRelations(List<MnyNode> allRelations) {
+    this.allRelations = allRelations;
+  }
+
   public void setWithDbTableName(List<MnyNode> withDbTableName) {
     this.withDbTableName = withDbTableName;
   }

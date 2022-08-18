@@ -6,6 +6,8 @@ import io.ebean.xtest.BaseTestCase;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -151,6 +153,39 @@ public class TestM2MWithWhere extends BaseTestCase {
     sqls = LoggedSql.stop();
     assertThat(sqls).hasSize(0);
 
+  }
+
+  @Test
+  public void testSetter() throws Exception {
+    createTestData();
+
+    MnyNode node = DB.find(MnyNode.class, 3);
+    node.setAllRelations(Collections.emptyList());
+    LoggedSql.start();
+    DB.save(node);
+    List<String> sqls = LoggedSql.stop();
+    assertThat(sqls).hasSize(2);
+
+    node = DB.find(MnyNode.class, 3);
+    assertThat(node.getAllRelations()).isEmpty();
+
+    node.setAllRelations(Arrays.asList(DB.find(MnyNode.class, 3)));
+    LoggedSql.start();
+    DB.save(node);
+    sqls = LoggedSql.stop();
+    assertThat(sqls).hasSize(4);
+
+    node = DB.find(MnyNode.class, 3);
+    assertThat(node.getAllRelations()).hasSize(1);
+
+    node.setAllRelations(Arrays.asList(DB.find(MnyNode.class, 1), DB.find(MnyNode.class, 2)));
+    LoggedSql.start();
+    DB.save(node);
+    sqls = LoggedSql.stop();
+    assertThat(sqls).hasSize(4);
+
+    node = DB.find(MnyNode.class, 3);
+    assertThat(node.getAllRelations()).hasSize(2);
   }
 
   // to =     | 1 2 3 4 5
