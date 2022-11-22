@@ -1,6 +1,7 @@
 package io.ebean.bean;
 
 import io.ebean.ValuePair;
+import io.ebean.bean.extend.ExtensionInfo;
 
 import java.util.Collections;
 import java.util.Map;
@@ -13,24 +14,14 @@ import java.util.Set;
  * required for updates such as per property changed, loaded, dirty state, original values
  * bean state etc.
  */
-public class InterceptReadOnly implements EntityBeanIntercept {
+public class InterceptReadOnly extends InterceptBase implements EntityBeanIntercept {
 
-  private final EntityBean owner;
-
-  private final Object[] virtualValues;
 
   /**
    * Create with a given entity.
    */
   public InterceptReadOnly(Object ownerBean) {
-
-    this.owner = (EntityBean) ownerBean;
-    int virtualPropertyCount = 0; //owner._ebean_getVirtualPropertyCount();
-    if (virtualPropertyCount > 0) {
-      this.virtualValues = new Object[virtualPropertyCount];
-    } else {
-      virtualValues = null;
-    }
+    super((EntityBean) ownerBean);
   }
 
   @Override
@@ -236,21 +227,6 @@ public class InterceptReadOnly implements EntityBeanIntercept {
   @Override
   public Object getOrigValue(int propertyIndex) {
     return null;
-  }
-
-  @Override
-  public int findProperty(String propertyName) {
-    return 0;
-  }
-
-  @Override
-  public String getProperty(int propertyIndex) {
-    return null;
-  }
-
-  @Override
-  public int getPropertyLength() {
-    return 0;
   }
 
   @Override
@@ -555,34 +531,33 @@ public class InterceptReadOnly implements EntityBeanIntercept {
 
   @Override
   public Object getValue(int index) {
-    if (virtualValues == null || index < virtualOffset()) {
+    ExtensionInfo.Entry entry = extensionInfo().findEntry(index);
+    if (entry == null) {
       return owner._ebean_getField(index);
     } else {
-      return virtualValues[index - virtualOffset()];
+      int offset = extensionInfo().getOffset(entry);
+      return getExtensionBean(entry)._ebean_getField(index - offset);
     }
   }
 
   @Override
   public Object getValueIntercept(int index) {
-    if (virtualValues == null || index < virtualOffset()) {
+    ExtensionInfo.Entry entry = extensionInfo().findEntry(index);
+    if (entry == null) {
       return owner._ebean_getFieldIntercept(index);
     } else {
-      preGetter(index);
-      return virtualValues[index - virtualOffset()];
+      int offset = extensionInfo().getOffset(entry);
+      return getExtensionBean(entry)._ebean_getFieldIntercept(index - offset);
     }
   }
 
   @Override
-  public void setValue(int propertyIndex, Object value) {
-    owner._ebean_setField(propertyIndex, value);
+  public void setValue(int index, Object value) {
+    throw new UnsupportedOperationException();
   }
 
   @Override
   public void setValueIntercept(int propertyIndex, Object value) {
-    owner._ebean_setFieldIntercept(propertyIndex, value);
-  }
-
-  private int virtualOffset() {
-    return owner._ebean_getPropertyNames().length - virtualValues.length;
+    throw new UnsupportedOperationException();
   }
 }

@@ -14,16 +14,22 @@ import java.util.List;
  */
 public class ExtensionInfo implements Iterable<ExtensionInfo.Entry> {
 
+  public static ExtensionInfo NONE = new ExtensionInfo();
   private final int startOffset;
   private List<Entry> entries = new ArrayList<>();
   private final ExtensionInfo parent;
-  private int propertyLength = -1;
+  private int propertyLength = 0;
 
   private int[] offsets;
 
   static <T extends ExtendableBean> ExtensionInfo get(Class<T> clazz) throws ReflectiveOperationException {
     Field field = clazz.getField("_ebean_extensions");
     return (ExtensionInfo) field.get(null);
+  }
+
+  private ExtensionInfo() {
+    this.startOffset = Integer.MAX_VALUE;
+    this.parent = null;
   }
 
   public ExtensionInfo(Class clazz, ExtensionInfo parent) {
@@ -89,11 +95,29 @@ public class ExtensionInfo implements Iterable<ExtensionInfo.Entry> {
     return entries.get(index);
   }
 
-  public int getOffset(int extensionIndex) {
-    return offsets[extensionIndex];
+  public int getOffset(Entry entry) {
+    return offsets[entry.getIndex()];
   }
 
+/*
+  public ExtensionInfo.Entry getExtensionEntry(int index) {
+
+    index -= startOffset;
+    for (int i = 0; i < entries.size(); i++) {
+      index -= entries.get(i).getLength();
+      if (index < 0) {
+        return entries.get(i);
+      }
+    }
+
+    throw new IllegalArgumentException("Index invalid");
+  }
+*/
+
   public Entry findEntry(int propertyIndex) {
+    if (propertyIndex < startOffset) {
+      return null;
+    }
     int pos = Arrays.binarySearch(offsets, propertyIndex);
     if (pos == -1) {
       return null;
@@ -109,7 +133,7 @@ public class ExtensionInfo implements Iterable<ExtensionInfo.Entry> {
     return entries.iterator();
   }
 
-  public static class Entry implements ExtensionAccessor{
+  public static class Entry implements ExtensionAccessor {
     private final String[] properties;
 
     private int index;
