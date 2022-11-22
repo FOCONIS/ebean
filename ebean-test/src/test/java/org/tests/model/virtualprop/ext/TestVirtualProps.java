@@ -7,6 +7,7 @@ import io.ebean.config.DatabaseConfig;
 import io.ebean.plugin.BeanType;
 import io.ebean.test.LoggedSql;
 import io.ebeaninternal.server.deploy.BeanProperty;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.tests.model.virtualprop.VirtualBase;
 
@@ -18,6 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author Roland Praml, FOCONIS AG
  */
+//@Disabled
 public class TestVirtualProps {
   static Database db = createDb();
 

@@ -1,0 +1,8 @@
+--- ebean-core/src/main/java/io/ebeaninternal/server/deploy/meta/DeployBeanDescriptor.java
++++ ebean-core/src/main/java/io/ebeaninternal/server/deploy/meta/DeployBeanDescriptor.java
+@@ -1212,4 +1212,5 @@ public class DeployBeanDescriptor<T> implements DeployBeanDescriptorMeta {
+   public DeployBeanDescriptorMeta getDeployBeanDescriptorMeta(Class<?> propertyType) {
+     return getDeploy(propertyType).getDescriptor();
+   }
++
+ }
