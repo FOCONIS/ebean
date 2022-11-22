@@ -528,36 +528,4 @@ public class InterceptReadOnly extends InterceptBase implements EntityBeanInterc
   public String mutableNext(int propertyIndex) {
     return null;
   }
-
-  @Override
-  public Object getValue(int index) {
-    ExtensionInfo.Entry entry = extensionInfo().findEntry(index);
-    if (entry == null) {
-      return owner._ebean_getField(index);
-    } else {
-      int offset = extensionInfo().getOffset(entry);
-      return getExtensionBean(entry)._ebean_getField(index - offset);
-    }
-  }
-
-  @Override
-  public Object getValueIntercept(int index) {
-    ExtensionInfo.Entry entry = extensionInfo().findEntry(index);
-    if (entry == null) {
-      return owner._ebean_getFieldIntercept(index);
-    } else {
-      int offset = extensionInfo().getOffset(entry);
-      return getExtensionBean(entry)._ebean_getFieldIntercept(index - offset);
-    }
-  }
-
-  @Override
-  public void setValue(int index, Object value) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public void setValueIntercept(int propertyIndex, Object value) {
-    throw new UnsupportedOperationException();
-  }
 }

@@ -97,6 +97,7 @@ public abstract class InterceptBase implements EntityBeanIntercept {
     }
   }
 
+  @Override
   public void setValueIntercept(int index, Object value) {
     ExtensionInfo.Entry entry = extensionInfo().findEntry(index);
     if (entry == null) {
