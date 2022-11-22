@@ -3,6 +3,8 @@ package io.ebean.bean;
 import io.ebean.DB;
 import io.ebean.Database;
 import io.ebean.ValuePair;
+import io.ebean.bean.extend.ExtendableBean;
+import io.ebean.bean.extend.ExtensionInfo;
 
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.PersistenceException;
@@ -23,7 +25,6 @@ import java.util.concurrent.locks.ReentrantLock;
  * and oldValues generation for concurrency checking.
  */
 public final class InterceptReadWrite implements EntityBeanIntercept {
-
   private static final long serialVersionUID = -3664031775464862649L;
 
   private static final int STATE_NEW = 0;
@@ -80,6 +81,7 @@ public final class InterceptReadWrite implements EntityBeanIntercept {
   private boolean fullyLoadedBean;
   private boolean loadedFromCache;
   private final byte[] flags;
+  private int virtualPropertyStart = Integer.MAX_VALUE;
   private Object[] origValues;
   private Exception[] loadErrors;
   private int lazyLoadProperty = -1;
@@ -102,7 +104,17 @@ public final class InterceptReadWrite implements EntityBeanIntercept {
    */
   public InterceptReadWrite(Object ownerBean) {
     this.owner = (EntityBean) ownerBean;
-    this.flags = new byte[owner._ebean_getPropertyNames().length];
+    int length = owner._ebean_getPropertyNames().length;
+    if (ownerBean instanceof ExtendableBean) {
+      ExtendableBean eb = (ExtendableBean) ownerBean;
+      ExtensionInfo extensions = eb._ebean_getExtensionInfo();
+      if (extensions != null) {
+        this.virtualPropertyStart = extensions.getStartOffset();
+        length += extensions.getPropertyLength();
+      }
+    }
+
+    this.flags = new byte[length];
   }
 
   /**
@@ -209,7 +221,7 @@ public final class InterceptReadWrite implements EntityBeanIntercept {
     }
     if (mutableInfo != null) {
       for (int i = 0; i < mutableInfo.length; i++) {
-        if (mutableInfo[i] != null && !mutableInfo[i].isEqualToObject(owner._ebean_getField(i))) {
+        if (mutableInfo[i] != null && !mutableInfo[i].isEqualToObject(getValue(i))) {
           dirty = true;
           break;
         }
@@ -410,7 +422,15 @@ public final class InterceptReadWrite implements EntityBeanIntercept {
     if (propertyIndex == -1) {
       return null;
     }
-    return owner._ebean_getPropertyName(propertyIndex);
+    if (propertyIndex < virtualPropertyStart) {
+      return owner._ebean_getPropertyName(propertyIndex);
+    } else {
+      ExtensionInfo.Entry extension = ((ExtendableBean) owner)._ebean_getExtensionInfo().findEntry(propertyIndex);
+      int offset = ((ExtendableBean) owner)._ebean_getExtensionInfo().getOffset(extension.getIndex());
+      ExtendableBean eb = (ExtendableBean) owner;
+      EntityBean extensionBean = eb._ebean_getExtension(extension.getIndex(), this);
+      return ((EntityBean) extensionBean)._ebean_getPropertyName(propertyIndex - offset );
+    }
   }
 
   @Override
@@ -554,7 +574,7 @@ public final class InterceptReadWrite implements EntityBeanIntercept {
         props.add((prefix == null ? getProperty(i) : prefix + getProperty(i)));
       } else if ((flags[i] & FLAG_EMBEDDED_DIRTY) != 0) {
         // an embedded property has been changed - recurse
-        EntityBean embeddedBean = (EntityBean) owner._ebean_getField(i);
+        EntityBean embeddedBean = (EntityBean) getValue(i);
         embeddedBean._ebean_getIntercept().addDirtyPropertyNames(props, getProperty(i) + ".");
       }
     }
@@ -592,7 +612,7 @@ public final class InterceptReadWrite implements EntityBeanIntercept {
       if (isChangedProp(i)) {
         // the property has been changed on this bean
         String propName = (prefix == null ? getProperty(i) : prefix + getProperty(i));
-        Object newVal = owner._ebean_getField(i);
+        Object newVal = getValue(i);
         Object oldVal = getOrigValue(i);
         if (notEqual(oldVal, newVal)) {
           dirtyValues.put(propName, new ValuePair(newVal, oldVal));
@@ -611,7 +631,7 @@ public final class InterceptReadWrite implements EntityBeanIntercept {
     for (int i = 0; i < len; i++) {
       if (isChangedProp(i)) {
         // the property has been changed on this bean
-        Object newVal = owner._ebean_getField(i);
+        Object newVal = getValue(i);
         Object oldVal = getOrigValue(i);
         if (notEqual(oldVal, newVal)) {
           visitor.visit(i, newVal, oldVal);
@@ -644,7 +664,7 @@ public final class InterceptReadWrite implements EntityBeanIntercept {
         sb.append(i).append(',');
       } else if ((flags[i] & FLAG_EMBEDDED_DIRTY) != 0) {
         // an embedded property has been changed - recurse
-        EntityBean embeddedBean = (EntityBean) owner._ebean_getField(i);
+        EntityBean embeddedBean = (EntityBean) getValue(i);
         sb.append(i).append('[');
         embeddedBean._ebean_getIntercept().addDirtyPropertyKey(sb);
         sb.append(']');
@@ -1020,7 +1040,7 @@ public final class InterceptReadWrite implements EntityBeanIntercept {
   public boolean isChangedProp(int i) {
     if ((flags[i] & FLAG_CHANGED_PROP) != 0) {
       return true;
-    } else if (mutableInfo == null || mutableInfo[i] == null || mutableInfo[i].isEqualToObject(owner._ebean_getField(i))) {
+    } else if (mutableInfo == null || mutableInfo[i] == null || mutableInfo[i].isEqualToObject(getValue(i))) {
       return false;
     } else {
       // mark for change
@@ -1059,5 +1079,71 @@ public final class InterceptReadWrite implements EntityBeanIntercept {
     }
     final MutableValueNext next = mutableNext[propertyIndex];
     return next != null ? next.content() : null;
+  }
+
+  private ExtensionInfo.Entry getExtension(int index) {
+    if (index >= virtualPropertyStart) {
+      ExtensionInfo extensions = ((ExtendableBean) owner)._ebean_getExtensionInfo();
+      index -= virtualPropertyStart;
+      for (int i = 0; i < extensions.size(); i++) {
+        index -= extensions.get(i).getLength();
+        if (index < 0) {
+          return extensions.get(i);
+        }
+      }
+    }
+    throw new IllegalArgumentException("Index invalid");
+  }
+
+  @Override
+  public Object getValue(int index) {
+
+    if (index < virtualPropertyStart) {
+      return owner._ebean_getField(index);
+    } else {
+      ExtensionInfo.Entry extension = ((ExtendableBean) owner)._ebean_getExtensionInfo().findEntry(index);
+      int offset = ((ExtendableBean) owner)._ebean_getExtensionInfo().getOffset(extension.getIndex());
+      ExtendableBean eb = (ExtendableBean) owner;
+      EntityBean extensionBean = eb._ebean_getExtension(extension.getIndex(), this);
+      return ((EntityBean) extensionBean)._ebean_getField(index - offset );
+    }
+  }
+
+  @Override
+  public Object getValueIntercept(int index) {
+    if (index < virtualPropertyStart) {
+      return owner._ebean_getFieldIntercept(index);
+    } else {
+      ExtensionInfo.Entry extension = ((ExtendableBean) owner)._ebean_getExtensionInfo().findEntry(index);
+      int offset = ((ExtendableBean) owner)._ebean_getExtensionInfo().getOffset(extension.getIndex());
+      ExtendableBean eb = (ExtendableBean) owner;
+      EntityBean extensionBean = eb._ebean_getExtension(extension.getIndex(), this);
+      return ((EntityBean) extensionBean)._ebean_getFieldIntercept(index - offset );
+    }
+  }
+
+  @Override
+  public void setValue(int index, Object value) {
+    if (index < virtualPropertyStart) {
+      owner._ebean_setField(index, value);
+    } else {
+      ExtensionInfo.Entry extension = ((ExtendableBean) owner)._ebean_getExtensionInfo().findEntry(index);
+      int offset = ((ExtendableBean) owner)._ebean_getExtensionInfo().getOffset(extension.getIndex());
+      ExtendableBean eb = (ExtendableBean) owner;
+      EntityBean extensionBean = eb._ebean_getExtension(extension.getIndex(), this);
+      ((EntityBean) extensionBean)._ebean_setField(index - offset , value);
+    }
+  }
+
+  public void setValueIntercept(int index, Object value) {
+    if (index < virtualPropertyStart) {
+      owner._ebean_setFieldIntercept(index, value);
+    } else {
+      ExtensionInfo.Entry extension = ((ExtendableBean) owner)._ebean_getExtensionInfo().findEntry(index);
+      int offset = ((ExtendableBean) owner)._ebean_getExtensionInfo().getOffset(extension.getIndex());
+      ExtendableBean eb = (ExtendableBean) owner;
+      EntityBean extensionBean = eb._ebean_getExtension(extension.getIndex(), this);
+      ((EntityBean) extensionBean)._ebean_setFieldIntercept(index - offset , value);
+    }
   }
 }

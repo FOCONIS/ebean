@@ -41,6 +41,10 @@ public interface EntityBean extends Serializable, ToStringAware {
     throw new NotEnhancedException();
   }
 
+  default Object _ebean_newInstanceIntercept(EntityBeanIntercept ebi) {
+    throw new NotEnhancedException();
+  }
+
   /**
    * Generated method that sets the loaded state on all the embedded beans on
    * this entity bean by using EntityBeanIntercept.setEmbeddedLoaded(Object o);
