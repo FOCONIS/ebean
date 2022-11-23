@@ -1,11 +1,12 @@
 package io.ebeaninternal.server.properties;
 
-import io.ebean.bean.extend.ExtendableBean;
 import io.ebean.bean.extend.ExtensionAccessor;
 import io.ebean.bean.extend.ExtensionInfo;
 
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Determines the properties on a given bean.
@@ -46,13 +47,10 @@ public final class BeanPropertiesReader {
       Field field = clazz.getField("_ebean_props");
       String[] props = (String[]) field.get(null);
 
-      if (ExtendableBean.class.isAssignableFrom(clazz)) {
-        field = clazz.getField("_ebean_extensions");
-        ExtensionInfo extensions = (ExtensionInfo) field.get(null);
-        if (extensions != null) {
-          for (ExtensionAccessor extension : extensions) {
-            props = concat(props, extension.getProperties());
-          }
+      ExtensionInfo extensions = ExtensionInfo.get(clazz);
+      if (extensions != null) {
+        for (ExtensionAccessor extension : extensions) {
+          props = concat(props, extension.getProperties());
         }
       }
 
