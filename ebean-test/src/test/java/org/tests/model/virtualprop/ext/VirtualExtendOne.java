@@ -3,12 +3,12 @@ package org.tests.model.virtualprop.ext;
 import io.ebean.annotation.Formula;
 import io.ebean.bean.NotEnhancedException;
 import io.ebean.bean.extend.EntityExtension;
-import io.ebean.bean.extend.ExtensionAccessor;
-import io.ebean.bean.extend.ExtensionInfo;
-import io.ebean.bean.extend.ExtensionManager;
 import org.tests.model.virtualprop.VirtualBase;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.OneToOne;
+import javax.persistence.PrimaryKeyJoinColumn;
 
 /**
  * @author Roland Praml, FOCONIS AG

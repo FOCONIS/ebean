@@ -1041,5 +1041,4 @@ public final class InterceptReadWrite extends InterceptBase implements EntityBea
     final MutableValueNext next = mutableNext[propertyIndex];
     return next != null ? next.content() : null;
   }
-
 }

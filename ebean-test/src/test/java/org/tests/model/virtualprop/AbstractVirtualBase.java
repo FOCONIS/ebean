@@ -1,12 +1,11 @@
 package org.tests.model.virtualprop;
 
 import io.ebean.bean.EntityBean;
+import io.ebean.bean.EntityBeanIntercept;
 import io.ebean.bean.extend.ExtendableBean;
-import io.ebean.bean.extend.ExtensionInfo;
 
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
-import javax.persistence.Transient;
 
 /**
  * @author Roland Praml, FOCONIS AG
@@ -28,4 +27,5 @@ public class AbstractVirtualBase implements ExtendableBean {
   public void setId(int id) {
     this.id = id;
   }
+
 }

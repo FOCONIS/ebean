@@ -2,9 +2,6 @@ package org.tests.model.virtualprop.ext;
 
 import io.ebean.bean.NotEnhancedException;
 import io.ebean.bean.extend.EntityExtension;
-import io.ebean.bean.extend.ExtensionAccessor;
-import io.ebean.bean.extend.ExtensionManager;
-import org.tests.model.basic.Customer;
 import org.tests.model.virtualprop.AbstractVirtualBase;
 import org.tests.model.virtualprop.VirtualBase;
 
@@ -35,15 +32,9 @@ public class VirtualExtendManyToMany {
       return virtualExtendManyToManys;
     }
 
-    // TODO: Bytecode in Enhancer
-    public static final ExtensionAccessor _extension_id = ExtensionManager.extend(AbstractVirtualBase.class, VirtualBaseExtendManyToMany.class);
-
-
-    public  static VirtualBaseExtendManyToMany get(VirtualBase found) {
+    public static VirtualBaseExtendManyToMany get(VirtualBase found) {
       throw new NotEnhancedException();
-//
-     // return _extension_id.getExtension(found);
-  }
+    }
 
 
   }

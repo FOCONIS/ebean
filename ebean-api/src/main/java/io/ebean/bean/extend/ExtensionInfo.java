@@ -171,6 +171,7 @@ public class ExtensionInfo implements Iterable<ExtensionInfo.Entry> {
       return (EntityBean) prototype._ebean_newInstanceIntercept(new ExtendedIntercept(offset, parentEbi));
     }
 
+    @Override
     public <T> T getExtension(ExtendableBean bean) {
       EntityBean eb = (EntityBean) bean;
       return (T) bean._ebean_getExtension(index, eb._ebean_getIntercept());
