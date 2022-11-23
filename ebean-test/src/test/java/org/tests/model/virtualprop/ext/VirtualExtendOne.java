@@ -1,6 +1,7 @@
 package org.tests.model.virtualprop.ext;
 
 import io.ebean.annotation.Formula;
+import io.ebean.bean.NotEnhancedException;
 import io.ebean.bean.extend.EntityExtension;
 import io.ebean.bean.extend.ExtensionAccessor;
 import io.ebean.bean.extend.ExtensionInfo;
@@ -16,10 +17,8 @@ import javax.persistence.*;
 @Entity
 public class VirtualExtendOne {
 
-  @EntityExtension
+  @EntityExtension(VirtualBase.class)
   public static class VirtualBaseExtendOneOther {
-    //public static final ExtensionInfo.Entry _extension_id = EntityExtension.extend(AbstractVirtualBase.class, VirtualBaseExtendOneOther.class);
-    public static final ExtensionAccessor _extension_id = ExtensionManager.extend(VirtualBase.class, VirtualBaseExtendOneOther.class);
 
     @OneToOne(mappedBy = "base")
     private VirtualExtendOne virtualExtendOne;
@@ -29,7 +28,7 @@ public class VirtualExtendOne {
     private String firstName;
 
     public static VirtualBaseExtendOneOther get(VirtualBase found) {
-      return _extension_id.getExtension(found);
+      throw new NotEnhancedException();
     }
 
     /*public static VirtualBaseExtendOneOther wrap(VirtualBase b) {

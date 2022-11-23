@@ -18,7 +18,7 @@ public class ExtensionInfo implements Iterable<ExtensionInfo.Entry> {
   private final int startOffset;
   private List<Entry> entries = new ArrayList<>();
   private final ExtensionInfo parent;
-  private int propertyLength = 0;
+  private int propertyLength = -1;
 
   private int[] offsets;
 
@@ -29,6 +29,7 @@ public class ExtensionInfo implements Iterable<ExtensionInfo.Entry> {
 
   private ExtensionInfo() {
     this.startOffset = Integer.MAX_VALUE;
+    this.propertyLength = 0;
     this.parent = null;
   }
 
@@ -97,6 +98,10 @@ public class ExtensionInfo implements Iterable<ExtensionInfo.Entry> {
 
   public int getOffset(Entry entry) {
     return offsets[entry.getIndex()];
+  }
+
+  public int getOffset(int index) {
+    return offsets[index];
   }
 
 /*
