@@ -137,6 +137,17 @@ public class ExtensionInfo implements Iterable<ExtensionAccessor> {
     return entries.iterator();
   }
 
+  public static ExtensionInfo get(Class<?> type) {
+    if (ExtendableBean.class.isAssignableFrom(type)) {
+      try {
+        return (ExtensionInfo) type.getField("_ebean_extensions").get(null);
+      } catch (ReflectiveOperationException e) {
+        throw new RuntimeException("Could not read extension info from " + type, e);
+      }
+    }
+    return null;
+  }
+
   static class Entry implements ExtensionAccessor {
     private int index;
     private final EntityBean prototype;

@@ -1,21 +1,35 @@
 package io.ebeaninternal.server.deploy.parse;
 
 import io.ebean.Model;
-import io.ebean.annotation.*;
+import io.ebean.annotation.DbArray;
+import io.ebean.annotation.DbJson;
+import io.ebean.annotation.DbJsonB;
+import io.ebean.annotation.DbMap;
+import io.ebean.annotation.UnmappedJson;
 import io.ebean.bean.extend.ExtensionAccessor;
 import io.ebean.bean.extend.ExtensionInfo;
 import io.ebean.core.type.ScalarType;
 import io.ebean.util.AnnotationUtil;
 import io.ebeaninternal.api.CoreLog;
 import io.ebeaninternal.server.deploy.ManyType;
-import io.ebeaninternal.server.deploy.meta.*;
+import io.ebeaninternal.server.deploy.meta.DeployBeanDescriptor;
+import io.ebeaninternal.server.deploy.meta.DeployBeanProperty;
+import io.ebeaninternal.server.deploy.meta.DeployBeanPropertyAssocMany;
+import io.ebeaninternal.server.deploy.meta.DeployBeanPropertyAssocOne;
+import io.ebeaninternal.server.deploy.meta.DeployBeanPropertySimpleCollection;
 import io.ebeaninternal.server.type.TypeManager;
 
 import javax.persistence.PersistenceException;
 import javax.persistence.Transient;
-import java.lang.reflect.*;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.lang.reflect.WildcardType;
 
-import static java.lang.System.Logger.Level.*;
+import static java.lang.System.Logger.Level.DEBUG;
+import static java.lang.System.Logger.Level.ERROR;
+import static java.lang.System.Logger.Level.WARNING;
 
 /**
  * Create the properties for a bean.
@@ -39,14 +53,11 @@ public final class DeployCreateProperties {
    */
   public void createProperties(DeployBeanDescriptor<?> desc) {
     createProperties(desc, desc.getBeanType(), 0);
-    try {
-      ExtensionInfo infos = (ExtensionInfo) desc.getBeanType().getField("_ebean_extensions").get(null);
+    ExtensionInfo infos = ExtensionInfo.get(desc.getBeanType());
+    if (infos != null) {
       for (ExtensionAccessor info : infos) {
         createProperties(desc, info.getType(), 0);
       }
-
-    } catch (Exception e) {
-     // throw new RuntimeException(e);
     }
     desc.sortProperties();
   }
