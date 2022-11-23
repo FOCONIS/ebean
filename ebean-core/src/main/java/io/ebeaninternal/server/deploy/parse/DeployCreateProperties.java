@@ -2,6 +2,7 @@ package io.ebeaninternal.server.deploy.parse;
 
 import io.ebean.Model;
 import io.ebean.annotation.*;
+import io.ebean.bean.extend.ExtensionAccessor;
 import io.ebean.bean.extend.ExtensionInfo;
 import io.ebean.core.type.ScalarType;
 import io.ebean.util.AnnotationUtil;
@@ -40,8 +41,7 @@ public final class DeployCreateProperties {
     createProperties(desc, desc.getBeanType(), 0);
     try {
       ExtensionInfo infos = (ExtensionInfo) desc.getBeanType().getField("_ebean_extensions").get(null);
-      infos.init();
-      for (ExtensionInfo.Entry info : infos) {
+      for (ExtensionAccessor info : infos) {
         createProperties(desc, info.getType(), 0);
       }
 

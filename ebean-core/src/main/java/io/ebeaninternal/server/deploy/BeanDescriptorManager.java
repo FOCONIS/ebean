@@ -654,7 +654,6 @@ public final class BeanDescriptorManager implements BeanDescriptorMap, SpiBeanTy
       }
     }
     for (Class<?> entityClass : bootupClasses.getEmbeddables()) {
-
       DeployBeanInfo<?> info = createDeployBeanInfo(entityClass);
       deployInfoMap.put(entityClass, info);
       if (embeddedIdTypes.contains(entityClass)) {

@@ -1,6 +1,7 @@
 package io.ebean.bean;
 
 import io.ebean.bean.extend.ExtendableBean;
+import io.ebean.bean.extend.ExtensionAccessor;
 import io.ebean.bean.extend.ExtensionInfo;
 
 /**
@@ -29,7 +30,7 @@ public abstract class InterceptBase implements EntityBeanIntercept {
     }
   }
 
-  protected EntityBean getExtensionBean(ExtensionInfo.Entry entry) {
+  protected EntityBean getExtensionBean(ExtensionAccessor entry) {
     ExtendableBean eb = (ExtendableBean) owner;
     return eb._ebean_getExtension(entry.getIndex(), this);
   }
@@ -50,7 +51,7 @@ public abstract class InterceptBase implements EntityBeanIntercept {
     if (propertyIndex == -1) {
       return null;
     }
-    ExtensionInfo.Entry entry = extensionInfo().findEntry(propertyIndex);
+    ExtensionAccessor entry = extensionInfo().findEntry(propertyIndex);
     if (entry == null) {
       return owner._ebean_getPropertyName(propertyIndex);
     } else {
@@ -66,7 +67,7 @@ public abstract class InterceptBase implements EntityBeanIntercept {
 
   @Override
   public Object getValue(int index) {
-    ExtensionInfo.Entry entry = extensionInfo().findEntry(index);
+    ExtensionAccessor entry = extensionInfo().findEntry(index);
     if (entry == null) {
       return owner._ebean_getField(index);
     } else {
@@ -77,7 +78,7 @@ public abstract class InterceptBase implements EntityBeanIntercept {
 
   @Override
   public Object getValueIntercept(int index) {
-    ExtensionInfo.Entry entry = extensionInfo().findEntry(index);
+    ExtensionAccessor entry = extensionInfo().findEntry(index);
     if (entry == null) {
       return owner._ebean_getFieldIntercept(index);
     } else {
@@ -88,7 +89,7 @@ public abstract class InterceptBase implements EntityBeanIntercept {
 
   @Override
   public void setValue(int index, Object value) {
-    ExtensionInfo.Entry entry = extensionInfo().findEntry(index);
+    ExtensionAccessor entry = extensionInfo().findEntry(index);
     if (entry == null) {
       owner._ebean_setField(index, value);
     } else {
@@ -99,7 +100,7 @@ public abstract class InterceptBase implements EntityBeanIntercept {
 
   @Override
   public void setValueIntercept(int index, Object value) {
-    ExtensionInfo.Entry entry = extensionInfo().findEntry(index);
+    ExtensionAccessor entry = extensionInfo().findEntry(index);
     if (entry == null) {
       owner._ebean_setFieldIntercept(index, value);
     } else {

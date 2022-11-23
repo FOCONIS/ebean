@@ -1,6 +1,7 @@
 package io.ebeaninternal.server.properties;
 
 import io.ebean.bean.extend.ExtendableBean;
+import io.ebean.bean.extend.ExtensionAccessor;
 import io.ebean.bean.extend.ExtensionInfo;
 
 import java.lang.reflect.Field;
@@ -49,7 +50,7 @@ public final class BeanPropertiesReader {
         field = clazz.getField("_ebean_extensions");
         ExtensionInfo extensions = (ExtensionInfo) field.get(null);
         if (extensions != null) {
-          for (ExtensionInfo.Entry extension : extensions) {
+          for (ExtensionAccessor extension : extensions) {
             props = concat(props, extension.getProperties());
           }
         }
