@@ -7,7 +7,6 @@ import io.ebean.config.DatabaseConfig;
 import io.ebean.plugin.BeanType;
 import io.ebean.test.LoggedSql;
 import io.ebeaninternal.server.deploy.BeanProperty;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.tests.model.virtualprop.VirtualBase;
 
@@ -17,9 +16,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 
 /**
+ * Demo, how to use virtual properties. Note: that there is
  * @author Roland Praml, FOCONIS AG
  */
-//@Disabled
 public class TestVirtualProps {
   static Database db = createDb();
 
@@ -58,11 +57,11 @@ public class TestVirtualProps {
     prop.pathSet(found, ext);
     db.save(found);
 
-    VirtualExtendOne.VirtualBaseExtendOneOther other = VirtualExtendOne.VirtualBaseExtendOneOther.get(found);
+    Extension1 other = Extension1.get(found);
     assertThat(other.getVirtualExtendOne().getData()).isEqualTo("bar");
     other.setFirstName("test");
 
-    VirtualExtendManyToMany.VirtualBaseExtendManyToMany many = VirtualExtendManyToMany.VirtualBaseExtendManyToMany.get(found);
+    Extension2 many = Extension2.get(found);
     assertThat(many.getVirtualExtendManyToManys()).isEmpty();
     other.getVirtualExtendOne().setData("faz");
     db.save(found);

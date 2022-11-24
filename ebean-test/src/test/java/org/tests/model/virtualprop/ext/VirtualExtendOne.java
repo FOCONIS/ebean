@@ -1,8 +1,5 @@
 package org.tests.model.virtualprop.ext;
 
-import io.ebean.annotation.Formula;
-import io.ebean.bean.NotEnhancedException;
-import io.ebean.bean.extend.EntityExtension;
 import org.tests.model.virtualprop.VirtualBase;
 
 import javax.persistence.Entity;
@@ -10,47 +7,8 @@ import javax.persistence.Id;
 import javax.persistence.OneToOne;
 import javax.persistence.PrimaryKeyJoinColumn;
 
-/**
- * @author Roland Praml, FOCONIS AG
- */
-
 @Entity
 public class VirtualExtendOne {
-
-  @EntityExtension(VirtualBase.class)
-  public static class VirtualBaseExtendOneOther {
-
-    @OneToOne(mappedBy = "base")
-    private VirtualExtendOne virtualExtendOne;
-
-
-    @Formula(select = "concat('Your name is ', ${ta}.data)")
-    private String firstName;
-
-    public static VirtualBaseExtendOneOther get(VirtualBase found) {
-      throw new NotEnhancedException();
-    }
-
-    /*public static VirtualBaseExtendOneOther wrap(VirtualBase b) {
-
-    }*/
-
-    public VirtualExtendOne getVirtualExtendOne() {
-      return virtualExtendOne;
-    }
-
-    public void setVirtualExtendOne(VirtualExtendOne virtualExtendOne) {
-      this.virtualExtendOne = virtualExtendOne;
-    }
-
-    public String getFirstName() {
-      return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-      this.firstName = firstName;
-    }
-  }
 
   @Id
   private int id;

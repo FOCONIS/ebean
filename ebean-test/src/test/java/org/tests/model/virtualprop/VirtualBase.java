@@ -2,12 +2,8 @@ package org.tests.model.virtualprop;
 
 import javax.persistence.*;
 
-/**
- * @author Roland Praml, FOCONIS AG
- */
 @Entity
 public class VirtualBase extends AbstractVirtualBase {
-
 
   private String data;
 

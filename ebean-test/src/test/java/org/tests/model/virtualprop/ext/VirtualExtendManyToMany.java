@@ -1,43 +1,18 @@
 package org.tests.model.virtualprop.ext;
 
-import io.ebean.bean.NotEnhancedException;
-import io.ebean.bean.extend.EntityExtension;
-import org.tests.model.virtualprop.AbstractVirtualBase;
 import org.tests.model.virtualprop.VirtualBase;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import java.util.List;
 
-/**
- * @author Roland Praml, FOCONIS AG
- */
 @Entity
 public class VirtualExtendManyToMany {
   @Id
   private int id;
 
   private String data;
-
-  @EntityExtension(AbstractVirtualBase.class)
-  public static class VirtualBaseExtendManyToMany {
-
-    @ManyToMany
-    @JoinTable(name = "kreuztabelle")
-    private List<VirtualExtendManyToMany> virtualExtendManyToManys;
-
-    public List<VirtualExtendManyToMany> getVirtualExtendManyToManys() {
-      return virtualExtendManyToManys;
-    }
-
-    public static VirtualBaseExtendManyToMany get(VirtualBase found) {
-      throw new NotEnhancedException();
-    }
-
-
-  }
 
   @ManyToMany(mappedBy = "virtualExtendManyToManys")
   private List<VirtualBase> bases;
@@ -65,6 +40,4 @@ public class VirtualExtendManyToMany {
   public void setBases(List<VirtualBase> bases) {
     this.bases = bases;
   }
-
-
 }

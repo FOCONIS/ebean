@@ -51,9 +51,6 @@ public final class BeanPropertiesReader {
       for (ExtensionAccessor extension : ExtensionAccessors.read(clazz)) {
         props = concat(props, extension.getProperties());
       }
-      for (int i = 0; i <= 1; i++) {
-
-      }
       return props;
     } catch (Exception e) {
       throw new IllegalStateException("Error getting _ebean_props field on type " + clazz, e);
