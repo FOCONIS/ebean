@@ -6,8 +6,8 @@ import io.ebean.annotation.DbJson;
 import io.ebean.annotation.DbJsonB;
 import io.ebean.annotation.DbMap;
 import io.ebean.annotation.UnmappedJson;
-import io.ebean.bean.extend.ExtensionAccessor;
-import io.ebean.bean.extend.ExtensionInfo;
+import io.ebean.bean.ExtensionAccessor;
+import io.ebean.bean.ExtensionAccessors;
 import io.ebean.core.type.ScalarType;
 import io.ebean.util.AnnotationUtil;
 import io.ebeaninternal.api.CoreLog;
@@ -53,12 +53,10 @@ public final class DeployCreateProperties {
    */
   public void createProperties(DeployBeanDescriptor<?> desc) {
     createProperties(desc, desc.getBeanType(), 0);
-    ExtensionInfo infos = ExtensionInfo.get(desc.getBeanType());
-    if (infos != null) {
-      for (ExtensionAccessor info : infos) {
-        createProperties(desc, info.getType(), 0);
-      }
+    for (ExtensionAccessor info : ExtensionAccessors.read(desc.getBeanType())) {
+      createProperties(desc, info.getType(), 0);
     }
+
     desc.sortProperties();
   }
 

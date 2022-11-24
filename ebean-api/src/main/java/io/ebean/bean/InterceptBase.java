@@ -1,9 +1,5 @@
 package io.ebean.bean;
 
-import io.ebean.bean.extend.ExtendableBean;
-import io.ebean.bean.extend.ExtensionAccessor;
-import io.ebean.bean.extend.ExtensionInfo;
-
 /**
  * Base class for InterceptReadOnly / InterceptReadWrite. This class should contain only the essential member variables to keep
  * the memory footprint low.
@@ -21,18 +17,12 @@ public abstract class InterceptBase implements EntityBeanIntercept {
     this.owner = owner;
   }
 
-  protected ExtensionInfo extensionInfo() {
-    // Checkme: Cache in local field
-    if (owner instanceof ExtendableBean) {
-      return ((ExtendableBean) owner)._ebean_getExtensionInfo();
-    } else {
-      return ExtensionInfo.NONE;
-    }
+  protected ExtensionAccessors extensionAccessors() {
+    return owner._ebean_getExtensionAccessors();
   }
 
   protected EntityBean getExtensionBean(ExtensionAccessor entry) {
-    ExtendableBean eb = (ExtendableBean) owner;
-    return eb._ebean_getExtension(entry.getIndex(), this);
+    return owner._ebean_getExtension(entry.getIndex(), this);
   }
 
   @Override
@@ -51,60 +41,60 @@ public abstract class InterceptBase implements EntityBeanIntercept {
     if (propertyIndex == -1) {
       return null;
     }
-    ExtensionAccessor entry = extensionInfo().findEntry(propertyIndex);
+    ExtensionAccessor entry = extensionAccessors().findEntry(propertyIndex);
     if (entry == null) {
       return owner._ebean_getPropertyName(propertyIndex);
     } else {
-      int offset = extensionInfo().getOffset(entry);
+      int offset = extensionAccessors().getOffset(entry);
       return getExtensionBean(entry)._ebean_getPropertyName(propertyIndex - offset);
     }
   }
 
   @Override
   public int getPropertyLength() {
-    return owner._ebean_getPropertyNames().length + extensionInfo().getPropertyLength();
+    return owner._ebean_getPropertyNames().length + extensionAccessors().getPropertyLength();
   }
 
   @Override
   public Object getValue(int index) {
-    ExtensionAccessor entry = extensionInfo().findEntry(index);
+    ExtensionAccessor entry = extensionAccessors().findEntry(index);
     if (entry == null) {
       return owner._ebean_getField(index);
     } else {
-      int offset = extensionInfo().getOffset(entry);
+      int offset = extensionAccessors().getOffset(entry);
       return getExtensionBean(entry)._ebean_getField(index - offset);
     }
   }
 
   @Override
   public Object getValueIntercept(int index) {
-    ExtensionAccessor entry = extensionInfo().findEntry(index);
+    ExtensionAccessor entry = extensionAccessors().findEntry(index);
     if (entry == null) {
       return owner._ebean_getFieldIntercept(index);
     } else {
-      int offset = extensionInfo().getOffset(entry);
+      int offset = extensionAccessors().getOffset(entry);
       return getExtensionBean(entry)._ebean_getFieldIntercept(index - offset);
     }
   }
 
   @Override
   public void setValue(int index, Object value) {
-    ExtensionAccessor entry = extensionInfo().findEntry(index);
+    ExtensionAccessor entry = extensionAccessors().findEntry(index);
     if (entry == null) {
       owner._ebean_setField(index, value);
     } else {
-      int offset = extensionInfo().getOffset(entry);
+      int offset = extensionAccessors().getOffset(entry);
       getExtensionBean(entry)._ebean_setField(index - offset, value);
     }
   }
 
   @Override
   public void setValueIntercept(int index, Object value) {
-    ExtensionAccessor entry = extensionInfo().findEntry(index);
+    ExtensionAccessor entry = extensionAccessors().findEntry(index);
     if (entry == null) {
       owner._ebean_setFieldIntercept(index, value);
     } else {
-      int offset = extensionInfo().getOffset(entry);
+      int offset = extensionAccessors().getOffset(entry);
       getExtensionBean(entry)._ebean_setFieldIntercept(index - offset, value);
     }
   }

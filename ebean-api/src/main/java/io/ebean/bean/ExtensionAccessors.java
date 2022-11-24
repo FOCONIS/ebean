@@ -1,29 +1,84 @@
-package io.ebean.bean.extend;
+package io.ebean.bean;
 
-import io.ebean.bean.EntityBean;
-import io.ebean.bean.EntityBeanIntercept;
+import io.ebean.bean.extend.EntityExtension;
+import io.ebean.bean.extend.ExtendableBean;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
+ * Each ExtendableBean has one static member defined as
+ * <pre>
+ * private static ExtensionAccessors _ebean_extension_accessors =
+ *   new ExtensionAccessors(thisClass._ebeanProps, superClass._ebean_extension_accessors | null)
+ * </pre>
+ * The ExtensionAccessors class is used to compute the additional space, that has to be reserved
+ * in the descriptor and the virtual properties, that will be added to the bean descriptor.
+ * The following class structure:
+ * <pre>
+ *   &#64Entity
+ *   class Base extends ExtendableBean {
+ *     String prop0;
+ *     String prop1;
+ *     String prop2;
+ *   }
+ *   &#64EntityExtends(Base.class)
+ *   class Ext1 {
+ *     String prop3;
+ *     String prop4;
+ *   }
+ *   &#64EntityExtends(Base.class)
+ *   class Ext2 {
+ *     String prop5;
+ *     String prop6;
+ *   }
+ * <pre>
+ * will create an EntityBeanIntercept for "Base" holding up to 7 fields. Writing to fields 0..2 with ebi.setValue will modify
+ * the fields in Base, the r/w accesses to fields 3..4 are routed to Ext1 and 5..6 to Ext2.
  * @author Roland Praml, FOCONIS AG
  */
-public class ExtensionInfo implements Iterable<ExtensionAccessor> {
+public class ExtensionAccessors implements Iterable<ExtensionAccessor> {
 
-  public static ExtensionInfo NONE = new ExtensionInfo();
+  /**
+   * Default extension info for beans, that have no extension.
+   */
+  public static ExtensionAccessors NONE = new ExtensionAccessors();
+
+  /**
+   * The start offset specifies the offset where the first extension will start
+   */
   private final int startOffset;
+
+  /**
+   * The entries.
+   */
   private List<ExtensionAccessor> entries = new ArrayList<>();
-  private final ExtensionInfo parent;
+
+  /**
+   * If we inherit from a class that has extensions, we have to inherit also all extensions from here
+   */
+  private final ExtensionAccessors parent;
+
+  /**
+   * The total property length of all extensions. This will be initialized once and cannot be changed any more
+   */
   private volatile int propertyLength = -1;
+
+  /**
+   * The offsets where the extensions will start for effective binary search.
+   */
   private int[] offsets;
+
+  private static final Lock lock = new ReentrantLock();
 
   /**
    * Constructor for <code>ExtensionInfo.NONE</code>.
    */
-  private ExtensionInfo() {
+  private ExtensionAccessors() {
     this.startOffset = Integer.MAX_VALUE;
     this.propertyLength = 0;
     this.parent = null;
@@ -33,7 +88,7 @@ public class ExtensionInfo implements Iterable<ExtensionAccessor> {
    * Called from enhancer. Each entity has a static field initialized with
    * <code>_ebean_extensions = new ExtensonInfo(thisClass._ebeanProps, superClass._ebean_extensions | null)</code>
    */
-  public ExtensionInfo(String[] props, ExtensionInfo parent) {
+  public ExtensionAccessors(String[] props, ExtensionAccessors parent) {
     this.startOffset = props.length;
     this.parent = parent;
   }
@@ -68,15 +123,18 @@ public class ExtensionInfo implements Iterable<ExtensionAccessor> {
     return propertyLength;
   }
 
+  /**
+   * Copies parent extensions and initializes the offsets. This will be done once only.
+   */
   private void init() {
     if (propertyLength != -1) {
       return;
     }
-    synchronized (this) {
+    lock.lock();
+    try {
       if (propertyLength != -1) {
         return;
       }
-      int length = 0;
       if (parent != null) {
         parent.init();
         if (entries.isEmpty()) {
@@ -85,16 +143,17 @@ public class ExtensionInfo implements Iterable<ExtensionAccessor> {
           entries.addAll(0, parent.entries);
         }
       }
+      int length = 0;
       offsets = new int[entries.size()];
-      int offset = startOffset;
       for (int i = 0; i < entries.size(); i++) {
         Entry entry = (Entry) entries.get(i);
         entry.index = i;
-        offsets[i] = offset;
-        offset += entry.getProperties().length;
+        offsets[i] = startOffset + length;
         length += entry.getProperties().length;
       }
       propertyLength = length;
+    } finally {
+      lock.unlock();
     }
   }
 
@@ -137,16 +196,6 @@ public class ExtensionInfo implements Iterable<ExtensionAccessor> {
     return entries.iterator();
   }
 
-  public static ExtensionInfo get(Class<?> type) {
-    if (ExtendableBean.class.isAssignableFrom(type)) {
-      try {
-        return (ExtensionInfo) type.getField("_ebean_extensions").get(null);
-      } catch (ReflectiveOperationException e) {
-        throw new RuntimeException("Could not read extension info from " + type, e);
-      }
-    }
-    return null;
-  }
 
   static class Entry implements ExtensionAccessor {
     private int index;
@@ -173,13 +222,28 @@ public class ExtensionInfo implements Iterable<ExtensionAccessor> {
 
     @Override
     public EntityBean createInstance(int offset, EntityBeanIntercept parentEbi) {
-      return (EntityBean) prototype._ebean_newInstanceIntercept(new ExtendedIntercept(offset, parentEbi));
+      return (EntityBean) prototype._ebean_newInstanceIntercept(new EntityExtensionIntercept(offset, parentEbi));
     }
 
     @Override
     public <T> T getExtension(ExtendableBean bean) {
       EntityBean eb = (EntityBean) bean;
-      return (T) bean._ebean_getExtension(index, eb._ebean_getIntercept());
+      return (T) eb._ebean_getExtension(index, eb._ebean_getIntercept());
     }
+  }
+
+  /**
+   * Reads the extension accessors for a given class. If the provided type is not an ExtenadableBean, the
+   * <code>ExtensionAccessors.NONE</code> is returned.
+   */
+  public static ExtensionAccessors read(Class<?> type) {
+    if (ExtendableBean.class.isAssignableFrom(type)) {
+      try {
+        return (ExtensionAccessors) type.getField("_ebean_extension_accessors").get(null);
+      } catch (ReflectiveOperationException e) {
+        throw new RuntimeException("Could not read extension info from " + type, e);
+      }
+    }
+    return ExtensionAccessors.NONE;
   }
 }

@@ -1,7 +1,5 @@
 package org.tests.model.virtualprop;
 
-import io.ebean.bean.extend.ExtensionInfo;
-
 import javax.persistence.*;
 
 /**

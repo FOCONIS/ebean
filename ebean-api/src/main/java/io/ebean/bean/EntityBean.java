@@ -41,6 +41,9 @@ public interface EntityBean extends Serializable, ToStringAware {
     throw new NotEnhancedException();
   }
 
+  /**
+   * Creates a new instance and uses the provided intercept. (For EntityExtension)
+   */
   default Object _ebean_newInstanceIntercept(EntityBeanIntercept ebi) {
     throw new NotEnhancedException();
   }
@@ -123,5 +126,13 @@ public interface EntityBean extends Serializable, ToStringAware {
   @Override
   default void toString(ToStringBuilder builder) {
     throw new NotEnhancedException();
+  }
+
+  default ExtensionAccessors _ebean_getExtensionAccessors() {
+    return ExtensionAccessors.NONE;
+  }
+
+  default EntityBean _ebean_getExtension(int index, EntityBeanIntercept ebi) {
+    throw new NotEnhancedException(); // not an extendableBean
   }
 }

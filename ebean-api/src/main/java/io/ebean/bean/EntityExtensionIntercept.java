@@ -1,560 +1,571 @@
-package io.ebean.bean.extend;
+package io.ebean.bean;
 
 import io.ebean.ValuePair;
-import io.ebean.bean.*;
+import io.ebean.bean.BeanDiffVisitor;
+import io.ebean.bean.BeanLoader;
+import io.ebean.bean.EntityBean;
+import io.ebean.bean.EntityBeanIntercept;
+import io.ebean.bean.MutableValueInfo;
+import io.ebean.bean.MutableValueNext;
+import io.ebean.bean.NodeUsageCollector;
+import io.ebean.bean.PersistenceContext;
+import io.ebean.bean.PreGetterCallback;
 
 import java.util.Map;
 import java.util.Set;
 
 /**
+ * Intercept for classes annotated with &#64;EntityExtension. The intercept will delegate all calls to the base intercept of the
+ * ExtendableBean and adds given offset to all field operations.
+ *
  * @author Roland Praml, FOCONIS AG
  */
-public class ExtendedIntercept implements EntityBeanIntercept {
-  private final EntityBeanIntercept parent;
+public class EntityExtensionIntercept implements EntityBeanIntercept {
+  private final EntityBeanIntercept base;
   private final int offset;
 
-  public ExtendedIntercept(int offset, EntityBeanIntercept parent) {
-    this.parent = parent;
+  public EntityExtensionIntercept(int offset, EntityBeanIntercept base) {
+    this.base = base;
     this.offset = offset;
   }
 
   @Override
   public EntityBean getOwner() {
-    return parent.getOwner();
+    return base.getOwner();
   }
 
   @Override
   public PersistenceContext getPersistenceContext() {
-    return parent.getPersistenceContext();
+    return base.getPersistenceContext();
   }
 
   @Override
   public void setPersistenceContext(PersistenceContext persistenceContext) {
-    parent.setPersistenceContext(persistenceContext);
+    base.setPersistenceContext(persistenceContext);
   }
 
   @Override
   public void setNodeUsageCollector(NodeUsageCollector usageCollector) {
-    parent.setNodeUsageCollector(usageCollector);
+    base.setNodeUsageCollector(usageCollector);
   }
 
   @Override
   public Object getOwnerId() {
-    return parent.getOwnerId();
+    return base.getOwnerId();
   }
 
   @Override
   public void setOwnerId(Object ownerId) {
-    parent.setOwnerId(ownerId);
+    base.setOwnerId(ownerId);
   }
 
   @Override
   public Object getEmbeddedOwner() {
-    return parent.getEmbeddedOwner();
+    return base.getEmbeddedOwner();
   }
 
   @Override
   public int getEmbeddedOwnerIndex() {
-    return parent.getEmbeddedOwnerIndex();
+    return base.getEmbeddedOwnerIndex();
   }
 
   @Override
   public void clearGetterCallback() {
-    parent.clearGetterCallback();
+    base.clearGetterCallback();
   }
 
   @Override
   public void registerGetterCallback(PreGetterCallback getterCallback) {
-    parent.registerGetterCallback(getterCallback);
+    base.registerGetterCallback(getterCallback);
   }
 
   @Override
   public void setEmbeddedOwner(EntityBean parentBean, int embeddedOwnerIndex) {
-    parent.setEmbeddedOwner(parentBean, embeddedOwnerIndex);
+    base.setEmbeddedOwner(parentBean, embeddedOwnerIndex);
   }
 
   @Override
   public void setBeanLoader(BeanLoader beanLoader, PersistenceContext ctx) {
-    parent.setBeanLoader(beanLoader, ctx);
+    base.setBeanLoader(beanLoader, ctx);
   }
 
   @Override
   public void setBeanLoader(BeanLoader beanLoader) {
-    parent.setBeanLoader(beanLoader);
+    base.setBeanLoader(beanLoader);
   }
 
   @Override
   public boolean isFullyLoadedBean() {
-    return parent.isFullyLoadedBean();
+    return base.isFullyLoadedBean();
   }
 
   @Override
   public void setFullyLoadedBean(boolean fullyLoadedBean) {
-    parent.setFullyLoadedBean(fullyLoadedBean);
+    base.setFullyLoadedBean(fullyLoadedBean);
   }
 
   @Override
   public boolean isPartial() {
-    return parent.isPartial();
+    return base.isPartial();
   }
 
   @Override
   public boolean isDirty() {
-    return parent.isDirty();
+    return base.isDirty();
   }
 
   @Override
   public void setEmbeddedDirty(int embeddedProperty) {
-    parent.setEmbeddedDirty(embeddedProperty + offset);
+    base.setEmbeddedDirty(embeddedProperty + offset);
   }
 
   @Override
   public void setDirty(boolean dirty) {
-    parent.setDirty(dirty);
+    base.setDirty(dirty);
   }
 
   @Override
   public boolean isNew() {
-    return parent.isNew();
+    return base.isNew();
   }
 
   @Override
   public boolean isNewOrDirty() {
-    return parent.isNewOrDirty();
+    return base.isNewOrDirty();
   }
 
   @Override
   public boolean hasIdOnly(int idIndex) {
-    return parent.hasIdOnly(idIndex + offset);
+    return base.hasIdOnly(idIndex + offset);
   }
 
   @Override
   public boolean isReference() {
-    return parent.isReference();
+    return base.isReference();
   }
 
   @Override
   public void setReference(int idPos) {
-    parent.setReference(idPos + offset);
+    base.setReference(idPos + offset);
   }
 
   @Override
   public void setLoadedFromCache(boolean loadedFromCache) {
-    parent.setLoadedFromCache(loadedFromCache);
+    base.setLoadedFromCache(loadedFromCache);
   }
 
   @Override
   public boolean isLoadedFromCache() {
-    return parent.isLoadedFromCache();
+    return base.isLoadedFromCache();
   }
 
   @Override
   public boolean isReadOnly() {
-    return parent.isReadOnly();
+    return base.isReadOnly();
   }
 
   @Override
   public void setReadOnly(boolean readOnly) {
-    parent.setReadOnly(readOnly);
+    base.setReadOnly(readOnly);
   }
 
   @Override
   public void setForceUpdate(boolean forceUpdate) {
-    parent.setForceUpdate(forceUpdate);
+    base.setForceUpdate(forceUpdate);
   }
 
   @Override
   public boolean isUpdate() {
-    return parent.isUpdate();
+    return base.isUpdate();
   }
 
   @Override
   public boolean isLoaded() {
-    return parent.isLoaded();
+    return base.isLoaded();
   }
 
   @Override
   public void setNew() {
-    parent.setNew();
+    base.setNew();
   }
 
   @Override
   public void setLoaded() {
-    parent.setLoaded();
+    base.setLoaded();
   }
 
   @Override
   public void setLoadedLazy() {
-    parent.setLoadedLazy();
+    base.setLoadedLazy();
   }
 
   @Override
   public void setLazyLoadFailure(Object ownerId) {
-    parent.setLazyLoadFailure(ownerId);
+    base.setLazyLoadFailure(ownerId);
   }
 
   @Override
   public boolean isLazyLoadFailure() {
-    return parent.isLazyLoadFailure();
+    return base.isLazyLoadFailure();
   }
 
   @Override
   public boolean isDisableLazyLoad() {
-    return parent.isDisableLazyLoad();
+    return base.isDisableLazyLoad();
   }
 
   @Override
   public void setDisableLazyLoad(boolean disableLazyLoad) {
-    parent.setDisableLazyLoad(disableLazyLoad);
+    base.setDisableLazyLoad(disableLazyLoad);
   }
 
   @Override
   public void setEmbeddedLoaded(Object embeddedBean) {
-    parent.setEmbeddedLoaded(embeddedBean);
+    base.setEmbeddedLoaded(embeddedBean);
   }
 
   @Override
   public boolean isEmbeddedNewOrDirty(Object embeddedBean) {
-    return parent.isEmbeddedNewOrDirty(embeddedBean);
+    return base.isEmbeddedNewOrDirty(embeddedBean);
   }
 
   @Override
   public Object getOrigValue(int propertyIndex) {
-    return parent.getOrigValue(propertyIndex + offset);
+    return base.getOrigValue(propertyIndex + offset);
   }
 
   @Override
   public int findProperty(String propertyName) {
-    return parent.findProperty(propertyName);
+    return base.findProperty(propertyName);
   }
 
   @Override
   public String getProperty(int propertyIndex) {
-    return parent.getProperty(propertyIndex + offset);
+    return base.getProperty(propertyIndex + offset);
   }
 
   @Override
   public int getPropertyLength() {
-    return parent.getPropertyLength();
+    return base.getPropertyLength();
   }
 
   @Override
   public void setPropertyLoaded(String propertyName, boolean loaded) {
-    parent.setPropertyLoaded(propertyName, loaded);
+    base.setPropertyLoaded(propertyName, loaded);
   }
 
   @Override
   public void setPropertyUnloaded(int propertyIndex) {
-    parent.setPropertyUnloaded(propertyIndex + offset);
+    base.setPropertyUnloaded(propertyIndex + offset);
   }
 
   @Override
   public void setLoadedProperty(int propertyIndex) {
-    parent.setLoadedProperty(propertyIndex + offset);
+    base.setLoadedProperty(propertyIndex + offset);
   }
 
   @Override
   public void setLoadedPropertyAll() {
-    parent.setLoadedPropertyAll();
+    base.setLoadedPropertyAll();
   }
 
   @Override
   public boolean isLoadedProperty(int propertyIndex) {
-    return parent.isLoadedProperty(propertyIndex + offset);
+    return base.isLoadedProperty(propertyIndex + offset);
   }
 
   @Override
   public boolean isChangedProperty(int propertyIndex) {
-    return parent.isChangedProperty(propertyIndex + offset);
+    return base.isChangedProperty(propertyIndex + offset);
   }
 
   @Override
   public boolean isDirtyProperty(int propertyIndex) {
-    return parent.isDirtyProperty(propertyIndex + offset);
+    return base.isDirtyProperty(propertyIndex + offset);
   }
 
   @Override
   public void markPropertyAsChanged(int propertyIndex) {
-    parent.markPropertyAsChanged(propertyIndex + offset);
+    base.markPropertyAsChanged(propertyIndex + offset);
   }
 
   @Override
   public void setChangedProperty(int propertyIndex) {
-    parent.setChangedProperty(propertyIndex + offset);
+    base.setChangedProperty(propertyIndex + offset);
   }
 
   @Override
   public void setChangeLoaded(int propertyIndex) {
-    parent.setChangeLoaded(propertyIndex + offset);
+    base.setChangeLoaded(propertyIndex + offset);
   }
 
   @Override
   public void setEmbeddedPropertyDirty(int propertyIndex) {
-    parent.setEmbeddedPropertyDirty(propertyIndex + offset);
+    base.setEmbeddedPropertyDirty(propertyIndex + offset);
   }
 
   @Override
   public void setOriginalValue(int propertyIndex, Object value) {
-    parent.setOriginalValue(propertyIndex + offset, value);
+    base.setOriginalValue(propertyIndex + offset, value);
   }
 
   @Override
   public void setOriginalValueForce(int propertyIndex, Object value) {
-    parent.setOriginalValueForce(propertyIndex + offset, value);
+    base.setOriginalValueForce(propertyIndex + offset, value);
   }
 
   @Override
   public void setNewBeanForUpdate() {
-    parent.setNewBeanForUpdate();
+    base.setNewBeanForUpdate();
   }
 
   @Override
   public Set<String> getLoadedPropertyNames() {
-    return parent.getLoadedPropertyNames();
+    return base.getLoadedPropertyNames();
   }
 
   @Override
   public boolean[] getDirtyProperties() {
-    return parent.getDirtyProperties();
+    return base.getDirtyProperties();
   }
 
   @Override
   public Set<String> getDirtyPropertyNames() {
-    return parent.getDirtyPropertyNames();
+    return base.getDirtyPropertyNames();
   }
 
   @Override
   public void addDirtyPropertyNames(Set<String> props, String prefix) {
-    parent.addDirtyPropertyNames(props, prefix);
+    base.addDirtyPropertyNames(props, prefix);
   }
 
   @Override
   public boolean hasDirtyProperty(Set<String> propertyNames) {
-    return parent.hasDirtyProperty(propertyNames);
+    return base.hasDirtyProperty(propertyNames);
   }
 
   @Override
   public Map<String, ValuePair> getDirtyValues() {
-    return parent.getDirtyValues();
+    return base.getDirtyValues();
   }
 
   @Override
   public void addDirtyPropertyValues(Map<String, ValuePair> dirtyValues, String prefix) {
-    parent.addDirtyPropertyValues(dirtyValues, prefix);
+    base.addDirtyPropertyValues(dirtyValues, prefix);
   }
 
   @Override
   public void addDirtyPropertyValues(BeanDiffVisitor visitor) {
-    parent.addDirtyPropertyValues(visitor);
+    base.addDirtyPropertyValues(visitor);
   }
 
   @Override
   public StringBuilder getDirtyPropertyKey() {
-    return parent.getDirtyPropertyKey();
+    return base.getDirtyPropertyKey();
   }
 
   @Override
   public void addDirtyPropertyKey(StringBuilder sb) {
-    parent.addDirtyPropertyKey(sb);
+    base.addDirtyPropertyKey(sb);
   }
 
   @Override
   public StringBuilder getLoadedPropertyKey() {
-    return parent.getLoadedPropertyKey();
+    return base.getLoadedPropertyKey();
   }
 
   @Override
   public boolean[] getLoaded() {
-    return parent.getLoaded();
+    return base.getLoaded();
   }
 
   @Override
   public int getLazyLoadPropertyIndex() {
-    return parent.getLazyLoadPropertyIndex() - offset;
+    return base.getLazyLoadPropertyIndex() - offset;
   }
 
   @Override
   public String getLazyLoadProperty() {
-    return parent.getLazyLoadProperty();
+    return base.getLazyLoadProperty();
   }
 
   @Override
   public void loadBean(int loadProperty) {
-    parent.loadBean(loadProperty);
+    base.loadBean(loadProperty);
   }
 
   @Override
   public void loadBeanInternal(int loadProperty, BeanLoader loader) {
-    parent.loadBeanInternal(loadProperty + offset, loader);
+    base.loadBeanInternal(loadProperty + offset, loader);
   }
 
   @Override
   public void initialisedMany(int propertyIndex) {
-    parent.initialisedMany(propertyIndex + offset);
+    base.initialisedMany(propertyIndex + offset);
   }
 
   @Override
   public void preGetterCallback(int propertyIndex) {
-    parent.preGetterCallback(propertyIndex + offset);
+    base.preGetterCallback(propertyIndex + offset);
   }
 
   @Override
   public void preGetId() {
-    parent.preGetId();
+    base.preGetId();
   }
 
   @Override
   public void preGetter(int propertyIndex) {
-    parent.preGetter(propertyIndex + offset);
+    base.preGetter(propertyIndex + offset);
   }
 
   @Override
   public void preSetterMany(boolean interceptField, int propertyIndex, Object oldValue, Object newValue) {
-    parent.preSetterMany(interceptField, propertyIndex + offset, oldValue, newValue);
+    base.preSetterMany(interceptField, propertyIndex + offset, oldValue, newValue);
   }
 
   @Override
   public void setChangedPropertyValue(int propertyIndex, boolean setDirtyState, Object origValue) {
-    parent.setChangedPropertyValue(propertyIndex + offset, setDirtyState, origValue);
+    base.setChangedPropertyValue(propertyIndex + offset, setDirtyState, origValue);
   }
 
   @Override
   public void setDirtyStatus() {
-    parent.setDirtyStatus();
+    base.setDirtyStatus();
   }
 
   @Override
   public void preSetter(boolean intercept, int propertyIndex, Object oldValue, Object newValue) {
-    parent.preSetter(intercept, propertyIndex + offset, oldValue, newValue);
+    base.preSetter(intercept, propertyIndex + offset, oldValue, newValue);
   }
 
   @Override
   public void preSetter(boolean intercept, int propertyIndex, boolean oldValue, boolean newValue) {
-    parent.preSetter(intercept, propertyIndex + offset, oldValue, newValue);
+    base.preSetter(intercept, propertyIndex + offset, oldValue, newValue);
   }
 
   @Override
   public void preSetter(boolean intercept, int propertyIndex, int oldValue, int newValue) {
-    parent.preSetter(intercept, propertyIndex + offset, oldValue, newValue);
+    base.preSetter(intercept, propertyIndex + offset, oldValue, newValue);
   }
 
   @Override
   public void preSetter(boolean intercept, int propertyIndex, long oldValue, long newValue) {
-    parent.preSetter(intercept, propertyIndex + offset, oldValue, newValue);
+    base.preSetter(intercept, propertyIndex + offset, oldValue, newValue);
   }
 
   @Override
   public void preSetter(boolean intercept, int propertyIndex, double oldValue, double newValue) {
-    parent.preSetter(intercept, propertyIndex + offset, oldValue, newValue);
+    base.preSetter(intercept, propertyIndex + offset, oldValue, newValue);
   }
 
   @Override
   public void preSetter(boolean intercept, int propertyIndex, float oldValue, float newValue) {
-    parent.preSetter(intercept, propertyIndex + offset, oldValue, newValue);
+    base.preSetter(intercept, propertyIndex + offset, oldValue, newValue);
   }
 
   @Override
   public void preSetter(boolean intercept, int propertyIndex, short oldValue, short newValue) {
-    parent.preSetter(intercept, propertyIndex + offset, oldValue, newValue);
+    base.preSetter(intercept, propertyIndex + offset, oldValue, newValue);
   }
 
   @Override
   public void preSetter(boolean intercept, int propertyIndex, char oldValue, char newValue) {
-    parent.preSetter(intercept, propertyIndex + offset, oldValue, newValue);
+    base.preSetter(intercept, propertyIndex + offset, oldValue, newValue);
   }
 
   @Override
   public void preSetter(boolean intercept, int propertyIndex, byte oldValue, byte newValue) {
-    parent.preSetter(intercept, propertyIndex + offset, oldValue, newValue);
+    base.preSetter(intercept, propertyIndex + offset, oldValue, newValue);
   }
 
   @Override
   public void preSetter(boolean intercept, int propertyIndex, char[] oldValue, char[] newValue) {
-    parent.preSetter(intercept, propertyIndex + offset, oldValue, newValue);
+    base.preSetter(intercept, propertyIndex + offset, oldValue, newValue);
   }
 
   @Override
   public void preSetter(boolean intercept, int propertyIndex, byte[] oldValue, byte[] newValue) {
-    parent.preSetter(intercept, propertyIndex + offset, oldValue, newValue);
+    base.preSetter(intercept, propertyIndex + offset, oldValue, newValue);
   }
 
   @Override
   public void setOldValue(int propertyIndex, Object oldValue) {
-    parent.setOldValue(propertyIndex + offset, oldValue);
+    base.setOldValue(propertyIndex + offset, oldValue);
   }
 
   @Override
   public int getSortOrder() {
-    return parent.getSortOrder();
+    return base.getSortOrder();
   }
 
   @Override
   public void setSortOrder(int sortOrder) {
-    parent.setSortOrder(sortOrder);
+    base.setSortOrder(sortOrder);
   }
 
   @Override
   public void setDeletedFromCollection(boolean deletedFromCollection) {
-    parent.setDeletedFromCollection(deletedFromCollection);
+    base.setDeletedFromCollection(deletedFromCollection);
   }
 
   @Override
   public boolean isOrphanDelete() {
-    return parent.isOrphanDelete();
+    return base.isOrphanDelete();
   }
 
   @Override
   public void setLoadError(int propertyIndex, Exception t) {
-    parent.setLoadError(propertyIndex + offset, t);
+    base.setLoadError(propertyIndex + offset, t);
   }
 
   @Override
   public Map<String, Exception> getLoadErrors() {
-    return parent.getLoadErrors();
+    return base.getLoadErrors();
   }
 
   @Override
   public boolean isChangedProp(int propertyIndex) {
-    return parent.isChangedProp(propertyIndex + offset);
+    return base.isChangedProp(propertyIndex + offset);
   }
 
   @Override
   public MutableValueInfo mutableInfo(int propertyIndex) {
-    return parent.mutableInfo(propertyIndex + offset);
+    return base.mutableInfo(propertyIndex + offset);
   }
 
   @Override
   public void mutableInfo(int propertyIndex, MutableValueInfo info) {
-    parent.mutableInfo(propertyIndex + offset, info);
+    base.mutableInfo(propertyIndex + offset, info);
   }
 
   @Override
   public void mutableNext(int propertyIndex, MutableValueNext next) {
-    parent.mutableNext(propertyIndex + offset, next);
+    base.mutableNext(propertyIndex + offset, next);
   }
 
   @Override
   public String mutableNext(int propertyIndex) {
-    return parent.mutableNext(propertyIndex + offset);
+    return base.mutableNext(propertyIndex + offset);
   }
 
   @Override
   public Object getValue(int propertyIndex) {
-    return parent.getValue(propertyIndex + offset);
+    return base.getValue(propertyIndex + offset);
   }
 
   @Override
   public Object getValueIntercept(int propertyIndex) {
-    return parent.getValueIntercept(propertyIndex + offset);
+    return base.getValueIntercept(propertyIndex + offset);
   }
 
   @Override
   public void setValue(int propertyIndex, Object value) {
-    parent.setValue(propertyIndex + offset, value);
+    base.setValue(propertyIndex + offset, value);
   }
 
   @Override
   public void setValueIntercept(int propertyIndex, Object value) {
-    parent.setValueIntercept(propertyIndex + offset, value);
+    base.setValueIntercept(propertyIndex + offset, value);
   }
 }

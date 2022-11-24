@@ -1,9 +1,11 @@
-package io.ebean.bean.extend;
+package io.ebean.bean;
 
 import io.ebean.bean.EntityBean;
 import io.ebean.bean.EntityBeanIntercept;
+import io.ebean.bean.extend.ExtendableBean;
 
 /**
+ * Provides an interface
  * @author Roland Praml, FOCONIS AG
  */
 public interface ExtensionAccessor {

@@ -1,7 +1,6 @@
 package io.ebean.bean;
 
 import io.ebean.ValuePair;
-import io.ebean.bean.extend.ExtensionInfo;
 
 import java.util.Collections;
 import java.util.Map;
