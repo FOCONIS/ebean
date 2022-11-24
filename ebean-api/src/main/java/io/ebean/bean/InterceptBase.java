@@ -71,7 +71,6 @@ public abstract class InterceptBase implements EntityBeanIntercept {
     }
   }
 
-
   @Override
   public Object getValueIntercept(int index) {
     ExtensionAccessor accessor = findAccessor(index);
@@ -104,6 +103,4 @@ public abstract class InterceptBase implements EntityBeanIntercept {
       getExtensionBean(accessor)._ebean_setFieldIntercept(index - offset, value);
     }
   }
-
-
 }

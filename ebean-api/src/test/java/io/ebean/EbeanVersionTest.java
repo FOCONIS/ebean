@@ -1,19 +1,17 @@
 package io.ebean;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@Disabled
 class EbeanVersionTest {
 
   @Test
   void checkMinAgentVersion_ok() {
-    assertFalse(EbeanVersion.checkMinAgentVersion("12.12.0"));
-    assertFalse(EbeanVersion.checkMinAgentVersion("12.12.99"));
-    assertFalse(EbeanVersion.checkMinAgentVersion("13.1.0"));
+    assertFalse(EbeanVersion.checkMinAgentVersion("13.10.0"));
+    assertFalse(EbeanVersion.checkMinAgentVersion("13.10.99"));
+    assertFalse(EbeanVersion.checkMinAgentVersion("14.1.0"));
   }
 
   @Test

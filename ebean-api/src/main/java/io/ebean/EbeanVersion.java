@@ -23,7 +23,7 @@ public final class EbeanVersion {
    * Maintain the minimum ebean-agent version manually based on required ebean-agent bug fixes.
    */
   private static final int MIN_AGENT_MAJOR_VERSION = 13;
-  private static final int MIN_AGENT_MINOR_VERSION = 7;
+  private static final int MIN_AGENT_MINOR_VERSION = 10;
   private static String version = "unknown";
 
   static {

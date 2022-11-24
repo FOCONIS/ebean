@@ -28,7 +28,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * and oldValues generation for concurrency checking.
  */
 public final class InterceptReadWrite extends InterceptBase implements EntityBeanIntercept {
-  private static final long serialVersionUID = -3664031775464862649L;
+  private static final long serialVersionUID = 1834735632647183821L;
 
   private static final int STATE_NEW = 0;
   private static final int STATE_REFERENCE = 1;

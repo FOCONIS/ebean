@@ -6,7 +6,13 @@ import io.ebean.config.DatabaseConfig;
 import io.ebean.config.IdGenerator;
 import io.ebean.config.ScalarTypeConverter;
 import io.ebean.core.type.ScalarType;
-import io.ebean.event.*;
+import io.ebean.event.BeanFindController;
+import io.ebean.event.BeanPersistController;
+import io.ebean.event.BeanPersistListener;
+import io.ebean.event.BeanPostConstructListener;
+import io.ebean.event.BeanPostLoad;
+import io.ebean.event.BeanQueryAdapter;
+import io.ebean.event.ServerConfigStartup;
 import io.ebean.event.changelog.ChangeLogListener;
 import io.ebean.event.changelog.ChangeLogPrepare;
 import io.ebean.event.changelog.ChangeLogRegister;
@@ -302,6 +308,7 @@ public class BootupClasses implements Predicate<Class<?>> {
   public List<Class<?>> getEntities() {
     return entityList;
   }
+
   /**
    * Return the list of entity extension classes.
    */
@@ -447,9 +454,11 @@ public class BootupClasses implements Predicate<Class<?>> {
   private boolean isEntity(Class<?> cls) {
     return has(cls, Entity.class) || has(cls, Table.class) || has(cls, DocStore.class);
   }
+
   private boolean isEntityExtension(Class<?> cls) {
     return has(cls, EntityExtension.class);
   }
+
   private boolean isEmbeddable(Class<?> cls) {
     return has(cls, Embeddable.class);
   }

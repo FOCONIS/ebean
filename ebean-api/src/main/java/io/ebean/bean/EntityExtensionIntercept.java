@@ -1,15 +1,6 @@
 package io.ebean.bean;
 
 import io.ebean.ValuePair;
-import io.ebean.bean.BeanDiffVisitor;
-import io.ebean.bean.BeanLoader;
-import io.ebean.bean.EntityBean;
-import io.ebean.bean.EntityBeanIntercept;
-import io.ebean.bean.MutableValueInfo;
-import io.ebean.bean.MutableValueNext;
-import io.ebean.bean.NodeUsageCollector;
-import io.ebean.bean.PersistenceContext;
-import io.ebean.bean.PreGetterCallback;
 
 import java.util.Map;
 import java.util.Set;

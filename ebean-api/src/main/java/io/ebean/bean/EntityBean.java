@@ -128,10 +128,17 @@ public interface EntityBean extends Serializable, ToStringAware {
     throw new NotEnhancedException();
   }
 
+  /**
+   * Returns the ExtensionAccessors, this is always <code>NONE</code> for non extendable beans.
+   */
   default ExtensionAccessors _ebean_getExtensionAccessors() {
     return ExtensionAccessors.NONE;
   }
 
+  /**
+   * Returns the extension bean for an accessor. This will throw NotEnhancedException for non extendable beans.
+   * (It is not intended to call this method here)
+   */
   default EntityBean _ebean_getExtension(ExtensionAccessor accessor, EntityBeanIntercept ebi) {
     throw new NotEnhancedException(); // not an extendableBean
   }
