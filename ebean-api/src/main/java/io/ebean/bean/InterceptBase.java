@@ -17,12 +17,16 @@ public abstract class InterceptBase implements EntityBeanIntercept {
     this.owner = owner;
   }
 
-  protected ExtensionAccessors extensionAccessors() {
-    return owner._ebean_getExtensionAccessors();
+  protected ExtensionAccessor findAccessor(int index) {
+    return owner._ebean_getExtensionAccessors().findAccessor(index);
   }
 
-  protected EntityBean getExtensionBean(ExtensionAccessor entry) {
-    return owner._ebean_getExtension(entry.getIndex(), this);
+  private int getOffset(ExtensionAccessor accessor) {
+    return owner._ebean_getExtensionAccessors().getOffset(accessor);
+  }
+
+  protected EntityBean getExtensionBean(ExtensionAccessor accessor) {
+    return owner._ebean_getExtension(accessor, this);
   }
 
   @Override
@@ -41,61 +45,65 @@ public abstract class InterceptBase implements EntityBeanIntercept {
     if (propertyIndex == -1) {
       return null;
     }
-    ExtensionAccessor entry = extensionAccessors().findEntry(propertyIndex);
-    if (entry == null) {
+    ExtensionAccessor accessor = findAccessor(propertyIndex);
+    if (accessor == null) {
       return owner._ebean_getPropertyName(propertyIndex);
     } else {
-      int offset = extensionAccessors().getOffset(entry);
-      return getExtensionBean(entry)._ebean_getPropertyName(propertyIndex - offset);
+      int offset = getOffset(accessor);
+      return getExtensionBean(accessor)._ebean_getPropertyName(propertyIndex - offset);
     }
   }
 
   @Override
   public int getPropertyLength() {
-    return owner._ebean_getPropertyNames().length + extensionAccessors().getPropertyLength();
+    return owner._ebean_getPropertyNames().length
+      + owner._ebean_getExtensionAccessors().getPropertyLength();
   }
 
   @Override
   public Object getValue(int index) {
-    ExtensionAccessor entry = extensionAccessors().findEntry(index);
-    if (entry == null) {
+    ExtensionAccessor accessor = findAccessor(index);
+    if (accessor == null) {
       return owner._ebean_getField(index);
     } else {
-      int offset = extensionAccessors().getOffset(entry);
-      return getExtensionBean(entry)._ebean_getField(index - offset);
+      int offset = getOffset(accessor);
+      return getExtensionBean(accessor)._ebean_getField(index - offset);
     }
   }
 
+
   @Override
   public Object getValueIntercept(int index) {
-    ExtensionAccessor entry = extensionAccessors().findEntry(index);
-    if (entry == null) {
+    ExtensionAccessor accessor = findAccessor(index);
+    if (accessor == null) {
       return owner._ebean_getFieldIntercept(index);
     } else {
-      int offset = extensionAccessors().getOffset(entry);
-      return getExtensionBean(entry)._ebean_getFieldIntercept(index - offset);
+      int offset = getOffset(accessor);
+      return getExtensionBean(accessor)._ebean_getFieldIntercept(index - offset);
     }
   }
 
   @Override
   public void setValue(int index, Object value) {
-    ExtensionAccessor entry = extensionAccessors().findEntry(index);
-    if (entry == null) {
+    ExtensionAccessor accessor = findAccessor(index);
+    if (accessor == null) {
       owner._ebean_setField(index, value);
     } else {
-      int offset = extensionAccessors().getOffset(entry);
-      getExtensionBean(entry)._ebean_setField(index - offset, value);
+      int offset = getOffset(accessor);
+      getExtensionBean(accessor)._ebean_setField(index - offset, value);
     }
   }
 
   @Override
   public void setValueIntercept(int index, Object value) {
-    ExtensionAccessor entry = extensionAccessors().findEntry(index);
-    if (entry == null) {
+    ExtensionAccessor accessor = findAccessor(index);
+    if (accessor == null) {
       owner._ebean_setFieldIntercept(index, value);
     } else {
-      int offset = extensionAccessors().getOffset(entry);
-      getExtensionBean(entry)._ebean_setFieldIntercept(index - offset, value);
+      int offset = getOffset(accessor);
+      getExtensionBean(accessor)._ebean_setFieldIntercept(index - offset, value);
     }
   }
+
+
 }

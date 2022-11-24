@@ -36,9 +36,17 @@ import java.util.concurrent.locks.ReentrantLock;
  *     String prop5;
  *     String prop6;
  *   }
- * <pre>
+ * </pre>
  * will create an EntityBeanIntercept for "Base" holding up to 7 fields. Writing to fields 0..2 with ebi.setValue will modify
  * the fields in Base, the r/w accesses to fields 3..4 are routed to Ext1 and 5..6 to Ext2.
+ * <p>
+ * Note about offset and index:
+ * </p>
+ * <p>
+ * When you have subclasses (<code>class Child extends Base</code>) the extensions have all the same index in the parent and in
+ * the subclass, but may have different offsets, as the Child-class will provide additional fields.
+ * </p>
+ *
  * @author Roland Praml, FOCONIS AG
  */
 public class ExtensionAccessors implements Iterable<ExtensionAccessor> {
@@ -56,7 +64,7 @@ public class ExtensionAccessors implements Iterable<ExtensionAccessor> {
   /**
    * The entries.
    */
-  private List<ExtensionAccessor> entries = new ArrayList<>();
+  private List<ExtensionAccessor> accessors = new ArrayList<>();
 
   /**
    * If we inherit from a class that has extensions, we have to inherit also all extensions from here
@@ -73,6 +81,9 @@ public class ExtensionAccessors implements Iterable<ExtensionAccessor> {
    */
   private int[] offsets;
 
+  /**
+   * Lock for synchronizing the initialization.
+   */
   private static final Lock lock = new ReentrantLock();
 
   /**
@@ -103,7 +114,7 @@ public class ExtensionAccessors implements Iterable<ExtensionAccessor> {
       throw new UnsupportedOperationException("The extension is already in use and cannot be extended anymore");
     }
     Entry entry = new Entry(prototype);
-    entries.add(entry);
+    accessors.add(entry);
     return entry;
   }
 
@@ -112,7 +123,7 @@ public class ExtensionAccessors implements Iterable<ExtensionAccessor> {
    */
   public int size() {
     init();
-    return entries.size();
+    return accessors.size();
   }
 
   /**
@@ -137,16 +148,16 @@ public class ExtensionAccessors implements Iterable<ExtensionAccessor> {
       }
       if (parent != null) {
         parent.init();
-        if (entries.isEmpty()) {
-          entries = parent.entries;
+        if (accessors.isEmpty()) {
+          accessors = parent.accessors;
         } else {
-          entries.addAll(0, parent.entries);
+          accessors.addAll(0, parent.accessors);
         }
       }
       int length = 0;
-      offsets = new int[entries.size()];
-      for (int i = 0; i < entries.size(); i++) {
-        Entry entry = (Entry) entries.get(i);
+      offsets = new int[accessors.size()];
+      for (int i = 0; i < accessors.size(); i++) {
+        Entry entry = (Entry) accessors.get(i);
         entry.index = i;
         offsets[i] = startOffset + length;
         length += entry.getProperties().length;
@@ -157,25 +168,19 @@ public class ExtensionAccessors implements Iterable<ExtensionAccessor> {
     }
   }
 
-  public ExtensionAccessor get(int index) {
-    init();
-    return entries.get(index);
-  }
-
-  public int getOffset(ExtensionAccessor entry) {
-    init();
-    return offsets[entry.getIndex()];
+  /**
+   * Returns the offset of this extension accessor.
+   * Note: The offset may vary on subclasses
+   */
+  int getOffset(ExtensionAccessor accessor) {
+    return offsets[accessor.getIndex()];
   }
 
   /**
-   * Required by enhancer
+   * Finds the accessor for a given property. If the propertyIndex is lower than startOffset, no accessor will be returned,
+   * as this means that we try to access a property in the base-entity.
    */
-  public int getOffset(int index) {
-    init();
-    return offsets[index];
-  }
-
-  public ExtensionAccessor findEntry(int propertyIndex) {
+  ExtensionAccessor findAccessor(int propertyIndex) {
     init();
     if (propertyIndex < startOffset) {
       return null;
@@ -187,15 +192,22 @@ public class ExtensionAccessors implements Iterable<ExtensionAccessor> {
     if (pos < 0) {
       pos = -2 - pos;
     }
-    return entries.get(pos);
+    return accessors.get(pos);
   }
 
   @Override
   public Iterator<ExtensionAccessor> iterator() {
     init();
-    return entries.iterator();
+    return accessors.iterator();
   }
 
+  /**
+   * Invoked by enhancer.
+   */
+  public EntityBean createInstance(ExtensionAccessor accessor, EntityBeanIntercept parentEbi) {
+    int offset = getOffset(accessor);
+    return ((Entry) accessor).createInstance(offset, parentEbi);
+  }
 
   static class Entry implements ExtensionAccessor {
     private int index;
@@ -220,15 +232,14 @@ public class ExtensionAccessors implements Iterable<ExtensionAccessor> {
       return prototype.getClass();
     }
 
-    @Override
-    public EntityBean createInstance(int offset, EntityBeanIntercept parentEbi) {
+    EntityBean createInstance(int offset, EntityBeanIntercept parentEbi) {
       return (EntityBean) prototype._ebean_newInstanceIntercept(new EntityExtensionIntercept(offset, parentEbi));
     }
 
     @Override
-    public <T> T getExtension(ExtendableBean bean) {
+    public EntityBean getExtension(ExtendableBean bean) {
       EntityBean eb = (EntityBean) bean;
-      return (T) eb._ebean_getExtension(index, eb._ebean_getIntercept());
+      return eb._ebean_getExtension(Entry.this, eb._ebean_getIntercept());
     }
   }
 

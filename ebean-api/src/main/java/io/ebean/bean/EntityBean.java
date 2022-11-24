@@ -132,7 +132,7 @@ public interface EntityBean extends Serializable, ToStringAware {
     return ExtensionAccessors.NONE;
   }
 
-  default EntityBean _ebean_getExtension(int index, EntityBeanIntercept ebi) {
+  default EntityBean _ebean_getExtension(ExtensionAccessor accessor, EntityBeanIntercept ebi) {
     throw new NotEnhancedException(); // not an extendableBean
   }
 }
