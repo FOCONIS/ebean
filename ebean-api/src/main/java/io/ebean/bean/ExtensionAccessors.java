@@ -239,7 +239,7 @@ public class ExtensionAccessors implements Iterable<ExtensionAccessor> {
     @Override
     public EntityBean getExtension(ExtendableBean bean) {
       EntityBean eb = (EntityBean) bean;
-      return eb._ebean_getExtension(Entry.this, eb);
+      return eb._ebean_getExtension(Entry.this);
     }
   }
 

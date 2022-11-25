@@ -1,6 +1,7 @@
 package org.tests.model.virtualprop.ext;
 
 import io.ebean.annotation.Formula;
+import io.ebean.bean.EntityBean;
 import io.ebean.bean.NotEnhancedException;
 import io.ebean.bean.extend.EntityExtension;
 import org.tests.model.virtualprop.VirtualBase;
@@ -11,7 +12,7 @@ import javax.persistence.OneToOne;
  * This class will add the fields 'virtualExtendOne' and 'firstName' to 'VirtualBase' by EntityExtension
  */
 @EntityExtension(VirtualBase.class)
-public class Extension1 {
+public class Extension1 implements EntityBean {
 
   @OneToOne(mappedBy = "base")
   private VirtualExtendOne virtualExtendOne;
