@@ -25,6 +25,7 @@ module io.ebean.api {
 
   exports io.ebean;
   exports io.ebean.bean;
+  exports io.ebean.bean.extend;
   exports io.ebean.cache;
   exports io.ebean.meta;
   exports io.ebean.config;
@@ -41,5 +42,4 @@ module io.ebean.api {
   exports io.ebean.text;
   exports io.ebean.text.json;
   exports io.ebean.util;
-
 }
