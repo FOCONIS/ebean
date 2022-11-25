@@ -405,7 +405,6 @@ public final class DefaultTypeManager implements TypeManager {
     if (MutationDetection.DEFAULT == prop.getMutationDetection()) {
       prop.setMutationDetection(jsonManager.mutationDetection());
     }
-
     Class<?> type = prop.getOwnerType();
     if (prop instanceof DeployBeanProperty) {
       type = ((DeployBeanProperty) prop).getField().getDeclaringClass();
