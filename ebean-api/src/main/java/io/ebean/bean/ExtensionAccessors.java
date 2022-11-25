@@ -204,9 +204,9 @@ public class ExtensionAccessors implements Iterable<ExtensionAccessor> {
   /**
    * Invoked by enhancer.
    */
-  public EntityBean createInstance(ExtensionAccessor accessor, EntityBeanIntercept parentEbi) {
+  public EntityBean createInstance(ExtensionAccessor accessor, EntityBean base) {
     int offset = getOffset(accessor);
-    return ((Entry) accessor).createInstance(offset, parentEbi);
+    return ((Entry) accessor).createInstance(offset, base);
   }
 
   static class Entry implements ExtensionAccessor {
@@ -232,14 +232,14 @@ public class ExtensionAccessors implements Iterable<ExtensionAccessor> {
       return prototype.getClass();
     }
 
-    EntityBean createInstance(int offset, EntityBeanIntercept parentEbi) {
-      return (EntityBean) prototype._ebean_newInstanceIntercept(new EntityExtensionIntercept(offset, parentEbi));
+    EntityBean createInstance(int offset, EntityBean base) {
+      return (EntityBean) prototype._ebean_newExtendedInstance(offset, base);
     }
 
     @Override
     public EntityBean getExtension(ExtendableBean bean) {
       EntityBean eb = (EntityBean) bean;
-      return eb._ebean_getExtension(Entry.this, eb._ebean_getIntercept());
+      return eb._ebean_getExtension(Entry.this, eb);
     }
   }
 

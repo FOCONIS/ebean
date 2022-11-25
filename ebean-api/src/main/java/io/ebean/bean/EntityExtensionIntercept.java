@@ -15,8 +15,8 @@ public class EntityExtensionIntercept implements EntityBeanIntercept {
   private final EntityBeanIntercept base;
   private final int offset;
 
-  public EntityExtensionIntercept(int offset, EntityBeanIntercept base) {
-    this.base = base;
+  public EntityExtensionIntercept(Object ownerBean, int offset, EntityBean base) {
+    this.base = base._ebean_getIntercept();
     this.offset = offset;
   }
 

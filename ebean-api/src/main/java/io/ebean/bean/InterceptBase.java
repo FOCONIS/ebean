@@ -26,7 +26,7 @@ public abstract class InterceptBase implements EntityBeanIntercept {
   }
 
   protected EntityBean getExtensionBean(ExtensionAccessor accessor) {
-    return owner._ebean_getExtension(accessor, this);
+    return owner._ebean_getExtension(accessor, owner);
   }
 
   @Override
