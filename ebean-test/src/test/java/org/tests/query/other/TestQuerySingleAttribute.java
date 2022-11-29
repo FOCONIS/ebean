@@ -4,6 +4,7 @@ import io.ebean.CountDistinctOrder;
 import io.ebean.CountedValue;
 import io.ebean.DB;
 import io.ebean.Query;
+import io.ebean.test.LoggedSql;
 import io.ebean.xtest.BaseTestCase;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -283,6 +284,30 @@ class TestQuerySingleAttribute extends BaseTestCase {
 
     assertThat(sqlOf(query)).contains("select distinct t0.name from o_customer t0 left join o_address t1 on t1.id = t0.billing_address_id where t0.status = ? and lower(t1.city) like ");
     assertThat(names).isNotNull();
+  }
+
+  @Test
+  void whereWithExpressionInStartswith() {
+    ResetBasicData.reset();
+
+    Query<Customer> query = DB.find(Customer.class);
+    query.select("convert(name,varchar(10))");
+    query.where().startsWith("convert(name,varchar(10))", "test");
+
+    LoggedSql.start();
+    query.findSingleAttributeList();
+    List<String> sql = LoggedSql.stop();
+    assertThat(sql).hasSize(1);
+    assertThat(sql.get(0)).contains("select convert(t0.name,varchar(10)) from o_customer t0 where convert(t0.name,varchar(10)) like ? escape'|' ; --bind(test%)");
+
+    query = DB.find(Customer.class);
+    query.select("convert(name,varchar(10))");
+    query.where().startsWith("convert(billingAddress.line1)", "test");
+
+    LoggedSql.start();
+    query.findSingleAttributeList();
+    sql = LoggedSql.stop();
+    assertThat(sql).hasSize(1);
   }
 
   @Test
