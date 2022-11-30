@@ -302,7 +302,7 @@ class TestQuerySingleAttribute extends BaseTestCase {
 
     query = DB.find(Customer.class);
     query.select("convert(name,varchar(10))");
-    query.where().startsWith("convert(billingAddress.line1)", "test");
+    query.where().startsWith("convert(billingAddress.line1,varchar(10))", "test");
 
     LoggedSql.start();
     query.findSingleAttributeList();
