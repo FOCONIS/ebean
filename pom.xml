@@ -134,6 +134,18 @@
       </modules>
     </profile>
   </profiles>
+
+  <repositories>
+    <repository>
+      <id>github-release</id>
+      <url>https://maven.pkg.github.com/foconis/ebean-agent</url>
+    </repository>
+<!--    <repository>-->
+<!--      <id>foconis-snapshot</id>-->
+<!--      <url>https://mvnrepo.foconis.de/repository/snapshot/</url>-->
+<!--    </repository>-->
+  </repositories>
+
 <!--
   <repositories>
     <repository>
