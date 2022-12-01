@@ -36,5 +36,7 @@ jobs:
 #    - name: Maven single test
 #      run: mvn --batch-mode clean verify -Dtest="io.ebeaninternal.server.core.DefaultServer_getReferenceTest" -DfailIfNoTests=false
     - name: Build with Maven
+      with:
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
       run: mvn -T 8 clean test
 
