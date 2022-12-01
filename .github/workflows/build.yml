@@ -23,6 +23,11 @@ jobs:
       with:
         java-version: ${{ matrix.java_version }}
         distribution: 'zulu'
+    - name: maven-settings
+        uses: s4u/maven-settings-action@v2
+        with:
+          servers: '[{"id": "github-release", "username": "dummy", "password": "${GITHUB_TOKEN_REF}"}]'
+          githubServer: false
     - name: Maven cache
       uses: actions/cache@v2
       env:
@@ -38,5 +43,5 @@ jobs:
     - name: Build with Maven
       run: mvn -T 8 clean test
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN_REF: ${{ secrets.GH_PAT_FOR_ACTIONS_TOKEN }}
 
