@@ -3,7 +3,7 @@
 We @foconis use this command to release.
 
     mvn versions:set  -DgenerateBackupPoms=false -DnewVersion=13.6.0-FOC2-SNAPSHOT
-    mvn release:prepare release:perform -Darguments="-Dgpg.skip -DskipTests" -PfoconisRelease -Pfoconis
+    mvn release:prepare release:perform -Darguments="-Dgpg.skip -DskipTests" -Pfoconis
 
     # RELEASE klappt nun, sollte es failen, ist wie folgt vorzugehen:
     # um bei einen Fehler zu release ist dann ins target/checkout Verzeichnis zu gehen und

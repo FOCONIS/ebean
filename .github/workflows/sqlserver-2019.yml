@@ -37,6 +37,6 @@ jobs:
         servers: '[{"id": "github-release", "username": "dummy", "password": "${GITHUB_TOKEN}"}]'
         githubServer: false
     - name: sqlserver 2019 latest
-      run: mvn clean test -Dprops.file=testconfig/ebean-sqlserver19.properties
+      run: mvn clean test -Dprops.file=testconfig/ebean-sqlserver19.properties -Pgithub
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

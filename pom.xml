@@ -112,10 +112,10 @@
 
   <profiles>
     <profile>
-      <id>foconisRelease</id>
-    </profile>
-    <profile>
       <id>foconis</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
       <distributionManagement>
         <repository>
           <id>foconis-release</id>
@@ -128,6 +128,26 @@
           <url>https://mvnrepo.foconis.de/repository/snapshot/</url>
         </snapshotRepository>
       </distributionManagement>
+      <repositories>
+        <repository>
+          <id>foconis-release</id>
+          <url>https://mvnrepo.foconis.de/repository/release/</url>
+        </repository>
+        <repository>
+          <id>foconis-snapshot</id>
+          <url>https://mvnrepo.foconis.de/repository/snapshot/</url>
+        </repository>
+      </repositories>
+      <pluginRepositories>
+        <pluginRepository>
+          <id>foconis-release</id>
+          <url>https://mvnrepo.foconis.de/repository/release/</url>
+        </pluginRepository>
+        <pluginRepository>
+          <id>foconis-snapshot</id>
+          <url>https://mvnrepo.foconis.de/repository/snapshot/</url>
+        </pluginRepository>
+      </pluginRepositories>
     </profile>
     <profile>
       <id>github</id>
@@ -138,6 +158,18 @@
           <url>https://maven.pkg.github.com/foconis/ebean</url>
         </repository>
       </distributionManagement>
+      <repositories>
+        <repository>
+          <id>github-release</id>
+          <url>https://maven.pkg.github.com/foconis/ebean-agent</url>
+        </repository>
+      </repositories>
+      <pluginRepositories>
+        <pluginRepository>
+          <id>github-release</id>
+          <url>https://maven.pkg.github.com/foconis/ebean-agent</url>
+        </pluginRepository>
+      </pluginRepositories>
     </profile>
     <profile>
       <id>central</id>
@@ -159,20 +191,6 @@
       </modules>
     </profile>
   </profiles>
-
-  <repositories>
-    <repository>
-      <id>github-release</id>
-      <url>https://maven.pkg.github.com/foconis/ebean-agent</url>
-    </repository>
-  </repositories>
-
-  <pluginRepositories>
-    <pluginRepository>
-      <id>github-release</id>
-      <url>https://maven.pkg.github.com/foconis/ebean-agent</url>
-    </pluginRepository>
-  </pluginRepositories>
 
 </project>
 

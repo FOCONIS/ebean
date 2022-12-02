@@ -40,6 +40,6 @@ jobs:
         servers: '[{"id": "github-release", "username": "dummy", "password": "${GITHUB_TOKEN}"}]'
         githubServer: false
     - name: postgres
-      run: mvn -T 8 clean test -Dprops.file=testconfig/ebean-postgres.properties
+      run: mvn -T 8 clean test -Dprops.file=testconfig/ebean-postgres.properties -Pgithub
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

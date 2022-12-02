@@ -40,6 +40,6 @@ jobs:
         servers: '[{"id": "github-release", "username": "dummy", "password": "${GITHUB_TOKEN}"}]'
         githubServer: false
     - name: yugabyte
-      run: mvn clean test -Dprops.file=testconfig/ebean-yugabyte.properties
+      run: mvn clean test -Dprops.file=testconfig/ebean-yugabyte.properties -Pgithub
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

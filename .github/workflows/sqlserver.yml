@@ -40,6 +40,6 @@ jobs:
         servers: '[{"id": "github-release", "username": "dummy", "password": "${GITHUB_TOKEN}"}]'
         githubServer: false
     - name: sqlserver 2017
-      run: mvn -T 8 clean test -Dprops.file=testconfig/ebean-sqlserver17.properties
+      run: mvn -T 8 clean test -Dprops.file=testconfig/ebean-sqlserver17.properties -Pgithub
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
