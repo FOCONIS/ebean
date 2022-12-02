@@ -115,6 +115,31 @@
       <id>foconisRelease</id>
     </profile>
     <profile>
+      <id>foconis</id>
+      <distributionManagement>
+        <repository>
+          <id>foconis-release</id>
+          <name>FOCONIS Release Repository</name>
+          <url>https://mvnrepo.foconis.de/repository/release/</url>
+        </repository>
+        <snapshotRepository>
+          <id>foconis-snapshot</id>
+          <name>FOCONIS Snapshot Repository</name>
+          <url>https://mvnrepo.foconis.de/repository/snapshot/</url>
+        </snapshotRepository>
+      </distributionManagement>
+    </profile>
+    <profile>
+      <id>github</id>
+      <distributionManagement>
+        <repository>
+          <id>github-release</id>
+          <name>FOCONIS Github Release Repository</name>
+          <url>https://maven.pkg.github.com/foconis/ebean</url>
+        </repository>
+      </distributionManagement>
+    </profile>
+    <profile>
       <id>central</id>
     </profile>
     <profile>
@@ -140,10 +165,6 @@
       <id>github-release</id>
       <url>https://maven.pkg.github.com/foconis/ebean-agent</url>
     </repository>
-<!--    <repository>-->
-<!--      <id>foconis-snapshot</id>-->
-<!--      <url>https://mvnrepo.foconis.de/repository/snapshot/</url>-->
-<!--    </repository>-->
   </repositories>
 
   <pluginRepositories>
@@ -151,47 +172,7 @@
       <id>github-release</id>
       <url>https://maven.pkg.github.com/foconis/ebean-agent</url>
     </pluginRepository>
-<!--    <pluginRepository>-->
-<!--      <id>foconis-snapshot</id>-->
-<!--      <url>https://mvnrepo.foconis.de/repository/snapshot/</url>-->
-<!--    </pluginRepository>-->
   </pluginRepositories>
-
-<!--
-  <repositories>
-    <repository>
-      <id>foconis-release</id>
-      <url>https://mvnrepo.foconis.de/repository/release/</url>
-    </repository>
-    <repository>
-      <id>foconis-snapshot</id>
-      <url>https://mvnrepo.foconis.de/repository/snapshot/</url>
-    </repository>
-  </repositories>
-
-  <pluginRepositories>
-    <pluginRepository>
-      <id>foconis-release</id>
-      <url>https://mvnrepo.foconis.de/repository/release/</url>
-    </pluginRepository>
-    <pluginRepository>
-      <id>foconis-snapshot</id>
-      <url>https://mvnrepo.foconis.de/repository/snapshot/</url>
-    </pluginRepository>
-  </pluginRepositories>
- -->
-  <distributionManagement>
-    <repository>
-      <id>foconis-release</id>
-      <name>FOCONIS Release Repository</name>
-      <url>https://mvnrepo.foconis.de/repository/release/</url>
-    </repository>
-    <snapshotRepository>
-      <id>foconis-snapshot</id>
-      <name>FOCONIS Snapshot Repository</name>
-      <url>https://mvnrepo.foconis.de/repository/snapshot/</url>
-    </snapshotRepository>
-  </distributionManagement>
 
 </project>
 
