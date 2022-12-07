@@ -78,6 +78,9 @@
   <logger name="io.ebean.docker" level="DEBUG"/>
   <logger name="io.ebean.test" level="TRACE"/>
 
+  <logger name="org.tests.query.other.TestSelfParentConcurrent" level="DEBUG"/>
+
+
 <!--  <logger name="io.ebean.DDL" level="DEBUG"/>-->
 
 <!--  <logger name="io.ebean.SQL" level="TRACE"/>-->

@@ -1,0 +1,1802 @@
+[INFO] Scanning for projects...
+[INFO] --- tiles-maven-plugin: Injecting 1 tiles as intermediary parent artifacts for io.ebean:ebean-autotune...
+[INFO] Mixed 'null:ebean-autotune:null' with tile 'io.ebean.tile:enhancement:13.6.0' as its new parent.
+[INFO] Explicitly set groupId to 'io.ebean' from original parent 'io.ebean:ebean-parent:13.6.4-SNAPSHOT'.
+[INFO] Explicitly set version to '13.6.4-SNAPSHOT' from original parent 'io.ebean:ebean-parent:13.6.4-SNAPSHOT'.
+[INFO] Mixed 'io.ebean.tile:enhancement:13.6.0' with original parent 'io.ebean:ebean-parent:13.6.4-SNAPSHOT' as its new top level parent.
+[INFO] 
+[INFO] --- tiles-maven-plugin: Injecting 1 tiles as intermediary parent artifacts for io.ebean:ebean-externalmapping-xml...
+[INFO] Mixed 'null:ebean-externalmapping-xml:null' with tile 'io.ebean.tile:enhancement:13.6.0' as its new parent.
+[INFO] Explicitly set groupId to 'io.ebean' from original parent 'io.ebean:ebean-parent:13.6.4-SNAPSHOT'.
+[INFO] Explicitly set version to '13.6.4-SNAPSHOT' from original parent 'io.ebean:ebean-parent:13.6.4-SNAPSHOT'.
+[INFO] Mixed 'io.ebean.tile:enhancement:13.6.0' with original parent 'io.ebean:ebean-parent:13.6.4-SNAPSHOT' as its new top level parent.
+[INFO] 
+[INFO] --- tiles-maven-plugin: Injecting 1 tiles as intermediary parent artifacts for io.ebean:ebean-test...
+[INFO] Mixed 'null:ebean-test:null' with tile 'io.ebean.tile:enhancement:13.6.0' as its new parent.
+[INFO] Explicitly set groupId to 'io.ebean' from original parent 'io.ebean:ebean-parent:13.6.4-SNAPSHOT'.
+[INFO] Explicitly set version to '13.6.4-SNAPSHOT' from original parent 'io.ebean:ebean-parent:13.6.4-SNAPSHOT'.
+[INFO] Mixed 'io.ebean.tile:enhancement:13.6.0' with original parent 'io.ebean:ebean-parent:13.6.4-SNAPSHOT' as its new top level parent.
+[INFO] 
+[INFO] --- tiles-maven-plugin: Injecting 1 tiles as intermediary parent artifacts for io.ebean:ebean-querybean...
+[INFO] Mixed 'null:ebean-querybean:null' with tile 'io.ebean.tile:enhancement:13.6.0' as its new parent.
+[INFO] Explicitly set groupId to 'io.ebean' from original parent 'io.ebean:ebean-parent:13.6.4-SNAPSHOT'.
+[INFO] Explicitly set version to '13.6.4-SNAPSHOT' from original parent 'io.ebean:ebean-parent:13.6.4-SNAPSHOT'.
+[INFO] Mixed 'io.ebean.tile:enhancement:13.6.0' with original parent 'io.ebean:ebean-parent:13.6.4-SNAPSHOT' as its new top level parent.
+[INFO] 
+[INFO] --- tiles-maven-plugin: Injecting 1 tiles as intermediary parent artifacts for io.ebean:ebean-postgis...
+[INFO] Mixed 'null:ebean-postgis:null' with tile 'io.ebean.tile:enhancement:13.6.0' as its new parent.
+[INFO] Explicitly set groupId to 'io.ebean' from original parent 'io.ebean:ebean-parent:13.6.4-SNAPSHOT'.
+[INFO] Explicitly set version to '13.6.4-SNAPSHOT' from original parent 'io.ebean:ebean-parent:13.6.4-SNAPSHOT'.
+[INFO] Mixed 'io.ebean.tile:enhancement:13.6.0' with original parent 'io.ebean:ebean-parent:13.6.4-SNAPSHOT' as its new top level parent.
+[INFO] 
+[INFO] --- tiles-maven-plugin: Injecting 1 tiles as intermediary parent artifacts for io.ebean:ebean-redis...
+[INFO] Mixed 'null:ebean-redis:null' with tile 'io.ebean.tile:enhancement:13.6.0' as its new parent.
+[INFO] Explicitly set groupId to 'io.ebean' from original parent 'io.ebean:ebean-parent:13.6.4-SNAPSHOT'.
+[INFO] Explicitly set version to '13.6.4-SNAPSHOT' from original parent 'io.ebean:ebean-parent:13.6.4-SNAPSHOT'.
+[INFO] Mixed 'io.ebean.tile:enhancement:13.6.0' with original parent 'io.ebean:ebean-parent:13.6.4-SNAPSHOT' as its new top level parent.
+[INFO] 
+[INFO] --- tiles-maven-plugin: Injecting 1 tiles as intermediary parent artifacts for io.ebean:ebean-kotlin...
+[INFO] Mixed 'null:ebean-kotlin:null' with tile 'io.ebean.tile:enhancement:13.6.0' as its new parent.
+[INFO] Explicitly set groupId to 'io.ebean' from original parent 'io.ebean:ebean-parent:13.6.4-SNAPSHOT'.
+[INFO] Explicitly set version to '13.6.4-SNAPSHOT' from original parent 'io.ebean:ebean-parent:13.6.4-SNAPSHOT'.
+[INFO] Mixed 'io.ebean.tile:enhancement:13.6.0' with original parent 'io.ebean:ebean-parent:13.6.4-SNAPSHOT' as its new top level parent.
+[INFO] 
+[INFO] --- tiles-maven-plugin: Injecting 1 tiles as intermediary parent artifacts for io.ebean:test-java16...
+[INFO] Mixed 'io.ebean:test-java16:1.0' with tile 'io.ebean.tile:enhancement:13.6.0' as its new parent.
+[INFO] Mixed 'io.ebean.tile:enhancement:13.6.0' with original parent '(no parent)' as its new top level parent.
+[INFO] 
+[INFO] Inspecting build with total of 49 modules...
+[INFO] Installing Nexus Staging features:
+[INFO]   ... total of 1 executions of maven-deploy-plugin replaced with nexus-staging-maven-plugin
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Build Order:
+[INFO] 
+[INFO] ebean parent                                                       [pom]
+[INFO] ebean api                                                          [jar]
+[INFO] ebean bom                                                          [pom]
+[INFO] ebean core type                                                    [jar]
+[INFO] ebean external mapping api                                         [jar]
+[INFO] platforms                                                          [pom]
+[INFO] ebean-platform-h2                                                  [jar]
+[INFO] ebean-platform-postgres                                            [jar]
+[INFO] ebean-platform-sqlserver                                           [jar]
+[INFO] ebean core                                                         [jar]
+[INFO] ebean dbmigration runner                                           [jar]
+[INFO] ebean-platform-clickhouse                                          [jar]
+[INFO] ebean-platform-db2                                                 [jar]
+[INFO] ebean-platform-hana                                                [jar]
+[INFO] ebean-platform-hsqldb                                              [jar]
+[INFO] ebean-platform-mysql                                               [jar]
+[INFO] ebean-platform-mariadb                                             [jar]
+[INFO] ebean-platform-nuodb                                               [jar]
+[INFO] ebean-platform-oracle                                              [jar]
+[INFO] ebean-platform-sqlanywhere                                         [jar]
+[INFO] ebean-platform-sqlite                                              [jar]
+[INFO] ebean-platform-all                                                 [jar]
+[INFO] ebean ddl generation                                               [jar]
+[INFO] ebean autotune                                                     [jar]
+[INFO] ebean external mapping xml                                         [jar]
+[INFO] ebean test                                                         [jar]
+[INFO] querybean generator                                                [jar]
+[INFO] ebean querybean                                                    [jar]
+[INFO] kotlin querybean generator                                         [jar]
+[INFO] ebean postgis                                                      [jar]
+[INFO] ebean redis                                                        [jar]
+[INFO] composites                                                         [pom]
+[INFO] ebean (all platforms)                                              [jar]
+[INFO] ebean-clickhouse                                                   [jar]
+[INFO] ebean-cockroach                                                    [jar]
+[INFO] ebean-db2                                                          [jar]
+[INFO] ebean-h2                                                           [jar]
+[INFO] ebean-hana                                                         [jar]
+[INFO] ebean-mariadb                                                      [jar]
+[INFO] ebean-mysql                                                        [jar]
+[INFO] ebean-nuodb                                                        [jar]
+[INFO] ebean-oracle                                                       [jar]
+[INFO] ebean-postgres                                                     [jar]
+[INFO] ebean-sqlite                                                       [jar]
+[INFO] ebean-sqlserver                                                    [jar]
+[INFO] ebean-yugabyte                                                     [jar]
+[INFO] ebean-kotlin                                                       [jar]
+[INFO] test-java16                                                        [jar]
+[INFO] tests                                                              [pom]
+Downloading from central: https://repo.maven.apache.org/maven2/org/apache/maven/plugins/maven-antrun-plugin/1.3/maven-antrun-plugin-1.3.pom
+Progress (1): 2.7/4.7 kBProgress (1): 4.7 kB                        Downloaded from central: https://repo.maven.apache.org/maven2/org/apache/maven/plugins/maven-antrun-plugin/1.3/maven-antrun-plugin-1.3.pom (4.7 kB at 18 kB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/apache/maven/plugins/maven-plugins/12/maven-plugins-12.pom
+Progress (1): 2.7/12 kBProgress (1): 5.5/12 kBProgress (1): 8.2/12 kBProgress (1): 11/12 kB Progress (1): 12 kB                      Downloaded from central: https://repo.maven.apache.org/maven2/org/apache/maven/plugins/maven-plugins/12/maven-plugins-12.pom (12 kB at 346 kB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/apache/maven/plugins/maven-antrun-plugin/1.3/maven-antrun-plugin-1.3.jar
+Progress (1): 2.7/24 kBProgress (1): 5.5/24 kBProgress (1): 8.2/24 kBProgress (1): 11/24 kB Progress (1): 14/24 kBProgress (1): 16/24 kBProgress (1): 19/24 kBProgress (1): 22/24 kBProgress (1): 24 kB                      Downloaded from central: https://repo.maven.apache.org/maven2/org/apache/maven/plugins/maven-antrun-plugin/1.3/maven-antrun-plugin-1.3.jar (24 kB at 693 kB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/apache/maven/plugins/maven-assembly-plugin/2.2-beta-5/maven-assembly-plugin-2.2-beta-5.pom
+Progress (1): 2.7/15 kBProgress (1): 5.5/15 kBProgress (1): 8.2/15 kBProgress (1): 11/15 kB Progress (1): 14/15 kBProgress (1): 15 kB                      Downloaded from central: https://repo.maven.apache.org/maven2/org/apache/maven/plugins/maven-assembly-plugin/2.2-beta-5/maven-assembly-plugin-2.2-beta-5.pom (15 kB at 474 kB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/apache/maven/plugins/maven-plugins/16/maven-plugins-16.pom
+Progress (1): 4.1/13 kBProgress (1): 8.2/13 kBProgress (1): 12/13 kB Progress (1): 13 kB                      Downloaded from central: https://repo.maven.apache.org/maven2/org/apache/maven/plugins/maven-plugins/16/maven-plugins-16.pom (13 kB at 324 kB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/apache/maven/plugins/maven-assembly-plugin/2.2-beta-5/maven-assembly-plugin-2.2-beta-5.jar
+Progress (1): 4.1/209 kBProgress (1): 8.2/209 kBProgress (1): 12/209 kB Progress (1): 16/209 kBProgress (1): 20/209 kBProgress (1): 24/209 kBProgress (1): 28/209 kBProgress (1): 32/209 kBProgress (1): 36/209 kBProgress (1): 40/209 kBProgress (1): 45/209 kBProgress (1): 49/209 kBProgress (1): 53/209 kBProgress (1): 57/209 kBProgress (1): 61/209 kBProgress (1): 65/209 kBProgress (1): 69/209 kBProgress (1): 73/209 kBProgress (1): 77/209 kBProgress (1): 81/209 kBProgress (1): 85/209 kBProgress (1): 90/209 kBProgress (1): 94/209 kBProgress (1): 98/209 kBProgress (1): 102/209 kBProgress (1): 106/209 kBProgress (1): 110/209 kBProgress (1): 114/209 kBProgress (1): 118/209 kBProgress (1): 122/209 kBProgress (1): 126/209 kBProgress (1): 131/209 kBProgress (1): 135/209 kBProgress (1): 139/209 kBProgress (1): 143/209 kBProgress (1): 147/209 kBProgress (1): 151/209 kBProgress (1): 155/209 kBProgress (1): 159/209 kBProgress (1): 163/209 kBProgress (1): 167/209 kBProgress (1): 171/209 kBProgress (1): 176/209 kBProgress (1): 180/209 kBProgress (1): 184/209 kBProgress (1): 188/209 kBProgress (1): 192/209 kBProgress (1): 196/209 kBProgress (1): 200/209 kBProgress (1): 204/209 kBProgress (1): 208/209 kBProgress (1): 209 kB                        Downloaded from central: https://repo.maven.apache.org/maven2/org/apache/maven/plugins/maven-assembly-plugin/2.2-beta-5/maven-assembly-plugin-2.2-beta-5.jar (209 kB at 3.1 MB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/apache/maven/plugins/maven-dependency-plugin/2.8/maven-dependency-plugin-2.8.pom
+Progress (1): 4.1/11 kBProgress (1): 8.2/11 kBProgress (1): 11 kB                       Downloaded from central: https://repo.maven.apache.org/maven2/org/apache/maven/plugins/maven-dependency-plugin/2.8/maven-dependency-plugin-2.8.pom (11 kB at 424 kB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/apache/maven/plugins/maven-dependency-plugin/2.8/maven-dependency-plugin-2.8.jar
+Progress (1): 4.1/153 kBProgress (1): 8.2/153 kBProgress (1): 12/153 kB Progress (1): 16/153 kBProgress (1): 20/153 kBProgress (1): 25/153 kBProgress (1): 29/153 kBProgress (1): 33/153 kBProgress (1): 37/153 kBProgress (1): 41/153 kBProgress (1): 45/153 kBProgress (1): 49/153 kBProgress (1): 53/153 kBProgress (1): 57/153 kBProgress (1): 61/153 kBProgress (1): 65/153 kBProgress (1): 69/153 kBProgress (1): 73/153 kBProgress (1): 78/153 kBProgress (1): 82/153 kBProgress (1): 86/153 kBProgress (1): 90/153 kBProgress (1): 94/153 kBProgress (1): 98/153 kBProgress (1): 102/153 kBProgress (1): 106/153 kBProgress (1): 110/153 kBProgress (1): 114/153 kBProgress (1): 118/153 kBProgress (1): 123/153 kBProgress (1): 127/153 kBProgress (1): 131/153 kBProgress (1): 135/153 kBProgress (1): 139/153 kBProgress (1): 143/153 kBProgress (1): 147/153 kBProgress (1): 151/153 kBProgress (1): 153 kB                        Downloaded from central: https://repo.maven.apache.org/maven2/org/apache/maven/plugins/maven-dependency-plugin/2.8/maven-dependency-plugin-2.8.jar (153 kB at 3.8 MB/s)
+[INFO] 
+[INFO] -----------------------< io.ebean:ebean-parent >------------------------
+[INFO] Building ebean parent 13.6.4-SNAPSHOT                             [1/49]
+[INFO] --------------------------------[ pom ]---------------------------------
+[INFO] 
+[INFO] --- maven-dependency-plugin:2.8:tree (default-cli) @ ebean-parent ---
+Downloading from central: https://repo.maven.apache.org/maven2/org/apache/maven/doxia/doxia-sink-api/1.0-alpha-10/doxia-sink-api-1.0-alpha-10.pom
+Progress (1): 1.3 kB                    Downloaded from central: https://repo.maven.apache.org/maven2/org/apache/maven/doxia/doxia-sink-api/1.0-alpha-10/doxia-sink-api-1.0-alpha-10.pom (1.3 kB at 41 kB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/apache/maven/doxia/doxia/1.0-alpha-10/doxia-1.0-alpha-10.pom
+Progress (1): 4.1/9.2 kBProgress (1): 8.2/9.2 kBProgress (1): 9.2 kB                        Downloaded from central: https://repo.maven.apache.org/maven2/org/apache/maven/doxia/doxia/1.0-alpha-10/doxia-1.0-alpha-10.pom (9.2 kB at 305 kB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/apache/maven/reporting/maven-reporting-impl/2.0.5/maven-reporting-impl-2.0.5.pom
+Progress (1): 4.1/4.2 kBProgress (1): 4.2 kB                        Downloaded from central: https://repo.maven.apache.org/maven2/org/apache/maven/reporting/maven-reporting-impl/2.0.5/maven-reporting-impl-2.0.5.pom (4.2 kB at 151 kB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/apache/maven/doxia/doxia-core/1.0/doxia-core-1.0.pom
+Progress (1): 2.4 kB                    Downloaded from central: https://repo.maven.apache.org/maven2/org/apache/maven/doxia/doxia-core/1.0/doxia-core-1.0.pom (2.4 kB at 86 kB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/codehaus/plexus/plexus-utils/1.5.7/plexus-utils-1.5.7.pom
+Progress (1): 4.1/8.1 kBProgress (1): 8.1 kB                        Downloaded from central: https://repo.maven.apache.org/maven2/org/codehaus/plexus/plexus-utils/1.5.7/plexus-utils-1.5.7.pom (8.1 kB at 299 kB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/apache/maven/doxia/doxia-site-renderer/1.0/doxia-site-renderer-1.0.pom
+Progress (1): 4.1/4.4 kBProgress (1): 4.4 kB                        Downloaded from central: https://repo.maven.apache.org/maven2/org/apache/maven/doxia/doxia-site-renderer/1.0/doxia-site-renderer-1.0.pom (4.4 kB at 158 kB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/apache/maven/doxia/doxia-sitetools/1.0/doxia-sitetools-1.0.pom
+Progress (1): 4.1/9.6 kBProgress (1): 8.2/9.6 kBProgress (1): 9.6 kB                        Downloaded from central: https://repo.maven.apache.org/maven2/org/apache/maven/doxia/doxia-sitetools/1.0/doxia-sitetools-1.0.pom (9.6 kB at 355 kB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/apache/maven/doxia/doxia-decoration-model/1.0/doxia-decoration-model-1.0.pom
+Progress (1): 3.2 kB                    Downloaded from central: https://repo.maven.apache.org/maven2/org/apache/maven/doxia/doxia-decoration-model/1.0/doxia-decoration-model-1.0.pom (3.2 kB at 99 kB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/apache/maven/doxia/doxia-module-apt/1.0/doxia-module-apt-1.0.pom
+Progress (1): 2.3 kB                    Downloaded from central: https://repo.maven.apache.org/maven2/org/apache/maven/doxia/doxia-module-apt/1.0/doxia-module-apt-1.0.pom (2.3 kB at 83 kB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/apache/maven/doxia/doxia-modules/1.0/doxia-modules-1.0.pom
+Progress (1): 2.4 kB                    Downloaded from central: https://repo.maven.apache.org/maven2/org/apache/maven/doxia/doxia-modules/1.0/doxia-modules-1.0.pom (2.4 kB at 68 kB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/apache/maven/doxia/doxia-module-fml/1.0/doxia-module-fml-1.0.pom
+Progress (1): 2.7 kB                    Downloaded from central: https://repo.maven.apache.org/maven2/org/apache/maven/doxia/doxia-module-fml/1.0/doxia-module-fml-1.0.pom (2.7 kB at 77 kB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/apache/maven/doxia/doxia-module-xdoc/1.0/doxia-module-xdoc-1.0.pom
+Progress (1): 2.2 kB                    Downloaded from central: https://repo.maven.apache.org/maven2/org/apache/maven/doxia/doxia-module-xdoc/1.0/doxia-module-xdoc-1.0.pom (2.2 kB at 75 kB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/apache/maven/doxia/doxia-module-xhtml/1.0/doxia-module-xhtml-1.0.pom
+Progress (1): 1.6 kB                    Downloaded from central: https://repo.maven.apache.org/maven2/org/apache/maven/doxia/doxia-module-xhtml/1.0/doxia-module-xhtml-1.0.pom (1.6 kB at 59 kB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/apache/maven/shared/maven-doxia-tools/1.0.2/maven-doxia-tools-1.0.2.pom
+Progress (1): 4.1/5.9 kBProgress (1): 5.9 kB                        Downloaded from central: https://repo.maven.apache.org/maven2/org/apache/maven/shared/maven-doxia-tools/1.0.2/maven-doxia-tools-1.0.2.pom (5.9 kB at 196 kB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/apache/maven/shared/maven-shared-components/11/maven-shared-components-11.pom
+Progress (1): 4.1/8.3 kBProgress (1): 8.2/8.3 kBProgress (1): 8.3 kB                        Downloaded from central: https://repo.maven.apache.org/maven2/org/apache/maven/shared/maven-shared-components/11/maven-shared-components-11.pom (8.3 kB at 298 kB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/codehaus/plexus/plexus-archiver/2.3/plexus-archiver-2.3.pom
+Progress (1): 3.4 kB                    Downloaded from central: https://repo.maven.apache.org/maven2/org/codehaus/plexus/plexus-archiver/2.3/plexus-archiver-2.3.pom (3.4 kB at 120 kB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/codehaus/plexus/plexus-io/2.0.6/plexus-io-2.0.6.pom
+Progress (1): 2.2 kB                    Downloaded from central: https://repo.maven.apache.org/maven2/org/codehaus/plexus/plexus-io/2.0.6/plexus-io-2.0.6.pom (2.2 kB at 82 kB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/codehaus/plexus/plexus-utils/3.0.9/plexus-utils-3.0.9.pom
+Progress (1): 3.1 kB                    Downloaded from central: https://repo.maven.apache.org/maven2/org/codehaus/plexus/plexus-utils/3.0.9/plexus-utils-3.0.9.pom (3.1 kB at 108 kB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/apache/maven/shared/maven-dependency-analyzer/1.4/maven-dependency-analyzer-1.4.pom
+Progress (1): 4.1/5.2 kBProgress (1): 5.2 kB                        Downloaded from central: https://repo.maven.apache.org/maven2/org/apache/maven/shared/maven-dependency-analyzer/1.4/maven-dependency-analyzer-1.4.pom (5.2 kB at 184 kB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/apache/maven/shared/maven-dependency-tree/2.1/maven-dependency-tree-2.1.pom
+Progress (1): 4.1/6.8 kBProgress (1): 6.8 kB                        Downloaded from central: https://repo.maven.apache.org/maven2/org/apache/maven/shared/maven-dependency-tree/2.1/maven-dependency-tree-2.1.pom (6.8 kB at 251 kB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/apache/maven/maven-project/2.2.0/maven-project-2.2.0.pom
+Progress (1): 2.8 kB                    Downloaded from central: https://repo.maven.apache.org/maven2/org/apache/maven/maven-project/2.2.0/maven-project-2.2.0.pom (2.8 kB at 103 kB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/apache/maven/maven/2.2.0/maven-2.2.0.pom
+Progress (1): 4.1/22 kBProgress (1): 8.2/22 kBProgress (1): 12/22 kB Progress (1): 16/22 kBProgress (1): 20/22 kBProgress (1): 22 kB                      Downloaded from central: https://repo.maven.apache.org/maven2/org/apache/maven/maven/2.2.0/maven-2.2.0.pom (22 kB at 749 kB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/apache/maven/maven-settings/2.2.0/maven-settings-2.2.0.pom
+Progress (1): 2.2 kB                    Downloaded from central: https://repo.maven.apache.org/maven2/org/apache/maven/maven-settings/2.2.0/maven-settings-2.2.0.pom (2.2 kB at 81 kB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/apache/maven/maven-model/2.2.0/maven-model-2.2.0.pom
+Progress (1): 3.2 kB                    Downloaded from central: https://repo.maven.apache.org/maven2/org/apache/maven/maven-model/2.2.0/maven-model-2.2.0.pom (3.2 kB at 116 kB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/apache/maven/maven-profile/2.2.0/maven-profile-2.2.0.pom
+Progress (1): 2.2 kB                    Downloaded from central: https://repo.maven.apache.org/maven2/org/apache/maven/maven-profile/2.2.0/maven-profile-2.2.0.pom (2.2 kB at 70 kB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/apache/maven/maven-artifact-manager/2.2.0/maven-artifact-manager-2.2.0.pom
+Progress (1): 3.1 kB                    Downloaded from central: https://repo.maven.apache.org/maven2/org/apache/maven/maven-artifact-manager/2.2.0/maven-artifact-manager-2.2.0.pom (3.1 kB at 119 kB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/apache/maven/maven-repository-metadata/2.2.0/maven-repository-metadata-2.2.0.pom
+Progress (1): 1.9 kB                    Downloaded from central: https://repo.maven.apache.org/maven2/org/apache/maven/maven-repository-metadata/2.2.0/maven-repository-metadata-2.2.0.pom (1.9 kB at 72 kB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/apache/maven/maven-artifact/2.2.0/maven-artifact-2.2.0.pom
+Progress (1): 1.6 kB                    Downloaded from central: https://repo.maven.apache.org/maven2/org/apache/maven/maven-artifact/2.2.0/maven-artifact-2.2.0.pom (1.6 kB at 56 kB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/apache/maven/maven-plugin-registry/2.2.0/maven-plugin-registry-2.2.0.pom
+Progress (1): 1.9 kB                    Downloaded from central: https://repo.maven.apache.org/maven2/org/apache/maven/maven-plugin-registry/2.2.0/maven-plugin-registry-2.2.0.pom (1.9 kB at 64 kB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/apache/maven/shared/maven-invoker/2.0.11/maven-invoker-2.0.11.pom
+Progress (1): 4.1/5.1 kBProgress (1): 5.1 kB                        Downloaded from central: https://repo.maven.apache.org/maven2/org/apache/maven/shared/maven-invoker/2.0.11/maven-invoker-2.0.11.pom (5.1 kB at 203 kB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/apache/maven/reporting/maven-reporting-impl/2.0.5/maven-reporting-impl-2.0.5.jar
+Downloading from central: https://repo.maven.apache.org/maven2/org/apache/maven/doxia/doxia-core/1.0/doxia-core-1.0.jar
+Downloading from central: https://repo.maven.apache.org/maven2/org/apache/maven/shared/maven-doxia-tools/1.0.2/maven-doxia-tools-1.0.2.jar
+Downloading from central: https://repo.maven.apache.org/maven2/xml-apis/xml-apis/1.0.b2/xml-apis-1.0.b2.jar
+Downloading from central: https://repo.maven.apache.org/maven2/org/apache/maven/doxia/doxia-site-renderer/1.0/doxia-site-renderer-1.0.jar
+Progress (1): 4.1/21 kBProgress (1): 8.2/21 kBProgress (1): 12/21 kB Progress (1): 16/21 kBProgress (1): 20/21 kBProgress (1): 21 kB                      Downloaded from central: https://repo.maven.apache.org/maven2/org/apache/maven/reporting/maven-reporting-impl/2.0.5/maven-reporting-impl-2.0.5.jar (21 kB at 711 kB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/apache/maven/doxia/doxia-decoration-model/1.0/doxia-decoration-model-1.0.jar
+Progress (1): 4.1/49 kBProgress (1): 8.2/49 kBProgress (1): 12/49 kB Progress (2): 12/49 kB | 2.7/55 kBProgress (2): 16/49 kB | 2.7/55 kBProgress (2): 16/49 kB | 5.5/55 kBProgress (2): 16/49 kB | 8.2/55 kBProgress (2): 20/49 kB | 8.2/55 kBProgress (2): 25/49 kB | 8.2/55 kBProgress (2): 29/49 kB | 8.2/55 kBProgress (2): 33/49 kB | 8.2/55 kBProgress (2): 33/49 kB | 11/55 kB Progress (2): 33/49 kB | 14/55 kBProgress (2): 33/49 kB | 16/55 kBProgress (2): 33/49 kB | 19/55 kBProgress (2): 37/49 kB | 19/55 kBProgress (2): 41/49 kB | 19/55 kBProgress (3): 41/49 kB | 19/55 kB | 2.7/41 kBProgress (3): 41/49 kB | 22/55 kB | 2.7/41 kBProgress (3): 41/49 kB | 22/55 kB | 5.5/41 kBProgress (3): 45/49 kB | 22/55 kB | 5.5/41 kBProgress (3): 45/49 kB | 22/55 kB | 8.2/41 kBProgress (3): 45/49 kB | 25/55 kB | 8.2/41 kBProgress (4): 45/49 kB | 25/55 kB | 8.2/41 kB | 4.1/109 kBProgress (4): 45/49 kB | 25/55 kB | 11/41 kB | 4.1/109 kB Progress (4): 49 kB | 25/55 kB | 11/41 kB | 4.1/109 kB   Progress (4): 49 kB | 25/55 kB | 14/41 kB | 4.1/109 kBProgress (4): 49 kB | 25/55 kB | 14/41 kB | 8.2/109 kBProgress (4): 49 kB | 27/55 kB | 14/41 kB | 8.2/109 kBProgress (4): 49 kB | 27/55 kB | 16/41 kB | 8.2/109 kBProgress (4): 49 kB | 30/55 kB | 16/41 kB | 8.2/109 kBProgress (4): 49 kB | 30/55 kB | 16/41 kB | 12/109 kB Progress (4): 49 kB | 33/55 kB | 16/41 kB | 12/109 kBProgress (4): 49 kB | 33/55 kB | 19/41 kB | 12/109 kBProgress (4): 49 kB | 36/55 kB | 19/41 kB | 12/109 kBProgress (5): 49 kB | 36/55 kB | 19/41 kB | 12/109 kB | 2.7/47 kBProgress (5): 49 kB | 36/55 kB | 19/41 kB | 16/109 kB | 2.7/47 kBProgress (5): 49 kB | 36/55 kB | 19/41 kB | 16/109 kB | 5.5/47 kBProgress (5): 49 kB | 38/55 kB | 19/41 kB | 16/109 kB | 5.5/47 kBProgress (5): 49 kB | 38/55 kB | 22/41 kB | 16/109 kB | 5.5/47 kBProgress (5): 49 kB | 38/55 kB | 22/41 kB | 20/109 kB | 5.5/47 kBProgress (5): 49 kB | 38/55 kB | 22/41 kB | 20/109 kB | 8.2/47 kBProgress (5): 49 kB | 38/55 kB | 22/41 kB | 25/109 kB | 8.2/47 kBProgress (5): 49 kB | 38/55 kB | 25/41 kB | 25/109 kB | 8.2/47 kBProgress (5): 49 kB | 38/55 kB | 25/41 kB | 29/109 kB | 8.2/47 kBProgress (5): 49 kB | 38/55 kB | 25/41 kB | 29/109 kB | 11/47 kB Progress (5): 49 kB | 38/55 kB | 27/41 kB | 29/109 kB | 11/47 kBProgress (5): 49 kB | 38/55 kB | 27/41 kB | 33/109 kB | 11/47 kBProgress (5): 49 kB | 38/55 kB | 30/41 kB | 33/109 kB | 11/47 kBProgress (5): 49 kB | 38/55 kB | 30/41 kB | 33/109 kB | 14/47 kBProgress (5): 49 kB | 38/55 kB | 33/41 kB | 33/109 kB | 14/47 kBProgress (5): 49 kB | 38/55 kB | 33/41 kB | 33/109 kB | 16/47 kBProgress (5): 49 kB | 38/55 kB | 36/41 kB | 33/109 kB | 16/47 kBProgress (5): 49 kB | 38/55 kB | 36/41 kB | 33/109 kB | 19/47 kBProgress (5): 49 kB | 38/55 kB | 38/41 kB | 33/109 kB | 19/47 kBProgress (5): 49 kB | 38/55 kB | 38/41 kB | 33/109 kB | 22/47 kBProgress (5): 49 kB | 38/55 kB | 38/41 kB | 33/109 kB | 25/47 kBProgress (5): 49 kB | 38/55 kB | 38/41 kB | 33/109 kB | 27/47 kBProgress (5): 49 kB | 41/55 kB | 38/41 kB | 33/109 kB | 27/47 kBProgress (5): 49 kB | 41/55 kB | 38/41 kB | 33/109 kB | 30/47 kBProgress (5): 49 kB | 44/55 kB | 38/41 kB | 33/109 kB | 30/47 kBProgress (5): 49 kB | 44/55 kB | 38/41 kB | 33/109 kB | 33/47 kBProgress (5): 49 kB | 47/55 kB | 38/41 kB | 33/109 kB | 33/47 kBProgress (5): 49 kB | 47/55 kB | 38/41 kB | 33/109 kB | 36/47 kBProgress (5): 49 kB | 49/55 kB | 38/41 kB | 33/109 kB | 36/47 kBProgress (5): 49 kB | 49/55 kB | 38/41 kB | 33/109 kB | 38/47 kBProgress (5): 49 kB | 52/55 kB | 38/41 kB | 33/109 kB | 38/47 kBProgress (5): 49 kB | 52/55 kB | 41 kB | 33/109 kB | 38/47 kB   Progress (5): 49 kB | 55/55 kB | 41 kB | 33/109 kB | 38/47 kBProgress (5): 49 kB | 55 kB | 41 kB | 33/109 kB | 38/47 kB   Progress (5): 49 kB | 55 kB | 41 kB | 37/109 kB | 38/47 kBProgress (5): 49 kB | 55 kB | 41 kB | 41/109 kB | 38/47 kBProgress (5): 49 kB | 55 kB | 41 kB | 45/109 kB | 38/47 kBProgress (5): 49 kB | 55 kB | 41 kB | 49/109 kB | 38/47 kBProgress (5): 49 kB | 55 kB | 41 kB | 53/109 kB | 38/47 kBProgress (5): 49 kB | 55 kB | 41 kB | 57/109 kB | 38/47 kBProgress (5): 49 kB | 55 kB | 41 kB | 61/109 kB | 38/47 kBProgress (5): 49 kB | 55 kB | 41 kB | 66/109 kB | 38/47 kBProgress (5): 49 kB | 55 kB | 41 kB | 66/109 kB | 41/47 kB                                                          Downloaded from central: https://repo.maven.apache.org/maven2/org/apache/maven/doxia/doxia-decoration-model/1.0/doxia-decoration-model-1.0.jar (49 kB at 742 kB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/apache/maven/doxia/doxia-module-apt/1.0/doxia-module-apt-1.0.jar
+Progress (4): 55 kB | 41 kB | 66/109 kB | 44/47 kBProgress (4): 55 kB | 41 kB | 66/109 kB | 47 kB   Progress (4): 55 kB | 41 kB | 70/109 kB | 47 kBProgress (4): 55 kB | 41 kB | 74/109 kB | 47 kBProgress (4): 55 kB | 41 kB | 78/109 kB | 47 kBProgress (4): 55 kB | 41 kB | 82/109 kB | 47 kBProgress (4): 55 kB | 41 kB | 86/109 kB | 47 kBProgress (4): 55 kB | 41 kB | 90/109 kB | 47 kBProgress (4): 55 kB | 41 kB | 94/109 kB | 47 kBProgress (4): 55 kB | 41 kB | 98/109 kB | 47 kBProgress (4): 55 kB | 41 kB | 102/109 kB | 47 kBProgress (4): 55 kB | 41 kB | 106/109 kB | 47 kBProgress (4): 55 kB | 41 kB | 109 kB | 47 kB                                                Downloaded from central: https://repo.maven.apache.org/maven2/org/apache/maven/doxia/doxia-core/1.0/doxia-core-1.0.jar (55 kB at 723 kB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/apache/maven/doxia/doxia-module-fml/1.0/doxia-module-fml-1.0.jar
+Downloaded from central: https://repo.maven.apache.org/maven2/org/apache/maven/shared/maven-doxia-tools/1.0.2/maven-doxia-tools-1.0.2.jar (41 kB at 541 kB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/apache/maven/doxia/doxia-module-xdoc/1.0/doxia-module-xdoc-1.0.jar
+Progress (3): 109 kB | 47 kB | 4.1/47 kBProgress (3): 109 kB | 47 kB | 8.2/47 kBProgress (3): 109 kB | 47 kB | 12/47 kB Progress (3): 109 kB | 47 kB | 16/47 kBProgress (3): 109 kB | 47 kB | 20/47 kBProgress (3): 109 kB | 47 kB | 25/47 kBProgress (3): 109 kB | 47 kB | 29/47 kB                                       Downloaded from central: https://repo.maven.apache.org/maven2/org/apache/maven/doxia/doxia-site-renderer/1.0/doxia-site-renderer-1.0.jar (47 kB at 574 kB/s)
+Progress (2): 109 kB | 33/47 kB                               Downloading from central: https://repo.maven.apache.org/maven2/org/apache/maven/doxia/doxia-module-xhtml/1.0/doxia-module-xhtml-1.0.jar
+Progress (2): 109 kB | 37/47 kBProgress (2): 109 kB | 41/47 kBProgress (2): 109 kB | 45/47 kBProgress (2): 109 kB | 47 kB                               Downloaded from central: https://repo.maven.apache.org/maven2/xml-apis/xml-apis/1.0.b2/xml-apis-1.0.b2.jar (109 kB at 1.3 MB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/codehaus/plexus/plexus-archiver/2.3/plexus-archiver-2.3.jar
+Progress (2): 47 kB | 2.7/19 kBProgress (2): 47 kB | 5.5/19 kBProgress (2): 47 kB | 8.2/19 kBProgress (2): 47 kB | 11/19 kB Progress (2): 47 kB | 14/19 kBProgress (2): 47 kB | 16/19 kBProgress (2): 47 kB | 19 kB   Progress (3): 47 kB | 19 kB | 4.1/28 kBProgress (3): 47 kB | 19 kB | 8.2/28 kBProgress (3): 47 kB | 19 kB | 12/28 kB Progress (3): 47 kB | 19 kB | 16/28 kBProgress (3): 47 kB | 19 kB | 20/28 kBProgress (3): 47 kB | 19 kB | 24/28 kBProgress (3): 47 kB | 19 kB | 28 kB                                      Downloaded from central: https://repo.maven.apache.org/maven2/org/apache/maven/doxia/doxia-module-apt/1.0/doxia-module-apt-1.0.jar (47 kB at 501 kB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/codehaus/plexus/plexus-utils/3.0.9/plexus-utils-3.0.9.jar
+Progress (3): 19 kB | 28 kB | 4.1/22 kBProgress (3): 19 kB | 28 kB | 8.2/22 kBProgress (3): 19 kB | 28 kB | 12/22 kB Progress (3): 19 kB | 28 kB | 16/22 kBProgress (3): 19 kB | 28 kB | 20/22 kBProgress (3): 19 kB | 28 kB | 22 kB   Progress (4): 19 kB | 28 kB | 22 kB | 4.1/186 kBProgress (4): 19 kB | 28 kB | 22 kB | 8.2/186 kBProgress (4): 19 kB | 28 kB | 22 kB | 12/186 kB Progress (4): 19 kB | 28 kB | 22 kB | 16/186 kBProgress (4): 19 kB | 28 kB | 22 kB | 20/186 kBProgress (4): 19 kB | 28 kB | 22 kB | 24/186 kBProgress (4): 19 kB | 28 kB | 22 kB | 28/186 kBProgress (4): 19 kB | 28 kB | 22 kB | 32/186 kBProgress (4): 19 kB | 28 kB | 22 kB | 36/186 kBProgress (4): 19 kB | 28 kB | 22 kB | 40/186 kB                                               Downloaded from central: https://repo.maven.apache.org/maven2/org/apache/maven/doxia/doxia-module-xdoc/1.0/doxia-module-xdoc-1.0.jar (28 kB at 260 kB/s)
+Progress (3): 19 kB | 22 kB | 45/186 kB                                       Downloading from central: https://repo.maven.apache.org/maven2/org/codehaus/plexus/plexus-io/2.0.6/plexus-io-2.0.6.jar
+Downloaded from central: https://repo.maven.apache.org/maven2/org/apache/maven/doxia/doxia-module-fml/1.0/doxia-module-fml-1.0.jar (19 kB at 172 kB/s)
+Progress (2): 22 kB | 49/186 kB                               Downloading from central: https://repo.maven.apache.org/maven2/org/apache/maven/shared/maven-dependency-analyzer/1.4/maven-dependency-analyzer-1.4.jar
+Progress (2): 22 kB | 53/186 kBProgress (2): 22 kB | 57/186 kBProgress (2): 22 kB | 61/186 kBProgress (2): 22 kB | 65/186 kBProgress (2): 22 kB | 69/186 kBProgress (2): 22 kB | 73/186 kBProgress (2): 22 kB | 77/186 kBProgress (2): 22 kB | 81/186 kBProgress (2): 22 kB | 85/186 kBProgress (2): 22 kB | 90/186 kBProgress (2): 22 kB | 94/186 kBProgress (2): 22 kB | 98/186 kBProgress (2): 22 kB | 102/186 kBProgress (2): 22 kB | 106/186 kBProgress (2): 22 kB | 110/186 kBProgress (2): 22 kB | 114/186 kBProgress (2): 22 kB | 118/186 kBProgress (2): 22 kB | 122/186 kBProgress (2): 22 kB | 126/186 kBProgress (2): 22 kB | 131/186 kBProgress (3): 22 kB | 131/186 kB | 4.1/232 kBProgress (3): 22 kB | 131/186 kB | 8.2/232 kBProgress (3): 22 kB | 131/186 kB | 12/232 kB Progress (3): 22 kB | 131/186 kB | 16/232 kB                                            Downloaded from central: https://repo.maven.apache.org/maven2/org/apache/maven/doxia/doxia-module-xhtml/1.0/doxia-module-xhtml-1.0.jar (22 kB at 193 kB/s)
+Progress (2): 131/186 kB | 20/232 kBProgress (2): 131/186 kB | 25/232 kB                                    Downloading from central: https://repo.maven.apache.org/maven2/org/apache/maven/shared/maven-dependency-tree/2.1/maven-dependency-tree-2.1.jar
+Progress (2): 131/186 kB | 29/232 kBProgress (2): 131/186 kB | 33/232 kBProgress (2): 131/186 kB | 37/232 kBProgress (2): 131/186 kB | 41/232 kBProgress (2): 131/186 kB | 45/232 kBProgress (2): 131/186 kB | 49/232 kBProgress (2): 131/186 kB | 53/232 kBProgress (2): 131/186 kB | 57/232 kBProgress (2): 131/186 kB | 61/232 kBProgress (2): 131/186 kB | 66/232 kBProgress (2): 131/186 kB | 70/232 kBProgress (2): 131/186 kB | 74/232 kBProgress (2): 131/186 kB | 78/232 kBProgress (2): 131/186 kB | 82/232 kBProgress (2): 131/186 kB | 86/232 kBProgress (2): 131/186 kB | 90/232 kBProgress (2): 131/186 kB | 94/232 kBProgress (2): 131/186 kB | 98/232 kBProgress (2): 131/186 kB | 102/232 kBProgress (2): 131/186 kB | 106/232 kBProgress (2): 131/186 kB | 111/232 kBProgress (2): 131/186 kB | 115/232 kBProgress (2): 131/186 kB | 119/232 kBProgress (2): 131/186 kB | 123/232 kBProgress (2): 131/186 kB | 127/232 kBProgress (2): 131/186 kB | 131/232 kBProgress (2): 135/186 kB | 131/232 kBProgress (2): 139/186 kB | 131/232 kBProgress (2): 143/186 kB | 131/232 kBProgress (2): 147/186 kB | 131/232 kBProgress (2): 151/186 kB | 131/232 kBProgress (2): 155/186 kB | 131/232 kBProgress (2): 159/186 kB | 131/232 kBProgress (2): 163/186 kB | 131/232 kBProgress (2): 167/186 kB | 131/232 kBProgress (2): 171/186 kB | 131/232 kBProgress (2): 176/186 kB | 131/232 kBProgress (2): 180/186 kB | 131/232 kBProgress (2): 180/186 kB | 135/232 kBProgress (2): 184/186 kB | 135/232 kBProgress (2): 184/186 kB | 139/232 kBProgress (2): 184/186 kB | 143/232 kBProgress (2): 186 kB | 143/232 kB    Progress (2): 186 kB | 147/232 kBProgress (2): 186 kB | 152/232 kBProgress (2): 186 kB | 156/232 kBProgress (2): 186 kB | 160/232 kBProgress (2): 186 kB | 164/232 kBProgress (2): 186 kB | 168/232 kBProgress (2): 186 kB | 172/232 kBProgress (2): 186 kB | 176/232 kBProgress (2): 186 kB | 180/232 kBProgress (2): 186 kB | 184/232 kBProgress (2): 186 kB | 188/232 kBProgress (2): 186 kB | 193/232 kBProgress (2): 186 kB | 197/232 kBProgress (3): 186 kB | 197/232 kB | 4.1/58 kBProgress (3): 186 kB | 197/232 kB | 8.2/58 kBProgress (3): 186 kB | 197/232 kB | 12/58 kB Progress (3): 186 kB | 197/232 kB | 16/58 kBProgress (3): 186 kB | 201/232 kB | 16/58 kBProgress (3): 186 kB | 205/232 kB | 16/58 kBProgress (3): 186 kB | 209/232 kB | 16/58 kBProgress (3): 186 kB | 213/232 kB | 16/58 kBProgress (4): 186 kB | 213/232 kB | 16/58 kB | 4.1/27 kBProgress (4): 186 kB | 213/232 kB | 16/58 kB | 8.2/27 kBProgress (4): 186 kB | 213/232 kB | 16/58 kB | 12/27 kB Progress (4): 186 kB | 213/232 kB | 16/58 kB | 16/27 kBProgress (4): 186 kB | 217/232 kB | 16/58 kB | 16/27 kBProgress (4): 186 kB | 221/232 kB | 16/58 kB | 16/27 kBProgress (4): 186 kB | 225/232 kB | 16/58 kB | 16/27 kBProgress (4): 186 kB | 229/232 kB | 16/58 kB | 16/27 kBProgress (4): 186 kB | 232 kB | 16/58 kB | 16/27 kB    Progress (4): 186 kB | 232 kB | 20/58 kB | 16/27 kBProgress (4): 186 kB | 232 kB | 20/58 kB | 20/27 kBProgress (4): 186 kB | 232 kB | 25/58 kB | 20/27 kBProgress (4): 186 kB | 232 kB | 25/58 kB | 24/27 kBProgress (4): 186 kB | 232 kB | 29/58 kB | 24/27 kBProgress (4): 186 kB | 232 kB | 33/58 kB | 24/27 kBProgress (4): 186 kB | 232 kB | 33/58 kB | 27 kB   Progress (5): 186 kB | 232 kB | 33/58 kB | 27 kB | 4.1/60 kBProgress (5): 186 kB | 232 kB | 33/58 kB | 27 kB | 8.2/60 kBProgress (5): 186 kB | 232 kB | 33/58 kB | 27 kB | 12/60 kB Progress (5): 186 kB | 232 kB | 33/58 kB | 27 kB | 16/60 kBProgress (5): 186 kB | 232 kB | 33/58 kB | 27 kB | 20/60 kBProgress (5): 186 kB | 232 kB | 33/58 kB | 27 kB | 25/60 kBProgress (5): 186 kB | 232 kB | 33/58 kB | 27 kB | 29/60 kBProgress (5): 186 kB | 232 kB | 33/58 kB | 27 kB | 33/60 kBProgress (5): 186 kB | 232 kB | 33/58 kB | 27 kB | 37/60 kBProgress (5): 186 kB | 232 kB | 33/58 kB | 27 kB | 41/60 kBProgress (5): 186 kB | 232 kB | 33/58 kB | 27 kB | 45/60 kBProgress (5): 186 kB | 232 kB | 33/58 kB | 27 kB | 49/60 kBProgress (5): 186 kB | 232 kB | 33/58 kB | 27 kB | 53/60 kBProgress (5): 186 kB | 232 kB | 37/58 kB | 27 kB | 53/60 kBProgress (5): 186 kB | 232 kB | 37/58 kB | 27 kB | 57/60 kBProgress (5): 186 kB | 232 kB | 41/58 kB | 27 kB | 57/60 kBProgress (5): 186 kB | 232 kB | 41/58 kB | 27 kB | 60 kB   Progress (5): 186 kB | 232 kB | 45/58 kB | 27 kB | 60 kBProgress (5): 186 kB | 232 kB | 49/58 kB | 27 kB | 60 kBProgress (5): 186 kB | 232 kB | 53/58 kB | 27 kB | 60 kBProgress (5): 186 kB | 232 kB | 57/58 kB | 27 kB | 60 kBProgress (5): 186 kB | 232 kB | 58 kB | 27 kB | 60 kB                                                        Downloaded from central: https://repo.maven.apache.org/maven2/org/codehaus/plexus/plexus-archiver/2.3/plexus-archiver-2.3.jar (186 kB at 1.3 MB/s)
+Downloading from central: https://repo.maven.apache.org/maven2/org/apache/maven/shared/maven-invoker/2.0.11/maven-invoker-2.0.11.jar
+Downloaded from central: https://repo.maven.apache.org/maven2/org/codehaus/plexus/plexus-utils/3.0.9/plexus-utils-3.0.9.jar (232 kB at 1.6 MB/s)
+Downloaded from central: https://repo.maven.apache.org/maven2/org/apache/maven/shared/maven-dependency-analyzer/1.4/maven-dependency-analyzer-1.4.jar (27 kB at 183 kB/s)
+Downloaded from central: https://repo.maven.apache.org/maven2/org/codehaus/plexus/plexus-io/2.0.6/plexus-io-2.0.6.jar (58 kB at 374 kB/s)
+Downloaded from central: https://repo.maven.apache.org/maven2/org/apache/maven/shared/maven-dependency-tree/2.1/maven-dependency-tree-2.1.jar (60 kB at 387 kB/s)
+Progress (1): 4.1/29 kBProgress (1): 8.2/29 kBProgress (1): 12/29 kB Progress (1): 16/29 kBProgress (1): 20/29 kBProgress (1): 24/29 kBProgress (1): 28/29 kBProgress (1): 29 kB                      Downloaded from central: https://repo.maven.apache.org/maven2/org/apache/maven/shared/maven-invoker/2.0.11/maven-invoker-2.0.11.jar (29 kB at 167 kB/s)
+[INFO] io.ebean:ebean-parent:pom:13.6.4-SNAPSHOT
+[INFO] +- org.slf4j:slf4j-api:jar:1.7.36:provided
+[INFO] +- ch.qos.logback:logback-classic:jar:1.2.11:test
+[INFO] |  \- ch.qos.logback:logback-core:jar:1.2.11:test
+[INFO] \- com.h2database:h2:jar:2.1.212:test
+[INFO] 
+[INFO] -------------------------< io.ebean:ebean-api >-------------------------
+[INFO] Building ebean api 13.6.4-SNAPSHOT                                [2/49]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-dependency-plugin:2.8:tree (default-cli) @ ebean-api ---
+[INFO] io.ebean:ebean-api:jar:13.6.4-SNAPSHOT
+[INFO] +- org.slf4j:slf4j-api:jar:1.7.36:provided
+[INFO] +- io.avaje:avaje-config:jar:2.0:compile
+[INFO] +- io.avaje:avaje-lang:jar:1.0:compile
+[INFO] +- io.ebean:persistence-api:jar:2.2.5:compile
+[INFO] +- io.ebean:ebean-annotation:jar:8.0:compile
+[INFO] +- io.ebean:ebean-types:jar:2.2:compile
+[INFO] +- io.ebean:ebean-datasource-api:jar:8.0:compile
+[INFO] +- com.fasterxml.jackson.core:jackson-core:jar:2.13.2:compile
+[INFO] +- com.fasterxml.jackson.core:jackson-databind:jar:2.13.2:compile
+[INFO] |  \- com.fasterxml.jackson.core:jackson-annotations:jar:2.13.2:compile
+[INFO] +- javax.transaction:jta:jar:1.1:compile
+[INFO] +- javax.servlet:javax.servlet-api:jar:3.1.0:compile
+[INFO] +- io.avaje:junit:jar:1.1:test
+[INFO] |  +- org.junit.jupiter:junit-jupiter-api:jar:5.8.2:test
+[INFO] |  |  +- org.opentest4j:opentest4j:jar:1.2.0:test
+[INFO] |  |  +- org.junit.platform:junit-platform-commons:jar:1.8.2:test
+[INFO] |  |  \- org.apiguardian:apiguardian-api:jar:1.1.2:test
+[INFO] |  +- org.junit.jupiter:junit-jupiter-engine:jar:5.8.2:test
+[INFO] |  |  \- org.junit.platform:junit-platform-engine:jar:1.8.2:test
+[INFO] |  +- org.assertj:assertj-core:jar:3.22.0:test
+[INFO] |  \- org.mockito:mockito-core:jar:4.4.0:test
+[INFO] |     +- net.bytebuddy:byte-buddy:jar:1.12.8:test
+[INFO] |     +- net.bytebuddy:byte-buddy-agent:jar:1.12.8:test
+[INFO] |     \- org.objenesis:objenesis:jar:3.2:test
+[INFO] +- ch.qos.logback:logback-classic:jar:1.2.11:test
+[INFO] |  \- ch.qos.logback:logback-core:jar:1.2.11:test
+[INFO] \- com.h2database:h2:jar:2.1.212:test
+[INFO] 
+[INFO] -------------------------< io.ebean:ebean-bom >-------------------------
+[INFO] Building ebean bom 13.6.4-SNAPSHOT                                [3/49]
+[INFO] --------------------------------[ pom ]---------------------------------
+[INFO] 
+[INFO] --- maven-dependency-plugin:2.8:tree (default-cli) @ ebean-bom ---
+[INFO] io.ebean:ebean-bom:pom:13.6.4-SNAPSHOT
+[INFO] +- org.slf4j:slf4j-api:jar:1.7.36:provided
+[INFO] +- ch.qos.logback:logback-classic:jar:1.2.11:test
+[INFO] |  \- ch.qos.logback:logback-core:jar:1.2.11:test
+[INFO] \- com.h2database:h2:jar:2.1.212:test
+[INFO] 
+[INFO] ----------------------< io.ebean:ebean-core-type >----------------------
+[INFO] Building ebean core type 13.6.4-SNAPSHOT                          [4/49]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-dependency-plugin:2.8:tree (default-cli) @ ebean-core-type ---
+[INFO] io.ebean:ebean-core-type:jar:13.6.4-SNAPSHOT
+[INFO] +- io.ebean:ebean-api:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  +- io.avaje:avaje-config:jar:2.0:compile
+[INFO] |  +- io.avaje:avaje-lang:jar:1.0:compile
+[INFO] |  +- io.ebean:persistence-api:jar:2.2.5:compile
+[INFO] |  +- io.ebean:ebean-annotation:jar:8.0:compile
+[INFO] |  +- io.ebean:ebean-types:jar:2.2:compile
+[INFO] |  \- io.ebean:ebean-datasource-api:jar:8.0:compile
+[INFO] +- com.fasterxml.jackson.core:jackson-core:jar:2.13.2:compile
+[INFO] +- org.slf4j:slf4j-api:jar:1.7.36:provided
+[INFO] +- ch.qos.logback:logback-classic:jar:1.2.11:test
+[INFO] |  \- ch.qos.logback:logback-core:jar:1.2.11:test
+[INFO] \- com.h2database:h2:jar:2.1.212:test
+[INFO] 
+[INFO] -----------------< io.ebean:ebean-externalmapping-api >-----------------
+[INFO] Building ebean external mapping api 13.6.4-SNAPSHOT               [5/49]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-dependency-plugin:2.8:tree (default-cli) @ ebean-externalmapping-api ---
+[INFO] io.ebean:ebean-externalmapping-api:jar:13.6.4-SNAPSHOT
+[INFO] +- org.slf4j:slf4j-api:jar:1.7.36:provided
+[INFO] +- ch.qos.logback:logback-classic:jar:1.2.11:test
+[INFO] |  \- ch.qos.logback:logback-core:jar:1.2.11:test
+[INFO] \- com.h2database:h2:jar:2.1.212:test
+[INFO] 
+[INFO] -------------------------< io.ebean:platforms >-------------------------
+[INFO] Building platforms 13.6.4-SNAPSHOT                                [6/49]
+[INFO] --------------------------------[ pom ]---------------------------------
+[INFO] 
+[INFO] --- maven-dependency-plugin:2.8:tree (default-cli) @ platforms ---
+[INFO] io.ebean:platforms:pom:13.6.4-SNAPSHOT
+[INFO] +- org.slf4j:slf4j-api:jar:1.7.36:provided
+[INFO] +- ch.qos.logback:logback-classic:jar:1.2.11:test
+[INFO] |  \- ch.qos.logback:logback-core:jar:1.2.11:test
+[INFO] \- com.h2database:h2:jar:2.1.212:test
+[INFO] 
+[INFO] ---------------------< io.ebean:ebean-platform-h2 >---------------------
+[INFO] Building ebean-platform-h2 13.6.4-SNAPSHOT                        [7/49]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-dependency-plugin:2.8:tree (default-cli) @ ebean-platform-h2 ---
+[INFO] io.ebean:ebean-platform-h2:jar:13.6.4-SNAPSHOT
+[INFO] +- io.ebean:ebean-api:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  +- io.avaje:avaje-config:jar:2.0:compile
+[INFO] |  +- io.avaje:avaje-lang:jar:1.0:compile
+[INFO] |  +- io.ebean:persistence-api:jar:2.2.5:compile
+[INFO] |  +- io.ebean:ebean-annotation:jar:8.0:compile
+[INFO] |  +- io.ebean:ebean-types:jar:2.2:compile
+[INFO] |  \- io.ebean:ebean-datasource-api:jar:8.0:compile
+[INFO] +- com.h2database:h2:jar:2.1.212:compile
+[INFO] +- io.avaje:junit:jar:1.1:test
+[INFO] |  +- org.junit.jupiter:junit-jupiter-api:jar:5.8.2:test
+[INFO] |  |  +- org.opentest4j:opentest4j:jar:1.2.0:test
+[INFO] |  |  +- org.junit.platform:junit-platform-commons:jar:1.8.2:test
+[INFO] |  |  \- org.apiguardian:apiguardian-api:jar:1.1.2:test
+[INFO] |  +- org.junit.jupiter:junit-jupiter-engine:jar:5.8.2:test
+[INFO] |  |  \- org.junit.platform:junit-platform-engine:jar:1.8.2:test
+[INFO] |  +- org.assertj:assertj-core:jar:3.22.0:test
+[INFO] |  \- org.mockito:mockito-core:jar:4.4.0:test
+[INFO] |     +- net.bytebuddy:byte-buddy:jar:1.12.8:test
+[INFO] |     +- net.bytebuddy:byte-buddy-agent:jar:1.12.8:test
+[INFO] |     \- org.objenesis:objenesis:jar:3.2:test
+[INFO] +- org.slf4j:slf4j-api:jar:1.7.36:provided
+[INFO] \- ch.qos.logback:logback-classic:jar:1.2.11:test
+[INFO]    \- ch.qos.logback:logback-core:jar:1.2.11:test
+[INFO] 
+[INFO] ------------------< io.ebean:ebean-platform-postgres >------------------
+[INFO] Building ebean-platform-postgres 13.6.4-SNAPSHOT                  [8/49]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-dependency-plugin:2.8:tree (default-cli) @ ebean-platform-postgres ---
+[INFO] io.ebean:ebean-platform-postgres:jar:13.6.4-SNAPSHOT
+[INFO] +- io.ebean:ebean-api:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  +- io.avaje:avaje-config:jar:2.0:compile
+[INFO] |  +- io.avaje:avaje-lang:jar:1.0:compile
+[INFO] |  +- io.ebean:persistence-api:jar:2.2.5:compile
+[INFO] |  +- io.ebean:ebean-annotation:jar:8.0:compile
+[INFO] |  +- io.ebean:ebean-types:jar:2.2:compile
+[INFO] |  \- io.ebean:ebean-datasource-api:jar:8.0:compile
+[INFO] +- io.avaje:junit:jar:1.1:test
+[INFO] |  +- org.junit.jupiter:junit-jupiter-api:jar:5.8.2:test
+[INFO] |  |  +- org.opentest4j:opentest4j:jar:1.2.0:test
+[INFO] |  |  +- org.junit.platform:junit-platform-commons:jar:1.8.2:test
+[INFO] |  |  \- org.apiguardian:apiguardian-api:jar:1.1.2:test
+[INFO] |  +- org.junit.jupiter:junit-jupiter-engine:jar:5.8.2:test
+[INFO] |  |  \- org.junit.platform:junit-platform-engine:jar:1.8.2:test
+[INFO] |  +- org.assertj:assertj-core:jar:3.22.0:test
+[INFO] |  \- org.mockito:mockito-core:jar:4.4.0:test
+[INFO] |     +- net.bytebuddy:byte-buddy:jar:1.12.8:test
+[INFO] |     +- net.bytebuddy:byte-buddy-agent:jar:1.12.8:test
+[INFO] |     \- org.objenesis:objenesis:jar:3.2:test
+[INFO] +- org.slf4j:slf4j-api:jar:1.7.36:provided
+[INFO] +- ch.qos.logback:logback-classic:jar:1.2.11:test
+[INFO] |  \- ch.qos.logback:logback-core:jar:1.2.11:test
+[INFO] \- com.h2database:h2:jar:2.1.212:test
+[INFO] 
+[INFO] -----------------< io.ebean:ebean-platform-sqlserver >------------------
+[INFO] Building ebean-platform-sqlserver 13.6.4-SNAPSHOT                 [9/49]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-dependency-plugin:2.8:tree (default-cli) @ ebean-platform-sqlserver ---
+[INFO] io.ebean:ebean-platform-sqlserver:jar:13.6.4-SNAPSHOT
+[INFO] +- io.ebean:ebean-api:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  +- io.avaje:avaje-config:jar:2.0:compile
+[INFO] |  +- io.avaje:avaje-lang:jar:1.0:compile
+[INFO] |  +- io.ebean:persistence-api:jar:2.2.5:compile
+[INFO] |  +- io.ebean:ebean-annotation:jar:8.0:compile
+[INFO] |  +- io.ebean:ebean-types:jar:2.2:compile
+[INFO] |  \- io.ebean:ebean-datasource-api:jar:8.0:compile
+[INFO] +- io.avaje:junit:jar:1.1:test
+[INFO] |  +- org.junit.jupiter:junit-jupiter-api:jar:5.8.2:test
+[INFO] |  |  +- org.opentest4j:opentest4j:jar:1.2.0:test
+[INFO] |  |  +- org.junit.platform:junit-platform-commons:jar:1.8.2:test
+[INFO] |  |  \- org.apiguardian:apiguardian-api:jar:1.1.2:test
+[INFO] |  +- org.junit.jupiter:junit-jupiter-engine:jar:5.8.2:test
+[INFO] |  |  \- org.junit.platform:junit-platform-engine:jar:1.8.2:test
+[INFO] |  +- org.assertj:assertj-core:jar:3.22.0:test
+[INFO] |  \- org.mockito:mockito-core:jar:4.4.0:test
+[INFO] |     +- net.bytebuddy:byte-buddy:jar:1.12.8:test
+[INFO] |     +- net.bytebuddy:byte-buddy-agent:jar:1.12.8:test
+[INFO] |     \- org.objenesis:objenesis:jar:3.2:test
+[INFO] +- org.slf4j:slf4j-api:jar:1.7.36:provided
+[INFO] +- ch.qos.logback:logback-classic:jar:1.2.11:test
+[INFO] |  \- ch.qos.logback:logback-core:jar:1.2.11:test
+[INFO] \- com.h2database:h2:jar:2.1.212:test
+[INFO] 
+[INFO] ------------------------< io.ebean:ebean-core >-------------------------
+[INFO] Building ebean core 13.6.4-SNAPSHOT                              [10/49]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-dependency-plugin:2.8:tree (default-cli) @ ebean-core ---
+[INFO] io.ebean:ebean-core:jar:13.6.4-SNAPSHOT
+[INFO] +- io.ebean:ebean-ddl-runner:jar:2.0:compile
+[INFO] +- io.avaje:classpath-scanner:jar:7.1:compile
+[INFO] |  \- io.avaje:classpath-scanner-api:jar:7.1:compile
+[INFO] +- io.ebean:ebean-api:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  +- io.avaje:avaje-config:jar:2.0:compile
+[INFO] |  +- io.avaje:avaje-lang:jar:1.0:compile
+[INFO] |  +- io.ebean:persistence-api:jar:2.2.5:compile
+[INFO] |  +- io.ebean:ebean-annotation:jar:8.0:compile
+[INFO] |  +- io.ebean:ebean-types:jar:2.2:compile
+[INFO] |  \- io.ebean:ebean-datasource-api:jar:8.0:compile
+[INFO] +- io.ebean:ebean-core-type:jar:13.6.4-SNAPSHOT:compile
+[INFO] +- io.ebean:ebean-externalmapping-api:jar:13.6.4-SNAPSHOT:compile
+[INFO] +- org.antlr:antlr4-runtime:jar:4.8-1:compile
+[INFO] +- io.avaje:avaje-jsr305-x:jar:1.1:provided
+[INFO] +- com.h2database:h2:jar:2.1.212:provided
+[INFO] +- javax.transaction:javax.transaction-api:jar:1.3:compile
+[INFO] +- javax.validation:validation-api:jar:2.0.1.Final:compile
+[INFO] +- jakarta.validation:jakarta.validation-api:jar:3.0.0:compile
+[INFO] +- joda-time:joda-time:jar:2.9.7:compile
+[INFO] +- com.fasterxml.jackson.core:jackson-core:jar:2.13.2:compile
+[INFO] +- com.fasterxml.jackson.core:jackson-databind:jar:2.13.2:compile
+[INFO] |  \- com.fasterxml.jackson.core:jackson-annotations:jar:2.13.2:compile
+[INFO] +- org.postgresql:postgresql:jar:42.3.3:compile
+[INFO] |  \- org.checkerframework:checker-qual:jar:3.5.0:runtime
+[INFO] +- io.ebean:ebean-platform-h2:jar:13.6.4-SNAPSHOT:test
+[INFO] +- io.ebean:ebean-platform-postgres:jar:13.6.4-SNAPSHOT:test
+[INFO] +- io.ebean:ebean-platform-sqlserver:jar:13.6.4-SNAPSHOT:test
+[INFO] +- io.ebean:ebean-datasource:jar:8.0:test
+[INFO] +- io.avaje:junit:jar:1.1:test
+[INFO] |  +- org.junit.jupiter:junit-jupiter-api:jar:5.8.2:test
+[INFO] |  |  +- org.opentest4j:opentest4j:jar:1.2.0:test
+[INFO] |  |  +- org.junit.platform:junit-platform-commons:jar:1.8.2:test
+[INFO] |  |  \- org.apiguardian:apiguardian-api:jar:1.1.2:test
+[INFO] |  +- org.junit.jupiter:junit-jupiter-engine:jar:5.8.2:test
+[INFO] |  |  \- org.junit.platform:junit-platform-engine:jar:1.8.2:test
+[INFO] |  +- org.assertj:assertj-core:jar:3.22.0:test
+[INFO] |  \- org.mockito:mockito-core:jar:4.4.0:test
+[INFO] |     +- net.bytebuddy:byte-buddy:jar:1.12.8:test
+[INFO] |     +- net.bytebuddy:byte-buddy-agent:jar:1.12.8:test
+[INFO] |     \- org.objenesis:objenesis:jar:3.2:test
+[INFO] +- org.slf4j:slf4j-api:jar:1.7.36:provided
+[INFO] \- ch.qos.logback:logback-classic:jar:1.2.11:test
+[INFO]    \- ch.qos.logback:logback-core:jar:1.2.11:test
+[INFO] 
+[INFO] -----------------< io.ebean:ebean-dbmigration-runner >------------------
+[INFO] Building ebean dbmigration runner 13.6.4-SNAPSHOT                [11/49]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-dependency-plugin:2.8:tree (default-cli) @ ebean-dbmigration-runner ---
+[INFO] io.ebean:ebean-dbmigration-runner:jar:13.6.4-SNAPSHOT
+[INFO] +- io.ebean:ebean-migration-auto:jar:1.2:compile
+[INFO] +- io.ebean:ebean-annotation:jar:8.0:provided
+[INFO] +- io.ebean:ebean-core:jar:13.6.4-SNAPSHOT:provided
+[INFO] |  +- io.ebean:ebean-ddl-runner:jar:2.0:compile
+[INFO] |  +- io.avaje:classpath-scanner:jar:7.1:compile
+[INFO] |  |  \- io.avaje:classpath-scanner-api:jar:7.1:compile
+[INFO] |  +- io.ebean:ebean-api:jar:13.6.4-SNAPSHOT:provided
+[INFO] |  |  +- io.avaje:avaje-config:jar:2.0:provided
+[INFO] |  |  +- io.avaje:avaje-lang:jar:1.0:provided
+[INFO] |  |  +- io.ebean:persistence-api:jar:2.2.5:provided
+[INFO] |  |  +- io.ebean:ebean-types:jar:2.2:provided
+[INFO] |  |  \- io.ebean:ebean-datasource-api:jar:8.0:provided
+[INFO] |  +- io.ebean:ebean-core-type:jar:13.6.4-SNAPSHOT:provided
+[INFO] |  +- io.ebean:ebean-externalmapping-api:jar:13.6.4-SNAPSHOT:provided
+[INFO] |  \- org.antlr:antlr4-runtime:jar:4.8-1:provided
+[INFO] +- io.ebean:ebean-migration:jar:13.6.0:compile
+[INFO] +- org.slf4j:slf4j-api:jar:1.7.36:provided
+[INFO] +- ch.qos.logback:logback-classic:jar:1.2.11:test
+[INFO] |  \- ch.qos.logback:logback-core:jar:1.2.11:test
+[INFO] \- com.h2database:h2:jar:2.1.212:test
+[INFO] 
+[INFO] -----------------< io.ebean:ebean-platform-clickhouse >-----------------
+[INFO] Building ebean-platform-clickhouse 13.6.4-SNAPSHOT               [12/49]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-dependency-plugin:2.8:tree (default-cli) @ ebean-platform-clickhouse ---
+[INFO] io.ebean:ebean-platform-clickhouse:jar:13.6.4-SNAPSHOT
+[INFO] +- io.ebean:ebean-api:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  +- io.avaje:avaje-config:jar:2.0:compile
+[INFO] |  +- io.avaje:avaje-lang:jar:1.0:compile
+[INFO] |  +- io.ebean:persistence-api:jar:2.2.5:compile
+[INFO] |  +- io.ebean:ebean-annotation:jar:8.0:compile
+[INFO] |  +- io.ebean:ebean-types:jar:2.2:compile
+[INFO] |  \- io.ebean:ebean-datasource-api:jar:8.0:compile
+[INFO] +- org.slf4j:slf4j-api:jar:1.7.36:provided
+[INFO] +- ch.qos.logback:logback-classic:jar:1.2.11:test
+[INFO] |  \- ch.qos.logback:logback-core:jar:1.2.11:test
+[INFO] \- com.h2database:h2:jar:2.1.212:test
+[INFO] 
+[INFO] --------------------< io.ebean:ebean-platform-db2 >---------------------
+[INFO] Building ebean-platform-db2 13.6.4-SNAPSHOT                      [13/49]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-dependency-plugin:2.8:tree (default-cli) @ ebean-platform-db2 ---
+[INFO] io.ebean:ebean-platform-db2:jar:13.6.4-SNAPSHOT
+[INFO] +- io.ebean:ebean-api:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  +- io.avaje:avaje-config:jar:2.0:compile
+[INFO] |  +- io.avaje:avaje-lang:jar:1.0:compile
+[INFO] |  +- io.ebean:persistence-api:jar:2.2.5:compile
+[INFO] |  +- io.ebean:ebean-annotation:jar:8.0:compile
+[INFO] |  +- io.ebean:ebean-types:jar:2.2:compile
+[INFO] |  \- io.ebean:ebean-datasource-api:jar:8.0:compile
+[INFO] +- org.slf4j:slf4j-api:jar:1.7.36:provided
+[INFO] +- ch.qos.logback:logback-classic:jar:1.2.11:test
+[INFO] |  \- ch.qos.logback:logback-core:jar:1.2.11:test
+[INFO] \- com.h2database:h2:jar:2.1.212:test
+[INFO] 
+[INFO] --------------------< io.ebean:ebean-platform-hana >--------------------
+[INFO] Building ebean-platform-hana 13.6.4-SNAPSHOT                     [14/49]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-dependency-plugin:2.8:tree (default-cli) @ ebean-platform-hana ---
+[INFO] io.ebean:ebean-platform-hana:jar:13.6.4-SNAPSHOT
+[INFO] +- io.ebean:ebean-api:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  +- io.avaje:avaje-config:jar:2.0:compile
+[INFO] |  +- io.avaje:avaje-lang:jar:1.0:compile
+[INFO] |  +- io.ebean:persistence-api:jar:2.2.5:compile
+[INFO] |  +- io.ebean:ebean-annotation:jar:8.0:compile
+[INFO] |  +- io.ebean:ebean-types:jar:2.2:compile
+[INFO] |  \- io.ebean:ebean-datasource-api:jar:8.0:compile
+[INFO] +- org.slf4j:slf4j-api:jar:1.7.36:provided
+[INFO] +- ch.qos.logback:logback-classic:jar:1.2.11:test
+[INFO] |  \- ch.qos.logback:logback-core:jar:1.2.11:test
+[INFO] \- com.h2database:h2:jar:2.1.212:test
+[INFO] 
+[INFO] -------------------< io.ebean:ebean-platform-hsqldb >-------------------
+[INFO] Building ebean-platform-hsqldb 13.6.4-SNAPSHOT                   [15/49]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-dependency-plugin:2.8:tree (default-cli) @ ebean-platform-hsqldb ---
+[INFO] io.ebean:ebean-platform-hsqldb:jar:13.6.4-SNAPSHOT
+[INFO] +- io.ebean:ebean-platform-h2:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  \- io.ebean:ebean-api:jar:13.6.4-SNAPSHOT:compile
+[INFO] |     +- io.avaje:avaje-config:jar:2.0:compile
+[INFO] |     +- io.avaje:avaje-lang:jar:1.0:compile
+[INFO] |     +- io.ebean:persistence-api:jar:2.2.5:compile
+[INFO] |     +- io.ebean:ebean-annotation:jar:8.0:compile
+[INFO] |     +- io.ebean:ebean-types:jar:2.2:compile
+[INFO] |     \- io.ebean:ebean-datasource-api:jar:8.0:compile
+[INFO] +- org.slf4j:slf4j-api:jar:1.7.36:provided
+[INFO] +- ch.qos.logback:logback-classic:jar:1.2.11:test
+[INFO] |  \- ch.qos.logback:logback-core:jar:1.2.11:test
+[INFO] \- com.h2database:h2:jar:2.1.212:test
+[INFO] 
+[INFO] -------------------< io.ebean:ebean-platform-mysql >--------------------
+[INFO] Building ebean-platform-mysql 13.6.4-SNAPSHOT                    [16/49]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-dependency-plugin:2.8:tree (default-cli) @ ebean-platform-mysql ---
+[INFO] io.ebean:ebean-platform-mysql:jar:13.6.4-SNAPSHOT
+[INFO] +- io.ebean:ebean-api:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  +- io.avaje:avaje-config:jar:2.0:compile
+[INFO] |  +- io.avaje:avaje-lang:jar:1.0:compile
+[INFO] |  +- io.ebean:persistence-api:jar:2.2.5:compile
+[INFO] |  +- io.ebean:ebean-annotation:jar:8.0:compile
+[INFO] |  +- io.ebean:ebean-types:jar:2.2:compile
+[INFO] |  \- io.ebean:ebean-datasource-api:jar:8.0:compile
+[INFO] +- io.avaje:junit:jar:1.1:test
+[INFO] |  +- org.junit.jupiter:junit-jupiter-api:jar:5.8.2:test
+[INFO] |  |  +- org.opentest4j:opentest4j:jar:1.2.0:test
+[INFO] |  |  +- org.junit.platform:junit-platform-commons:jar:1.8.2:test
+[INFO] |  |  \- org.apiguardian:apiguardian-api:jar:1.1.2:test
+[INFO] |  +- org.junit.jupiter:junit-jupiter-engine:jar:5.8.2:test
+[INFO] |  |  \- org.junit.platform:junit-platform-engine:jar:1.8.2:test
+[INFO] |  +- org.assertj:assertj-core:jar:3.22.0:test
+[INFO] |  \- org.mockito:mockito-core:jar:4.4.0:test
+[INFO] |     +- net.bytebuddy:byte-buddy:jar:1.12.8:test
+[INFO] |     +- net.bytebuddy:byte-buddy-agent:jar:1.12.8:test
+[INFO] |     \- org.objenesis:objenesis:jar:3.2:test
+[INFO] +- org.slf4j:slf4j-api:jar:1.7.36:provided
+[INFO] +- ch.qos.logback:logback-classic:jar:1.2.11:test
+[INFO] |  \- ch.qos.logback:logback-core:jar:1.2.11:test
+[INFO] \- com.h2database:h2:jar:2.1.212:test
+[INFO] 
+[INFO] ------------------< io.ebean:ebean-platform-mariadb >-------------------
+[INFO] Building ebean-platform-mariadb 13.6.4-SNAPSHOT                  [17/49]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-dependency-plugin:2.8:tree (default-cli) @ ebean-platform-mariadb ---
+[INFO] io.ebean:ebean-platform-mariadb:jar:13.6.4-SNAPSHOT
+[INFO] +- io.ebean:ebean-api:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  +- io.avaje:avaje-config:jar:2.0:compile
+[INFO] |  +- io.avaje:avaje-lang:jar:1.0:compile
+[INFO] |  +- io.ebean:persistence-api:jar:2.2.5:compile
+[INFO] |  +- io.ebean:ebean-annotation:jar:8.0:compile
+[INFO] |  +- io.ebean:ebean-types:jar:2.2:compile
+[INFO] |  \- io.ebean:ebean-datasource-api:jar:8.0:compile
+[INFO] +- io.ebean:ebean-platform-mysql:jar:13.6.4-SNAPSHOT:compile
+[INFO] +- org.slf4j:slf4j-api:jar:1.7.36:provided
+[INFO] +- ch.qos.logback:logback-classic:jar:1.2.11:test
+[INFO] |  \- ch.qos.logback:logback-core:jar:1.2.11:test
+[INFO] \- com.h2database:h2:jar:2.1.212:test
+[INFO] 
+[INFO] -------------------< io.ebean:ebean-platform-nuodb >--------------------
+[INFO] Building ebean-platform-nuodb 13.6.4-SNAPSHOT                    [18/49]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-dependency-plugin:2.8:tree (default-cli) @ ebean-platform-nuodb ---
+[INFO] io.ebean:ebean-platform-nuodb:jar:13.6.4-SNAPSHOT
+[INFO] +- io.ebean:ebean-api:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  +- io.avaje:avaje-config:jar:2.0:compile
+[INFO] |  +- io.avaje:avaje-lang:jar:1.0:compile
+[INFO] |  +- io.ebean:persistence-api:jar:2.2.5:compile
+[INFO] |  +- io.ebean:ebean-annotation:jar:8.0:compile
+[INFO] |  +- io.ebean:ebean-types:jar:2.2:compile
+[INFO] |  \- io.ebean:ebean-datasource-api:jar:8.0:compile
+[INFO] +- org.slf4j:slf4j-api:jar:1.7.36:provided
+[INFO] +- ch.qos.logback:logback-classic:jar:1.2.11:test
+[INFO] |  \- ch.qos.logback:logback-core:jar:1.2.11:test
+[INFO] \- com.h2database:h2:jar:2.1.212:test
+[INFO] 
+[INFO] -------------------< io.ebean:ebean-platform-oracle >-------------------
+[INFO] Building ebean-platform-oracle 13.6.4-SNAPSHOT                   [19/49]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-dependency-plugin:2.8:tree (default-cli) @ ebean-platform-oracle ---
+[INFO] io.ebean:ebean-platform-oracle:jar:13.6.4-SNAPSHOT
+[INFO] +- io.ebean:ebean-api:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  +- io.avaje:avaje-config:jar:2.0:compile
+[INFO] |  +- io.avaje:avaje-lang:jar:1.0:compile
+[INFO] |  +- io.ebean:persistence-api:jar:2.2.5:compile
+[INFO] |  +- io.ebean:ebean-annotation:jar:8.0:compile
+[INFO] |  +- io.ebean:ebean-types:jar:2.2:compile
+[INFO] |  \- io.ebean:ebean-datasource-api:jar:8.0:compile
+[INFO] +- io.avaje:junit:jar:1.1:test
+[INFO] |  +- org.junit.jupiter:junit-jupiter-api:jar:5.8.2:test
+[INFO] |  |  +- org.opentest4j:opentest4j:jar:1.2.0:test
+[INFO] |  |  +- org.junit.platform:junit-platform-commons:jar:1.8.2:test
+[INFO] |  |  \- org.apiguardian:apiguardian-api:jar:1.1.2:test
+[INFO] |  +- org.junit.jupiter:junit-jupiter-engine:jar:5.8.2:test
+[INFO] |  |  \- org.junit.platform:junit-platform-engine:jar:1.8.2:test
+[INFO] |  +- org.assertj:assertj-core:jar:3.22.0:test
+[INFO] |  \- org.mockito:mockito-core:jar:4.4.0:test
+[INFO] |     +- net.bytebuddy:byte-buddy:jar:1.12.8:test
+[INFO] |     +- net.bytebuddy:byte-buddy-agent:jar:1.12.8:test
+[INFO] |     \- org.objenesis:objenesis:jar:3.2:test
+[INFO] +- org.slf4j:slf4j-api:jar:1.7.36:provided
+[INFO] +- ch.qos.logback:logback-classic:jar:1.2.11:test
+[INFO] |  \- ch.qos.logback:logback-core:jar:1.2.11:test
+[INFO] \- com.h2database:h2:jar:2.1.212:test
+[INFO] 
+[INFO] ----------------< io.ebean:ebean-platform-sqlanywhere >-----------------
+[INFO] Building ebean-platform-sqlanywhere 13.6.4-SNAPSHOT              [20/49]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-dependency-plugin:2.8:tree (default-cli) @ ebean-platform-sqlanywhere ---
+[INFO] io.ebean:ebean-platform-sqlanywhere:jar:13.6.4-SNAPSHOT
+[INFO] +- io.ebean:ebean-api:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  +- io.avaje:avaje-config:jar:2.0:compile
+[INFO] |  +- io.avaje:avaje-lang:jar:1.0:compile
+[INFO] |  +- io.ebean:persistence-api:jar:2.2.5:compile
+[INFO] |  +- io.ebean:ebean-annotation:jar:8.0:compile
+[INFO] |  +- io.ebean:ebean-types:jar:2.2:compile
+[INFO] |  \- io.ebean:ebean-datasource-api:jar:8.0:compile
+[INFO] +- org.slf4j:slf4j-api:jar:1.7.36:provided
+[INFO] +- ch.qos.logback:logback-classic:jar:1.2.11:test
+[INFO] |  \- ch.qos.logback:logback-core:jar:1.2.11:test
+[INFO] \- com.h2database:h2:jar:2.1.212:test
+[INFO] 
+[INFO] -------------------< io.ebean:ebean-platform-sqlite >-------------------
+[INFO] Building ebean-platform-sqlite 13.6.4-SNAPSHOT                   [21/49]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-dependency-plugin:2.8:tree (default-cli) @ ebean-platform-sqlite ---
+[INFO] io.ebean:ebean-platform-sqlite:jar:13.6.4-SNAPSHOT
+[INFO] +- io.ebean:ebean-api:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  +- io.avaje:avaje-config:jar:2.0:compile
+[INFO] |  +- io.avaje:avaje-lang:jar:1.0:compile
+[INFO] |  +- io.ebean:persistence-api:jar:2.2.5:compile
+[INFO] |  +- io.ebean:ebean-annotation:jar:8.0:compile
+[INFO] |  +- io.ebean:ebean-types:jar:2.2:compile
+[INFO] |  \- io.ebean:ebean-datasource-api:jar:8.0:compile
+[INFO] +- org.slf4j:slf4j-api:jar:1.7.36:provided
+[INFO] +- ch.qos.logback:logback-classic:jar:1.2.11:test
+[INFO] |  \- ch.qos.logback:logback-core:jar:1.2.11:test
+[INFO] \- com.h2database:h2:jar:2.1.212:test
+[INFO] 
+[INFO] --------------------< io.ebean:ebean-platform-all >---------------------
+[INFO] Building ebean-platform-all 13.6.4-SNAPSHOT                      [22/49]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-dependency-plugin:2.8:tree (default-cli) @ ebean-platform-all ---
+[INFO] io.ebean:ebean-platform-all:jar:13.6.4-SNAPSHOT
+[INFO] +- io.ebean:ebean-platform-h2:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  \- io.ebean:ebean-api:jar:13.6.4-SNAPSHOT:compile
+[INFO] |     +- io.avaje:avaje-config:jar:2.0:compile
+[INFO] |     +- io.avaje:avaje-lang:jar:1.0:compile
+[INFO] |     +- io.ebean:persistence-api:jar:2.2.5:compile
+[INFO] |     +- io.ebean:ebean-annotation:jar:8.0:compile
+[INFO] |     +- io.ebean:ebean-types:jar:2.2:compile
+[INFO] |     \- io.ebean:ebean-datasource-api:jar:8.0:compile
+[INFO] +- io.ebean:ebean-platform-clickhouse:jar:13.6.4-SNAPSHOT:compile
+[INFO] +- io.ebean:ebean-platform-db2:jar:13.6.4-SNAPSHOT:compile
+[INFO] +- io.ebean:ebean-platform-hana:jar:13.6.4-SNAPSHOT:compile
+[INFO] +- io.ebean:ebean-platform-hsqldb:jar:13.6.4-SNAPSHOT:compile
+[INFO] +- io.ebean:ebean-platform-mysql:jar:13.6.4-SNAPSHOT:compile
+[INFO] +- io.ebean:ebean-platform-mariadb:jar:13.6.4-SNAPSHOT:compile
+[INFO] +- io.ebean:ebean-platform-nuodb:jar:13.6.4-SNAPSHOT:compile
+[INFO] +- io.ebean:ebean-platform-oracle:jar:13.6.4-SNAPSHOT:compile
+[INFO] +- io.ebean:ebean-platform-postgres:jar:13.6.4-SNAPSHOT:compile
+[INFO] +- io.ebean:ebean-platform-sqlanywhere:jar:13.6.4-SNAPSHOT:compile
+[INFO] +- io.ebean:ebean-platform-sqlite:jar:13.6.4-SNAPSHOT:compile
+[INFO] +- io.ebean:ebean-platform-sqlserver:jar:13.6.4-SNAPSHOT:compile
+[INFO] +- org.slf4j:slf4j-api:jar:1.7.36:provided
+[INFO] +- ch.qos.logback:logback-classic:jar:1.2.11:test
+[INFO] |  \- ch.qos.logback:logback-core:jar:1.2.11:test
+[INFO] \- com.h2database:h2:jar:2.1.212:test
+[INFO] 
+[INFO] --------------------< io.ebean:ebean-ddl-generator >--------------------
+[INFO] Building ebean ddl generation 13.6.4-SNAPSHOT                    [23/49]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-dependency-plugin:2.8:tree (default-cli) @ ebean-ddl-generator ---
+[INFO] io.ebean:ebean-ddl-generator:jar:13.6.4-SNAPSHOT
+[INFO] +- io.ebean:ebean-ddl-runner:jar:2.0:compile
+[INFO] +- io.ebean:ebean-migration:jar:13.6.0:compile
+[INFO] |  \- io.avaje:classpath-scanner:jar:7.1:compile
+[INFO] |     \- io.avaje:classpath-scanner-api:jar:7.1:compile
+[INFO] +- io.ebean:ebean-core-type:jar:13.6.4-SNAPSHOT:provided
+[INFO] |  \- io.ebean:ebean-api:jar:13.6.4-SNAPSHOT:provided
+[INFO] |     +- io.avaje:avaje-config:jar:2.0:provided
+[INFO] |     +- io.avaje:avaje-lang:jar:1.0:provided
+[INFO] |     +- io.ebean:persistence-api:jar:2.2.5:provided
+[INFO] |     +- io.ebean:ebean-annotation:jar:8.0:provided
+[INFO] |     \- io.ebean:ebean-types:jar:2.2:provided
+[INFO] +- io.ebean:ebean-core:jar:13.6.4-SNAPSHOT:provided
+[INFO] |  +- io.ebean:ebean-externalmapping-api:jar:13.6.4-SNAPSHOT:provided
+[INFO] |  \- org.antlr:antlr4-runtime:jar:4.8-1:provided
+[INFO] +- org.glassfish.jaxb:jaxb-runtime:jar:2.3.6:provided
+[INFO] |  +- jakarta.xml.bind:jakarta.xml.bind-api:jar:2.3.3:provided
+[INFO] |  +- org.glassfish.jaxb:txw2:jar:2.3.6:provided
+[INFO] |  +- com.sun.istack:istack-commons-runtime:jar:3.0.12:provided
+[INFO] |  \- com.sun.activation:jakarta.activation:jar:1.2.2:provided
+[INFO] +- io.avaje:junit:jar:1.1:test
+[INFO] |  +- org.junit.jupiter:junit-jupiter-api:jar:5.8.2:test
+[INFO] |  |  +- org.opentest4j:opentest4j:jar:1.2.0:test
+[INFO] |  |  +- org.junit.platform:junit-platform-commons:jar:1.8.2:test
+[INFO] |  |  \- org.apiguardian:apiguardian-api:jar:1.1.2:test
+[INFO] |  +- org.junit.jupiter:junit-jupiter-engine:jar:5.8.2:test
+[INFO] |  |  \- org.junit.platform:junit-platform-engine:jar:1.8.2:test
+[INFO] |  +- org.assertj:assertj-core:jar:3.22.0:test
+[INFO] |  \- org.mockito:mockito-core:jar:4.4.0:test
+[INFO] |     +- net.bytebuddy:byte-buddy:jar:1.12.8:test
+[INFO] |     +- net.bytebuddy:byte-buddy-agent:jar:1.12.8:test
+[INFO] |     \- org.objenesis:objenesis:jar:3.2:test
+[INFO] +- io.ebean:ebean-dbmigration-runner:jar:13.6.4-SNAPSHOT:test
+[INFO] |  \- io.ebean:ebean-migration-auto:jar:1.2:test
+[INFO] +- io.ebean:ebean-platform-all:jar:13.6.4-SNAPSHOT:test
+[INFO] |  +- io.ebean:ebean-platform-h2:jar:13.6.4-SNAPSHOT:test
+[INFO] |  +- io.ebean:ebean-platform-clickhouse:jar:13.6.4-SNAPSHOT:test
+[INFO] |  +- io.ebean:ebean-platform-db2:jar:13.6.4-SNAPSHOT:test
+[INFO] |  +- io.ebean:ebean-platform-hana:jar:13.6.4-SNAPSHOT:test
+[INFO] |  +- io.ebean:ebean-platform-hsqldb:jar:13.6.4-SNAPSHOT:test
+[INFO] |  +- io.ebean:ebean-platform-mysql:jar:13.6.4-SNAPSHOT:test
+[INFO] |  +- io.ebean:ebean-platform-mariadb:jar:13.6.4-SNAPSHOT:test
+[INFO] |  +- io.ebean:ebean-platform-nuodb:jar:13.6.4-SNAPSHOT:test
+[INFO] |  +- io.ebean:ebean-platform-oracle:jar:13.6.4-SNAPSHOT:test
+[INFO] |  +- io.ebean:ebean-platform-postgres:jar:13.6.4-SNAPSHOT:test
+[INFO] |  +- io.ebean:ebean-platform-sqlanywhere:jar:13.6.4-SNAPSHOT:test
+[INFO] |  +- io.ebean:ebean-platform-sqlite:jar:13.6.4-SNAPSHOT:test
+[INFO] |  \- io.ebean:ebean-platform-sqlserver:jar:13.6.4-SNAPSHOT:test
+[INFO] +- io.ebean:ebean-datasource:jar:8.0:test
+[INFO] |  \- io.ebean:ebean-datasource-api:jar:8.0:provided
+[INFO] +- javax.validation:validation-api:jar:2.0.1.Final:test
+[INFO] +- org.slf4j:slf4j-api:jar:1.7.36:provided
+[INFO] +- ch.qos.logback:logback-classic:jar:1.2.11:test
+[INFO] |  \- ch.qos.logback:logback-core:jar:1.2.11:test
+[INFO] \- com.h2database:h2:jar:2.1.212:test
+[INFO] 
+[INFO] ----------------------< io.ebean:ebean-autotune >-----------------------
+[INFO] Building ebean autotune 13.6.4-SNAPSHOT                          [24/49]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-dependency-plugin:2.8:tree (default-cli) @ ebean-autotune ---
+[INFO] io.ebean:ebean-autotune:jar:13.6.4-SNAPSHOT
+[INFO] +- io.ebean:ebean-core:jar:13.6.4-SNAPSHOT:provided
+[INFO] |  +- io.ebean:ebean-ddl-runner:jar:2.0:provided
+[INFO] |  +- io.avaje:classpath-scanner:jar:7.1:provided
+[INFO] |  |  \- io.avaje:classpath-scanner-api:jar:7.1:provided
+[INFO] |  +- io.ebean:ebean-api:jar:13.6.4-SNAPSHOT:provided
+[INFO] |  |  +- io.avaje:avaje-config:jar:2.0:provided
+[INFO] |  |  +- io.avaje:avaje-lang:jar:1.0:provided
+[INFO] |  |  +- io.ebean:persistence-api:jar:2.2.5:provided
+[INFO] |  |  +- io.ebean:ebean-annotation:jar:8.0:provided
+[INFO] |  |  \- io.ebean:ebean-types:jar:2.2:provided
+[INFO] |  +- io.ebean:ebean-core-type:jar:13.6.4-SNAPSHOT:provided
+[INFO] |  +- io.ebean:ebean-externalmapping-api:jar:13.6.4-SNAPSHOT:provided
+[INFO] |  \- org.antlr:antlr4-runtime:jar:4.8-1:provided
+[INFO] +- org.glassfish.jaxb:jaxb-runtime:jar:2.3.6:provided
+[INFO] |  +- jakarta.xml.bind:jakarta.xml.bind-api:jar:2.3.3:provided
+[INFO] |  +- org.glassfish.jaxb:txw2:jar:2.3.6:provided
+[INFO] |  +- com.sun.istack:istack-commons-runtime:jar:3.0.12:provided
+[INFO] |  \- com.sun.activation:jakarta.activation:jar:1.2.2:provided
+[INFO] +- io.ebean:ebean-datasource:jar:8.0:test
+[INFO] |  \- io.ebean:ebean-datasource-api:jar:8.0:provided
+[INFO] +- io.avaje:junit:jar:1.1:test
+[INFO] |  +- org.junit.jupiter:junit-jupiter-api:jar:5.8.2:test
+[INFO] |  |  +- org.opentest4j:opentest4j:jar:1.2.0:test
+[INFO] |  |  +- org.junit.platform:junit-platform-commons:jar:1.8.2:test
+[INFO] |  |  \- org.apiguardian:apiguardian-api:jar:1.1.2:test
+[INFO] |  +- org.junit.jupiter:junit-jupiter-engine:jar:5.8.2:test
+[INFO] |  |  \- org.junit.platform:junit-platform-engine:jar:1.8.2:test
+[INFO] |  +- org.assertj:assertj-core:jar:3.22.0:test
+[INFO] |  \- org.mockito:mockito-core:jar:4.4.0:test
+[INFO] |     +- net.bytebuddy:byte-buddy:jar:1.12.8:test
+[INFO] |     +- net.bytebuddy:byte-buddy-agent:jar:1.12.8:test
+[INFO] |     \- org.objenesis:objenesis:jar:3.2:test
+[INFO] +- io.ebean:ebean-platform-h2:jar:13.6.4-SNAPSHOT:test
+[INFO] +- org.slf4j:slf4j-api:jar:1.7.36:provided
+[INFO] +- ch.qos.logback:logback-classic:jar:1.2.11:test
+[INFO] |  \- ch.qos.logback:logback-core:jar:1.2.11:test
+[INFO] \- com.h2database:h2:jar:2.1.212:test
+[INFO] 
+[INFO] -----------------< io.ebean:ebean-externalmapping-xml >-----------------
+[INFO] Building ebean external mapping xml 13.6.4-SNAPSHOT              [25/49]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-dependency-plugin:2.8:tree (default-cli) @ ebean-externalmapping-xml ---
+[INFO] io.ebean:ebean-externalmapping-xml:jar:13.6.4-SNAPSHOT
+[INFO] +- org.slf4j:slf4j-api:jar:1.7.33:provided
+[INFO] +- io.ebean:ebean-externalmapping-api:jar:13.6.4-SNAPSHOT:compile
+[INFO] +- org.glassfish.jaxb:jaxb-runtime:jar:2.3.6:compile
+[INFO] |  +- jakarta.xml.bind:jakarta.xml.bind-api:jar:2.3.3:compile
+[INFO] |  +- org.glassfish.jaxb:txw2:jar:2.3.6:compile
+[INFO] |  +- com.sun.istack:istack-commons-runtime:jar:3.0.12:compile
+[INFO] |  \- com.sun.activation:jakarta.activation:jar:1.2.2:runtime
+[INFO] +- jakarta.activation:jakarta.activation-api:jar:1.2.1:provided
+[INFO] +- io.avaje:classpath-scanner:jar:7.1:compile
+[INFO] |  \- io.avaje:classpath-scanner-api:jar:7.1:compile
+[INFO] +- io.ebean:ebean-datasource:jar:8.0:test
+[INFO] |  \- io.ebean:ebean-datasource-api:jar:8.0:test
+[INFO] +- io.ebean:ebean-platform-h2:jar:13.6.4-SNAPSHOT:test
+[INFO] |  \- io.ebean:ebean-api:jar:13.6.4-SNAPSHOT:test
+[INFO] |     +- io.avaje:avaje-config:jar:2.0:test
+[INFO] |     +- io.avaje:avaje-lang:jar:1.0:test
+[INFO] |     +- io.ebean:persistence-api:jar:2.2.5:test
+[INFO] |     +- io.ebean:ebean-annotation:jar:8.0:test
+[INFO] |     \- io.ebean:ebean-types:jar:2.2:test
+[INFO] +- io.ebean:ebean-core:jar:13.6.4-SNAPSHOT:test
+[INFO] |  +- io.ebean:ebean-ddl-runner:jar:2.0:test
+[INFO] |  +- io.ebean:ebean-core-type:jar:13.6.4-SNAPSHOT:test
+[INFO] |  \- org.antlr:antlr4-runtime:jar:4.8-1:test
+[INFO] +- io.ebean:ebean-ddl-generator:jar:13.6.4-SNAPSHOT:test
+[INFO] |  \- io.ebean:ebean-migration:jar:13.6.0:test
+[INFO] +- io.avaje:junit:jar:1.1:test
+[INFO] |  +- org.junit.jupiter:junit-jupiter-api:jar:5.8.2:test
+[INFO] |  |  +- org.opentest4j:opentest4j:jar:1.2.0:test
+[INFO] |  |  +- org.junit.platform:junit-platform-commons:jar:1.8.2:test
+[INFO] |  |  \- org.apiguardian:apiguardian-api:jar:1.1.2:test
+[INFO] |  +- org.junit.jupiter:junit-jupiter-engine:jar:5.8.2:test
+[INFO] |  |  \- org.junit.platform:junit-platform-engine:jar:1.8.2:test
+[INFO] |  +- org.assertj:assertj-core:jar:3.22.0:test
+[INFO] |  \- org.mockito:mockito-core:jar:4.4.0:test
+[INFO] |     +- net.bytebuddy:byte-buddy:jar:1.12.8:test
+[INFO] |     +- net.bytebuddy:byte-buddy-agent:jar:1.12.8:test
+[INFO] |     \- org.objenesis:objenesis:jar:3.2:test
+[INFO] +- ch.qos.logback:logback-classic:jar:1.2.11:test
+[INFO] |  \- ch.qos.logback:logback-core:jar:1.2.11:test
+[INFO] \- com.h2database:h2:jar:2.1.212:test
+[INFO] 
+[INFO] ------------------------< io.ebean:ebean-test >-------------------------
+[INFO] Building ebean test 13.6.4-SNAPSHOT                              [26/49]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-dependency-plugin:2.8:tree (default-cli) @ ebean-test ---
+[INFO] io.ebean:ebean-test:jar:13.6.4-SNAPSHOT
+[INFO] +- org.slf4j:slf4j-api:jar:1.7.32:provided
+[INFO] +- io.ebean:ebean-datasource:jar:8.0:compile
+[INFO] |  \- io.ebean:ebean-datasource-api:jar:8.0:compile
+[INFO] +- io.ebean:ebean-platform-h2:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  \- io.ebean:ebean-api:jar:13.6.4-SNAPSHOT:compile
+[INFO] |     +- io.avaje:avaje-config:jar:2.0:compile
+[INFO] |     +- io.avaje:avaje-lang:jar:1.0:compile
+[INFO] |     +- io.ebean:persistence-api:jar:2.2.5:compile
+[INFO] |     +- io.ebean:ebean-annotation:jar:8.0:compile
+[INFO] |     \- io.ebean:ebean-types:jar:2.2:compile
+[INFO] +- io.ebean:ebean-core:jar:13.6.4-SNAPSHOT:provided
+[INFO] |  +- io.ebean:ebean-ddl-runner:jar:2.0:compile
+[INFO] |  +- io.avaje:classpath-scanner:jar:7.1:compile
+[INFO] |  |  \- io.avaje:classpath-scanner-api:jar:7.1:compile
+[INFO] |  +- io.ebean:ebean-core-type:jar:13.6.4-SNAPSHOT:provided
+[INFO] |  +- io.ebean:ebean-externalmapping-api:jar:13.6.4-SNAPSHOT:provided
+[INFO] |  \- org.antlr:antlr4-runtime:jar:4.8-1:provided
+[INFO] +- io.ebean:ebean-ddl-generator:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  \- io.ebean:ebean-migration:jar:13.6.0:compile
+[INFO] +- com.fasterxml.jackson.core:jackson-databind:jar:2.13.2:compile
+[INFO] |  +- com.fasterxml.jackson.core:jackson-annotations:jar:2.13.2:compile
+[INFO] |  \- com.fasterxml.jackson.core:jackson-core:jar:2.13.2:compile
+[INFO] +- com.fasterxml.jackson.datatype:jackson-datatype-jsr310:jar:2.13.2:compile
+[INFO] +- io.ebean:ebean-test-containers:jar:6.0:compile
+[INFO] +- org.assertj:assertj-core:jar:3.22.0:compile
+[INFO] +- org.glassfish.jaxb:jaxb-runtime:jar:2.3.6:compile
+[INFO] |  +- jakarta.xml.bind:jakarta.xml.bind-api:jar:2.3.3:compile
+[INFO] |  +- org.glassfish.jaxb:txw2:jar:2.3.6:compile
+[INFO] |  +- com.sun.istack:istack-commons-runtime:jar:3.0.12:compile
+[INFO] |  \- com.sun.activation:jakarta.activation:jar:1.2.2:runtime
+[INFO] +- jakarta.activation:jakarta.activation-api:jar:1.2.1:provided
+[INFO] +- com.h2database:h2:jar:2.1.212:compile
+[INFO] +- io.avaje:avaje-jsr305-x:jar:1.1:provided
+[INFO] +- io.ebean:ebean-platform-all:jar:13.6.4-SNAPSHOT:test
+[INFO] |  +- io.ebean:ebean-platform-clickhouse:jar:13.6.4-SNAPSHOT:test
+[INFO] |  +- io.ebean:ebean-platform-db2:jar:13.6.4-SNAPSHOT:test
+[INFO] |  +- io.ebean:ebean-platform-hana:jar:13.6.4-SNAPSHOT:test
+[INFO] |  +- io.ebean:ebean-platform-hsqldb:jar:13.6.4-SNAPSHOT:test
+[INFO] |  +- io.ebean:ebean-platform-mysql:jar:13.6.4-SNAPSHOT:test
+[INFO] |  +- io.ebean:ebean-platform-mariadb:jar:13.6.4-SNAPSHOT:test
+[INFO] |  +- io.ebean:ebean-platform-nuodb:jar:13.6.4-SNAPSHOT:test
+[INFO] |  +- io.ebean:ebean-platform-oracle:jar:13.6.4-SNAPSHOT:test
+[INFO] |  +- io.ebean:ebean-platform-postgres:jar:13.6.4-SNAPSHOT:test
+[INFO] |  +- io.ebean:ebean-platform-sqlanywhere:jar:13.6.4-SNAPSHOT:test
+[INFO] |  +- io.ebean:ebean-platform-sqlite:jar:13.6.4-SNAPSHOT:test
+[INFO] |  \- io.ebean:ebean-platform-sqlserver:jar:13.6.4-SNAPSHOT:test
+[INFO] +- io.ebean:ebean-dbmigration-runner:jar:13.6.4-SNAPSHOT:test
+[INFO] |  \- io.ebean:ebean-migration-auto:jar:1.2:test
+[INFO] +- io.avaje:mod-uuid:jar:1.3:test
+[INFO] +- javax.transaction:jta:jar:1.1:test
+[INFO] +- javax.validation:validation-api:jar:2.0.1.Final:test
+[INFO] +- jakarta.validation:jakarta.validation-api:jar:3.0.0:test
+[INFO] +- joda-time:joda-time:jar:2.9.7:test
+[INFO] +- commons-io:commons-io:jar:2.7:test
+[INFO] +- org.postgresql:postgresql:jar:42.3.3:test
+[INFO] +- com.microsoft.sqlserver:mssql-jdbc:jar:10.2.0.jre8:test
+[INFO] +- mysql:mysql-connector-java:jar:8.0.28:test
+[INFO] |  \- com.google.protobuf:protobuf-java:jar:3.11.4:test
+[INFO] +- org.mariadb.jdbc:mariadb-java-client:jar:2.6.0:test
+[INFO] +- com.sap.cloud.db.jdbc:ngdbc:jar:2.12.9:test
+[INFO] +- com.oracle.database.jdbc:ojdbc8:jar:19.12.0.0:test
+[INFO] +- com.ibm.db2:jcc:jar:11.5.6.0:test
+[INFO] +- org.xerial:sqlite-jdbc:jar:3.36.0.3:test
+[INFO] +- com.nuodb.jdbc:nuodb-jdbc:jar:22.0.0:test
+[INFO] +- ru.yandex.clickhouse:clickhouse-jdbc:jar:0.3.2:test
+[INFO] |  +- com.clickhouse:clickhouse-http-client:jar:0.3.2:test
+[INFO] |  |  \- com.clickhouse:clickhouse-client:jar:0.3.2:test
+[INFO] |  +- com.google.code.gson:gson:jar:2.8.8:test
+[INFO] |  +- org.apache.httpcomponents:httpclient:jar:4.5.13:test
+[INFO] |  |  +- org.apache.httpcomponents:httpcore:jar:4.4.13:test
+[INFO] |  |  +- commons-logging:commons-logging:jar:1.2:test
+[INFO] |  |  \- commons-codec:commons-codec:jar:1.11:test
+[INFO] |  +- org.apache.httpcomponents:httpmime:jar:4.5.13:test
+[INFO] |  \- org.lz4:lz4-java:jar:1.8.0:test
+[INFO] +- ch.qos.logback:logback-classic:jar:1.2.11:test
+[INFO] |  \- ch.qos.logback:logback-core:jar:1.2.11:test
+[INFO] \- io.avaje:junit:jar:1.1:provided
+[INFO]    +- org.junit.jupiter:junit-jupiter-api:jar:5.8.2:provided
+[INFO]    |  +- org.opentest4j:opentest4j:jar:1.2.0:provided
+[INFO]    |  +- org.junit.platform:junit-platform-commons:jar:1.8.2:provided
+[INFO]    |  \- org.apiguardian:apiguardian-api:jar:1.1.2:provided
+[INFO]    +- org.junit.jupiter:junit-jupiter-engine:jar:5.8.2:provided
+[INFO]    |  \- org.junit.platform:junit-platform-engine:jar:1.8.2:provided
+[INFO]    \- org.mockito:mockito-core:jar:4.4.0:provided
+[INFO]       +- net.bytebuddy:byte-buddy:jar:1.12.8:provided
+[INFO]       +- net.bytebuddy:byte-buddy-agent:jar:1.12.8:provided
+[INFO]       \- org.objenesis:objenesis:jar:3.2:provided
+[INFO] 
+[INFO] --------------------< io.ebean:querybean-generator >--------------------
+[INFO] Building querybean generator 13.6.4-SNAPSHOT                     [27/49]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-dependency-plugin:2.8:tree (default-cli) @ querybean-generator ---
+[INFO] io.ebean:querybean-generator:jar:13.6.4-SNAPSHOT
+[INFO] +- io.avaje:junit:jar:1.1:test
+[INFO] |  +- org.junit.jupiter:junit-jupiter-api:jar:5.8.2:test
+[INFO] |  |  +- org.opentest4j:opentest4j:jar:1.2.0:test
+[INFO] |  |  +- org.junit.platform:junit-platform-commons:jar:1.8.2:test
+[INFO] |  |  \- org.apiguardian:apiguardian-api:jar:1.1.2:test
+[INFO] |  +- org.junit.jupiter:junit-jupiter-engine:jar:5.8.2:test
+[INFO] |  |  \- org.junit.platform:junit-platform-engine:jar:1.8.2:test
+[INFO] |  +- org.assertj:assertj-core:jar:3.22.0:test
+[INFO] |  \- org.mockito:mockito-core:jar:4.4.0:test
+[INFO] |     +- net.bytebuddy:byte-buddy:jar:1.12.8:test
+[INFO] |     +- net.bytebuddy:byte-buddy-agent:jar:1.12.8:test
+[INFO] |     \- org.objenesis:objenesis:jar:3.2:test
+[INFO] +- org.slf4j:slf4j-api:jar:1.7.36:provided
+[INFO] +- ch.qos.logback:logback-classic:jar:1.2.11:test
+[INFO] |  \- ch.qos.logback:logback-core:jar:1.2.11:test
+[INFO] \- com.h2database:h2:jar:2.1.212:test
+[INFO] 
+[INFO] ----------------------< io.ebean:ebean-querybean >----------------------
+[INFO] Building ebean querybean 13.6.4-SNAPSHOT                         [28/49]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-dependency-plugin:2.8:tree (default-cli) @ ebean-querybean ---
+[INFO] io.ebean:ebean-querybean:jar:13.6.4-SNAPSHOT
+[INFO] +- io.ebean:ebean-core:jar:13.6.4-SNAPSHOT:provided
+[INFO] |  +- io.ebean:ebean-ddl-runner:jar:2.0:provided
+[INFO] |  +- io.avaje:classpath-scanner:jar:7.1:provided
+[INFO] |  |  \- io.avaje:classpath-scanner-api:jar:7.1:provided
+[INFO] |  +- io.ebean:ebean-api:jar:13.6.4-SNAPSHOT:provided
+[INFO] |  |  +- io.avaje:avaje-config:jar:2.0:provided
+[INFO] |  |  +- io.ebean:persistence-api:jar:2.2.5:provided
+[INFO] |  |  +- io.ebean:ebean-annotation:jar:8.0:provided
+[INFO] |  |  \- io.ebean:ebean-types:jar:2.2:provided
+[INFO] |  +- io.ebean:ebean-core-type:jar:13.6.4-SNAPSHOT:provided
+[INFO] |  +- io.ebean:ebean-externalmapping-api:jar:13.6.4-SNAPSHOT:provided
+[INFO] |  \- org.antlr:antlr4-runtime:jar:4.8-1:provided
+[INFO] +- io.avaje:avaje-jsr305-x:jar:1.1:provided
+[INFO] +- io.avaje:avaje-lang:jar:1.0:compile
+[INFO] +- joda-time:joda-time:jar:1.6:compile
+[INFO] +- javax.validation:validation-api:jar:2.0.1.Final:compile
+[INFO] +- io.ebean:ebean-datasource:jar:8.0:test
+[INFO] |  \- io.ebean:ebean-datasource-api:jar:8.0:provided
+[INFO] +- io.ebean:ebean-ddl-generator:jar:13.6.4-SNAPSHOT:test
+[INFO] |  \- io.ebean:ebean-migration:jar:13.6.0:test
+[INFO] +- io.ebean:querybean-generator:jar:13.6.4-SNAPSHOT:test
+[INFO] +- io.ebean:ebean-test:jar:13.6.4-SNAPSHOT:test
+[INFO] |  +- io.ebean:ebean-platform-h2:jar:13.6.4-SNAPSHOT:test
+[INFO] |  +- io.ebean:ebean-test-containers:jar:6.0:test
+[INFO] |  +- org.assertj:assertj-core:jar:3.22.0:test
+[INFO] |  \- org.glassfish.jaxb:jaxb-runtime:jar:2.3.6:test
+[INFO] |     +- jakarta.xml.bind:jakarta.xml.bind-api:jar:2.3.3:test
+[INFO] |     +- org.glassfish.jaxb:txw2:jar:2.3.6:test
+[INFO] |     +- com.sun.istack:istack-commons-runtime:jar:3.0.12:test
+[INFO] |     \- com.sun.activation:jakarta.activation:jar:1.2.2:test
+[INFO] +- io.avaje:junit:jar:1.1:test
+[INFO] |  +- org.junit.jupiter:junit-jupiter-api:jar:5.8.2:test
+[INFO] |  |  +- org.opentest4j:opentest4j:jar:1.2.0:test
+[INFO] |  |  +- org.junit.platform:junit-platform-commons:jar:1.8.2:test
+[INFO] |  |  \- org.apiguardian:apiguardian-api:jar:1.1.2:test
+[INFO] |  +- org.junit.jupiter:junit-jupiter-engine:jar:5.8.2:test
+[INFO] |  |  \- org.junit.platform:junit-platform-engine:jar:1.8.2:test
+[INFO] |  \- org.mockito:mockito-core:jar:4.4.0:test
+[INFO] |     +- net.bytebuddy:byte-buddy:jar:1.12.8:test
+[INFO] |     +- net.bytebuddy:byte-buddy-agent:jar:1.12.8:test
+[INFO] |     \- org.objenesis:objenesis:jar:3.2:test
+[INFO] +- org.avaje.composite:logback:jar:1.1:test
+[INFO] |  +- org.slf4j:jul-to-slf4j:jar:1.7.25:test
+[INFO] |  +- org.slf4j:jcl-over-slf4j:jar:1.7.25:test
+[INFO] |  \- org.slf4j:log4j-over-slf4j:jar:1.7.25:test
+[INFO] +- org.slf4j:slf4j-api:jar:1.7.36:provided
+[INFO] +- ch.qos.logback:logback-classic:jar:1.2.11:test
+[INFO] |  \- ch.qos.logback:logback-core:jar:1.2.11:test
+[INFO] \- com.h2database:h2:jar:2.1.212:test
+[INFO] 
+[INFO] ----------------< io.ebean:kotlin-querybean-generator >-----------------
+[INFO] Building kotlin querybean generator 13.6.4-SNAPSHOT              [29/49]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-dependency-plugin:2.8:tree (default-cli) @ kotlin-querybean-generator ---
+[INFO] io.ebean:kotlin-querybean-generator:jar:13.6.4-SNAPSHOT
+[INFO] +- io.avaje:junit:jar:1.1:test
+[INFO] |  +- org.junit.jupiter:junit-jupiter-api:jar:5.8.2:test
+[INFO] |  |  +- org.opentest4j:opentest4j:jar:1.2.0:test
+[INFO] |  |  +- org.junit.platform:junit-platform-commons:jar:1.8.2:test
+[INFO] |  |  \- org.apiguardian:apiguardian-api:jar:1.1.2:test
+[INFO] |  +- org.junit.jupiter:junit-jupiter-engine:jar:5.8.2:test
+[INFO] |  |  \- org.junit.platform:junit-platform-engine:jar:1.8.2:test
+[INFO] |  +- org.assertj:assertj-core:jar:3.22.0:test
+[INFO] |  \- org.mockito:mockito-core:jar:4.4.0:test
+[INFO] |     +- net.bytebuddy:byte-buddy:jar:1.12.8:test
+[INFO] |     +- net.bytebuddy:byte-buddy-agent:jar:1.12.8:test
+[INFO] |     \- org.objenesis:objenesis:jar:3.2:test
+[INFO] +- io.ebean:ebean-querybean:jar:13.6.4-SNAPSHOT:test
+[INFO] |  \- io.avaje:avaje-lang:jar:1.0:test
+[INFO] +- io.ebean:ebean-datasource:jar:8.0:test
+[INFO] |  \- io.ebean:ebean-datasource-api:jar:8.0:test
+[INFO] +- io.ebean:ebean-core:jar:13.6.4-SNAPSHOT:test
+[INFO] |  +- io.ebean:ebean-ddl-runner:jar:2.0:test
+[INFO] |  +- io.avaje:classpath-scanner:jar:7.1:test
+[INFO] |  |  \- io.avaje:classpath-scanner-api:jar:7.1:test
+[INFO] |  +- io.ebean:ebean-api:jar:13.6.4-SNAPSHOT:test
+[INFO] |  |  +- io.avaje:avaje-config:jar:2.0:test
+[INFO] |  |  +- io.ebean:persistence-api:jar:2.2.5:test
+[INFO] |  |  +- io.ebean:ebean-annotation:jar:8.0:test
+[INFO] |  |  \- io.ebean:ebean-types:jar:2.2:test
+[INFO] |  +- io.ebean:ebean-core-type:jar:13.6.4-SNAPSHOT:test
+[INFO] |  +- io.ebean:ebean-externalmapping-api:jar:13.6.4-SNAPSHOT:test
+[INFO] |  \- org.antlr:antlr4-runtime:jar:4.8-1:test
+[INFO] +- org.jetbrains.kotlin:kotlin-stdlib-jdk8:jar:1.6.20:provided
+[INFO] |  +- org.jetbrains.kotlin:kotlin-stdlib:jar:1.6.20:provided
+[INFO] |  |  +- org.jetbrains.kotlin:kotlin-stdlib-common:jar:1.6.20:provided
+[INFO] |  |  \- org.jetbrains:annotations:jar:13.0:provided
+[INFO] |  \- org.jetbrains.kotlin:kotlin-stdlib-jdk7:jar:1.6.20:provided
+[INFO] +- org.jetbrains.kotlin:kotlin-test:jar:1.6.20:test
+[INFO] +- io.ebean:ebean-platform-h2:jar:13.6.4-SNAPSHOT:test
+[INFO] +- io.ebean:ebean-ddl-generator:jar:13.6.4-SNAPSHOT:test
+[INFO] |  \- io.ebean:ebean-migration:jar:13.6.0:test
+[INFO] +- javax.validation:validation-api:jar:2.0.1.Final:test
+[INFO] +- org.slf4j:slf4j-api:jar:1.7.36:provided
+[INFO] +- ch.qos.logback:logback-classic:jar:1.2.11:test
+[INFO] |  \- ch.qos.logback:logback-core:jar:1.2.11:test
+[INFO] \- com.h2database:h2:jar:2.1.212:test
+[INFO] 
+[INFO] -----------------------< io.ebean:ebean-postgis >-----------------------
+[INFO] Building ebean postgis 13.6.4-SNAPSHOT                           [30/49]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-dependency-plugin:2.8:tree (default-cli) @ ebean-postgis ---
+[INFO] io.ebean:ebean-postgis:jar:13.6.4-SNAPSHOT
+[INFO] +- io.ebean:ebean-platform-postgres:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  \- io.ebean:ebean-api:jar:13.6.4-SNAPSHOT:compile
+[INFO] |     +- io.avaje:avaje-config:jar:2.0:compile
+[INFO] |     +- io.avaje:avaje-lang:jar:1.0:compile
+[INFO] |     +- io.ebean:persistence-api:jar:2.2.5:compile
+[INFO] |     +- io.ebean:ebean-annotation:jar:8.0:compile
+[INFO] |     +- io.ebean:ebean-types:jar:2.2:compile
+[INFO] |     \- io.ebean:ebean-datasource-api:jar:8.0:compile
+[INFO] +- io.ebean:ebean-core:jar:13.6.4-SNAPSHOT:provided
+[INFO] |  +- io.ebean:ebean-ddl-runner:jar:2.0:provided
+[INFO] |  +- io.avaje:classpath-scanner:jar:7.1:provided
+[INFO] |  |  \- io.avaje:classpath-scanner-api:jar:7.1:provided
+[INFO] |  +- io.ebean:ebean-core-type:jar:13.6.4-SNAPSHOT:provided
+[INFO] |  +- io.ebean:ebean-externalmapping-api:jar:13.6.4-SNAPSHOT:provided
+[INFO] |  \- org.antlr:antlr4-runtime:jar:4.8-1:provided
+[INFO] +- com.fasterxml.jackson.core:jackson-core:jar:2.13.2:compile
+[INFO] +- net.postgis:postgis-jdbc:jar:2.5.1:compile
+[INFO] |  \- net.postgis:postgis-geometry:jar:2.5.1:compile
+[INFO] +- org.postgresql:postgresql:jar:42.3.3:provided
+[INFO] |  \- org.checkerframework:checker-qual:jar:3.5.0:provided
+[INFO] +- org.slf4j:slf4j-api:jar:1.7.33:provided
+[INFO] +- org.geolatte:geolatte-geom:jar:1.0.6:provided
+[INFO] |  \- com.vividsolutions:jts:jar:1.13:provided
+[INFO] +- io.ebean:ebean-test:jar:13.6.4-SNAPSHOT:test
+[INFO] |  +- io.ebean:ebean-datasource:jar:8.0:test
+[INFO] |  +- io.ebean:ebean-platform-h2:jar:13.6.4-SNAPSHOT:test
+[INFO] |  +- io.ebean:ebean-ddl-generator:jar:13.6.4-SNAPSHOT:test
+[INFO] |  |  \- io.ebean:ebean-migration:jar:13.6.0:test
+[INFO] |  +- io.ebean:ebean-test-containers:jar:6.0:test
+[INFO] |  +- org.assertj:assertj-core:jar:3.22.0:test
+[INFO] |  \- org.glassfish.jaxb:jaxb-runtime:jar:2.3.6:test
+[INFO] |     +- jakarta.xml.bind:jakarta.xml.bind-api:jar:2.3.3:test
+[INFO] |     +- org.glassfish.jaxb:txw2:jar:2.3.6:test
+[INFO] |     +- com.sun.istack:istack-commons-runtime:jar:3.0.12:test
+[INFO] |     \- com.sun.activation:jakarta.activation:jar:1.2.2:test
+[INFO] +- org.avaje.composite:logback:jar:1.1:test
+[INFO] |  +- org.slf4j:jul-to-slf4j:jar:1.7.25:test
+[INFO] |  +- org.slf4j:jcl-over-slf4j:jar:1.7.25:test
+[INFO] |  \- org.slf4j:log4j-over-slf4j:jar:1.7.25:test
+[INFO] +- io.avaje:junit:jar:1.1:test
+[INFO] |  +- org.junit.jupiter:junit-jupiter-api:jar:5.8.2:test
+[INFO] |  |  +- org.opentest4j:opentest4j:jar:1.2.0:test
+[INFO] |  |  +- org.junit.platform:junit-platform-commons:jar:1.8.2:test
+[INFO] |  |  \- org.apiguardian:apiguardian-api:jar:1.1.2:test
+[INFO] |  +- org.junit.jupiter:junit-jupiter-engine:jar:5.8.2:test
+[INFO] |  |  \- org.junit.platform:junit-platform-engine:jar:1.8.2:test
+[INFO] |  \- org.mockito:mockito-core:jar:4.4.0:test
+[INFO] |     +- net.bytebuddy:byte-buddy:jar:1.12.8:test
+[INFO] |     +- net.bytebuddy:byte-buddy-agent:jar:1.12.8:test
+[INFO] |     \- org.objenesis:objenesis:jar:3.2:test
+[INFO] +- ch.qos.logback:logback-classic:jar:1.2.11:test
+[INFO] |  \- ch.qos.logback:logback-core:jar:1.2.11:test
+[INFO] \- com.h2database:h2:jar:2.1.212:test
+[INFO] 
+[INFO] ------------------------< io.ebean:ebean-redis >------------------------
+[INFO] Building ebean redis 13.6.4-SNAPSHOT                             [31/49]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-dependency-plugin:2.8:tree (default-cli) @ ebean-redis ---
+[INFO] io.ebean:ebean-redis:jar:13.6.4-SNAPSHOT
+[INFO] +- redis.clients:jedis:jar:4.2.3:compile
+[INFO] |  +- org.apache.commons:commons-pool2:jar:2.11.1:compile
+[INFO] |  +- org.json:json:jar:20211205:compile
+[INFO] |  \- com.google.code.gson:gson:jar:2.8.9:compile
+[INFO] +- io.ebean:ebean-api:jar:13.6.4-SNAPSHOT:provided
+[INFO] |  +- io.avaje:avaje-config:jar:2.0:provided
+[INFO] |  +- io.avaje:avaje-lang:jar:1.0:provided
+[INFO] |  +- io.ebean:persistence-api:jar:2.2.5:provided
+[INFO] |  +- io.ebean:ebean-annotation:jar:8.0:provided
+[INFO] |  +- io.ebean:ebean-types:jar:2.2:provided
+[INFO] |  \- io.ebean:ebean-datasource-api:jar:8.0:provided
+[INFO] +- io.ebean:ebean-core:jar:13.6.4-SNAPSHOT:provided
+[INFO] |  +- io.ebean:ebean-ddl-runner:jar:2.0:provided
+[INFO] |  +- io.avaje:classpath-scanner:jar:7.1:provided
+[INFO] |  |  \- io.avaje:classpath-scanner-api:jar:7.1:provided
+[INFO] |  +- io.ebean:ebean-core-type:jar:13.6.4-SNAPSHOT:provided
+[INFO] |  +- io.ebean:ebean-externalmapping-api:jar:13.6.4-SNAPSHOT:provided
+[INFO] |  \- org.antlr:antlr4-runtime:jar:4.8-1:provided
+[INFO] +- io.ebean:ebean-querybean:jar:13.6.4-SNAPSHOT:test
+[INFO] +- io.ebean:querybean-generator:jar:13.6.4-SNAPSHOT:test
+[INFO] +- io.ebean:ebean-test:jar:13.6.4-SNAPSHOT:test
+[INFO] |  +- io.ebean:ebean-datasource:jar:8.0:test
+[INFO] |  +- io.ebean:ebean-platform-h2:jar:13.6.4-SNAPSHOT:test
+[INFO] |  +- io.ebean:ebean-ddl-generator:jar:13.6.4-SNAPSHOT:test
+[INFO] |  |  \- io.ebean:ebean-migration:jar:13.6.0:test
+[INFO] |  +- io.ebean:ebean-test-containers:jar:6.0:test
+[INFO] |  +- org.assertj:assertj-core:jar:3.22.0:test
+[INFO] |  \- org.glassfish.jaxb:jaxb-runtime:jar:2.3.6:test
+[INFO] |     +- jakarta.xml.bind:jakarta.xml.bind-api:jar:2.3.3:test
+[INFO] |     +- org.glassfish.jaxb:txw2:jar:2.3.6:test
+[INFO] |     +- com.sun.istack:istack-commons-runtime:jar:3.0.12:test
+[INFO] |     \- com.sun.activation:jakarta.activation:jar:1.2.2:test
+[INFO] +- io.avaje:junit:jar:1.1:test
+[INFO] |  +- org.junit.jupiter:junit-jupiter-api:jar:5.8.2:test
+[INFO] |  |  +- org.opentest4j:opentest4j:jar:1.2.0:test
+[INFO] |  |  +- org.junit.platform:junit-platform-commons:jar:1.8.2:test
+[INFO] |  |  \- org.apiguardian:apiguardian-api:jar:1.1.2:test
+[INFO] |  +- org.junit.jupiter:junit-jupiter-engine:jar:5.8.2:test
+[INFO] |  |  \- org.junit.platform:junit-platform-engine:jar:1.8.2:test
+[INFO] |  \- org.mockito:mockito-core:jar:4.4.0:test
+[INFO] |     +- net.bytebuddy:byte-buddy:jar:1.12.8:test
+[INFO] |     +- net.bytebuddy:byte-buddy-agent:jar:1.12.8:test
+[INFO] |     \- org.objenesis:objenesis:jar:3.2:test
+[INFO] +- org.avaje.composite:logback:jar:1.1:test
+[INFO] |  +- org.slf4j:jul-to-slf4j:jar:1.7.25:test
+[INFO] |  +- org.slf4j:jcl-over-slf4j:jar:1.7.25:test
+[INFO] |  \- org.slf4j:log4j-over-slf4j:jar:1.7.25:test
+[INFO] +- org.slf4j:slf4j-api:jar:1.7.36:provided
+[INFO] +- ch.qos.logback:logback-classic:jar:1.2.11:test
+[INFO] |  \- ch.qos.logback:logback-core:jar:1.2.11:test
+[INFO] \- com.h2database:h2:jar:2.1.212:test
+[INFO] 
+[INFO] ------------------------< io.ebean:composites >-------------------------
+[INFO] Building composites 13.6.4-SNAPSHOT                              [32/49]
+[INFO] --------------------------------[ pom ]---------------------------------
+[INFO] 
+[INFO] --- maven-dependency-plugin:2.8:tree (default-cli) @ composites ---
+[INFO] io.ebean:composites:pom:13.6.4-SNAPSHOT
+[INFO] +- org.slf4j:slf4j-api:jar:1.7.36:provided
+[INFO] +- ch.qos.logback:logback-classic:jar:1.2.11:test
+[INFO] |  \- ch.qos.logback:logback-core:jar:1.2.11:test
+[INFO] \- com.h2database:h2:jar:2.1.212:test
+[INFO] 
+[INFO] ---------------------------< io.ebean:ebean >---------------------------
+[INFO] Building ebean (all platforms) 13.6.4-SNAPSHOT                   [33/49]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-dependency-plugin:2.8:tree (default-cli) @ ebean ---
+[INFO] io.ebean:ebean:jar:13.6.4-SNAPSHOT
+[INFO] +- io.ebean:ebean-api:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  +- io.avaje:avaje-config:jar:2.0:compile
+[INFO] |  +- io.avaje:avaje-lang:jar:1.0:compile
+[INFO] |  +- io.ebean:persistence-api:jar:2.2.5:compile
+[INFO] |  +- io.ebean:ebean-annotation:jar:8.0:compile
+[INFO] |  +- io.ebean:ebean-types:jar:2.2:compile
+[INFO] |  \- io.ebean:ebean-datasource-api:jar:8.0:compile
+[INFO] +- io.ebean:ebean-core:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  +- io.ebean:ebean-ddl-runner:jar:2.0:compile
+[INFO] |  +- io.avaje:classpath-scanner:jar:7.1:compile
+[INFO] |  |  \- io.avaje:classpath-scanner-api:jar:7.1:compile
+[INFO] |  +- io.ebean:ebean-core-type:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  +- io.ebean:ebean-externalmapping-api:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  \- org.antlr:antlr4-runtime:jar:4.8-1:compile
+[INFO] +- io.ebean:ebean-datasource:jar:8.0:compile
+[INFO] +- io.ebean:ebean-querybean:jar:13.6.4-SNAPSHOT:compile
+[INFO] +- io.ebean:ebean-platform-all:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  +- io.ebean:ebean-platform-h2:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  +- io.ebean:ebean-platform-clickhouse:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  +- io.ebean:ebean-platform-db2:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  +- io.ebean:ebean-platform-hana:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  +- io.ebean:ebean-platform-hsqldb:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  +- io.ebean:ebean-platform-mysql:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  +- io.ebean:ebean-platform-mariadb:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  +- io.ebean:ebean-platform-nuodb:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  +- io.ebean:ebean-platform-oracle:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  +- io.ebean:ebean-platform-postgres:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  +- io.ebean:ebean-platform-sqlanywhere:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  +- io.ebean:ebean-platform-sqlite:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  \- io.ebean:ebean-platform-sqlserver:jar:13.6.4-SNAPSHOT:compile
+[INFO] +- org.slf4j:slf4j-api:jar:1.7.36:provided
+[INFO] +- ch.qos.logback:logback-classic:jar:1.2.11:test
+[INFO] |  \- ch.qos.logback:logback-core:jar:1.2.11:test
+[INFO] \- com.h2database:h2:jar:2.1.212:test
+[INFO] 
+[INFO] ---------------------< io.ebean:ebean-clickhouse >----------------------
+[INFO] Building ebean-clickhouse 13.6.4-SNAPSHOT                        [34/49]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-dependency-plugin:2.8:tree (default-cli) @ ebean-clickhouse ---
+[INFO] io.ebean:ebean-clickhouse:jar:13.6.4-SNAPSHOT
+[INFO] +- io.ebean:ebean-api:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  +- io.avaje:avaje-config:jar:2.0:compile
+[INFO] |  +- io.avaje:avaje-lang:jar:1.0:compile
+[INFO] |  +- io.ebean:persistence-api:jar:2.2.5:compile
+[INFO] |  +- io.ebean:ebean-annotation:jar:8.0:compile
+[INFO] |  +- io.ebean:ebean-types:jar:2.2:compile
+[INFO] |  \- io.ebean:ebean-datasource-api:jar:8.0:compile
+[INFO] +- io.ebean:ebean-core:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  +- io.ebean:ebean-ddl-runner:jar:2.0:compile
+[INFO] |  +- io.avaje:classpath-scanner:jar:7.1:compile
+[INFO] |  |  \- io.avaje:classpath-scanner-api:jar:7.1:compile
+[INFO] |  +- io.ebean:ebean-core-type:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  +- io.ebean:ebean-externalmapping-api:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  \- org.antlr:antlr4-runtime:jar:4.8-1:compile
+[INFO] +- io.ebean:ebean-datasource:jar:8.0:compile
+[INFO] +- io.ebean:ebean-querybean:jar:13.6.4-SNAPSHOT:compile
+[INFO] +- io.ebean:ebean-platform-clickhouse:jar:13.6.4-SNAPSHOT:compile
+[INFO] +- org.slf4j:slf4j-api:jar:1.7.36:provided
+[INFO] +- ch.qos.logback:logback-classic:jar:1.2.11:test
+[INFO] |  \- ch.qos.logback:logback-core:jar:1.2.11:test
+[INFO] \- com.h2database:h2:jar:2.1.212:test
+[INFO] 
+[INFO] ----------------------< io.ebean:ebean-cockroach >----------------------
+[INFO] Building ebean-cockroach 13.6.4-SNAPSHOT                         [35/49]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-dependency-plugin:2.8:tree (default-cli) @ ebean-cockroach ---
+[INFO] io.ebean:ebean-cockroach:jar:13.6.4-SNAPSHOT
+[INFO] +- io.ebean:ebean-api:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  +- io.avaje:avaje-config:jar:2.0:compile
+[INFO] |  +- io.avaje:avaje-lang:jar:1.0:compile
+[INFO] |  +- io.ebean:persistence-api:jar:2.2.5:compile
+[INFO] |  +- io.ebean:ebean-annotation:jar:8.0:compile
+[INFO] |  +- io.ebean:ebean-types:jar:2.2:compile
+[INFO] |  \- io.ebean:ebean-datasource-api:jar:8.0:compile
+[INFO] +- io.ebean:ebean-core:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  +- io.ebean:ebean-ddl-runner:jar:2.0:compile
+[INFO] |  +- io.avaje:classpath-scanner:jar:7.1:compile
+[INFO] |  |  \- io.avaje:classpath-scanner-api:jar:7.1:compile
+[INFO] |  +- io.ebean:ebean-core-type:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  +- io.ebean:ebean-externalmapping-api:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  \- org.antlr:antlr4-runtime:jar:4.8-1:compile
+[INFO] +- io.ebean:ebean-datasource:jar:8.0:compile
+[INFO] +- io.ebean:ebean-querybean:jar:13.6.4-SNAPSHOT:compile
+[INFO] +- io.ebean:ebean-platform-postgres:jar:13.6.4-SNAPSHOT:compile
+[INFO] +- org.slf4j:slf4j-api:jar:1.7.36:provided
+[INFO] +- ch.qos.logback:logback-classic:jar:1.2.11:test
+[INFO] |  \- ch.qos.logback:logback-core:jar:1.2.11:test
+[INFO] \- com.h2database:h2:jar:2.1.212:test
+[INFO] 
+[INFO] -------------------------< io.ebean:ebean-db2 >-------------------------
+[INFO] Building ebean-db2 13.6.4-SNAPSHOT                               [36/49]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-dependency-plugin:2.8:tree (default-cli) @ ebean-db2 ---
+[INFO] io.ebean:ebean-db2:jar:13.6.4-SNAPSHOT
+[INFO] +- io.ebean:ebean-api:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  +- io.avaje:avaje-config:jar:2.0:compile
+[INFO] |  +- io.avaje:avaje-lang:jar:1.0:compile
+[INFO] |  +- io.ebean:persistence-api:jar:2.2.5:compile
+[INFO] |  +- io.ebean:ebean-annotation:jar:8.0:compile
+[INFO] |  +- io.ebean:ebean-types:jar:2.2:compile
+[INFO] |  \- io.ebean:ebean-datasource-api:jar:8.0:compile
+[INFO] +- io.ebean:ebean-core:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  +- io.ebean:ebean-ddl-runner:jar:2.0:compile
+[INFO] |  +- io.avaje:classpath-scanner:jar:7.1:compile
+[INFO] |  |  \- io.avaje:classpath-scanner-api:jar:7.1:compile
+[INFO] |  +- io.ebean:ebean-core-type:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  +- io.ebean:ebean-externalmapping-api:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  \- org.antlr:antlr4-runtime:jar:4.8-1:compile
+[INFO] +- io.ebean:ebean-datasource:jar:8.0:compile
+[INFO] +- io.ebean:ebean-querybean:jar:13.6.4-SNAPSHOT:compile
+[INFO] +- io.ebean:ebean-platform-db2:jar:13.6.4-SNAPSHOT:compile
+[INFO] +- org.slf4j:slf4j-api:jar:1.7.36:provided
+[INFO] +- ch.qos.logback:logback-classic:jar:1.2.11:test
+[INFO] |  \- ch.qos.logback:logback-core:jar:1.2.11:test
+[INFO] \- com.h2database:h2:jar:2.1.212:test
+[INFO] 
+[INFO] -------------------------< io.ebean:ebean-h2 >--------------------------
+[INFO] Building ebean-h2 13.6.4-SNAPSHOT                                [37/49]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-dependency-plugin:2.8:tree (default-cli) @ ebean-h2 ---
+[INFO] io.ebean:ebean-h2:jar:13.6.4-SNAPSHOT
+[INFO] +- io.ebean:ebean-api:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  +- io.avaje:avaje-config:jar:2.0:compile
+[INFO] |  +- io.avaje:avaje-lang:jar:1.0:compile
+[INFO] |  +- io.ebean:persistence-api:jar:2.2.5:compile
+[INFO] |  +- io.ebean:ebean-annotation:jar:8.0:compile
+[INFO] |  +- io.ebean:ebean-types:jar:2.2:compile
+[INFO] |  \- io.ebean:ebean-datasource-api:jar:8.0:compile
+[INFO] +- io.ebean:ebean-core:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  +- io.ebean:ebean-ddl-runner:jar:2.0:compile
+[INFO] |  +- io.avaje:classpath-scanner:jar:7.1:compile
+[INFO] |  |  \- io.avaje:classpath-scanner-api:jar:7.1:compile
+[INFO] |  +- io.ebean:ebean-core-type:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  +- io.ebean:ebean-externalmapping-api:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  \- org.antlr:antlr4-runtime:jar:4.8-1:compile
+[INFO] +- io.ebean:ebean-datasource:jar:8.0:compile
+[INFO] +- io.ebean:ebean-querybean:jar:13.6.4-SNAPSHOT:compile
+[INFO] +- io.ebean:ebean-platform-h2:jar:13.6.4-SNAPSHOT:compile
+[INFO] +- org.slf4j:slf4j-api:jar:1.7.36:provided
+[INFO] +- ch.qos.logback:logback-classic:jar:1.2.11:test
+[INFO] |  \- ch.qos.logback:logback-core:jar:1.2.11:test
+[INFO] \- com.h2database:h2:jar:2.1.212:test
+[INFO] 
+[INFO] ------------------------< io.ebean:ebean-hana >-------------------------
+[INFO] Building ebean-hana 13.6.4-SNAPSHOT                              [38/49]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-dependency-plugin:2.8:tree (default-cli) @ ebean-hana ---
+[INFO] io.ebean:ebean-hana:jar:13.6.4-SNAPSHOT
+[INFO] +- io.ebean:ebean-api:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  +- io.avaje:avaje-config:jar:2.0:compile
+[INFO] |  +- io.avaje:avaje-lang:jar:1.0:compile
+[INFO] |  +- io.ebean:persistence-api:jar:2.2.5:compile
+[INFO] |  +- io.ebean:ebean-annotation:jar:8.0:compile
+[INFO] |  +- io.ebean:ebean-types:jar:2.2:compile
+[INFO] |  \- io.ebean:ebean-datasource-api:jar:8.0:compile
+[INFO] +- io.ebean:ebean-core:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  +- io.ebean:ebean-ddl-runner:jar:2.0:compile
+[INFO] |  +- io.avaje:classpath-scanner:jar:7.1:compile
+[INFO] |  |  \- io.avaje:classpath-scanner-api:jar:7.1:compile
+[INFO] |  +- io.ebean:ebean-core-type:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  +- io.ebean:ebean-externalmapping-api:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  \- org.antlr:antlr4-runtime:jar:4.8-1:compile
+[INFO] +- io.ebean:ebean-datasource:jar:8.0:compile
+[INFO] +- io.ebean:ebean-querybean:jar:13.6.4-SNAPSHOT:compile
+[INFO] +- io.ebean:ebean-platform-hana:jar:13.6.4-SNAPSHOT:compile
+[INFO] +- org.slf4j:slf4j-api:jar:1.7.36:provided
+[INFO] +- ch.qos.logback:logback-classic:jar:1.2.11:test
+[INFO] |  \- ch.qos.logback:logback-core:jar:1.2.11:test
+[INFO] \- com.h2database:h2:jar:2.1.212:test
+[INFO] 
+[INFO] -----------------------< io.ebean:ebean-mariadb >-----------------------
+[INFO] Building ebean-mariadb 13.6.4-SNAPSHOT                           [39/49]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-dependency-plugin:2.8:tree (default-cli) @ ebean-mariadb ---
+[INFO] io.ebean:ebean-mariadb:jar:13.6.4-SNAPSHOT
+[INFO] +- io.ebean:ebean-api:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  +- io.avaje:avaje-config:jar:2.0:compile
+[INFO] |  +- io.avaje:avaje-lang:jar:1.0:compile
+[INFO] |  +- io.ebean:persistence-api:jar:2.2.5:compile
+[INFO] |  +- io.ebean:ebean-annotation:jar:8.0:compile
+[INFO] |  +- io.ebean:ebean-types:jar:2.2:compile
+[INFO] |  \- io.ebean:ebean-datasource-api:jar:8.0:compile
+[INFO] +- io.ebean:ebean-core:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  +- io.ebean:ebean-ddl-runner:jar:2.0:compile
+[INFO] |  +- io.avaje:classpath-scanner:jar:7.1:compile
+[INFO] |  |  \- io.avaje:classpath-scanner-api:jar:7.1:compile
+[INFO] |  +- io.ebean:ebean-core-type:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  +- io.ebean:ebean-externalmapping-api:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  \- org.antlr:antlr4-runtime:jar:4.8-1:compile
+[INFO] +- io.ebean:ebean-datasource:jar:8.0:compile
+[INFO] +- io.ebean:ebean-querybean:jar:13.6.4-SNAPSHOT:compile
+[INFO] +- io.ebean:ebean-platform-mariadb:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  \- io.ebean:ebean-platform-mysql:jar:13.6.4-SNAPSHOT:compile
+[INFO] +- org.slf4j:slf4j-api:jar:1.7.36:provided
+[INFO] +- ch.qos.logback:logback-classic:jar:1.2.11:test
+[INFO] |  \- ch.qos.logback:logback-core:jar:1.2.11:test
+[INFO] \- com.h2database:h2:jar:2.1.212:test
+[INFO] 
+[INFO] ------------------------< io.ebean:ebean-mysql >------------------------
+[INFO] Building ebean-mysql 13.6.4-SNAPSHOT                             [40/49]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-dependency-plugin:2.8:tree (default-cli) @ ebean-mysql ---
+[INFO] io.ebean:ebean-mysql:jar:13.6.4-SNAPSHOT
+[INFO] +- io.ebean:ebean-api:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  +- io.avaje:avaje-config:jar:2.0:compile
+[INFO] |  +- io.avaje:avaje-lang:jar:1.0:compile
+[INFO] |  +- io.ebean:persistence-api:jar:2.2.5:compile
+[INFO] |  +- io.ebean:ebean-annotation:jar:8.0:compile
+[INFO] |  +- io.ebean:ebean-types:jar:2.2:compile
+[INFO] |  \- io.ebean:ebean-datasource-api:jar:8.0:compile
+[INFO] +- io.ebean:ebean-core:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  +- io.ebean:ebean-ddl-runner:jar:2.0:compile
+[INFO] |  +- io.avaje:classpath-scanner:jar:7.1:compile
+[INFO] |  |  \- io.avaje:classpath-scanner-api:jar:7.1:compile
+[INFO] |  +- io.ebean:ebean-core-type:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  +- io.ebean:ebean-externalmapping-api:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  \- org.antlr:antlr4-runtime:jar:4.8-1:compile
+[INFO] +- io.ebean:ebean-datasource:jar:8.0:compile
+[INFO] +- io.ebean:ebean-querybean:jar:13.6.4-SNAPSHOT:compile
+[INFO] +- io.ebean:ebean-platform-mysql:jar:13.6.4-SNAPSHOT:compile
+[INFO] +- org.slf4j:slf4j-api:jar:1.7.36:provided
+[INFO] +- ch.qos.logback:logback-classic:jar:1.2.11:test
+[INFO] |  \- ch.qos.logback:logback-core:jar:1.2.11:test
+[INFO] \- com.h2database:h2:jar:2.1.212:test
+[INFO] 
+[INFO] ------------------------< io.ebean:ebean-nuodb >------------------------
+[INFO] Building ebean-nuodb 13.6.4-SNAPSHOT                             [41/49]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-dependency-plugin:2.8:tree (default-cli) @ ebean-nuodb ---
+[INFO] io.ebean:ebean-nuodb:jar:13.6.4-SNAPSHOT
+[INFO] +- io.ebean:ebean-api:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  +- io.avaje:avaje-config:jar:2.0:compile
+[INFO] |  +- io.avaje:avaje-lang:jar:1.0:compile
+[INFO] |  +- io.ebean:persistence-api:jar:2.2.5:compile
+[INFO] |  +- io.ebean:ebean-annotation:jar:8.0:compile
+[INFO] |  +- io.ebean:ebean-types:jar:2.2:compile
+[INFO] |  \- io.ebean:ebean-datasource-api:jar:8.0:compile
+[INFO] +- io.ebean:ebean-core:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  +- io.ebean:ebean-ddl-runner:jar:2.0:compile
+[INFO] |  +- io.avaje:classpath-scanner:jar:7.1:compile
+[INFO] |  |  \- io.avaje:classpath-scanner-api:jar:7.1:compile
+[INFO] |  +- io.ebean:ebean-core-type:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  +- io.ebean:ebean-externalmapping-api:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  \- org.antlr:antlr4-runtime:jar:4.8-1:compile
+[INFO] +- io.ebean:ebean-datasource:jar:8.0:compile
+[INFO] +- io.ebean:ebean-querybean:jar:13.6.4-SNAPSHOT:compile
+[INFO] +- io.ebean:ebean-platform-nuodb:jar:13.6.4-SNAPSHOT:compile
+[INFO] +- org.slf4j:slf4j-api:jar:1.7.36:provided
+[INFO] +- ch.qos.logback:logback-classic:jar:1.2.11:test
+[INFO] |  \- ch.qos.logback:logback-core:jar:1.2.11:test
+[INFO] \- com.h2database:h2:jar:2.1.212:test
+[INFO] 
+[INFO] -----------------------< io.ebean:ebean-oracle >------------------------
+[INFO] Building ebean-oracle 13.6.4-SNAPSHOT                            [42/49]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-dependency-plugin:2.8:tree (default-cli) @ ebean-oracle ---
+[INFO] io.ebean:ebean-oracle:jar:13.6.4-SNAPSHOT
+[INFO] +- io.ebean:ebean-api:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  +- io.avaje:avaje-config:jar:2.0:compile
+[INFO] |  +- io.avaje:avaje-lang:jar:1.0:compile
+[INFO] |  +- io.ebean:persistence-api:jar:2.2.5:compile
+[INFO] |  +- io.ebean:ebean-annotation:jar:8.0:compile
+[INFO] |  +- io.ebean:ebean-types:jar:2.2:compile
+[INFO] |  \- io.ebean:ebean-datasource-api:jar:8.0:compile
+[INFO] +- io.ebean:ebean-core:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  +- io.ebean:ebean-ddl-runner:jar:2.0:compile
+[INFO] |  +- io.avaje:classpath-scanner:jar:7.1:compile
+[INFO] |  |  \- io.avaje:classpath-scanner-api:jar:7.1:compile
+[INFO] |  +- io.ebean:ebean-core-type:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  +- io.ebean:ebean-externalmapping-api:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  \- org.antlr:antlr4-runtime:jar:4.8-1:compile
+[INFO] +- io.ebean:ebean-datasource:jar:8.0:compile
+[INFO] +- io.ebean:ebean-querybean:jar:13.6.4-SNAPSHOT:compile
+[INFO] +- io.ebean:ebean-platform-oracle:jar:13.6.4-SNAPSHOT:compile
+[INFO] +- org.slf4j:slf4j-api:jar:1.7.36:provided
+[INFO] +- ch.qos.logback:logback-classic:jar:1.2.11:test
+[INFO] |  \- ch.qos.logback:logback-core:jar:1.2.11:test
+[INFO] \- com.h2database:h2:jar:2.1.212:test
+[INFO] 
+[INFO] ----------------------< io.ebean:ebean-postgres >-----------------------
+[INFO] Building ebean-postgres 13.6.4-SNAPSHOT                          [43/49]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-dependency-plugin:2.8:tree (default-cli) @ ebean-postgres ---
+[INFO] io.ebean:ebean-postgres:jar:13.6.4-SNAPSHOT
+[INFO] +- io.ebean:ebean-api:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  +- io.avaje:avaje-config:jar:2.0:compile
+[INFO] |  +- io.avaje:avaje-lang:jar:1.0:compile
+[INFO] |  +- io.ebean:persistence-api:jar:2.2.5:compile
+[INFO] |  +- io.ebean:ebean-annotation:jar:8.0:compile
+[INFO] |  +- io.ebean:ebean-types:jar:2.2:compile
+[INFO] |  \- io.ebean:ebean-datasource-api:jar:8.0:compile
+[INFO] +- io.ebean:ebean-core:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  +- io.ebean:ebean-ddl-runner:jar:2.0:compile
+[INFO] |  +- io.avaje:classpath-scanner:jar:7.1:compile
+[INFO] |  |  \- io.avaje:classpath-scanner-api:jar:7.1:compile
+[INFO] |  +- io.ebean:ebean-core-type:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  +- io.ebean:ebean-externalmapping-api:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  \- org.antlr:antlr4-runtime:jar:4.8-1:compile
+[INFO] +- io.ebean:ebean-datasource:jar:8.0:compile
+[INFO] +- io.ebean:ebean-querybean:jar:13.6.4-SNAPSHOT:compile
+[INFO] +- io.ebean:ebean-platform-postgres:jar:13.6.4-SNAPSHOT:compile
+[INFO] +- org.slf4j:slf4j-api:jar:1.7.36:provided
+[INFO] +- ch.qos.logback:logback-classic:jar:1.2.11:test
+[INFO] |  \- ch.qos.logback:logback-core:jar:1.2.11:test
+[INFO] \- com.h2database:h2:jar:2.1.212:test
+[INFO] 
+[INFO] -----------------------< io.ebean:ebean-sqlite >------------------------
+[INFO] Building ebean-sqlite 13.6.4-SNAPSHOT                            [44/49]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-dependency-plugin:2.8:tree (default-cli) @ ebean-sqlite ---
+[INFO] io.ebean:ebean-sqlite:jar:13.6.4-SNAPSHOT
+[INFO] +- io.ebean:ebean-api:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  +- io.avaje:avaje-config:jar:2.0:compile
+[INFO] |  +- io.avaje:avaje-lang:jar:1.0:compile
+[INFO] |  +- io.ebean:persistence-api:jar:2.2.5:compile
+[INFO] |  +- io.ebean:ebean-annotation:jar:8.0:compile
+[INFO] |  +- io.ebean:ebean-types:jar:2.2:compile
+[INFO] |  \- io.ebean:ebean-datasource-api:jar:8.0:compile
+[INFO] +- io.ebean:ebean-core:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  +- io.ebean:ebean-ddl-runner:jar:2.0:compile
+[INFO] |  +- io.avaje:classpath-scanner:jar:7.1:compile
+[INFO] |  |  \- io.avaje:classpath-scanner-api:jar:7.1:compile
+[INFO] |  +- io.ebean:ebean-core-type:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  +- io.ebean:ebean-externalmapping-api:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  \- org.antlr:antlr4-runtime:jar:4.8-1:compile
+[INFO] +- io.ebean:ebean-datasource:jar:8.0:compile
+[INFO] +- io.ebean:ebean-querybean:jar:13.6.4-SNAPSHOT:compile
+[INFO] +- io.ebean:ebean-platform-sqlite:jar:13.6.4-SNAPSHOT:compile
+[INFO] +- org.slf4j:slf4j-api:jar:1.7.36:provided
+[INFO] +- ch.qos.logback:logback-classic:jar:1.2.11:test
+[INFO] |  \- ch.qos.logback:logback-core:jar:1.2.11:test
+[INFO] \- com.h2database:h2:jar:2.1.212:test
+[INFO] 
+[INFO] ----------------------< io.ebean:ebean-sqlserver >----------------------
+[INFO] Building ebean-sqlserver 13.6.4-SNAPSHOT                         [45/49]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-dependency-plugin:2.8:tree (default-cli) @ ebean-sqlserver ---
+[INFO] io.ebean:ebean-sqlserver:jar:13.6.4-SNAPSHOT
+[INFO] +- io.ebean:ebean-api:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  +- io.avaje:avaje-config:jar:2.0:compile
+[INFO] |  +- io.avaje:avaje-lang:jar:1.0:compile
+[INFO] |  +- io.ebean:persistence-api:jar:2.2.5:compile
+[INFO] |  +- io.ebean:ebean-annotation:jar:8.0:compile
+[INFO] |  +- io.ebean:ebean-types:jar:2.2:compile
+[INFO] |  \- io.ebean:ebean-datasource-api:jar:8.0:compile
+[INFO] +- io.ebean:ebean-core:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  +- io.ebean:ebean-ddl-runner:jar:2.0:compile
+[INFO] |  +- io.avaje:classpath-scanner:jar:7.1:compile
+[INFO] |  |  \- io.avaje:classpath-scanner-api:jar:7.1:compile
+[INFO] |  +- io.ebean:ebean-core-type:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  +- io.ebean:ebean-externalmapping-api:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  \- org.antlr:antlr4-runtime:jar:4.8-1:compile
+[INFO] +- io.ebean:ebean-datasource:jar:8.0:compile
+[INFO] +- io.ebean:ebean-querybean:jar:13.6.4-SNAPSHOT:compile
+[INFO] +- io.ebean:ebean-platform-sqlserver:jar:13.6.4-SNAPSHOT:compile
+[INFO] +- org.slf4j:slf4j-api:jar:1.7.36:provided
+[INFO] +- ch.qos.logback:logback-classic:jar:1.2.11:test
+[INFO] |  \- ch.qos.logback:logback-core:jar:1.2.11:test
+[INFO] \- com.h2database:h2:jar:2.1.212:test
+[INFO] 
+[INFO] ----------------------< io.ebean:ebean-yugabyte >-----------------------
+[INFO] Building ebean-yugabyte 13.6.4-SNAPSHOT                          [46/49]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-dependency-plugin:2.8:tree (default-cli) @ ebean-yugabyte ---
+[INFO] io.ebean:ebean-yugabyte:jar:13.6.4-SNAPSHOT
+[INFO] +- io.ebean:ebean-api:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  +- io.avaje:avaje-config:jar:2.0:compile
+[INFO] |  +- io.avaje:avaje-lang:jar:1.0:compile
+[INFO] |  +- io.ebean:persistence-api:jar:2.2.5:compile
+[INFO] |  +- io.ebean:ebean-annotation:jar:8.0:compile
+[INFO] |  +- io.ebean:ebean-types:jar:2.2:compile
+[INFO] |  \- io.ebean:ebean-datasource-api:jar:8.0:compile
+[INFO] +- io.ebean:ebean-core:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  +- io.ebean:ebean-ddl-runner:jar:2.0:compile
+[INFO] |  +- io.avaje:classpath-scanner:jar:7.1:compile
+[INFO] |  |  \- io.avaje:classpath-scanner-api:jar:7.1:compile
+[INFO] |  +- io.ebean:ebean-core-type:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  +- io.ebean:ebean-externalmapping-api:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  \- org.antlr:antlr4-runtime:jar:4.8-1:compile
+[INFO] +- io.ebean:ebean-datasource:jar:8.0:compile
+[INFO] +- io.ebean:ebean-querybean:jar:13.6.4-SNAPSHOT:compile
+[INFO] +- io.ebean:ebean-platform-postgres:jar:13.6.4-SNAPSHOT:compile
+[INFO] +- org.slf4j:slf4j-api:jar:1.7.36:provided
+[INFO] +- ch.qos.logback:logback-classic:jar:1.2.11:test
+[INFO] |  \- ch.qos.logback:logback-core:jar:1.2.11:test
+[INFO] \- com.h2database:h2:jar:2.1.212:test
+[INFO] 
+[INFO] -----------------------< io.ebean:ebean-kotlin >------------------------
+[INFO] Building ebean-kotlin 13.6.4-SNAPSHOT                            [47/49]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-dependency-plugin:2.8:tree (default-cli) @ ebean-kotlin ---
+[INFO] io.ebean:ebean-kotlin:jar:13.6.4-SNAPSHOT
+[INFO] +- org.jetbrains.kotlin:kotlin-stdlib-jdk8:jar:1.6.0:provided
+[INFO] |  +- org.jetbrains.kotlin:kotlin-stdlib:jar:1.6.0:provided
+[INFO] |  |  +- org.jetbrains:annotations:jar:13.0:provided
+[INFO] |  |  \- org.jetbrains.kotlin:kotlin-stdlib-common:jar:1.6.0:provided
+[INFO] |  \- org.jetbrains.kotlin:kotlin-stdlib-jdk7:jar:1.6.0:provided
+[INFO] +- io.ebean:ebean-core:jar:13.6.4-SNAPSHOT:provided
+[INFO] |  +- io.ebean:ebean-ddl-runner:jar:2.0:provided
+[INFO] |  +- io.avaje:classpath-scanner:jar:7.1:provided
+[INFO] |  |  \- io.avaje:classpath-scanner-api:jar:7.1:provided
+[INFO] |  +- io.ebean:ebean-api:jar:13.6.4-SNAPSHOT:provided
+[INFO] |  |  +- io.avaje:avaje-config:jar:2.0:provided
+[INFO] |  |  +- io.avaje:avaje-lang:jar:1.0:provided
+[INFO] |  |  +- io.ebean:persistence-api:jar:2.2.5:provided
+[INFO] |  |  +- io.ebean:ebean-annotation:jar:8.0:provided
+[INFO] |  |  +- io.ebean:ebean-types:jar:2.2:provided
+[INFO] |  |  \- io.ebean:ebean-datasource-api:jar:8.0:provided
+[INFO] |  +- io.ebean:ebean-core-type:jar:13.6.4-SNAPSHOT:provided
+[INFO] |  +- io.ebean:ebean-externalmapping-api:jar:13.6.4-SNAPSHOT:provided
+[INFO] |  \- org.antlr:antlr4-runtime:jar:4.8-1:provided
+[INFO] +- org.jetbrains.kotlin:kotlin-test:jar:1.6.0:test
+[INFO] +- io.avaje:junit:jar:1.1:test
+[INFO] |  +- org.junit.jupiter:junit-jupiter-api:jar:5.8.2:test
+[INFO] |  |  +- org.opentest4j:opentest4j:jar:1.2.0:test
+[INFO] |  |  +- org.junit.platform:junit-platform-commons:jar:1.8.2:test
+[INFO] |  |  \- org.apiguardian:apiguardian-api:jar:1.1.2:test
+[INFO] |  +- org.junit.jupiter:junit-jupiter-engine:jar:5.8.2:test
+[INFO] |  |  \- org.junit.platform:junit-platform-engine:jar:1.8.2:test
+[INFO] |  +- org.assertj:assertj-core:jar:3.22.0:test
+[INFO] |  \- org.mockito:mockito-core:jar:4.4.0:test
+[INFO] |     +- net.bytebuddy:byte-buddy:jar:1.12.8:test
+[INFO] |     +- net.bytebuddy:byte-buddy-agent:jar:1.12.8:test
+[INFO] |     \- org.objenesis:objenesis:jar:3.2:test
+[INFO] +- io.ebean:ebean-test:jar:13.6.4-SNAPSHOT:test
+[INFO] |  +- io.ebean:ebean-datasource:jar:8.0:test
+[INFO] |  +- io.ebean:ebean-platform-h2:jar:13.6.4-SNAPSHOT:test
+[INFO] |  +- io.ebean:ebean-ddl-generator:jar:13.6.4-SNAPSHOT:test
+[INFO] |  |  \- io.ebean:ebean-migration:jar:13.6.0:test
+[INFO] |  +- io.ebean:ebean-test-containers:jar:6.0:test
+[INFO] |  \- org.glassfish.jaxb:jaxb-runtime:jar:2.3.6:test
+[INFO] |     +- jakarta.xml.bind:jakarta.xml.bind-api:jar:2.3.3:test
+[INFO] |     +- org.glassfish.jaxb:txw2:jar:2.3.6:test
+[INFO] |     +- com.sun.istack:istack-commons-runtime:jar:3.0.12:test
+[INFO] |     \- com.sun.activation:jakarta.activation:jar:1.2.2:test
+[INFO] +- org.slf4j:slf4j-api:jar:1.7.36:provided
+[INFO] +- ch.qos.logback:logback-classic:jar:1.2.11:test
+[INFO] |  \- ch.qos.logback:logback-core:jar:1.2.11:test
+[INFO] \- com.h2database:h2:jar:2.1.212:test
+[INFO] 
+[INFO] ------------------------< io.ebean:test-java16 >------------------------
+[INFO] Building test-java16 1.0                                         [48/49]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-dependency-plugin:2.8:tree (default-cli) @ test-java16 ---
+[INFO] io.ebean:test-java16:jar:1.0
+[INFO] +- io.ebean:ebean:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  +- io.ebean:ebean-api:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  |  +- io.avaje:avaje-config:jar:2.0:compile
+[INFO] |  |  +- io.avaje:avaje-lang:jar:1.0:compile
+[INFO] |  |  +- io.ebean:persistence-api:jar:2.2.5:compile
+[INFO] |  |  +- io.ebean:ebean-annotation:jar:8.0:compile
+[INFO] |  |  +- io.ebean:ebean-types:jar:2.2:compile
+[INFO] |  |  \- io.ebean:ebean-datasource-api:jar:8.0:compile
+[INFO] |  +- io.ebean:ebean-core:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  |  +- io.ebean:ebean-ddl-runner:jar:2.0:compile
+[INFO] |  |  +- io.avaje:classpath-scanner:jar:7.1:compile
+[INFO] |  |  |  \- io.avaje:classpath-scanner-api:jar:7.1:compile
+[INFO] |  |  +- io.ebean:ebean-core-type:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  |  +- io.ebean:ebean-externalmapping-api:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  |  \- org.antlr:antlr4-runtime:jar:4.8-1:compile
+[INFO] |  +- io.ebean:ebean-datasource:jar:8.0:compile
+[INFO] |  +- io.ebean:ebean-querybean:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  \- io.ebean:ebean-platform-all:jar:13.6.4-SNAPSHOT:compile
+[INFO] |     +- io.ebean:ebean-platform-clickhouse:jar:13.6.4-SNAPSHOT:compile
+[INFO] |     +- io.ebean:ebean-platform-db2:jar:13.6.4-SNAPSHOT:compile
+[INFO] |     +- io.ebean:ebean-platform-hana:jar:13.6.4-SNAPSHOT:compile
+[INFO] |     +- io.ebean:ebean-platform-hsqldb:jar:13.6.4-SNAPSHOT:compile
+[INFO] |     +- io.ebean:ebean-platform-mysql:jar:13.6.4-SNAPSHOT:compile
+[INFO] |     +- io.ebean:ebean-platform-mariadb:jar:13.6.4-SNAPSHOT:compile
+[INFO] |     +- io.ebean:ebean-platform-nuodb:jar:13.6.4-SNAPSHOT:compile
+[INFO] |     +- io.ebean:ebean-platform-oracle:jar:13.6.4-SNAPSHOT:compile
+[INFO] |     +- io.ebean:ebean-platform-postgres:jar:13.6.4-SNAPSHOT:compile
+[INFO] |     +- io.ebean:ebean-platform-sqlanywhere:jar:13.6.4-SNAPSHOT:compile
+[INFO] |     +- io.ebean:ebean-platform-sqlite:jar:13.6.4-SNAPSHOT:compile
+[INFO] |     \- io.ebean:ebean-platform-sqlserver:jar:13.6.4-SNAPSHOT:compile
+[INFO] +- ch.qos.logback:logback-classic:jar:1.2.11:compile
+[INFO] |  +- ch.qos.logback:logback-core:jar:1.2.11:compile
+[INFO] |  \- org.slf4j:slf4j-api:jar:1.7.32:compile
+[INFO] +- io.ebean:ebean-test:jar:13.6.4-SNAPSHOT:test
+[INFO] |  +- io.ebean:ebean-platform-h2:jar:13.6.4-SNAPSHOT:compile
+[INFO] |  +- io.ebean:ebean-ddl-generator:jar:13.6.4-SNAPSHOT:test
+[INFO] |  |  \- io.ebean:ebean-migration:jar:13.6.0:test
+[INFO] |  +- io.ebean:ebean-test-containers:jar:6.0:test
+[INFO] |  +- org.assertj:assertj-core:jar:3.22.0:test
+[INFO] |  +- org.glassfish.jaxb:jaxb-runtime:jar:2.3.6:test
+[INFO] |  |  +- jakarta.xml.bind:jakarta.xml.bind-api:jar:2.3.3:test
+[INFO] |  |  +- org.glassfish.jaxb:txw2:jar:2.3.6:test
+[INFO] |  |  +- com.sun.istack:istack-commons-runtime:jar:3.0.12:test
+[INFO] |  |  \- com.sun.activation:jakarta.activation:jar:1.2.2:test
+[INFO] |  \- com.h2database:h2:jar:2.1.212:test
+[INFO] \- io.avaje:junit:jar:1.1:test
+[INFO]    +- org.junit.jupiter:junit-jupiter-api:jar:5.8.2:test
+[INFO]    |  +- org.opentest4j:opentest4j:jar:1.2.0:test
+[INFO]    |  +- org.junit.platform:junit-platform-commons:jar:1.8.2:test
+[INFO]    |  \- org.apiguardian:apiguardian-api:jar:1.1.2:test
+[INFO]    +- org.junit.jupiter:junit-jupiter-engine:jar:5.8.2:test
+[INFO]    |  \- org.junit.platform:junit-platform-engine:jar:1.8.2:test
+[INFO]    \- org.mockito:mockito-core:jar:4.4.0:test
+[INFO]       +- net.bytebuddy:byte-buddy:jar:1.12.8:test
+[INFO]       +- net.bytebuddy:byte-buddy-agent:jar:1.12.8:test
+[INFO]       \- org.objenesis:objenesis:jar:3.2:test
+[INFO] 
+[INFO] ---------------------------< io.ebean:tests >---------------------------
+[INFO] Building tests 1.0                                               [49/49]
+[INFO] --------------------------------[ pom ]---------------------------------
+[INFO] 
+[INFO] --- maven-dependency-plugin:2.8:tree (default-cli) @ tests ---
+[INFO] io.ebean:tests:pom:1.0
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Summary:
+[INFO] 
+[INFO] ebean parent 13.6.4-SNAPSHOT ....................... SUCCESS [  1.450 s]
+[INFO] ebean api 13.6.4-SNAPSHOT .......................... SUCCESS [  0.033 s]
+[INFO] ebean bom 13.6.4-SNAPSHOT .......................... SUCCESS [  0.003 s]
+[INFO] ebean core type 13.6.4-SNAPSHOT .................... SUCCESS [  0.009 s]
+[INFO] ebean external mapping api 13.6.4-SNAPSHOT ......... SUCCESS [  0.003 s]
+[INFO] platforms 13.6.4-SNAPSHOT .......................... SUCCESS [  0.003 s]
+[INFO] ebean-platform-h2 13.6.4-SNAPSHOT .................. SUCCESS [  0.005 s]
+[INFO] ebean-platform-postgres 13.6.4-SNAPSHOT ............ SUCCESS [  0.006 s]
+[INFO] ebean-platform-sqlserver 13.6.4-SNAPSHOT ........... SUCCESS [  0.005 s]
+[INFO] ebean core 13.6.4-SNAPSHOT ......................... SUCCESS [  0.045 s]
+[INFO] ebean dbmigration runner 13.6.4-SNAPSHOT ........... SUCCESS [  0.007 s]
+[INFO] ebean-platform-clickhouse 13.6.4-SNAPSHOT .......... SUCCESS [  0.004 s]
+[INFO] ebean-platform-db2 13.6.4-SNAPSHOT ................. SUCCESS [  0.004 s]
+[INFO] ebean-platform-hana 13.6.4-SNAPSHOT ................ SUCCESS [  0.003 s]
+[INFO] ebean-platform-hsqldb 13.6.4-SNAPSHOT .............. SUCCESS [  0.003 s]
+[INFO] ebean-platform-mysql 13.6.4-SNAPSHOT ............... SUCCESS [  0.011 s]
+[INFO] ebean-platform-mariadb 13.6.4-SNAPSHOT ............. SUCCESS [  0.007 s]
+[INFO] ebean-platform-nuodb 13.6.4-SNAPSHOT ............... SUCCESS [  0.005 s]
+[INFO] ebean-platform-oracle 13.6.4-SNAPSHOT .............. SUCCESS [  0.006 s]
+[INFO] ebean-platform-sqlanywhere 13.6.4-SNAPSHOT ......... SUCCESS [  0.008 s]
+[INFO] ebean-platform-sqlite 13.6.4-SNAPSHOT .............. SUCCESS [  0.004 s]
+[INFO] ebean-platform-all 13.6.4-SNAPSHOT ................. SUCCESS [  0.014 s]
+[INFO] ebean ddl generation 13.6.4-SNAPSHOT ............... SUCCESS [  0.021 s]
+[INFO] ebean autotune 13.6.4-SNAPSHOT ..................... SUCCESS [  0.133 s]
+[INFO] ebean external mapping xml 13.6.4-SNAPSHOT ......... SUCCESS [  0.011 s]
+[INFO] ebean test 13.6.4-SNAPSHOT ......................... SUCCESS [  0.040 s]
+[INFO] querybean generator 13.6.4-SNAPSHOT ................ SUCCESS [  0.003 s]
+[INFO] ebean querybean 13.6.4-SNAPSHOT .................... SUCCESS [  0.013 s]
+[INFO] kotlin querybean generator 13.6.4-SNAPSHOT ......... SUCCESS [  0.012 s]
+[INFO] ebean postgis 13.6.4-SNAPSHOT ...................... SUCCESS [  0.011 s]
+[INFO] ebean redis 13.6.4-SNAPSHOT ........................ SUCCESS [  0.013 s]
+[INFO] composites 13.6.4-SNAPSHOT ......................... SUCCESS [  0.002 s]
+[INFO] ebean (all platforms) 13.6.4-SNAPSHOT .............. SUCCESS [  0.009 s]
+[INFO] ebean-clickhouse 13.6.4-SNAPSHOT ................... SUCCESS [  0.005 s]
+[INFO] ebean-cockroach 13.6.4-SNAPSHOT .................... SUCCESS [  0.004 s]
+[INFO] ebean-db2 13.6.4-SNAPSHOT .......................... SUCCESS [  0.003 s]
+[INFO] ebean-h2 13.6.4-SNAPSHOT ........................... SUCCESS [  0.004 s]
+[INFO] ebean-hana 13.6.4-SNAPSHOT ......................... SUCCESS [  0.006 s]
+[INFO] ebean-mariadb 13.6.4-SNAPSHOT ...................... SUCCESS [  0.005 s]
+[INFO] ebean-mysql 13.6.4-SNAPSHOT ........................ SUCCESS [  0.005 s]
+[INFO] ebean-nuodb 13.6.4-SNAPSHOT ........................ SUCCESS [  0.004 s]
+[INFO] ebean-oracle 13.6.4-SNAPSHOT ....................... SUCCESS [  0.011 s]
+[INFO] ebean-postgres 13.6.4-SNAPSHOT ..................... SUCCESS [  0.004 s]
+[INFO] ebean-sqlite 13.6.4-SNAPSHOT ....................... SUCCESS [  0.005 s]
+[INFO] ebean-sqlserver 13.6.4-SNAPSHOT .................... SUCCESS [  0.004 s]
+[INFO] ebean-yugabyte 13.6.4-SNAPSHOT ..................... SUCCESS [  0.004 s]
+[INFO] ebean-kotlin 13.6.4-SNAPSHOT ....................... SUCCESS [  0.011 s]
+[INFO] test-java16 1.0 .................................... SUCCESS [  0.011 s]
+[INFO] tests 1.0 .......................................... SUCCESS [  0.149 s]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  4.223 s
+[INFO] Finished at: 2022-12-06T17:41:48+01:00
+[INFO] ------------------------------------------------------------------------
