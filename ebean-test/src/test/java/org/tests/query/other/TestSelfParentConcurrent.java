@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class TestSelfParentConcurrent extends BaseTestCase {
   Logger logger = LoggerFactory.getLogger(TestSelfParentConcurrent.class);
 
-  public static final int COUNT = 50;
+  public static final int COUNT = 500;
 
   class ProcessorUpdateParent implements Runnable {
     private CountDownLatch latch;
@@ -73,13 +73,6 @@ public class TestSelfParentConcurrent extends BaseTestCase {
           } else {
             logger.debug("release writelock failed{}", parentId);
           }
-
-
-          try {
-            Thread.sleep(10);
-          } catch (InterruptedException e) {
-            //throw new RuntimeException(e);
-          }
         } catch (PersistenceException e) {
           // NOP - ging halt nicht
           logger.error("could not release writelock {}", parentId, e);
@@ -119,27 +112,14 @@ public class TestSelfParentConcurrent extends BaseTestCase {
           // NOP - ging halt nicht
           logger.error("child insert failed {}", childId, e);
         }
-        try {
-          Thread.sleep(5);
-        } catch (InterruptedException e) {
-          //throw new RuntimeException(e);
-        }
-        try {
+
           int count = DB.find(SelfParent.class).where().in("id", childIds).delete();
           if (count > 0) {
             logger.debug("delete read success{}", childId);
           } else {
             logger.debug("delete read failed{}", childId);
           }
-          try {
-            Thread.sleep(5);
-          } catch (InterruptedException e) {
-            //throw new RuntimeException(e);
-          }
-        } catch (PersistenceException e) {
-          // NOP - ging halt nicht
-          logger.error("could not delete readlock {}", parentId, e);
-        }
+
       }
 
       latch.countDown();
@@ -153,8 +133,8 @@ public class TestSelfParentConcurrent extends BaseTestCase {
 
     ExecutorService executor = Executors.newFixedThreadPool(2);
 
-    Long parentId = 1L;
-    Long childId = 2L;
+    Long parentId = 55L;
+    Long childId = 66L;
 
     executor.submit(new ProcessorUpdateParent(latch, parentId));
     executor.submit(new ProcessorCreateAndDeleteChild(latch, childId, parentId));

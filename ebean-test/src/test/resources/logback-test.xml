@@ -79,6 +79,7 @@
   <logger name="io.ebean.test" level="TRACE"/>
 
   <logger name="org.tests.query.other.TestSelfParentConcurrent" level="DEBUG"/>
+  <logger name="org.tests.model.locking.ResourceLockingHandlerDb" level="DEBUG"/>
 
 
 <!--  <logger name="io.ebean.DDL" level="DEBUG"/>-->
