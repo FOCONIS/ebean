@@ -271,6 +271,7 @@ public class ResourceLockingHandlerDb implements ResourceLockingHandler {
         // @formatter:on
       }
     } catch (PersistenceException e) {
+      log.debug("censureWriteLockExists failed {}", "hmm", e);
       ret = false;
     }
 
@@ -340,6 +341,7 @@ public class ResourceLockingHandlerDb implements ResourceLockingHandler {
             break;
           }
         } catch (PersistenceException e) {
+          log.debug("could not obtain readlock {}", readLock, e);
           // lock already exists
           ret = null;
           break;
@@ -386,7 +388,6 @@ public class ResourceLockingHandlerDb implements ResourceLockingHandler {
         }
 
         int picked = 0;
-        try {
           // raw weil Ebean für MariaDB die subquery nicht richtig berechnet
           picked = DB.sqlUpdate("update read_write_lock "
               + "set locked = :handlerId, task_info= :taskInfo "
@@ -397,10 +398,9 @@ public class ResourceLockingHandlerDb implements ResourceLockingHandler {
             .setParameter("parentId", parent.getId())
             .executeNow();
 
-        } catch (PersistenceException e) {
+
           // NOP - ging halt nicht
-          log.debug("could not obtain writelock {}", writeLock, e);
-        }
+          //log.debug("could not obtain writelock {}", writeLock, e);
 
         if (picked == 1) {
           ret.add(parent.getId());
@@ -448,13 +448,10 @@ public class ResourceLockingHandlerDb implements ResourceLockingHandler {
        return false;
        }**/
 
-      try {
+
         count = DB.find(ReadWriteLock.class).where().in("id", readLocks).delete();
 
-      } catch (PersistenceException e) {
-        log.error("read-locks '{}' release for task '{}' failed: Could not release any lock.", lockNames, taskInfo, e);
-        return false;
-      }
+
     }
 
     if (count != readLocks.size()) {
@@ -472,17 +469,14 @@ public class ResourceLockingHandlerDb implements ResourceLockingHandler {
     checkContext();
     int count = 0;
     if (!writeLocks.isEmpty()) {
-      try {
+
         count = DB.sqlUpdate(
             "update read_write_lock set locked = null, task_info = null, lock_time = :lockTime where id in (:ids) and locked = :handlerId")
           .setParameter("lockTime", clock.instant())
           .setParameter("ids", writeLocks)
           .setParameter("handlerId", handlerId)
           .executeNow();
-      } catch (PersistenceException e) {
-        log.error("write-locks '{}' release for task '{}' failed: Could not release any lock.", lockNames, taskInfo, e);
-        return false;
-      }
+
     }
 
     if (count != writeLocks.size()) {
@@ -514,6 +508,7 @@ public class ResourceLockingHandlerDb implements ResourceLockingHandler {
       DB.save(ret);
     } catch (PersistenceException e) {
       // another instance created the resource
+      log.debug("censureWriteLockExists failed {}", resourceName, e);
       ret = DB.find(ReadWriteLock.class).where().eq("name", resourceName).findOne();
     }
     return ret;
