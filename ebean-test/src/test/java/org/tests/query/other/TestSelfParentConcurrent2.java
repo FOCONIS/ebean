@@ -10,12 +10,17 @@ import org.tests.model.locking.ResourceLockingHandler;
 import org.tests.model.selfref.SelfParent;
 
 import javax.persistence.PersistenceException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class TestSelfParentConcurrent2 extends BaseTestCase {
   Logger logger = LoggerFactory.getLogger(TestSelfParentConcurrent2.class);
@@ -42,19 +47,22 @@ public class TestSelfParentConcurrent2 extends BaseTestCase {
       this.startDelay = startDelay;
     }
 
-    public Object call() {
+    public Object call() throws Exception {
       try {
         Thread.sleep(startDelay);
       } catch (InterruptedException e) {
       }
-      for (int i = 0; i < LOOP_COUNT; i++) {
-        ResourceLock lock = lockingHandler.obtainWriteLocks(name, Arrays.asList(PARENT_LOCK));
-        if (lock != null) {
-          lock.release();
+      try {
+        for (int i = 0; i < LOOP_COUNT; i++) {
+          ResourceLock lock = lockingHandler.obtainWriteLocks(name, writeLocks);
+          if (lock != null) {
+            lock.release();
+          }
         }
+        return null;
+      } finally {
+        latch.countDown();
       }
-      latch.countDown();
-      return null;
     }
   }
 
@@ -74,44 +82,55 @@ public class TestSelfParentConcurrent2 extends BaseTestCase {
       this.startDelay = startDelay;
     }
 
-    public Object call() {
+    public Object call() throws Exception {
       try {
         Thread.sleep(startDelay);
       } catch (InterruptedException e) {
       }
-      for (int i = 0; i < LOOP_COUNT; i++) {
-        ResourceLock lock = lockingHandler.obtainReadLocks(name, Arrays.asList(PARENT_LOCK));
-        if (lock != null) {
-          lock.release();
+      try {
+        for (int i = 0; i < LOOP_COUNT; i++) {
+          ResourceLock lock = lockingHandler.obtainReadLocks(name, readLocks);
+          if (lock != null) {
+            lock.release();
+          }
         }
+        return null;
+      } finally {
+        latch.countDown();
       }
-      latch.countDown();
-      return null;
+
     }
+
+
   }
 
   @Test
-  public void testDeadlocky() {
+  public void testDeadlocky() throws ExecutionException {
 
-    int readCount = 5;
+    int readCount = 1;
     int writeCount = 1;
 
     CountDownLatch latch = new CountDownLatch(readCount + writeCount);
 
-    ExecutorService executor = Executors.newFixedThreadPool(2);
+    ExecutorService executor = Executors.newFixedThreadPool(readCount + writeCount);
 
     Long parentId = 33L;
     Long childId = 44L;
 
     List<String> locks = Arrays.asList(PARENT_LOCK);
 
-    executor.submit(new ProcessorUpdateParent(latch, locks, "write", 0));
-    executor.submit(new ProcessorCreateAndDeleteChild(latch, locks, "read", 0));
+    List<Callable<Object>> toDos = new ArrayList<>();
+
+    toDos.add(new ProcessorUpdateParent(latch, locks, "write", 0));
+    toDos.add(new ProcessorCreateAndDeleteChild(latch, locks, "read", 0));
 
     try {
-      latch.await();  // wait until latch counted down to 0
+      List<Future<Object>> results = executor.invokeAll(toDos);
+      latch.await();
+      results.get(0).get();
+      results.get(1).get();
     } catch (InterruptedException e) {
-      e.printStackTrace();
+      throw new RuntimeException(e);
     }
 
     System.out.println("Completed.");
