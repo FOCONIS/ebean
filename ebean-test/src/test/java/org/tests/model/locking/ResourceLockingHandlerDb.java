@@ -271,7 +271,7 @@ public class ResourceLockingHandlerDb implements ResourceLockingHandler {
         // @formatter:on
       }
     } catch (PersistenceException e) {
-      log.debug("censureWriteLockExists failed {}", "hmm", e);
+      log.error("censureWriteLockExists failed {}", "hmm", e);
       ret = false;
     }
 
@@ -331,7 +331,7 @@ public class ResourceLockingHandlerDb implements ResourceLockingHandler {
               .executeNow();
           } catch (PersistenceException e) {
             // NOP - ging halt nicht
-            log.debug("could not obtain readlock {}", readLock, e);
+            log.error("could not obtain readlock {}", readLock, e);
           }
 
           if (picked == 1) {
@@ -341,7 +341,7 @@ public class ResourceLockingHandlerDb implements ResourceLockingHandler {
             break;
           }
         } catch (PersistenceException e) {
-          log.debug("could not obtain readlock {}", readLock, e);
+          log.error("could not obtain readlock {}", readLock, e);
           // lock already exists
           ret = null;
           break;
@@ -508,7 +508,7 @@ public class ResourceLockingHandlerDb implements ResourceLockingHandler {
       DB.save(ret);
     } catch (PersistenceException e) {
       // another instance created the resource
-      log.debug("censureWriteLockExists failed {}", resourceName, e);
+      log.error("censureWriteLockExists failed {}", resourceName, e);
       ret = DB.find(ReadWriteLock.class).where().eq("name", resourceName).findOne();
     }
     return ret;
