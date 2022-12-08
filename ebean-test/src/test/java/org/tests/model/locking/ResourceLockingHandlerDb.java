@@ -308,44 +308,42 @@ public class ResourceLockingHandlerDb implements ResourceLockingHandler {
           ret = null;
           break;
         }
-        try {
-          ReadWriteLock readWriteLock = new ReadWriteLock()
-            .setTaskInfo(taskInfoShort)
-            .setParent(parent)
-            .setLockTime(clock.instant());
-          DB.save(readWriteLock); // throws dataIntegrityException
-          toResetIds.add(readWriteLock.getId());
-          toResetNames.add(readLock);
+        ReadWriteLock readWriteLock = new ReadWriteLock()
+          .setTaskInfo(taskInfoShort)
+          .setParent(parent)
+          .setLockTime(clock.instant());
+        DB.save(readWriteLock); // throws dataIntegrityException
+        toResetIds.add(readWriteLock.getId());
+        toResetNames.add(readLock);
 
-          int picked = 0;
-          try {
-            // raw weil Ebean für MariaDB die subquery nicht richtig berechnet
-            picked = DB.sqlUpdate("update read_write_lock set locked = :handlerId, task_info = :taskInfo "
-                + "where id in (select sq.id from "
-                + "(select rl.id from read_write_lock rl "
-                + "left join read_write_lock wl on wl.id = rl.parent_id "
-                + "where rl.id = :id and wl.locked is null) sq)")
-              .setParameter("handlerId", handlerId)
-              .setParameter("taskInfo", taskInfoShort)
-              .setParameter("id", readWriteLock.getId())
-              .executeNow();
-          } catch (PersistenceException e) {
-            // NOP - ging halt nicht
-            log.error("could not obtain readlock {}", readLock, e);
-          }
-
-          if (picked == 1) {
-            ret.add(readWriteLock.getId());
-          } else {
-            ret = null;
-            break;
-          }
+        int picked = 0;
+        try (Transaction txn = DB.beginTransaction()) {
+          // with the query we acquire a read lock  required in the subquery, acquiring X after S causes deadlocks with other transactions
+          // DB.sqlQuery("select sq.id from (select id from read_write_lock where parent_id = :parentId and locked is not null) sq ").setParameter("parentId", parent.getId()).findList();
+          // DB.sqlQuery("select id from read_write_lock where parent_id = :parentId and locked is not null").setParameter("parentId", parent.getId()).findList();
+          // raw weil Ebean für MariaDB die subquery nicht richtig berechnet
+          picked = DB.sqlUpdate("update read_write_lock set locked = :handlerId, task_info = :taskInfo "
+              + "where id in (select sq.id from "
+              + "(select rl.id from read_write_lock rl "
+              + "left join read_write_lock wl on wl.id = rl.parent_id "
+              + "where rl.id = :id and wl.locked is null) sq)")
+            .setParameter("handlerId", handlerId)
+            .setParameter("taskInfo", taskInfoShort)
+            .setParameter("id", readWriteLock.getId())
+            .executeNow();
+          txn.commit();
         } catch (PersistenceException e) {
+          // NOP - ging halt nicht
           log.error("could not obtain readlock {}", readLock, e);
-          // lock already exists
+        }
+
+        if (picked == 1) {
+          ret.add(readWriteLock.getId());
+        } else {
           ret = null;
           break;
         }
+
       }
 
       if (ret == null) {
@@ -388,19 +386,41 @@ public class ResourceLockingHandlerDb implements ResourceLockingHandler {
         }
 
         int picked = 0;
-          // raw weil Ebean für MariaDB die subquery nicht richtig berechnet
-          picked = DB.sqlUpdate("update read_write_lock "
-              + "set locked = :handlerId, task_info= :taskInfo "
-              + "where id = :parentId and locked is null and "
-              + "not exists (select sq.id from (select id from read_write_lock where parent_id = :parentId and locked is not null) sq )")
-            .setParameter("handlerId", handlerId)
-            .setParameter("taskInfo", taskInfoShort)
-            .setParameter("parentId", parent.getId())
-            .executeNow();
+        // raw weil Ebean für MariaDB die subquery nicht richtig berechnet
+
+        //DB.sqlUpdate("lock table read_write_lock WRITE").executeNow();
+        try (Transaction txn = DB.beginTransaction()) {
+          // with the query we acquire a read lock  required in the subquery, acquiring X after S causes deadlocks with other transactions
+          Long obj = (Long) DB.sqlQuery("select count(sq.id) from (select id from read_write_lock where parent_id = :parentId and locked is not null) sq ").setParameter("parentId", parent.getId()).findOne().get("count(sq.id)");
+          // DB.sqlQuery("select id from read_write_lock where parent_id = :parentId and locked is not null").setParameter("parentId", parent.getId()).findList();
+          if (obj.longValue() == 0) {
+            picked = DB.sqlUpdate("update read_write_lock "
+                + "set locked = :handlerId, task_info= :taskInfo "
+                + "where id = :parentId and locked is null")
+              .setParameter("handlerId", handlerId)
+              .setParameter("taskInfo", taskInfoShort)
+              .setParameter("parentId", parent.getId())
+              .executeNow();
+            txn.commit();
+          }
+
+          /**
+           * picked = DB.sqlUpdate("update read_write_lock "
+           *               + "set locked = :handlerId, task_info= :taskInfo "
+           *               + "where id = :parentId and locked is null and "
+           *               + "not exists (select sq.id from (select id from read_write_lock where parent_id = :parentId and locked is not null) sq )")
+           *             .setParameter("handlerId", handlerId)
+           *             .setParameter("taskInfo", taskInfoShort)
+           *             .setParameter("parentId", parent.getId())
+           *             .executeNow();
+           */
+        }
+
+        // DB.sqlUpdate("unlock tables").executeNow();
 
 
-          // NOP - ging halt nicht
-          //log.debug("could not obtain writelock {}", writeLock, e);
+        // NOP - ging halt nicht
+        //log.debug("could not obtain writelock {}", writeLock, e);
 
         if (picked == 1) {
           ret.add(parent.getId());
@@ -449,7 +469,7 @@ public class ResourceLockingHandlerDb implements ResourceLockingHandler {
        }**/
 
 
-        count = DB.find(ReadWriteLock.class).where().in("id", readLocks).delete();
+      count = DB.find(ReadWriteLock.class).where().in("id", readLocks).delete();
 
 
     }
@@ -470,12 +490,12 @@ public class ResourceLockingHandlerDb implements ResourceLockingHandler {
     int count = 0;
     if (!writeLocks.isEmpty()) {
 
-        count = DB.sqlUpdate(
-            "update read_write_lock set locked = null, task_info = null, lock_time = :lockTime where id in (:ids) and locked = :handlerId")
-          .setParameter("lockTime", clock.instant())
-          .setParameter("ids", writeLocks)
-          .setParameter("handlerId", handlerId)
-          .executeNow();
+      count = DB.sqlUpdate(
+          "update read_write_lock set locked = null, task_info = null, lock_time = :lockTime where id in (:ids) and locked = :handlerId")
+        .setParameter("lockTime", clock.instant())
+        .setParameter("ids", writeLocks)
+        .setParameter("handlerId", handlerId)
+        .executeNow();
 
     }
 
