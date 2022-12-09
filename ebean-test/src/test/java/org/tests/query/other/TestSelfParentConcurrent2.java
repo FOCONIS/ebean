@@ -29,7 +29,7 @@ public class TestSelfParentConcurrent2 extends BaseTestCase {
 
   protected ResourceLockingHandler lockingHandler = ResourceLockingHandler.getBean();
 
-  public static final int LOOP_COUNT = 50;
+  public static final int LOOP_COUNT = 1000;
 
   public static String PARENT_LOCK = "parent";
 
@@ -112,8 +112,8 @@ public class TestSelfParentConcurrent2 extends BaseTestCase {
     DB.find(ReadWriteLock.class).where().isNotNull("parent").delete();
     DB.find(ReadWriteLock.class).delete();
 
-    int readCount = 0;
-    int writeCount = 1;
+    int readCount = 5;
+    int writeCount = 2;
 
     CountDownLatch latch = new CountDownLatch(readCount + writeCount);
 
@@ -123,14 +123,23 @@ public class TestSelfParentConcurrent2 extends BaseTestCase {
 
     List<Callable<Object>> toDos = new ArrayList<>();
 
-    toDos.add(new ProcessorUpdateParent(latch, locks, "write", 100));
-    //toDos.add(new ProcessorCreateAndDeleteChild(latch, locks, "read", 100));
+    for (int i = 0; i < writeCount; i++) {
+      toDos.add(new ProcessorUpdateParent(latch, locks, "write"+i, 100));
+    }
+
+    for (int i = 0; i < readCount; i++) {
+      toDos.add(new ProcessorCreateAndDeleteChild(latch, locks, "read"+i, 100));
+    }
+
+
+
 
     try {
       List<Future<Object>> results = executor.invokeAll(toDos);
       latch.await();
-      results.get(0).get();
-      //results.get(1).get();
+      for (int i = 0; i < readCount + writeCount; i++) {
+        results.get(i).get();
+      }
     } catch (InterruptedException e) {
       throw new RuntimeException(e);
     }
