@@ -14,6 +14,9 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.persistence.PersistenceException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.Statement;
 import java.time.Clock;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -386,22 +389,57 @@ public class ResourceLockingHandlerDb implements ResourceLockingHandler {
           ret = null;
           break; // already locked -> fertig
         }
-
         int picked = 0;
+        try (Transaction txn = DB.beginTransaction()) {
+          Connection connection = txn.connection();
+
           // raw weil Ebean für MariaDB die subquery nicht richtig berechnet
-          picked = DB.sqlUpdate("update read_write_lock "
-              + "set locked = :handlerId, task_info= :taskInfo "
-              + "where id = :parentId and locked is null and "
-              + "not exists (select sq.id from (select id from read_write_lock where parent_id = :parentId and locked is not null) sq )")
-            .setParameter("handlerId", handlerId)
-            .setParameter("taskInfo", taskInfoShort)
-            .setParameter("parentId", parent.getId())
-            .executeNow();
+
+          /**
+           PreparedStatement preparedStatement = connection.prepareStatement("update read_write_lock "
+           + "set locked = ?, task_info= ? "
+           + "where id = ? and locked is null and "
+           + "not exists (select sq.id from (select id from read_write_lock where parent_id = ? and locked is not null) sq )");
+           preparedStatement.setString(1, handlerId.toString());
+           preparedStatement.setString(2, taskInfo);
+           preparedStatement.setString(3, parent.getId().toString());
+           preparedStatement.setString(4, parent.getId().toString());
+           */
 
 
+
+          PreparedStatement preparedStatement = connection.prepareStatement("update read_write_lock "
+            + "set locked = ?, task_info= ? "
+            + "where id = ? and locked is null");
+          preparedStatement.setString(1, handlerId.toString());
+          preparedStatement.setString(2, taskInfo);
+          preparedStatement.setString(3, parent.getId().toString());
+
+
+
+
+          Statement statement = preparedStatement.getConnection().createStatement();
+          statement.execute("lock table read_write_lock WRITE");
+          try {
+            preparedStatement.execute();
+          } catch(Throwable th) {
+            log.error("statement fail", th);
+            throw th;
+          }
+
+
+          //    .setParameter("handlerId", handlerId)
+          //    .setParameter("taskInfo", taskInfoShort)
+          //    .setParameter("parentId", parent.getId())
+          //    .executeNow();
+
+          statement.execute("lock table read_write_lock WRITE");
+          txn.commit();
+          statement.close();
+          preparedStatement.close();
           // NOP - ging halt nicht
           //log.debug("could not obtain writelock {}", writeLock, e);
-
+        }
         if (picked == 1) {
           ret.add(parent.getId());
           toResetIds.add(parent.getId());
@@ -449,7 +487,7 @@ public class ResourceLockingHandlerDb implements ResourceLockingHandler {
        }**/
 
 
-        count = DB.find(ReadWriteLock.class).where().in("id", readLocks).delete();
+      count = DB.find(ReadWriteLock.class).where().in("id", readLocks).delete();
 
 
     }
@@ -470,12 +508,12 @@ public class ResourceLockingHandlerDb implements ResourceLockingHandler {
     int count = 0;
     if (!writeLocks.isEmpty()) {
 
-        count = DB.sqlUpdate(
-            "update read_write_lock set locked = null, task_info = null, lock_time = :lockTime where id in (:ids) and locked = :handlerId")
-          .setParameter("lockTime", clock.instant())
-          .setParameter("ids", writeLocks)
-          .setParameter("handlerId", handlerId)
-          .executeNow();
+      count = DB.sqlUpdate(
+          "update read_write_lock set locked = null, task_info = null, lock_time = :lockTime where id in (:ids) and locked = :handlerId")
+        .setParameter("lockTime", clock.instant())
+        .setParameter("ids", writeLocks)
+        .setParameter("handlerId", handlerId)
+        .executeNow();
 
     }
 

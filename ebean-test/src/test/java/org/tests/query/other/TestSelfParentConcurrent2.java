@@ -109,10 +109,10 @@ public class TestSelfParentConcurrent2 extends BaseTestCase {
   @Test
   public void testDeadlocky() throws ExecutionException {
 
-    //DB.find(ReadWriteLock.class).where().isNotNull("parent").delete();
-    //DB.find(ReadWriteLock.class).delete();
+    DB.find(ReadWriteLock.class).where().isNotNull("parent").delete();
+    DB.find(ReadWriteLock.class).delete();
 
-    int readCount = 1;
+    int readCount = 0;
     int writeCount = 1;
 
     CountDownLatch latch = new CountDownLatch(readCount + writeCount);
@@ -124,13 +124,13 @@ public class TestSelfParentConcurrent2 extends BaseTestCase {
     List<Callable<Object>> toDos = new ArrayList<>();
 
     toDos.add(new ProcessorUpdateParent(latch, locks, "write", 100));
-    toDos.add(new ProcessorCreateAndDeleteChild(latch, locks, "read", 100));
+    //toDos.add(new ProcessorCreateAndDeleteChild(latch, locks, "read", 100));
 
     try {
       List<Future<Object>> results = executor.invokeAll(toDos);
       latch.await();
       results.get(0).get();
-      results.get(1).get();
+      //results.get(1).get();
     } catch (InterruptedException e) {
       throw new RuntimeException(e);
     }
