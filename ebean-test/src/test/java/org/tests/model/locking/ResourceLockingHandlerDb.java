@@ -5,15 +5,7 @@
 
 package org.tests.model.locking;
 
-import io.ebean.DB;
-import io.ebean.Transaction;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-
-import javax.annotation.Nonnull;
-import javax.persistence.PersistenceException;
 import java.time.Clock;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -24,6 +16,17 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+
+import javax.annotation.Nonnull;
+import javax.persistence.PersistenceException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+
+import io.ebean.DB;
+import io.ebean.Transaction;
+
 
 /**
  * Class that handles resource locks.
@@ -36,17 +39,17 @@ public class ResourceLockingHandlerDb implements ResourceLockingHandler {
 
   private class ResourceLockDb implements ResourceLock {
 
-    private final boolean writeLock;
-    private final List<UUID> lockIds;
-    private final String taskInfo;
-    private final Collection<String> lockNames;
-
     public ResourceLockDb(boolean writeLock, List<UUID> lockIds, String taskInfo, Collection<String> lockNames) {
       this.writeLock = writeLock;
       this.lockIds = lockIds;
       this.taskInfo = taskInfo;
       this.lockNames = lockNames;
     }
+
+    private final boolean writeLock;
+    private final List<UUID> lockIds;
+    private final String taskInfo;
+    private final Collection<String> lockNames;
 
     @Override
     public boolean isWriteLock() {
@@ -88,13 +91,12 @@ public class ResourceLockingHandlerDb implements ResourceLockingHandler {
     STOPPED, SHUTTING_DOWN, STARTED;
   }
 
-
   private UUID handlerId = UUID.randomUUID();
-
   @Override
   public UUID getHandlerId() {
     return handlerId;
   }
+
 
   private PeriodicThread heartbeatThread;
 
@@ -132,26 +134,24 @@ public class ResourceLockingHandlerDb implements ResourceLockingHandler {
 
   @Override
   public synchronized void stop() {
-    try {
-
-      if (running == State.STARTED) {
-        running = State.SHUTTING_DOWN;
-      } else {
-        return;
-      }
-
-      //check if there are open logs on shutdown from this handler. This is probably a programming error.
-      List<ReadWriteLock> staleLocks = DB.find(ReadWriteLock.class).where().eq("locked", handlerId).findList();
-      resetStaleLocks(staleLocks);
-      if (heartbeatThread != null) {
-        heartbeatThread.shutdown(5000);
-        heartbeatThread = null;
-      }
-      running = State.STOPPED;
-
-    } catch (Throwable th) {
-
+    if (running == State.STARTED) {
+      running = State.SHUTTING_DOWN;
+    } else {
+      return;
     }
+
+    //check if there are open logs on shutdown from this handler. This is probably a programming error.
+    List<ReadWriteLock> staleLocks = DB.find(ReadWriteLock.class).where().eq("locked", handlerId).findList();
+    resetStaleLocks(staleLocks);
+    if (heartbeatThread != null) {
+      try {
+        heartbeatThread.shutdown(5000);
+      } catch (InterruptedException e) {
+        throw new RuntimeException(e);
+      }
+      heartbeatThread = null;
+    }
+    running = State.STOPPED;
   }
 
   /**
@@ -271,7 +271,6 @@ public class ResourceLockingHandlerDb implements ResourceLockingHandler {
         // @formatter:on
       }
     } catch (PersistenceException e) {
-      log.error("censureWriteLockExists failed {}", "hmm", e);
       ret = false;
     }
 
@@ -281,6 +280,10 @@ public class ResourceLockingHandlerDb implements ResourceLockingHandler {
       log.debug("read-locks '{}' and write-locks '{}' are not obtainable for task '{}'", readLocks, writeLocks, taskInfo);
     }
     return ret;
+  }
+
+  public static String left(@Nonnull String str, int count) {
+    return count <= 0 ? "" : str.substring(0, Math.min(count, str.length()));
   }
 
   /**
@@ -308,42 +311,43 @@ public class ResourceLockingHandlerDb implements ResourceLockingHandler {
           ret = null;
           break;
         }
-        ReadWriteLock readWriteLock = new ReadWriteLock()
-          .setTaskInfo(taskInfoShort)
-          .setParent(parent)
-          .setLockTime(clock.instant());
-        DB.save(readWriteLock); // throws dataIntegrityException
-        toResetIds.add(readWriteLock.getId());
-        toResetNames.add(readLock);
+        try {
+          ReadWriteLock readWriteLock = new ReadWriteLock()
+            .setTaskInfo(taskInfoShort)
+            .setParent(parent)
+            .setLockTime(clock.instant());
+          DB.save(readWriteLock); // throws dataIntegrityException
+          toResetIds.add(readWriteLock.getId());
+          toResetNames.add(readLock);
 
-        int picked = 0;
-        try (Transaction txn = DB.beginTransaction()) {
-          // with the query we acquire a read lock  required in the subquery, acquiring X after S causes deadlocks with other transactions
-          // DB.sqlQuery("select sq.id from (select id from read_write_lock where parent_id = :parentId and locked is not null) sq ").setParameter("parentId", parent.getId()).findList();
-          // DB.sqlQuery("select id from read_write_lock where parent_id = :parentId and locked is not null").setParameter("parentId", parent.getId()).findList();
-          // raw weil Ebean für MariaDB die subquery nicht richtig berechnet
-          picked = DB.sqlUpdate("update read_write_lock set locked = :handlerId, task_info = :taskInfo "
-              + "where id in (select sq.id from "
-              + "(select rl.id from read_write_lock rl "
-              + "left join read_write_lock wl on wl.id = rl.parent_id "
-              + "where rl.id = :id and wl.locked is null) sq)")
-            .setParameter("handlerId", handlerId)
-            .setParameter("taskInfo", taskInfoShort)
-            .setParameter("id", readWriteLock.getId())
-            .executeNow();
-          txn.commit();
+          int picked = 0;
+          try {
+            // raw weil Ebean für MariaDB die subquery nicht richtig berechnet
+            picked = DB.sqlUpdate("update read_write_lock set locked = :handlerId, task_info = :taskInfo "
+                + "where id in (select sq.id from "
+                + "(select rl.id from read_write_lock rl "
+                + "left join read_write_lock wl on wl.id = rl.parent_id "
+                + "where rl.id = :id and wl.locked is null) sq)")
+              .setParameter("handlerId", handlerId)
+              .setParameter("taskInfo", taskInfoShort)
+              .setParameter("id", readWriteLock.getId())
+              .executeNow();
+          } catch (PersistenceException e) {
+            // NOP - ging halt nicht
+            log.debug("could not obtain readlock {}", readLock, e);
+          }
+
+          if (picked == 1) {
+            ret.add(readWriteLock.getId());
+          } else {
+            ret = null;
+            break;
+          }
         } catch (PersistenceException e) {
-          // NOP - ging halt nicht
-          log.error("could not obtain readlock {}", readLock, e);
-        }
-
-        if (picked == 1) {
-          ret.add(readWriteLock.getId());
-        } else {
+          // lock already exists
           ret = null;
           break;
         }
-
       }
 
       if (ret == null) {
@@ -386,41 +390,21 @@ public class ResourceLockingHandlerDb implements ResourceLockingHandler {
         }
 
         int picked = 0;
-        // raw weil Ebean für MariaDB die subquery nicht richtig berechnet
+        try {
+          // raw weil Ebean für MariaDB die subquery nicht richtig berechnet
+          picked = DB.sqlUpdate("update read_write_lock "
+              + "set locked = :handlerId, task_info= :taskInfo "
+              + "where id = :parentId and locked is null and "
+              + "not exists (select sq.id from (select id from read_write_lock where parent_id = :parentId and locked is not null) sq )")
+            .setParameter("handlerId", handlerId)
+            .setParameter("taskInfo", taskInfoShort)
+            .setParameter("parentId", parent.getId())
+            .executeNow();
 
-        //DB.sqlUpdate("lock table read_write_lock WRITE").executeNow();
-        try (Transaction txn = DB.beginTransaction()) {
-          // with the query we acquire a read lock  required in the subquery, acquiring X after S causes deadlocks with other transactions
-          Long obj = (Long) DB.sqlQuery("select count(sq.id) from (select id from read_write_lock where parent_id = :parentId and locked is not null) sq ").setParameter("parentId", parent.getId()).findOne().get("count(sq.id)");
-          // DB.sqlQuery("select id from read_write_lock where parent_id = :parentId and locked is not null").setParameter("parentId", parent.getId()).findList();
-          if (obj.longValue() == 0) {
-            picked = DB.sqlUpdate("update read_write_lock "
-                + "set locked = :handlerId, task_info= :taskInfo "
-                + "where id = :parentId and locked is null")
-              .setParameter("handlerId", handlerId)
-              .setParameter("taskInfo", taskInfoShort)
-              .setParameter("parentId", parent.getId())
-              .executeNow();
-            txn.commit();
-          }
-
-          /**
-           * picked = DB.sqlUpdate("update read_write_lock "
-           *               + "set locked = :handlerId, task_info= :taskInfo "
-           *               + "where id = :parentId and locked is null and "
-           *               + "not exists (select sq.id from (select id from read_write_lock where parent_id = :parentId and locked is not null) sq )")
-           *             .setParameter("handlerId", handlerId)
-           *             .setParameter("taskInfo", taskInfoShort)
-           *             .setParameter("parentId", parent.getId())
-           *             .executeNow();
-           */
+        } catch (PersistenceException e) {
+          // NOP - ging halt nicht
+          log.debug("could not obtain writelock {}", writeLock, e);
         }
-
-        // DB.sqlUpdate("unlock tables").executeNow();
-
-
-        // NOP - ging halt nicht
-        //log.debug("could not obtain writelock {}", writeLock, e);
 
         if (picked == 1) {
           ret.add(parent.getId());
@@ -456,22 +440,17 @@ public class ResourceLockingHandlerDb implements ResourceLockingHandler {
     checkContext();
     int count = 0;
     if (!readLocks.isEmpty()) {
-      /**try (Transaction txn = DB.beginTransaction()) {
-       // below select here because of a deadlock, first lock the parent index and then pripmary index with the delete call below
-       DB.sqlQuery("select count(id) from read_write_lock where parent_id in (:parentId) and locked is not null").setParameter(
-       "parentId", readLocks).findOne();
+      try (Transaction txn = DB.beginTransaction()) {
+        // below select here because of a deadlock, first lock the parent index and then pripmary index with the delete call below
+        //DB.sqlQuery("select count(id) from read_write_lock where parent_id in (:parentId) and locked is not null").setParameter(
+        //  "parentId", readLocks).findOne();
 
-       count = DB.find(ReadWriteLock.class).where().in("id", readLocks).delete();
-       txn.commit();
-       } catch (PersistenceException e) {
-       log.error("read-locks '{}' release for task '{}' failed: Could not release any lock.", lockNames, taskInfo, e);
-       return false;
-       }**/
-
-
-      count = DB.find(ReadWriteLock.class).where().in("id", readLocks).delete();
-
-
+        count = DB.find(ReadWriteLock.class).where().in("id", readLocks).delete();
+        txn.commit();
+      } catch (PersistenceException e) {
+        log.error("read-locks '{}' release for task '{}' failed: Could not release any lock.", lockNames, taskInfo, e);
+        return false;
+      }
     }
 
     if (count != readLocks.size()) {
@@ -489,14 +468,17 @@ public class ResourceLockingHandlerDb implements ResourceLockingHandler {
     checkContext();
     int count = 0;
     if (!writeLocks.isEmpty()) {
-
-      count = DB.sqlUpdate(
-          "update read_write_lock set locked = null, task_info = null, lock_time = :lockTime where id in (:ids) and locked = :handlerId")
-        .setParameter("lockTime", clock.instant())
-        .setParameter("ids", writeLocks)
-        .setParameter("handlerId", handlerId)
-        .executeNow();
-
+      try {
+        count = DB.sqlUpdate(
+            "update read_write_lock set locked = null, task_info = null, lock_time = :lockTime where id in (:ids) and locked = :handlerId")
+          .setParameter("lockTime", clock.instant())
+          .setParameter("ids", writeLocks)
+          .setParameter("handlerId", handlerId)
+          .executeNow();
+      } catch (PersistenceException e) {
+        log.error("write-locks '{}' release for task '{}' failed: Could not release any lock.", lockNames, taskInfo, e);
+        return false;
+      }
     }
 
     if (count != writeLocks.size()) {
@@ -509,9 +491,6 @@ public class ResourceLockingHandlerDb implements ResourceLockingHandler {
 
   private void checkContext() {
     assert Transaction.current() == null : "Transaction open";
-
-    //Tenant tenant = Tenant.currentUnchecked();
-    // assert tenant == null || tenant.equals(Tenant.ROOT_TENANT) : "Wrong tenant";
   }
 
   private ReadWriteLock ensureWriteLockExists(final String resourceName) {
@@ -528,7 +507,6 @@ public class ResourceLockingHandlerDb implements ResourceLockingHandler {
       DB.save(ret);
     } catch (PersistenceException e) {
       // another instance created the resource
-      log.error("censureWriteLockExists failed {}", resourceName, e);
       ret = DB.find(ReadWriteLock.class).where().eq("name", resourceName).findOne();
     }
     return ret;
@@ -570,10 +548,6 @@ public class ResourceLockingHandlerDb implements ResourceLockingHandler {
       heartbeatCount = -10; // 5min Pause, um Log nicht zu fluten
       log.error("could not send heartbeat", e);
     }
-  }
-
-  public static String left(@Nonnull String str, int count) {
-    return count <= 0 ? "" : str.substring(0, Math.min(count, str.length()));
   }
 
 }

@@ -6,6 +6,7 @@
 package org.tests.model.locking;
 
 import javax.annotation.Nonnull;
+import java.sql.SQLException;
 import java.util.Collection;
 import java.util.UUID;
 
@@ -40,7 +41,7 @@ public interface ResourceLockingHandler {
 	 * @return true, if all write locks could be obtained, false otherwise
 	 */
 
-	ResourceLock obtainWriteLocks(@Nonnull String taskInfo, Collection<String> writeLocks);
+	ResourceLock obtainWriteLocks(@Nonnull String taskInfo, Collection<String> writeLocks) throws SQLException;
 
 	/**
 	 * Starts the resourceLockingHandler.
