@@ -2,9 +2,11 @@ package org.tests.query.other;
 
 import io.ebean.DB;
 import io.ebean.xtest.BaseTestCase;
+import net.bytebuddy.asm.Advice;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tests.model.locking.ReadWriteLock;
 import org.tests.model.locking.ResourceLock;
 import org.tests.model.locking.ResourceLockingHandler;
 import org.tests.model.selfref.SelfParent;
@@ -107,6 +109,9 @@ public class TestSelfParentConcurrent2 extends BaseTestCase {
   @Test
   public void testDeadlocky() throws ExecutionException {
 
+    //DB.find(ReadWriteLock.class).where().isNotNull("parent").delete();
+    //DB.find(ReadWriteLock.class).delete();
+
     int readCount = 1;
     int writeCount = 1;
 
@@ -114,15 +119,12 @@ public class TestSelfParentConcurrent2 extends BaseTestCase {
 
     ExecutorService executor = Executors.newFixedThreadPool(readCount + writeCount);
 
-    Long parentId = 33L;
-    Long childId = 44L;
-
     List<String> locks = Arrays.asList(PARENT_LOCK);
 
     List<Callable<Object>> toDos = new ArrayList<>();
 
-    toDos.add(new ProcessorUpdateParent(latch, locks, "write", 0));
-    toDos.add(new ProcessorCreateAndDeleteChild(latch, locks, "read", 0));
+    toDos.add(new ProcessorUpdateParent(latch, locks, "write", 100));
+    toDos.add(new ProcessorCreateAndDeleteChild(latch, locks, "read", 100));
 
     try {
       List<Future<Object>> results = executor.invokeAll(toDos);

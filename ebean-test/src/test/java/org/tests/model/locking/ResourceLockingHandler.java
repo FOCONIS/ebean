@@ -41,7 +41,7 @@ public interface ResourceLockingHandler {
 	 * @return true, if all write locks could be obtained, false otherwise
 	 */
 
-	ResourceLock obtainWriteLocks(@Nonnull String taskInfo, Collection<String> writeLocks) throws SQLException;
+	ResourceLock obtainWriteLocks(@Nonnull String taskInfo, Collection<String> writeLocks) throws SQLException, Exception;
 
 	/**
 	 * Starts the resourceLockingHandler.
