@@ -395,7 +395,6 @@ public class ResourceLockingHandlerDb implements ResourceLockingHandler {
 
           // raw weil Ebean für MariaDB die subquery nicht richtig berechnet
 
-          /**
            PreparedStatement preparedStatement = connection.prepareStatement("update read_write_lock "
            + "set locked = ?, task_info= ? "
            + "where id = ? and locked is null and "
@@ -404,19 +403,6 @@ public class ResourceLockingHandlerDb implements ResourceLockingHandler {
            preparedStatement.setString(2, taskInfo);
            preparedStatement.setString(3, parent.getId().toString());
            preparedStatement.setString(4, parent.getId().toString());
-           */
-
-
-
-          PreparedStatement preparedStatement = connection.prepareStatement("update read_write_lock "
-            + "set locked = ?, task_info= ? "
-            + "where id = ? and locked is null");
-          preparedStatement.setString(1, handlerId.toString());
-          preparedStatement.setString(2, taskInfo);
-          preparedStatement.setString(3, parent.getId().toString());
-
-
-
 
           Statement statement = preparedStatement.getConnection().createStatement();
           statement.execute("lock table read_write_lock WRITE");
