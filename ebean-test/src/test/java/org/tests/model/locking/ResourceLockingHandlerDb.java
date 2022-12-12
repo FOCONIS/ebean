@@ -6,6 +6,7 @@
 package org.tests.model.locking;
 
 import io.ebean.DB;
+import io.ebean.Query;
 import io.ebean.Transaction;
 
 import org.slf4j.Logger;
@@ -220,7 +221,7 @@ public class ResourceLockingHandlerDb implements ResourceLockingHandler {
               .executeNow();
           } else {
             log.warn("Found stale read-locks for '{}' of task '{}'", elem.lockNames, elem.taskInfo);
-            DB.find(ReadWriteLock.class).where().in("id", elem.lockIds).delete();
+            DB.update(ReadWriteLock.class).where().in("id", elem.lockIds).delete();
           }
 
           iter.remove();
@@ -388,44 +389,29 @@ public class ResourceLockingHandlerDb implements ResourceLockingHandler {
         if (parent.getLocked() != null) {
           ret = null;
           break; // already locked -> fertig
+
         }
         int picked = 0;
-        try (Transaction txn = DB.beginTransaction()) {
-          Connection connection = txn.connection();
-
+        try {
+          //Query<ReadWriteLock> subQuery = DB.find(ReadWriteLock.class).select("parent.id").where().isNotNull("locked").isNotNull("parent.id").query();
+          //picked = DB.update(ReadWriteLock.class).set("locked", handlerId).set("taskInfo",taskInfoShort ).where().eq("id", parent.getId()).isNull("locked").notIn("id", subQuery).update();
           // raw weil Ebean für MariaDB die subquery nicht richtig berechnet
+          picked = DB.sqlUpdate("update read_write_lock "
+              + "set locked = :handlerId, task_info= :taskInfo "
+              + "where id = :parentId and locked is null and "
+            + "id not in (select parent_id from read_write_lock where locked is not null and parent_id is not null)")
+           //  + "not exists (select sq.id from (select id from read_write_lock where parent_id = :parentId and locked is not null) sq )")
+            .setParameter("handlerId", handlerId)
+            .setParameter("taskInfo", taskInfoShort)
+            .setParameter("parentId", parent.getId())
+            .executeNow();
 
-           PreparedStatement preparedStatement = connection.prepareStatement("update read_write_lock "
-           + "set locked = ?, task_info= ? "
-           + "where id = ? and locked is null and "
-           + "not exists (select sq.id from (select id from read_write_lock where parent_id = ? and locked is not null) sq )");
-           preparedStatement.setString(1, handlerId.toString());
-           preparedStatement.setString(2, taskInfo);
-           preparedStatement.setString(3, parent.getId().toString());
-           preparedStatement.setString(4, parent.getId().toString());
-
-          Statement statement = preparedStatement.getConnection().createStatement();
-          statement.execute("lock table read_write_lock WRITE");
-          try {
-            preparedStatement.execute();
-          } catch(Throwable th) {
-            log.error("statement fail", th);
-            throw th;
-          }
-
-
-          //    .setParameter("handlerId", handlerId)
-          //    .setParameter("taskInfo", taskInfoShort)
-          //    .setParameter("parentId", parent.getId())
-          //    .executeNow();
-
-          statement.execute("lock table read_write_lock WRITE");
-          txn.commit();
-          statement.close();
-          preparedStatement.close();
+        } catch (PersistenceException e) {
           // NOP - ging halt nicht
-          //log.debug("could not obtain writelock {}", writeLock, e);
+          log.error("could not obtain writelock {}", writeLock, e);
         }
+
+
         if (picked == 1) {
           ret.add(parent.getId());
           toResetIds.add(parent.getId());
@@ -473,7 +459,7 @@ public class ResourceLockingHandlerDb implements ResourceLockingHandler {
        }**/
 
 
-      count = DB.find(ReadWriteLock.class).where().in("id", readLocks).delete();
+      count = DB.update(ReadWriteLock.class).where().in("id", readLocks).delete();
 
 
     }
