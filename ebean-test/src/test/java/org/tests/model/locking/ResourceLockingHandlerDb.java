@@ -390,7 +390,6 @@ public class ResourceLockingHandlerDb implements ResourceLockingHandler {
           break; // already locked -> fertig
         }
         int picked = 0;
-        Connection connection0 = DB.getDefault().dataSource().getConnection();
         try (Transaction txn = DB.beginTransaction(); ExplicitTableLocker tableLock = ExplicitTableLocker.get(null,
           "read_write_lock", "read_write_lock rl")) {
           // raw weil Ebean für MariaDB die subquery nicht richtig berechnet

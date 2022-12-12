@@ -36,9 +36,8 @@ public class ExplicitTableLocker implements AutoCloseable {
       case MARIADB:
       case MYSQL: {
         String locks = Stream.of(writeLocks).collect(Collectors.joining(" WRITE, ", "lock tables ", " WRITE"));
-        log.debug("lock query" + locks);
         DB.sqlUpdate(locks).execute();
-        log.error("tables locked: {} ", Arrays.toString(writeLocks));
+        log.debug("tables locked: {} ", Arrays.toString(writeLocks));
       }
     }
     return toReturn;
@@ -53,7 +52,7 @@ public class ExplicitTableLocker implements AutoCloseable {
       case MARIADB:
       case MYSQL: {
         DB.sqlUpdate("unlock tables").execute();
-        log.error("tables unlocked");
+        log.debug("tables unlocked");
       }
     }
 
