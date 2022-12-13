@@ -396,7 +396,7 @@ public class ResourceLockingHandlerDb implements ResourceLockingHandler {
           picked = DB.sqlUpdate("update read_write_lock "
               + "set locked = :handlerId, task_info= :taskInfo "
               + "where id = :parentId and locked is null and "
-            + "not exists (select sq.id from (select rl.id from read_write_lock rl where rl.parent_id = :parentId and rl.locked is not null) sq )")
+              + "not exists (select sq.id from (select rl.id from read_write_lock rl where rl.parent_id = :parentId and rl.locked is not null) sq )")
             .setParameter("handlerId", handlerId)
             .setParameter("taskInfo", taskInfoShort)
             .setParameter("parentId", parent.getId())
