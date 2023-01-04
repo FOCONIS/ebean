@@ -66,7 +66,7 @@ alter table migtest_mtm_c_migtest_mtm_m drop constraint  fk_migtest_mtm_c_migtes
 alter table migtest_mtm_c_migtest_mtm_m drop constraint  fk_migtest_mtm_c_migtest_mtm_m_migtest_mtm_m;
 alter table migtest_mtm_m_migtest_mtm_c drop constraint  fk_migtest_mtm_m_migtest_mtm_c_migtest_mtm_m;
 alter table migtest_mtm_m_migtest_mtm_c drop constraint  fk_migtest_mtm_m_migtest_mtm_c_migtest_mtm_c;
-alter table migtest_mtm_m_phone_numbers drop constraint  migtest_mtm_m_id;
+alter table migtest_mtm_m_phone_numbers drop constraint  fk_migtest_mtm_m_phone_numbers_migtest_mtm_m_id;
 delimiter $$
 do
 begin

@@ -18,7 +18,7 @@ alter table migtest_mtm_c_migtest_mtm_m drop constraint if exists fk_migtest_mtm
 alter table migtest_mtm_c_migtest_mtm_m drop constraint if exists fk_migtest_mtm_c_migtest_mtm_m_migtest_mtm_m;
 alter table migtest_mtm_m_migtest_mtm_c drop constraint if exists fk_migtest_mtm_m_migtest_mtm_c_migtest_mtm_m;
 alter table migtest_mtm_m_migtest_mtm_c drop constraint if exists fk_migtest_mtm_m_migtest_mtm_c_migtest_mtm_c;
-alter table migtest_mtm_m_phone_numbers drop constraint if exists migtest_mtm_m_id;
+alter table migtest_mtm_m_phone_numbers drop constraint if exists fk_migtest_mtm_m_phone_numbers_migtest_mtm_m_id;
 drop index if exists ix_migtest_e_basic_indextest3;
 drop index if exists ix_migtest_e_basic_indextest6;
 drop index if exists ix_table_textfield2;

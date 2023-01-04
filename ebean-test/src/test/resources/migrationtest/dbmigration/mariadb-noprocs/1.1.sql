@@ -6,7 +6,7 @@ alter table migtest_e_basic drop index uq_migtest_e_basic_indextest2;
 alter table migtest_e_basic drop index uq_migtest_e_basic_indextest6;
 alter table drop_main_drop_ref_many drop foreign key fk_drop_main_drop_ref_many_drop_main;
 alter table drop_main_drop_ref_many drop foreign key fk_drop_main_drop_ref_many_drop_ref_many;
-alter table drop_ref_one drop foreign key parent_id;
+alter table drop_ref_one drop foreign key fk_drop_ref_one_parent_id;
 drop index ix_migtest_e_basic_indextest1 on migtest_e_basic;
 drop index ix_migtest_e_basic_indextest5 on migtest_e_basic;
 drop index ix_migtest_quoted_status1 on `migtest_QuOtEd`;

@@ -55,7 +55,7 @@
         <alterForeignKey name="fk_migtest_mtm_c_migtest_mtm_m_migtest_mtm_m" columnNames="DROP FOREIGN KEY" indexName="ix_migtest_mtm_c_migtest_mtm_m_migtest_mtm_m" tableName="migtest_mtm_c_migtest_mtm_m"/>
         <alterForeignKey name="fk_migtest_mtm_m_migtest_mtm_c_migtest_mtm_m" columnNames="DROP FOREIGN KEY" indexName="ix_migtest_mtm_m_migtest_mtm_c_migtest_mtm_m" tableName="migtest_mtm_m_migtest_mtm_c"/>
         <alterForeignKey name="fk_migtest_mtm_m_migtest_mtm_c_migtest_mtm_c" columnNames="DROP FOREIGN KEY" indexName="ix_migtest_mtm_m_migtest_mtm_c_migtest_mtm_c" tableName="migtest_mtm_m_migtest_mtm_c"/>
-        <alterForeignKey name="migtest_mtm_m_id" columnNames="DROP FOREIGN KEY" indexName="ix_migtest_mtm_m_phone_numbers_migtest_mtm_m_id" tableName="migtest_mtm_m_phone_numbers"/>
+        <alterForeignKey name="fk_migtest_mtm_m_phone_numbers_migtest_mtm_m_id" columnNames="DROP FOREIGN KEY" indexName="ix_migtest_mtm_m_phone_numbers_migtest_mtm_m_id" tableName="migtest_mtm_m_phone_numbers"/>
         <createIndex indexName="ix_migtest_e_basic_indextest1" tableName="migtest_e_basic" columns="indextest1"/>
         <createIndex indexName="ix_migtest_e_basic_indextest5" tableName="migtest_e_basic" columns="indextest5"/>
         <createIndex indexName="ix_migtest_quoted_status1" tableName="&quot;migtest_QuOtEd&quot;" columns="status1"/>

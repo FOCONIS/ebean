@@ -79,8 +79,8 @@ end if;
 end$$;
 delimiter $$
 begin
-if exists (select constname from syscat.tabconst where tabschema = current_schema and ucase(constname) = 'PARENT_ID' and ucase(tabname) = 'DROP_REF_ONE') then
-  prepare stmt from 'alter table drop_ref_one drop constraint parent_id';
+if exists (select constname from syscat.tabconst where tabschema = current_schema and ucase(constname) = 'FK_DROP_REF_ONE_PARENT_ID' and ucase(tabname) = 'DROP_REF_ONE') then
+  prepare stmt from 'alter table drop_ref_one drop constraint fk_drop_ref_one_parent_id';
   execute stmt;
 end if;
 end$$;

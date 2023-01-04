@@ -147,7 +147,7 @@ public class ModelDiff {
           .filter(it -> it.getForeignKeyIndex() != null)
           .map(it -> {
             AlterForeignKey fk = new AlterForeignKey();
-            fk.setName(it.getName());
+            fk.setName(it.getForeignKeyName());
             fk.setIndexName(it.getForeignKeyIndex());
             fk.setColumnNames(DdlHelp.DROP_FOREIGN_KEY);
             fk.setTableName(existingTable.getName());

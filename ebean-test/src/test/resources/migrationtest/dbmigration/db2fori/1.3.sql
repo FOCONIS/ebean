@@ -163,8 +163,8 @@ end if;
 end$$;
 delimiter $$
 begin
-if exists (select constname from syscat.tabconst where tabschema = current_schema and ucase(constname) = 'MIGTEST_MTM_M_ID' and ucase(tabname) = 'MIGTEST_MTM_M_PHONE_NUMBERS') then
-  prepare stmt from 'alter table migtest_mtm_m_phone_numbers drop constraint migtest_mtm_m_id';
+if exists (select constname from syscat.tabconst where tabschema = current_schema and ucase(constname) = 'FK_MIGTEST_MTM_M_PHONE_NUMBERS_MIGTEST_MTM_M_ID' and ucase(tabname) = 'MIGTEST_MTM_M_PHONE_NUMBERS') then
+  prepare stmt from 'alter table migtest_mtm_m_phone_numbers drop constraint fk_migtest_mtm_m_phone_numbers_migtest_mtm_m_id';
   execute stmt;
 end if;
 end$$;
