@@ -1,6 +1,21 @@
 package io.ebeaninternal.dbmigration.model;
 
-import io.ebeaninternal.dbmigration.migration.*;
+import io.ebeaninternal.dbmigration.ddlgeneration.platform.DdlHelp;
+import io.ebeaninternal.dbmigration.migration.AddColumn;
+import io.ebeaninternal.dbmigration.migration.AddHistoryTable;
+import io.ebeaninternal.dbmigration.migration.AddTableComment;
+import io.ebeaninternal.dbmigration.migration.AddUniqueConstraint;
+import io.ebeaninternal.dbmigration.migration.AlterColumn;
+import io.ebeaninternal.dbmigration.migration.AlterForeignKey;
+import io.ebeaninternal.dbmigration.migration.AlterTable;
+import io.ebeaninternal.dbmigration.migration.ChangeSet;
+import io.ebeaninternal.dbmigration.migration.ChangeSetType;
+import io.ebeaninternal.dbmigration.migration.CreateIndex;
+import io.ebeaninternal.dbmigration.migration.CreateSchema;
+import io.ebeaninternal.dbmigration.migration.DropColumn;
+import io.ebeaninternal.dbmigration.migration.DropHistoryTable;
+import io.ebeaninternal.dbmigration.migration.DropIndex;
+import io.ebeaninternal.dbmigration.migration.Migration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -125,6 +140,21 @@ public class ModelDiff {
     // search for tables that are no longer used
     for (MTable existingTable : baseModel.getTables().values()) {
       if (!newTables.containsKey(existingTable.getName())) {
+        // Compounded foreign keys used in many-to-many mapping tables
+        existingTable.getCompoundKeys().forEach(it -> addAlterForeignKey(it.dropForeignKey(existingTable.getName())));
+        // Foreign keys through direct mapping (oneToMany)
+        existingTable.allColumns().stream()
+          .filter(it -> it.getForeignKeyIndex() != null)
+          .map(it -> {
+            AlterForeignKey fk = new AlterForeignKey();
+            fk.setName(it.getName());
+            fk.setIndexName(it.getForeignKeyIndex());
+            fk.setColumnNames(DdlHelp.DROP_FOREIGN_KEY);
+            fk.setTableName(existingTable.getName());
+            return fk;
+          })
+          .forEach(applyChanges::add);
+
         addDropTable(existingTable);
       }
     }
