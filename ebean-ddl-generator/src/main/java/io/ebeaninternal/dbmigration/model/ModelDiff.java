@@ -1,21 +1,7 @@
 package io.ebeaninternal.dbmigration.model;
 
 import io.ebeaninternal.dbmigration.ddlgeneration.platform.DdlHelp;
-import io.ebeaninternal.dbmigration.migration.AddColumn;
-import io.ebeaninternal.dbmigration.migration.AddHistoryTable;
-import io.ebeaninternal.dbmigration.migration.AddTableComment;
-import io.ebeaninternal.dbmigration.migration.AddUniqueConstraint;
-import io.ebeaninternal.dbmigration.migration.AlterColumn;
-import io.ebeaninternal.dbmigration.migration.AlterForeignKey;
-import io.ebeaninternal.dbmigration.migration.AlterTable;
-import io.ebeaninternal.dbmigration.migration.ChangeSet;
-import io.ebeaninternal.dbmigration.migration.ChangeSetType;
-import io.ebeaninternal.dbmigration.migration.CreateIndex;
-import io.ebeaninternal.dbmigration.migration.CreateSchema;
-import io.ebeaninternal.dbmigration.migration.DropColumn;
-import io.ebeaninternal.dbmigration.migration.DropHistoryTable;
-import io.ebeaninternal.dbmigration.migration.DropIndex;
-import io.ebeaninternal.dbmigration.migration.Migration;
+import io.ebeaninternal.dbmigration.migration.*;
 
 import java.util.ArrayList;
 import java.util.List;
