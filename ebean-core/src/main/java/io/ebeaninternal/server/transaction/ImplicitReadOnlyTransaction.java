@@ -248,6 +248,15 @@ final class ImplicitReadOnlyTransaction implements SpiTransaction, TxnProfileEve
   }
 
   @Override
+  public void setOverwriteGeneratedProperties(boolean overwriteGeneratedProperties) {
+  }
+
+  @Override
+  public boolean isOverwriteGeneratedProperties() {
+    return true;
+  }
+
+  @Override
   public Boolean isUpdateAllLoadedProperties() {
     return null;
   }
