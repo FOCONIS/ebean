@@ -517,6 +517,14 @@ public final class OrmQueryRequest<T> extends BeanRequest implements SpiOrmQuery
     query.resetBeanCacheAutoMode(findOne);
   }
 
+  @Override
+  public boolean isQueryCacheActive() {
+    return query.getUseQueryCache() != CacheMode.OFF
+      && (transaction == null || !transaction.isSkipCache())
+      && !server.isDisableL2Cache();
+  }
+
+  @Override
   public boolean isQueryCachePut() {
     return cacheKey != null && queryPlan != null && query.getUseQueryCache().isPut();
   }
@@ -666,13 +674,12 @@ public final class OrmQueryRequest<T> extends BeanRequest implements SpiOrmQuery
   @Override
   @SuppressWarnings("unchecked")
   public Object getFromQueryCache() {
-    if (query.getUseQueryCache() == CacheMode.OFF
-      || (transaction != null && transaction.isSkipCache())
-      || server.isDisableL2Cache()) {
+    if (!isQueryCacheActive()) {
       return null;
     } else {
       cacheKey = query.queryHash();
     }
+    // check if queryCache is active and put-only
     if (!query.getUseQueryCache().isGet()) {
       return null;
     }
@@ -722,6 +729,7 @@ public final class OrmQueryRequest<T> extends BeanRequest implements SpiOrmQuery
     }
   }
 
+  @Override
   public void putToQueryCache(Object result) {
     beanDescriptor.queryCachePut(cacheKey, new QueryCacheEntry(result, queryPlan.dependentTables(), transaction.getStartNanoTime()));
   }
