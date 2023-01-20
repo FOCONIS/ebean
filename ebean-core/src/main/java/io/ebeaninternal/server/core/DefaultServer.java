@@ -900,6 +900,7 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
   @Override
   public <T> DtoQuery<T> findDto(Class<T> dtoType, SpiQuery<?> ormQuery) {
     DtoBeanDescriptor<T> descriptor = dtoBeanManager.getDescriptor(dtoType);
+    ormQuery.setDtoType(dtoType);
     return new DefaultDtoQuery<>(this, descriptor, ormQuery);
   }
 
@@ -940,6 +941,18 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
     return findId(query, transaction);
   }
 
+  <T> DtoQueryRequest<T> createDtoQueryRequest(Type type, SpiDtoQuery<T> query) {
+    SpiQuery<?> ormQuery = query.getOrmQuery();
+    if (ormQuery != null) {
+      ormQuery.setType(type);
+      ormQuery.setManualId();
+      SpiOrmQueryRequest<?> ormRequest = createQueryRequest(type, ormQuery, query.getTransaction());
+      return new DtoQueryRequest<>(this, dtoQueryEngine, query, ormRequest);
+    } else {
+      return new DtoQueryRequest<>(this, dtoQueryEngine, query, null);
+    }
+  }
+
   <T> SpiOrmQueryRequest<T> createQueryRequest(Type type, Query<T> query, @Nullable Transaction transaction) {
     SpiOrmQueryRequest<T> request = buildQueryRequest(type, query, transaction);
     request.prepareQuery();
@@ -978,40 +991,6 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
   }
 
   /**
-   * Try to get the object out of the persistence context.
-   */
-  @Nullable
-  @SuppressWarnings("unchecked")
-  private <T> T findIdCheckPersistenceContextAndCache(@Nullable Transaction transaction, SpiQuery<T> query, Object id) {
-    SpiTransaction t = (SpiTransaction) transaction;
-    if (t == null) {
-      t = currentServerTransaction();
-    }
-    BeanDescriptor<T> desc = query.getBeanDescriptor();
-    id = desc.convertId(id);
-    PersistenceContext pc = null;
-    if (t != null && useTransactionPersistenceContext(query)) {
-      // first look in the transaction scoped persistence context
-      pc = t.getPersistenceContext();
-      if (pc != null) {
-        WithOption o = desc.contextGetWithOption(pc, id);
-        if (o != null) {
-          if (o.isDeleted()) {
-            // Bean was previously deleted in the same transaction / persistence context
-            return null;
-          }
-          return (T) o.getBean();
-        }
-      }
-    }
-    if (!query.isBeanCacheGet() || (t != null && t.isSkipCache())) {
-      return null;
-    }
-    // Hit the L2 bean cache
-    return desc.cacheBeanGet(id, query.isReadOnly(), pc);
-  }
-
-  /**
    * Return true if transactions PersistenceContext should be used.
    */
   private <T> boolean useTransactionPersistenceContext(SpiQuery<T> query) {
@@ -1032,15 +1011,59 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
   private <T> T findId(Query<T> query, @Nullable Transaction transaction) {
     SpiQuery<T> spiQuery = (SpiQuery<T>) query;
     spiQuery.setType(Type.BEAN);
+    SpiOrmQueryRequest<T> request = null;
     if (SpiQuery.Mode.NORMAL == spiQuery.getMode() && !spiQuery.isForceHitDatabase()) {
       // See if we can skip doing the fetch completely by getting the bean from the
       // persistence context or the bean cache
-      T bean = findIdCheckPersistenceContextAndCache(transaction, spiQuery, spiQuery.getId());
-      if (bean != null) {
-        return bean;
+      SpiTransaction t = (SpiTransaction) transaction;
+      if (t == null) {
+        t = currentServerTransaction();
+      }
+      BeanDescriptor<T> desc = spiQuery.getBeanDescriptor();
+      Object id = desc.convertId(spiQuery.getId());
+      PersistenceContext pc = null;
+      if (t != null && useTransactionPersistenceContext(spiQuery)) {
+        // first look in the transaction scoped persistence context
+        pc = t.getPersistenceContext();
+        if (pc != null) {
+          WithOption o = desc.contextGetWithOption(pc, id);
+          if (o != null) {
+            // We have found a hit. This could be also one with o.deleted() == true
+            // if bean was previously deleted in the same transaction / persistence context
+            return (T) o.getBean();
+          }
+        }
+      }
+      if (t == null || !t.isSkipCache()) {
+        if (spiQuery.getUseQueryCache() != CacheMode.OFF) {
+          request = buildQueryRequest(spiQuery, transaction);
+          if (request.isQueryCacheActive()) {
+            // Hit the  query cache
+            request.prepareQuery();
+            T bean = request.getFromQueryCache();
+            if (bean != null) {
+              return bean;
+            }
+          }
+        }
+        if (spiQuery.isBeanCacheGet()) {
+          // Hit the L2 bean cache
+          T bean = desc.cacheBeanGet(id, spiQuery.isReadOnly(), pc);
+          if (bean != null) {
+            if (request != null && request.isQueryCachePut()) {
+              // copy bean from the L2 cache to the faster query cache, if caching is enabled
+              request.prepareQuery();
+              request.putToQueryCache(bean);
+            }
+            return bean;
+          }
+        }
       }
     }
-    SpiOrmQueryRequest<T> request = buildQueryRequest(spiQuery, transaction);
+
+    if (request == null) {
+      request = buildQueryRequest(spiQuery, transaction);
+    }
     request.prepareQuery();
     if (request.isUseDocStore()) {
       return docStore().find(request);
@@ -1510,7 +1533,7 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
 
   @Override
   public <T> void findDtoEach(SpiDtoQuery<T> query, Consumer<T> consumer) {
-    DtoQueryRequest<T> request = new DtoQueryRequest<>(this, dtoQueryEngine, query);
+    DtoQueryRequest<T> request = createDtoQueryRequest(Type.ITERATE, query);
     try {
       request.initTransIfRequired();
       request.findEach(consumer);
@@ -1521,7 +1544,7 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
 
   @Override
   public <T> void findDtoEach(SpiDtoQuery<T> query, int batch, Consumer<List<T>> consumer) {
-    DtoQueryRequest<T> request = new DtoQueryRequest<>(this, dtoQueryEngine, query);
+    DtoQueryRequest<T> request = createDtoQueryRequest(Type.ITERATE, query);
     try {
       request.initTransIfRequired();
       request.findEach(batch, consumer);
@@ -1532,7 +1555,7 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
 
   @Override
   public <T> void findDtoEachWhile(SpiDtoQuery<T> query, Predicate<T> consumer) {
-    DtoQueryRequest<T> request = new DtoQueryRequest<>(this, dtoQueryEngine, query);
+    DtoQueryRequest<T> request = createDtoQueryRequest(Type.ITERATE, query);
     try {
       request.initTransIfRequired();
       request.findEachWhile(consumer);
@@ -1543,7 +1566,7 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
 
   @Override
   public <T> QueryIterator<T> findDtoIterate(SpiDtoQuery<T> query) {
-    DtoQueryRequest<T> request = new DtoQueryRequest<>(this, dtoQueryEngine, query);
+    DtoQueryRequest<T> request = createDtoQueryRequest(Type.ITERATE, query);
     try {
       request.initTransIfRequired();
       return request.findIterate();
@@ -1560,7 +1583,11 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
 
   @Override
   public <T> List<T> findDtoList(SpiDtoQuery<T> query) {
-    DtoQueryRequest<T> request = new DtoQueryRequest<>(this, dtoQueryEngine, query);
+    DtoQueryRequest<T> request = createDtoQueryRequest(Type.LIST, query);
+    List<T> ret = request.getFromQueryCache();
+    if (ret != null) {
+      return ret;
+    }
     try {
       request.initTransIfRequired();
       return request.findList();
@@ -1572,13 +1599,7 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
   @Nullable
   @Override
   public <T> T findDtoOne(SpiDtoQuery<T> query) {
-    DtoQueryRequest<T> request = new DtoQueryRequest<>(this, dtoQueryEngine, query);
-    try {
-      request.initTransIfRequired();
-      return extractUnique(request.findList());
-    } finally {
-      request.endTransIfRequired();
-    }
+    return extractUnique(findDtoList(query));
   }
 
   /**
