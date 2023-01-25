@@ -35,7 +35,7 @@ import java.util.Set;
  * Description of a property of a bean. Includes its deployment information such
  * as database column mapping information.
  */
-public class DeployBeanProperty {
+public class DeployBeanProperty implements DeployProperty {
 
   private static final int ID_ORDER = 1000000;
   private static final int UNIDIRECTIONAL_ORDER = 100000;
@@ -230,6 +230,11 @@ public class DeployBeanProperty {
     return desc;
   }
 
+  @Override
+  public Class<?> getOwnerType() {
+    return desc.getBeanType();
+  }
+
   /**
    * Return the DB column length for character columns.
    * <p>
@@ -262,10 +267,12 @@ public class DeployBeanProperty {
     this.jsonDeserialize = jsonDeserialize;
   }
 
+  @Override
   public MutationDetection getMutationDetection() {
     return mutationDetection;
   }
 
+  @Override
   public void setMutationDetection(MutationDetection dirtyDetection) {
     this.mutationDetection = dirtyDetection;
   }
@@ -432,6 +439,7 @@ public class DeployBeanProperty {
   /**
    * Return the name of the property.
    */
+  @Override
   public String getName() {
     return name;
   }
@@ -480,8 +488,9 @@ public class DeployBeanProperty {
   }
 
   /**
-   * Return true if this property is mandatory.
+   * Return true if this property is not mandatory.
    */
+  @Override
   public boolean isNullable() {
     return nullable;
   }
@@ -845,6 +854,7 @@ public class DeployBeanProperty {
   /**
    * Return the property type.
    */
+  @Override
   public Class<?> getPropertyType() {
     return propertyType;
   }
@@ -852,6 +862,7 @@ public class DeployBeanProperty {
   /**
    * Return the generic type for this property.
    */
+  @Override
   public Type getGenericType() {
     return genericType;
   }
@@ -1056,6 +1067,7 @@ public class DeployBeanProperty {
     return null;
   }
 
+  @Override
   @SuppressWarnings("unchecked")
   public <A extends Annotation> List<A> getMetaAnnotations(Class<A> annotationType) {
     List<A> result = new ArrayList<>();
