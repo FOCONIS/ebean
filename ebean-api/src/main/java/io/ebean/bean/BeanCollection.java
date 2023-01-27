@@ -165,7 +165,7 @@ public interface BeanCollection<E> extends Serializable, ToStringAware {
   Collection<?> getActualEntries();
 
   /**
-   * Retruns entries, that were lazyily added at the end of the list. Might be null.
+   * Returns entries, that were lazily added at the end of the list. Might be null.
    */
   default Collection<E> getLazyAddedEntries() {
     return null;

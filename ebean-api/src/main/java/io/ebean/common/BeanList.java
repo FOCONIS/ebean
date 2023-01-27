@@ -20,7 +20,7 @@ public class BeanList<E> extends AbstractBeanCollection<E> implements List<E>, B
   /**
    * The underlying List implementation.
    */
-  protected List<E> list;
+  List<E> list;
 
   /**
    * Specify the underlying List implementation.

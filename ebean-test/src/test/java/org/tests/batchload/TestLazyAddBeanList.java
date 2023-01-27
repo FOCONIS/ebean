@@ -43,13 +43,19 @@ public class TestLazyAddBeanList extends BaseTestCase {
 
   @Test
   public void testCollectionType() {
-    assertThat(cust.getContacts()).isInstanceOf(BeanListLazyAdd.class);
+    assertThat(cust.getContacts())
+      .isInstanceOf(BeanListLazyAdd.class);
 
-    assertThat(orderMaster.getChildren()).isInstanceOf(BeanList.class).isNotInstanceOf(BeanListLazyAdd.class);
+    assertThat(orderMaster.getChildren())
+      .isInstanceOf(BeanList.class)
+      .isNotInstanceOf(BeanListLazyAdd.class);
 
-    assertThat(DB.reference(Customer.class, 1).getContacts()).isInstanceOf(BeanListLazyAdd.class);
+    assertThat(DB.reference(Customer.class, 1).getContacts())
+      .isInstanceOf(BeanListLazyAdd.class);
 
-    assertThat(DB.reference(OrderMaster.class, 1).getChildren()).isInstanceOf(BeanList.class).isNotInstanceOf(BeanListLazyAdd.class);
+    assertThat(DB.reference(OrderMaster.class, 1).getChildren())
+      .isInstanceOf(BeanList.class)
+      .isNotInstanceOf(BeanListLazyAdd.class);
   }
 
   @Test
@@ -66,7 +72,10 @@ public class TestLazyAddBeanList extends BaseTestCase {
     assertThat(sql.get(2)).contains("bind(joe,big,");
     assertThat(sql).hasSize(3);
 
-    List<String> list = DB.find(Customer.class).fetch("contacts", "firstName").where().idEq(cust.getId()).findSingleAttributeList();
+    List<String> list = DB.find(Customer.class)
+      .fetch("contacts", "firstName")
+      .where()
+      .idEq(cust.getId()).findSingleAttributeList();
 // check if it is really saved
     assertThat(list).containsExactlyInAnyOrder("jim", "joe");
   }
@@ -86,7 +95,10 @@ public class TestLazyAddBeanList extends BaseTestCase {
     assertThat(sql.get(2)).contains("bind(D,foo,");
     assertThat(sql.get(3)).contains("bind(D,bar,");
 
-    List<String> list = DB.find(OrderMaster.class).fetch("children", "name").where().idEq(orderMaster.getId()).findSingleAttributeList();
+    List<String> list = DB.find(OrderMaster.class)
+      .fetch("children", "name")
+      .where().idEq(orderMaster.getId())
+      .findSingleAttributeList();
     // check if it is really saved
     assertThat(list).containsExactlyInAnyOrder("foo", "bar");
   }
@@ -96,7 +108,9 @@ public class TestLazyAddBeanList extends BaseTestCase {
 
     // add some existing entries
     LoggedSql.start();
-    cust.getContacts().addAll(Arrays.asList(new Contact("jim", "slim"), new Contact("joe", "big")));
+    cust.getContacts().addAll(Arrays.asList(
+      new Contact("jim", "slim"),
+      new Contact("joe", "big")));
     assertThat(LoggedSql.stop()).isEmpty();
 
     LoggedSql.start();
@@ -115,7 +129,7 @@ public class TestLazyAddBeanList extends BaseTestCase {
       extracting(Contact::getFirstName).
       containsExactlyInAnyOrder("jim", "joe", "charlie");
     List<String> sql = LoggedSql.stop();
-    
+
     assertThat(sql.get(0)).contains("from o_customer t0 left join contact t1 ");
     assertThat(sql).hasSize(1);
   }
