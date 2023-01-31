@@ -6,11 +6,11 @@ interface Constants {
   String AT_TYPEQUERYBEAN = "@TypeQueryBean(\"v1\")";
   String GENERATED = "io.ebean.typequery.Generated";
 
-  String MAPPED_SUPERCLASS = "javax.persistence.MappedSuperclass";
-  String INHERITANCE = "javax.persistence.Inheritance";
-  String ENTITY = "javax.persistence.Entity";
-  String EMBEDDABLE = "javax.persistence.Embeddable";
-  String CONVERTER = "javax.persistence.Converter";
+  String MAPPED_SUPERCLASS = "jakarta.persistence.MappedSuperclass";
+  String INHERITANCE = "jakarta.persistence.Inheritance";
+  String ENTITY = "jakarta.persistence.Entity";
+  String EMBEDDABLE = "jakarta.persistence.Embeddable";
+  String CONVERTER = "jakarta.persistence.Converter";
   String EBEAN_COMPONENT = "io.ebean.annotation.EbeanComponent";
 
   String DBARRAY = "io.ebean.annotation.DbArray";

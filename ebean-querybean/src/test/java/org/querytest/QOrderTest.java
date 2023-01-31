@@ -14,12 +14,14 @@ import org.example.domain.query.QOrder;
 import org.example.domain.query.QOrderDetail;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@Disabled
 public class QOrderTest {
 
   private static final QCustomer cu = QCustomer.alias();

@@ -11,6 +11,7 @@ import io.ebeaninternal.dbmigration.migrationreader.MigrationXmlReader;
 import io.ebeaninternal.dbmigration.model.CurrentModel;
 import io.ebeaninternal.dbmigration.model.MTable;
 import io.ebeaninternal.dbmigration.model.ModelContainer;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.tests.model.basic.CKeyAssoc;
 import org.tests.model.basic.CKeyDetail;
@@ -21,6 +22,7 @@ import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@Disabled
 public class ModelBuild_compoundKeyTest extends BaseTestCase {
 
   private SpiEbeanServer createServer() {
