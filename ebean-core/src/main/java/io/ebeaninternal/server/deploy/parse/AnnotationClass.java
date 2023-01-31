@@ -14,7 +14,7 @@ import io.ebeaninternal.server.deploy.PartitionMeta;
 import io.ebeaninternal.server.deploy.TablespaceMeta;
 import io.ebeaninternal.server.deploy.meta.DeployBeanProperty;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.Set;
 
 import static io.ebean.util.AnnotationUtil.typeGet;

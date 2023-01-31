@@ -3,10 +3,10 @@ package org.tests.model.basic;
 import io.ebean.annotation.*;
 import org.tests.model.json.PlainBean;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Version;
-import javax.validation.constraints.Size;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Version;
+import jakarta.validation.constraints.Size;
 import java.sql.Timestamp;
 
 import static io.ebean.annotation.MutationDetection.SOURCE;

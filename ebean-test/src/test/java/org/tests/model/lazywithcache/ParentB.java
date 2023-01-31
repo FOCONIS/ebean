@@ -1,8 +1,8 @@
 package org.tests.model.lazywithcache;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
 
 /**
  * Parent class with ChildWithCache.
@@ -10,13 +10,13 @@ import javax.persistence.ManyToOne;
  */
 @Entity
 public class ParentB {
-  
+
   @Id
   Long id;
-  
+
   @ManyToOne(optional = true)
   ChildWithCache child;
-    
+
   public Long getId() {
     return id;
   }
@@ -24,7 +24,7 @@ public class ParentB {
   public void setId(Long id) {
     this.id = id;
   }
-  
+
   public ChildWithCache getChild() {
     return child;
   }
@@ -32,5 +32,5 @@ public class ParentB {
   public void setChild(ChildWithCache child) {
     this.child = child;
   }
-  
+
 }

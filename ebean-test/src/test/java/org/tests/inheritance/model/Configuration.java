@@ -3,7 +3,7 @@ package org.tests.inheritance.model;
 import io.ebean.annotation.Cache;
 import io.ebean.annotation.ChangeLog;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 @ChangeLog
 @Entity
@@ -11,7 +11,7 @@ import javax.persistence.*;
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "type", discriminatorType = DiscriminatorType.STRING, columnDefinition = "varchar(21)")
 public class Configuration extends AbstractBaseClass {
-  
+
   @Id
   @Column(name = "id")
   private Integer id;

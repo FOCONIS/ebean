@@ -3,8 +3,8 @@ package org.tests.model.basic;
 import io.ebean.annotation.Index;
 import io.ebean.annotation.Platform;
 
-import javax.persistence.*;
-import javax.validation.constraints.Size;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.Size;
 
 /**
  * A basic entity to test simple things.

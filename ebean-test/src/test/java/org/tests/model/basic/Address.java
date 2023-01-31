@@ -3,8 +3,8 @@ package org.tests.model.basic;
 import io.ebean.annotation.InvalidateQueryCache;
 import org.tests.model.basic.metaannotation.SizeMedium;
 
-import javax.persistence.*;
-import javax.validation.constraints.Size;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.Size;
 import java.sql.Timestamp;
 
 /**

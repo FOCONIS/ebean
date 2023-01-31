@@ -11,8 +11,8 @@ import io.ebeaninternal.server.deploy.ManyType;
 import io.ebeaninternal.server.deploy.meta.*;
 import io.ebeaninternal.server.type.TypeManager;
 
-import javax.persistence.PersistenceException;
-import javax.persistence.Transient;
+import jakarta.persistence.PersistenceException;
+import jakarta.persistence.Transient;
 import java.lang.reflect.*;
 
 import static java.lang.System.Logger.Level.*;

@@ -1,12 +1,12 @@
 package org.tests.inheritance;
 
-import javax.persistence.DiscriminatorValue;
-import javax.persistence.Entity;
+import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.Entity;
 
 @Entity
 @DiscriminatorValue("Unit")
 public class OrganizationUnit extends OrganizationNode {
-	
+
 	private String title;
 
 	public String getTitle() {

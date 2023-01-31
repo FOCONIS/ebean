@@ -3,8 +3,8 @@ package misc.migration.v1_1;
 import io.ebean.annotation.Index;
 import io.ebean.annotation.*;
 
-import javax.persistence.*;
-import javax.validation.constraints.Size;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.Size;
 import java.sql.Timestamp;
 import java.util.List;
 

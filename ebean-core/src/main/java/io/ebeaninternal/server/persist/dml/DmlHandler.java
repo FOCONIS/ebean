@@ -10,7 +10,7 @@ import io.ebeaninternal.server.persist.dmlbind.BindableRequest;
 import io.ebeaninternal.server.bind.DataBind;
 import io.ebeaninternal.server.util.Str;
 
-import javax.persistence.OptimisticLockException;
+import jakarta.persistence.OptimisticLockException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;

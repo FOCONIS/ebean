@@ -4,8 +4,18 @@ import io.ebean.annotation.PostSoftDelete;
 import io.ebean.annotation.PreSoftDelete;
 import io.ebean.annotation.SoftDelete;
 
-import javax.annotation.PostConstruct;
-import javax.persistence.*;
+import jakarta.annotation.PostConstruct;
+import jakarta.persistence.Entity;
+import jakarta.persistence.PostLoad;
+import jakarta.persistence.PostPersist;
+import jakarta.persistence.PostRemove;
+import jakarta.persistence.PostUpdate;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreRemove;
+import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Version;
+
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "e_basic_with_ex")

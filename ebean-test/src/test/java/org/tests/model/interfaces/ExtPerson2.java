@@ -3,8 +3,8 @@ package org.tests.model.interfaces;
 import io.ebean.annotation.ext.EntityImplements;
 import io.ebean.annotation.ext.EntityOverride;
 
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 
 @Entity
 @EntityOverride(priority = 20)

@@ -10,7 +10,7 @@ import io.ebeaninternal.server.autotune.ProfilingListener;
 import io.ebeaninternal.server.autotune.model.Origin;
 import io.ebeaninternal.server.querydefn.OrmQueryDetail;
 
-import javax.persistence.PersistenceException;
+import jakarta.persistence.PersistenceException;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;

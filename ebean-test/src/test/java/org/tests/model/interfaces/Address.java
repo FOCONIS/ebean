@@ -2,10 +2,10 @@ package org.tests.model.interfaces;
 
 import io.ebean.annotation.ext.EntityImplements;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import javax.persistence.Version;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Version;
 
 @Entity
 @EntityImplements(IAddress.class)

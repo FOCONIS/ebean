@@ -1,6 +1,6 @@
 package org.tests.model.basic.metaannotation;
 
-import javax.validation.constraints.Size;
+import jakarta.validation.constraints.Size;
 import java.lang.annotation.*;
 
 /**

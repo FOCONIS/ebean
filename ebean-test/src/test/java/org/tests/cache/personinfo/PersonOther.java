@@ -3,10 +3,10 @@ package org.tests.cache.personinfo;
 import io.ebean.annotation.WhenCreated;
 import io.ebean.annotation.WhenModified;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Version;
-import javax.validation.constraints.Size;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Version;
+import jakarta.validation.constraints.Size;
 import java.time.Instant;
 
 @Entity

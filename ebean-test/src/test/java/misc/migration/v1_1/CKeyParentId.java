@@ -1,7 +1,7 @@
 package misc.migration.v1_1;
 
-import javax.persistence.Embeddable;
-import javax.validation.constraints.Size;
+import jakarta.persistence.Embeddable;
+import jakarta.validation.constraints.Size;
 
 @Embeddable
 public class CKeyParentId {

@@ -13,8 +13,8 @@ import java.time.ZonedDateTime;
 import java.util.Calendar;
 
 import javax.annotation.Nullable;
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 
 @Entity
 public class MDateTime {
@@ -36,13 +36,13 @@ public class MDateTime {
 
   @Nullable
   private ZonedDateTime zonedDateTime;
-  
+
   @Nullable
   private YearMonth propYearMonth;
-  
+
   @Nullable
   private MonthDay propMonthDay;
-  
+
   @Nullable
   private Year propYear;
 
@@ -54,7 +54,7 @@ public class MDateTime {
 
   @Nullable
   private Timestamp propTimestamp;
-  
+
   @Nullable
   private java.sql.Date sqlDate;
 

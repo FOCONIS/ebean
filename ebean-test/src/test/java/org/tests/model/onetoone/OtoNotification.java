@@ -1,7 +1,7 @@
 package org.tests.model.onetoone;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 
 @Entity
 public class OtoNotification {
@@ -10,12 +10,12 @@ public class OtoNotification {
   Integer id;
 
   Integer refId;
-  
+
   // 0 = master, 1 = child
   Integer type;
 
   String text;
-  
+
   public Integer getId() {
     return id;
   }

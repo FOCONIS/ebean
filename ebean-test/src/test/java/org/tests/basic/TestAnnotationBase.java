@@ -11,10 +11,10 @@ import io.ebeaninternal.server.deploy.meta.DeployBeanProperty;
 import org.junit.jupiter.api.Test;
 import org.tests.model.basic.ValidationGroupSomething;
 
-import javax.persistence.Entity;
-import javax.persistence.MappedSuperclass;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
+import jakarta.persistence.Entity;
+import jakarta.persistence.MappedSuperclass;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

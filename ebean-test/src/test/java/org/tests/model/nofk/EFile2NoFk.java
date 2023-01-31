@@ -3,10 +3,10 @@ package org.tests.model.nofk;
 import io.ebean.annotation.Formula;
 import io.ebean.annotation.Index;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import javax.validation.constraints.Size;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
+import jakarta.validation.constraints.Size;
 
 @Entity
 public class EFile2NoFk {

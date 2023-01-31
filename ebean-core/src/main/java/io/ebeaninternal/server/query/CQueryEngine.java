@@ -20,7 +20,7 @@ import io.ebeaninternal.server.deploy.BeanDescriptor;
 import io.ebeaninternal.server.persist.Binder;
 import io.ebeaninternal.server.util.Str;
 
-import javax.persistence.PersistenceException;
+import jakarta.persistence.PersistenceException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;

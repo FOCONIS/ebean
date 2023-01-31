@@ -1,8 +1,8 @@
 package org.example.domain;
 
-import javax.persistence.Entity;
-import javax.persistence.Table;
-import javax.validation.constraints.Size;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.Size;
 
 /**
  * Product entity bean.

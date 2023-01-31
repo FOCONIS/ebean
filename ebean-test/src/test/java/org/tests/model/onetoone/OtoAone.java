@@ -1,8 +1,8 @@
 package org.tests.model.onetoone;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.validation.constraints.Size;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.validation.constraints.Size;
 
 @Entity
 public class OtoAone {

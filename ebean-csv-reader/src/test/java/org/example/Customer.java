@@ -1,9 +1,9 @@
 package org.example;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.time.LocalDate;
 
-import static javax.persistence.CascadeType.PERSIST;
+import static jakarta.persistence.CascadeType.PERSIST;
 
 @Entity
 public class Customer extends BaseEntity {

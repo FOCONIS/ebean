@@ -3,9 +3,9 @@ package io.ebeaninternal.server.deploy.parse;
 import io.ebean.util.AnnotationUtil;
 import io.ebeaninternal.server.deploy.meta.DeployBeanProperty;
 
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
-import javax.validation.groups.Default;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import jakarta.validation.groups.Default;
 import java.util.Collections;
 import java.util.List;
 
