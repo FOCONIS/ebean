@@ -10,6 +10,7 @@ import io.ebean.xtest.BaseTestCase;
 import io.ebeaninternal.server.deploy.BeanProperty;
 import org.junit.jupiter.api.Test;
 import org.tests.model.virtualprop.VirtualBase;
+import org.tests.model.virtualprop.VirtualBaseA;
 
 import java.util.List;
 
@@ -159,5 +160,22 @@ public class TestVirtualProps extends BaseTestCase {
     assertThat(sql.get(1)).contains("delete from kreuztabelle where virtual_base_id = ?"); // intersection table
     assertThat(sql.get(2)).contains("delete from virtual_base where id=?"); // delete entity itself
 
+  }
+
+  @Test
+  void testInheritance() {
+    VirtualBaseA base = new VirtualBaseA();
+    base.setData("Master");
+    db.save(base);
+
+    Extension3.get(base).setExt("ext");
+    db.save(base);
+
+    LoggedSql.start();
+    VirtualBaseA found = db.find(VirtualBaseA.class).where().eq("ext", "ext").findOne();
+    List<String> sql = LoggedSql.stop();
+
+    assertThat(sql).hasSize(1);
+    assertThat(sql.get(0)).contains("delete from virtual_extend_one where id = ?");
   }
 }
