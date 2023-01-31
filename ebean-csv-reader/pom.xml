@@ -39,6 +39,13 @@
       <scope>test</scope>
     </dependency>
 
+    <dependency>
+      <groupId>io.avaje</groupId>
+      <artifactId>avaje-jsr305-x</artifactId>
+      <version>1.1</version>
+      <scope>provided</scope>
+    </dependency>
+
   </dependencies>
 
   <build>
@@ -55,6 +62,31 @@
             <tile>io.ebean.tile:enhancement:13.10.1</tile>
           </tiles>
         </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>io.ebean</groupId>
+        <artifactId>ebean-maven-plugin</artifactId>
+        <version>${ebean-maven-plugin.version}</version>
+        <executions>
+          <execution>
+            <id>test</id>
+            <phase>process-test-classes</phase>
+            <configuration>
+              <transformArgs>debug=0</transformArgs>
+            </configuration>
+            <goals>
+              <goal>testEnhance</goal>
+            </goals>
+          </execution>
+        </executions>
+        <dependencies>
+          <dependency>
+            <groupId>io.ebean</groupId>
+            <artifactId>ebean-agent</artifactId>
+            <version>${ebean-agent.version}</version>
+          </dependency>
+        </dependencies>
       </plugin>
 
     </plugins>

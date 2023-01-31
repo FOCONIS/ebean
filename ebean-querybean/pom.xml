@@ -52,6 +52,13 @@
       <optional>true</optional>
     </dependency>
 
+    <dependency>
+      <groupId>jakarta.validation</groupId>
+      <artifactId>jakarta.validation-api</artifactId>
+      <version>3.0.0</version>
+      <optional>true</optional>
+    </dependency>
+
     <!-- test dependencies -->
     <dependency>
       <groupId>io.ebean</groupId>
@@ -110,6 +117,31 @@
             <tile>io.ebean.tile:enhancement:13.10.1</tile>
           </tiles>
         </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>io.ebean</groupId>
+        <artifactId>ebean-maven-plugin</artifactId>
+        <version>${ebean-maven-plugin.version}</version>
+        <executions>
+          <execution>
+            <id>test</id>
+            <phase>process-test-classes</phase>
+            <configuration>
+              <transformArgs>debug=0</transformArgs>
+            </configuration>
+            <goals>
+              <goal>testEnhance</goal>
+            </goals>
+          </execution>
+        </executions>
+        <dependencies>
+          <dependency>
+            <groupId>io.ebean</groupId>
+            <artifactId>ebean-agent</artifactId>
+            <version>${ebean-agent.version}</version>
+          </dependency>
+        </dependencies>
       </plugin>
 
     </plugins>
