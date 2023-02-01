@@ -10,8 +10,8 @@ import java.time.Instant;
 public interface SpiDbQueryPlan extends MetaQueryPlan {
 
   /**
-   * Extend with queryTimeMicros and captureCount.
+   * Extend with queryTimeMicros, captureCount and tenantId.
    */
-  SpiDbQueryPlan with(long queryTimeMicros, long captureCount, long captureMicros, Instant whenCaptured);
+  SpiDbQueryPlan with(long queryTimeMicros, long captureCount, long captureMicros, Instant whenCaptured, Object tenantId);
 
 }
