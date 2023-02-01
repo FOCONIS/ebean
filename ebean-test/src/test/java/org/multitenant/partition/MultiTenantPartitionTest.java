@@ -8,6 +8,7 @@ import io.ebean.meta.MetaQueryPlan;
 import io.ebean.meta.QueryPlanInit;
 import io.ebean.meta.QueryPlanRequest;
 import io.ebean.test.LoggedSql;
+import io.ebean.test.UserContext;
 import io.ebean.xtest.BaseTestCase;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
