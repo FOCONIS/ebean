@@ -108,6 +108,7 @@
     <module>ebean-jackson-mapper</module>
     <module>jakarta-ebean-api</module>
     <module>ebean-kotlin</module>
+    <module>jakarta-ebean-core</module>
 
   </modules>
 
