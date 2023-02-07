@@ -1,0 +1,329 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>ebean-parent</artifactId>
+    <groupId>io.ebean</groupId>
+    <version>13.11.3-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>jakarta-ebean-core</artifactId>
+  <packaging>jar</packaging>
+
+  <name>jakarta ebean core</name>
+  <description>jakarta ebean core module</description>
+  <url>https://ebean.io/</url>
+
+  <scm>
+    <developerConnection>scm:git:git@github.com:ebean-orm/ebean.git</developerConnection>
+    <tag>HEAD</tag>
+  </scm>
+
+  <dependencies>
+    <dependency>
+      <groupId>io.ebean</groupId>
+      <artifactId>jakarta-ebean-api</artifactId>
+      <version>13.11.3-SNAPSHOT</version>
+    </dependency>
+
+    <dependency>
+      <groupId>io.ebean</groupId>
+      <artifactId>ebean-ddl-runner</artifactId>
+      <version>${ebean-ddl-runner.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>io.avaje</groupId>
+      <artifactId>classpath-scanner</artifactId>
+      <version>7.1</version>
+    </dependency>
+
+    <dependency>
+      <groupId>io.ebean</groupId>
+      <artifactId>ebean-migration-auto</artifactId>
+      <version>${ebean-migration-auto.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>io.ebean</groupId>
+      <artifactId>ebean-core-type</artifactId>
+      <version>13.11.3-SNAPSHOT</version>
+    </dependency>
+
+    <dependency>
+      <groupId>io.ebean</groupId>
+      <artifactId>ebean-externalmapping-api</artifactId>
+      <version>13.11.3-SNAPSHOT</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.antlr</groupId>
+      <artifactId>antlr4-runtime</artifactId>
+      <version>4.8-1</version>
+    </dependency>
+
+    <!--
+    Class retention Nonnull and Nullable annotations
+    to assist with IDE auto-completion with Ebean API
+    -->
+    <dependency>
+      <groupId>io.avaje</groupId>
+      <artifactId>avaje-jsr305-x</artifactId>
+      <version>1.1</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <!-- Provided scope so that the H2HistoryTrigger can live in Ebean core
+         and not require a separate module for it -->
+    <dependency>
+      <groupId>com.h2database</groupId>
+      <artifactId>h2</artifactId>
+      <version>${h2database.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <!--dependency>
+      <groupId>javax.transaction</groupId>
+      <artifactId>javax.transaction-api</artifactId>
+      <version>1.3</version>
+      <optional>true</optional>
+    </dependency-->
+
+    <dependency>
+      <groupId>jakarta.transaction</groupId>
+      <artifactId>jakarta.transaction-api</artifactId>
+      <version>2.0.1</version>
+      <optional>true</optional>
+    </dependency>
+
+    <dependency>
+      <groupId>jakarta.enterprise</groupId>
+      <artifactId>jakarta.enterprise.cdi-api</artifactId>
+      <version>4.0.1</version>
+    </dependency>
+
+    <!-- validation annotations Size etc -->
+    <dependency>
+      <groupId>javax.validation</groupId>
+      <artifactId>validation-api</artifactId>
+      <version>2.0.1.Final</version>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>jakarta.validation</groupId>
+      <artifactId>jakarta.validation-api</artifactId>
+      <version>3.0.0</version>
+      <optional>true</optional>
+    </dependency>
+
+    <dependency>
+      <groupId>joda-time</groupId>
+      <artifactId>joda-time</artifactId>
+      <version>2.11.1</version>
+      <optional>true</optional>
+    </dependency>
+
+<!--    <dependency>-->
+<!--      <groupId>javax.annotation</groupId>-->
+<!--      <artifactId>javax.annotation-api</artifactId>-->
+<!--      <version>1.3.2</version>-->
+<!--      <optional>true</optional>-->
+<!--    </dependency>-->
+
+    <!-- Jackson core used internally by Ebean -->
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-core</artifactId>
+      <version>${jackson.version}</version>
+      <optional>true</optional>
+    </dependency>
+
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>${jackson.version}</version>
+      <optional>true</optional>
+    </dependency>
+
+    <!-- Provided scope for Postgres JSON/JSONB support -->
+    <dependency>
+      <groupId>org.postgresql</groupId>
+      <artifactId>postgresql</artifactId>
+      <version>42.5.1</version>
+      <optional>true</optional>
+    </dependency>
+
+    <!-- Test scope -->
+    <dependency>
+      <groupId>io.ebean</groupId>
+      <artifactId>ebean-platform-h2</artifactId>
+      <version>13.11.3-SNAPSHOT</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>io.ebean</groupId>
+      <artifactId>ebean-platform-postgres</artifactId>
+      <version>13.11.3-SNAPSHOT</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>io.ebean</groupId>
+      <artifactId>ebean-platform-sqlserver</artifactId>
+      <version>13.11.3-SNAPSHOT</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>io.ebean</groupId>
+      <artifactId>ebean-datasource</artifactId>
+      <version>${ebean-datasource.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>io.avaje</groupId>
+      <artifactId>junit</artifactId>
+      <version>1.1</version>
+      <scope>test</scope>
+    </dependency>
+
+  </dependencies>
+
+  <build>
+    <plugins>
+
+      <plugin>
+        <groupId>io.ebean</groupId>
+        <artifactId>ebean-maven-plugin</artifactId>
+        <version>${ebean-maven-plugin-jakarta.version}</version>
+        <executions>
+          <execution>
+            <id>test</id>
+            <phase>process-test-classes</phase>
+            <configuration>
+              <transformArgs>debug=0</transformArgs>
+            </configuration>
+            <goals>
+              <goal>testEnhance</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>3.0.0-M4</version>
+        <configuration>
+          <useSystemClassLoader>false</useSystemClassLoader>
+          <trimStackTrace>false</trimStackTrace>
+          <failIfNoTests>false</failIfNoTests>
+          <includes>
+            <include>**/Test*.java</include>
+            <include>**/*Test.java</include>
+            <include>**/*Tests.java</include>
+          </includes>
+          <systemProperties>
+            <property>
+              <!-- transfer datasource.default parameter -->
+              <name>datasource.default</name>
+              <value>${datasource.default}</value>
+            </property>
+            <property>
+              <!-- transfer dbClockDelta parameter -->
+              <name>dbClockDelta</name>
+              <value>${dbClockDelta}</value>
+            </property>
+          </systemProperties>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>3.1.1</version>
+        <configuration>
+          <doctitle>Ebean 12</doctitle>
+          <overview>src/main/java/io/ebean/overview.html</overview>
+          <excludePackageNames>io.ebeaninternal.*:io.ebeanservice:io.ebean.common:io.ebean.bean:io.ebean.service:io.ebean.metric:io.ebean.util:io.ebean.config.properties:io.ebean.config.dbplatform</excludePackageNames>
+          <linksource>true</linksource>
+          <overview>src/main/java/com/avaje/ebean/overview.html</overview>
+        </configuration>
+        <executions>
+          <execution>
+            <id>attach-javadocs</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <version>3.0.0</version>
+        <executions>
+          <execution>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>add-source</goal>
+            </goals>
+            <configuration>
+              <sources>
+                <source>src/modified/java</source>
+              </sources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <version>3.1.0</version>
+        <executions>
+          <execution>
+            <id>javax2jakarta</id>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <configuration>
+              <target>
+                <echo>${project.basedir}/src/</echo>
+                <delete dir="${project.basedir}/src" excludes="${project.basedir}/src/modified"/>
+                <copy todir="${project.basedir}/src">
+                  <fileset dir="${project.basedir}/../ebean-core/src" excludes="**/ServletContextListener.java"/>
+                </copy>
+                # GLOBAL
+                <replace dir="${project.basedir}/src">
+                  <include name="**/*.java"/>
+                  <replacefilter token="import javax.persistence."
+                                 value="import jakarta.persistence."/>
+                  <replacefilter token="import static javax.persistence."
+                                 value="import static jakarta.persistence."/>
+                  <replacefilter token="import javax.transaction."
+                                 value="import jakarta.transaction."/>
+                  <replacefilter token="import javax.servlet."
+                                 value="import jakarta.servlet."/>
+                  <replacefilter token="import static javax.servlet."
+                                 value="import static jakarta.servlet."/>
+                </replace>
+
+                # FILE SPECIFIC
+                <replace file="${project.basedir}/src/main/java/module-info.java"
+                         token="  requires static java.transaction;"
+                         value="  requires static jakarta.transaction;" failOnNoReplacements="true"/>
+              </target>
+            </configuration>
+          </execution>
+        </executions>
+        <dependencies>
+        </dependencies>
+      </plugin>
+
+    </plugins>
+
+  </build>
+
+</project>

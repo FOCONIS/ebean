@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <artifactId>ebean-parent</artifactId>
@@ -7,9 +8,9 @@
     <version>13.11.3-SNAPSHOT</version>
   </parent>
 
-  <name>ebean api</name>
-  <description>ebean api</description>
-  <artifactId>ebean-api</artifactId>
+  <name>jakarta ebean api</name>
+  <description>jakarta ebean api</description>
+  <artifactId>jakarta-ebean-api</artifactId>
 
   <dependencies>
 
@@ -44,7 +45,7 @@
 
     <dependency>
       <groupId>io.ebean</groupId>
-      <artifactId>javax-persistence-api</artifactId>
+      <artifactId>jakarta-persistence-api</artifactId>
       <version>${ebean-persistence-api.version}</version>
     </dependency>
 
@@ -98,9 +99,9 @@
     </dependency>
 
     <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>javax.servlet-api</artifactId>
-      <version>3.1.0</version>
+      <groupId>jakarta.servlet</groupId>
+      <artifactId>jakarta.servlet-api</artifactId>
+      <version>6.0.0</version>
       <optional>true</optional>
     </dependency>
 
@@ -110,7 +111,6 @@
       <version>1.1</version>
       <scope>test</scope>
     </dependency>
-
   </dependencies>
 
   <build>
@@ -130,6 +130,64 @@
         </excludes>
       </resource>
     </resources>
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <version>3.0.0</version>
+        <executions>
+          <execution>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>add-source</goal>
+            </goals>
+            <configuration>
+              <sources>
+                <source>src/modified/java</source>
+              </sources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <version>3.1.0</version>
+        <executions>
+          <execution>
+            <id>javax2jakarta</id>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <configuration>
+              <target>
+                <delete dir="${project.basedir}/src" excludes="${project.basedir}/src/modified"/>
+                <copy todir="${project.basedir}/src">
+                  <fileset dir="${project.basedir}/../ebean-api/src"/>
+                </copy>
+                # GLOBAL
+                <replace dir="${project.basedir}/src">
+                  <include name="**/*.java"/>
+                  <replacefilter token="import javax.persistence."
+                                 value="import jakarta.persistence."/>
+                  <replacefilter token="import static javax.persistence."
+                                 value="import static jakarta.persistence."/>
+                  <replacefilter token="import javax.servlet."
+                                 value="import jakarta.servlet."/>
+                  <replacefilter token="import static javax.servlet."
+                                 value="import static jakarta.servlet."/>
+                </replace>
+                # FILE SPECIFIC
+                <replace file="${project.basedir}/src/main/java/module-info.java"
+                         token="  requires static javax.servlet.api;"
+                         value="  requires static jakarta.servlet;" failOnNoReplacements="true"/>
+              </target>
+            </configuration>
+          </execution>
+        </executions>
+        <dependencies>
+        </dependencies>
+      </plugin>
+    </plugins>
   </build>
-
 </project>

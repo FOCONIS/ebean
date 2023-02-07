@@ -1,0 +1,119 @@
+[INFO] Scanning for projects...
+[INFO] --- tiles-maven-plugin: Injecting 1 tiles as intermediary parent artifacts for io.ebean:jakarta-ebean-test...
+[INFO] Mixed 'null:jakarta-ebean-test:null' with tile 'io.ebean.tile:enhancement:13.10.1' as its new parent.
+[INFO] Explicitly set groupId to 'io.ebean' from original parent 'io.ebean:ebean-parent:13.11.3-SNAPSHOT'.
+[INFO] Explicitly set version to '13.11.3-SNAPSHOT' from original parent 'io.ebean:ebean-parent:13.11.3-SNAPSHOT'.
+[INFO] Mixed 'io.ebean.tile:enhancement:13.10.1' with original parent 'io.ebean:ebean-parent:13.11.3-SNAPSHOT' as its new top level parent.
+[INFO] 
+[INFO] 
+[INFO] --------------------< io.ebean:jakarta-ebean-test >---------------------
+[INFO] Building jakarta ebean test 13.11.3-SNAPSHOT
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-dependency-plugin:2.8:tree (default-cli) @ jakarta-ebean-test ---
+[INFO] io.ebean:jakarta-ebean-test:jar:13.11.3-SNAPSHOT
+[INFO] +- io.avaje:avaje-applog:jar:1.0:compile
+[INFO] +- io.ebean:ebean-datasource:jar:8.4:compile
+[INFO] |  \- io.ebean:ebean-datasource-api:jar:8.4:compile
+[INFO] +- io.ebean:ebean-platform-h2:jar:13.11.3-SNAPSHOT:compile
+[INFO] |  \- io.ebean:ebean-api:jar:13.11.3-SNAPSHOT:compile
+[INFO] |     +- io.avaje:avaje-applog-slf4j:jar:1.0:compile
+[INFO] |     +- io.avaje:avaje-config:jar:2.4:compile
+[INFO] |     +- io.avaje:avaje-lang:jar:1.1:compile
+[INFO] |     +- io.ebean:javax-persistence-api:jar:3.1-SNAPSHOT:compile
+[INFO] |     +- io.ebean:ebean-annotation:jar:8.3:compile
+[INFO] |     \- io.ebean:ebean-types:jar:3.0:compile
+[INFO] +- io.ebean:jakarta-ebean-core:jar:13.11.3-SNAPSHOT:compile
+[INFO] |  +- io.ebean:jakarta-ebean-api:jar:13.11.3-SNAPSHOT:compile
+[INFO] |  |  \- io.ebean:jakarta-persistence-api:jar:3.1-SNAPSHOT:compile
+[INFO] |  +- io.ebean:ebean-ddl-runner:jar:2.2:compile
+[INFO] |  +- io.avaje:classpath-scanner:jar:7.1:compile
+[INFO] |  |  \- io.avaje:classpath-scanner-api:jar:7.1:compile
+[INFO] |  +- io.ebean:ebean-migration-auto:jar:1.2:compile
+[INFO] |  +- io.ebean:ebean-core-type:jar:13.11.3-SNAPSHOT:compile
+[INFO] |  +- io.ebean:ebean-externalmapping-api:jar:13.11.3-SNAPSHOT:compile
+[INFO] |  +- org.antlr:antlr4-runtime:jar:4.8-1:compile
+[INFO] |  \- jakarta.enterprise:jakarta.enterprise.cdi-api:jar:4.0.1:compile
+[INFO] |     +- jakarta.enterprise:jakarta.enterprise.lang-model:jar:4.0.1:compile
+[INFO] |     +- jakarta.annotation:jakarta.annotation-api:jar:2.1.0:compile
+[INFO] |     +- jakarta.el:jakarta.el-api:jar:5.0.0:compile
+[INFO] |     +- jakarta.interceptor:jakarta.interceptor-api:jar:2.1.0:compile
+[INFO] |     \- jakarta.inject:jakarta.inject-api:jar:2.0.1:compile
+[INFO] +- io.ebean:ebean-ddl-generator:jar:13.11.3-SNAPSHOT:compile
+[INFO] +- com.fasterxml.jackson.core:jackson-databind:jar:2.14.0:compile
+[INFO] |  +- com.fasterxml.jackson.core:jackson-annotations:jar:2.14.0:compile
+[INFO] |  \- com.fasterxml.jackson.core:jackson-core:jar:2.14.0:compile
+[INFO] +- com.fasterxml.jackson.datatype:jackson-datatype-jsr310:jar:2.14.0:compile
+[INFO] +- io.ebean:ebean-test-containers:jar:6.3:compile
+[INFO] +- org.assertj:assertj-core:jar:3.23.1:compile
+[INFO] |  \- net.bytebuddy:byte-buddy:jar:1.12.10:compile
+[INFO] +- org.glassfish.jaxb:jaxb-runtime:jar:2.3.6:compile
+[INFO] |  +- jakarta.xml.bind:jakarta.xml.bind-api:jar:2.3.3:compile
+[INFO] |  +- org.glassfish.jaxb:txw2:jar:2.3.6:compile
+[INFO] |  +- com.sun.istack:istack-commons-runtime:jar:3.0.12:compile
+[INFO] |  \- com.sun.activation:jakarta.activation:jar:1.2.2:runtime
+[INFO] +- jakarta.activation:jakarta.activation-api:jar:1.2.1:provided
+[INFO] +- com.h2database:h2:jar:2.1.214:compile
+[INFO] +- io.avaje:avaje-jsr305-x:jar:1.1:provided
+[INFO] +- io.ebean:ebean-joda-time:jar:13.11.3-SNAPSHOT:test
+[INFO] +- io.ebean:ebean-jackson-jsonnode:jar:13.11.3-SNAPSHOT:test
+[INFO] +- io.ebean:ebean-jackson-mapper:jar:13.11.3-SNAPSHOT:test
+[INFO] +- io.ebean:ebean-platform-all:jar:13.11.3-SNAPSHOT:test
+[INFO] |  +- io.ebean:ebean-platform-clickhouse:jar:13.11.3-SNAPSHOT:test
+[INFO] |  +- io.ebean:ebean-platform-db2:jar:13.11.3-SNAPSHOT:test
+[INFO] |  +- io.ebean:ebean-platform-hana:jar:13.11.3-SNAPSHOT:test
+[INFO] |  +- io.ebean:ebean-platform-hsqldb:jar:13.11.3-SNAPSHOT:test
+[INFO] |  +- io.ebean:ebean-platform-mysql:jar:13.11.3-SNAPSHOT:test
+[INFO] |  +- io.ebean:ebean-platform-mariadb:jar:13.11.3-SNAPSHOT:test
+[INFO] |  +- io.ebean:ebean-platform-nuodb:jar:13.11.3-SNAPSHOT:test
+[INFO] |  +- io.ebean:ebean-platform-oracle:jar:13.11.3-SNAPSHOT:test
+[INFO] |  +- io.ebean:ebean-platform-postgres:jar:13.11.3-SNAPSHOT:test
+[INFO] |  +- io.ebean:ebean-platform-sqlanywhere:jar:13.11.3-SNAPSHOT:test
+[INFO] |  +- io.ebean:ebean-platform-sqlite:jar:13.11.3-SNAPSHOT:test
+[INFO] |  \- io.ebean:ebean-platform-sqlserver:jar:13.11.3-SNAPSHOT:test
+[INFO] +- io.ebean:ebean-migration:jar:12.13.0:test
+[INFO] +- io.avaje:mod-uuid:jar:1.3:test
+[INFO] +- javax.transaction:jta:jar:1.1:test
+[INFO] +- javax.validation:validation-api:jar:2.0.1.Final:test
+[INFO] +- jakarta.validation:jakarta.validation-api:jar:3.0.0:test
+[INFO] +- joda-time:joda-time:jar:2.11.1:test
+[INFO] +- commons-io:commons-io:jar:2.7:test
+[INFO] +- org.postgresql:postgresql:jar:42.5.1:test
+[INFO] +- com.microsoft.sqlserver:mssql-jdbc:jar:10.2.0.jre8:test
+[INFO] +- mysql:mysql-connector-java:jar:8.0.28:test
+[INFO] |  \- com.google.protobuf:protobuf-java:jar:3.11.4:test
+[INFO] +- org.mariadb.jdbc:mariadb-java-client:jar:3.0.7:test
+[INFO] +- com.sap.cloud.db.jdbc:ngdbc:jar:2.12.9:test
+[INFO] +- com.oracle.database.jdbc:ojdbc8:jar:19.12.0.0:test
+[INFO] +- com.ibm.db2:jcc:jar:11.5.6.0:test
+[INFO] +- org.xerial:sqlite-jdbc:jar:3.36.0.3:test
+[INFO] +- com.nuodb.jdbc:nuodb-jdbc:jar:23.0.0:test
+[INFO] +- ru.yandex.clickhouse:clickhouse-jdbc:jar:0.3.2:test
+[INFO] |  +- com.clickhouse:clickhouse-http-client:jar:0.3.2:test
+[INFO] |  |  \- com.clickhouse:clickhouse-client:jar:0.3.2:test
+[INFO] |  +- com.google.code.gson:gson:jar:2.8.8:test
+[INFO] |  +- org.apache.httpcomponents:httpclient:jar:4.5.13:test
+[INFO] |  |  +- org.apache.httpcomponents:httpcore:jar:4.4.13:test
+[INFO] |  |  +- commons-logging:commons-logging:jar:1.2:test
+[INFO] |  |  \- commons-codec:commons-codec:jar:1.11:test
+[INFO] |  +- org.apache.httpcomponents:httpmime:jar:4.5.13:test
+[INFO] |  \- org.lz4:lz4-java:jar:1.8.0:test
+[INFO] +- ch.qos.logback:logback-classic:jar:1.2.11:test
+[INFO] |  +- ch.qos.logback:logback-core:jar:1.2.11:test
+[INFO] |  \- org.slf4j:slf4j-api:jar:1.7.32:compile
+[INFO] \- io.avaje:junit:jar:1.1:provided
+[INFO]    +- org.junit.jupiter:junit-jupiter-api:jar:5.8.2:provided
+[INFO]    |  +- org.opentest4j:opentest4j:jar:1.2.0:provided
+[INFO]    |  +- org.junit.platform:junit-platform-commons:jar:1.8.2:provided
+[INFO]    |  \- org.apiguardian:apiguardian-api:jar:1.1.2:provided
+[INFO]    +- org.junit.jupiter:junit-jupiter-engine:jar:5.8.2:provided
+[INFO]    |  \- org.junit.platform:junit-platform-engine:jar:1.8.2:provided
+[INFO]    \- org.mockito:mockito-core:jar:4.4.0:provided
+[INFO]       +- net.bytebuddy:byte-buddy-agent:jar:1.12.8:provided
+[INFO]       \- org.objenesis:objenesis:jar:3.2:provided
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  1.690 s
+[INFO] Finished at: 2023-02-02T13:40:31+01:00
+[INFO] ------------------------------------------------------------------------

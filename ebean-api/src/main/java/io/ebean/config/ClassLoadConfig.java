@@ -46,9 +46,9 @@ public class ClassLoadConfig {
    * Return true if javax PostConstruct annotation is present (maybe not in java9).
    * If not we don't support PostConstruct lifecycle events.
    */
-  public boolean isJavaxPostConstructPresent() {
-    return isPresent("javax.annotation.PostConstruct");
-  }
+  public boolean isJavaxJakartaPostConstructPresent() {
+    return isPresent("javax.annotation.PostConstruct") || isPresent("jakarta.annotation.PostConstruct");
+  } // method
 
   /**
    * Return true if Jackson annotations like JsonIgnore are present.
