@@ -196,7 +196,7 @@
       <plugin>
         <groupId>io.ebean</groupId>
         <artifactId>ebean-maven-plugin</artifactId>
-        <version>${ebean-maven-plugin-jakarta.version}</version>
+        <version>${ebean-maven-plugin.version}</version>
         <executions>
           <execution>
             <id>test</id>

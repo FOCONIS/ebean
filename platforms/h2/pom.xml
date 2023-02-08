@@ -15,6 +15,7 @@
       <groupId>io.ebean</groupId>
       <artifactId>ebean-api</artifactId>
       <version>13.11.3-SNAPSHOT</version>
+      <scope>provided</scope>
     </dependency>
 
     <!-- Provided scope so that the H2HistoryTrigger can live in Ebean core

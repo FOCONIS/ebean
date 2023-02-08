@@ -11,7 +11,7 @@ public class Phone implements Serializable {
   private static final long serialVersionUID = -326610269092956952L;
 
   @Id
-  @GeneratedValue(strategy = javax.persistence.GenerationType.AUTO)
+  @GeneratedValue(strategy = GenerationType.AUTO)
   @Column(name = "id", unique = true, nullable = false)
   private Long id;
 

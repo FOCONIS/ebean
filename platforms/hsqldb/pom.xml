@@ -17,5 +17,12 @@
       <version>13.11.3-SNAPSHOT</version>
     </dependency>
 
+    <dependency>
+      <groupId>io.ebean</groupId>
+      <artifactId>ebean-api</artifactId>
+      <version>13.11.3-SNAPSHOT</version>
+      <scope>provided</scope>
+    </dependency>
+
   </dependencies>
 </project>
