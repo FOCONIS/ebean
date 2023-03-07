@@ -256,11 +256,7 @@ class JdbcTransaction implements SpiTransaction, TxnProfileEventCodes {
     if (callbackList != null) {
       // using old style loop to cater for case when new callbacks are added recursively (as otherwise iterator fails fast)
       for (int i = 0; i < callbackList.size(); i++) {
-        try {
-          consumer.accept(callbackList.get(i));
-        } catch (Exception e) {
-          log.log(ERROR, "Error executing transaction callback", e);
-        }
+        consumer.accept(callbackList.get(i));
       }
     }
   }
