@@ -5,10 +5,12 @@ import io.ebean.DB;
 import io.ebean.Transaction;
 import io.ebean.TransactionCallbackAdapter;
 import org.junit.jupiter.api.Test;
+import org.tests.model.basic.EBasicVer;
 
 import javax.persistence.PersistenceException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class TestTransactionCallback extends BaseTestCase {
@@ -78,6 +80,31 @@ public class TestTransactionCallback extends BaseTestCase {
   @Test
   public void test_noActiveTransaction_withDatabase() {
     assertThrows(PersistenceException.class, () -> DB.getDefault().register(new MyCallback()));
+  }
+
+  @Test
+  public void test_throwingCallback() {
+    int count = DB.find(EBasicVer.class).findCount();
+
+    try (Transaction txn = DB.beginTransaction()) {
+      DB.register(new ThrowingCallback());
+
+
+      EBasicVer bean = new EBasicVer("basic");
+      bean.save();
+
+      assertThrows(PersistenceException.class, txn::commit);
+    }
+
+    assertEquals(count, DB.find(EBasicVer.class).findCount());
+  }
+
+  class ThrowingCallback extends TransactionCallbackAdapter {
+    @Override
+    public void preCommit() {
+      // In the case for e.g. SQLTransactionRollbackException the transaction could have been rolled back
+      throw new RuntimeException("Thrown from callback");
+    }
   }
 
   class MyCallback extends TransactionCallbackAdapter {
