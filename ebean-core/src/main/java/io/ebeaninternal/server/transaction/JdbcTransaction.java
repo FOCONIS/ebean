@@ -94,6 +94,7 @@ class JdbcTransaction implements SpiTransaction, TxnProfileEventCodes {
   private ProfileLocation profileLocation;
   private final long startNanos;
   private boolean autoPersistUpdates;
+  private PersistenceException callbackException;
 
   JdbcTransaction(boolean explicit, Connection connection, TransactionManager manager) {
     try {
@@ -191,7 +192,6 @@ class JdbcTransaction implements SpiTransaction, TxnProfileEventCodes {
   }
 
 
-
   @Override
   public final void setAutoPersistUpdates(boolean autoPersistUpdates) {
     this.autoPersistUpdates = autoPersistUpdates;
@@ -259,6 +259,15 @@ class JdbcTransaction implements SpiTransaction, TxnProfileEventCodes {
         try {
           consumer.accept(callbackList.get(i));
         } catch (Exception e) {
+          if (callbackException == null) {
+            if (e instanceof PersistenceException) {
+              callbackException = (PersistenceException) e;
+            } else {
+              callbackException = new PersistenceException(e);
+            }
+          } else {
+            callbackException.addSuppressed(e);
+          }
           log.log(ERROR, "Error executing transaction callback", e);
         }
       }
@@ -833,6 +842,9 @@ class JdbcTransaction implements SpiTransaction, TxnProfileEventCodes {
     } catch (SQLException e) {
       log.log(ERROR, "Error when ending a query only transaction", e);
     }
+    if (callbackException != null) {
+      throw callbackException;
+    }
   }
 
   /**
@@ -879,6 +891,9 @@ class JdbcTransaction implements SpiTransaction, TxnProfileEventCodes {
     preCommit();
     performCommit();
     postCommit();
+    if (callbackException != null) {
+      throw callbackException;
+    }
   }
 
   @Override
@@ -1040,6 +1055,9 @@ class JdbcTransaction implements SpiTransaction, TxnProfileEventCodes {
       doRollback(cause);
     } finally {
       deactivate();
+    }
+    if (callbackException != null) {
+      throw callbackException;
     }
   }
 
