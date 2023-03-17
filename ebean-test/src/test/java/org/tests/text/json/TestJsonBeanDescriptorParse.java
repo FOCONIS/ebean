@@ -49,8 +49,6 @@ public class TestJsonBeanDescriptorParse extends BaseTestCase {
     anton.getNotes().add(new ContactNote("Equipment", "Organize barbecue"));
     customer.getContacts().add(anton);
     DB.save(customer);
-    System.out.println(DB.json().toJson(customer));
-
   }
 
   @AfterEach

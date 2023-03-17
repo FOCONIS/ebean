@@ -134,7 +134,7 @@ final class BeanDescriptorJsonHelp<T> {
         BeanProperty p = desc.beanProperty(key);
         if (p != null) {
           if (p.isVersion() && readJson.update() ) {
-            // skip version prop during updte
+            // skip version prop during update
             p.jsonRead(readJson);
           } else {
             p.jsonRead(readJson, bean);
