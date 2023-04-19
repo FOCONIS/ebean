@@ -33,7 +33,7 @@ public class CustomerPersistAdapter extends BeanPersistAdapter {
   @Override
   public void postInsert(BeanPersistRequest<?> request) {
     super.postInsert(request);
-    DB.find(TSMaster.class).where().eq("name", "master1").findOne();
+    DB.find(TSMaster.class).where().eq("name", "master1").exists();
     //System.out.println("POST INSERT");
   }
 }
