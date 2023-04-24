@@ -5,6 +5,7 @@ import io.ebeaninternal.server.core.PersistRequestBean;
 import io.ebeaninternal.server.deploy.BeanDescriptor;
 
 import java.util.ArrayList;
+import java.util.Queue;
 
 /**
  * Holds lists of persist requests for beans of a given type.
@@ -82,25 +83,22 @@ final class BatchedBeanHolder {
    * and then execute them.
    * </p>
    */
-  void executeNow() throws BatchedSqlException {
+  void addToQueue(Queue<PersistRequest> queue) throws BatchedSqlException {
     // process the requests. Creates one or more PreparedStatements
     // with binding addBatch() for each request.
     // Note updates and deletes can result in many PreparedStatements
     // if their where clauses differ via use of IS NOT NULL.
     if (deletes != null && !deletes.isEmpty()) {
-      ArrayList<PersistRequest> bufferedDeletes = deletes;
+      queue.addAll(deletes);
       deletes = new ArrayList<>();
-      control.executeNow(bufferedDeletes);
     }
     if (inserts != null && !inserts.isEmpty()) {
-      ArrayList<PersistRequest> bufferedInserts = inserts;
+      queue.addAll(inserts);
       inserts = new ArrayList<>();
-      control.executeNow(bufferedInserts);
     }
     if (updates != null && !updates.isEmpty()) {
-      ArrayList<PersistRequest> bufferedUpdates = updates;
+      queue.addAll(updates);
       updates = new ArrayList<>();
-      control.executeNow(bufferedUpdates);
     }
     empty = true;
   }

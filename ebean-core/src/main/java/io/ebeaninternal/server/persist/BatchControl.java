@@ -7,6 +7,7 @@ import io.ebeaninternal.server.core.PersistRequestUpdateSql;
 import io.ebeaninternal.server.deploy.BeanDescriptor;
 
 import java.sql.SQLException;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -82,6 +83,9 @@ public final class BatchControl {
   private int bufferMax;
 
   private final Queue[] queues = new Queue[3];
+
+  private int nested = 0;
+  private java.util.Queue<PersistRequest> persistQueue = new ArrayDeque<>();
 
   /**
    * Create for a given transaction, PersistExecute, default size and getGeneratedKeys.
@@ -220,7 +224,7 @@ public final class BatchControl {
   /**
    * Execute all the requests contained in the list.
    */
-  void executeNow(ArrayList<PersistRequest> list) throws BatchedSqlException {
+  void executeNow(List<PersistRequest> list) throws BatchedSqlException {
     for (int i = 0; i < list.size(); i++) {
       if (i % batchSize == 0) {
         // hit the batch size so flush
@@ -232,12 +236,24 @@ public final class BatchControl {
   }
 
   public void flushOnCommit() throws BatchedSqlException {
+    nested++;
     try {
-      flushBuffer(false);
+      if (nested > 100) {
+        if (transaction.isLogSummary()) {
+          transaction.logSummary("BatchControl skipped nested flush {0}", nested);
+        }
+      } else {
+        try {
+          flushBuffer(false);
+        } finally {
+          // ensure PreparedStatements are closed
+          pstmtHolder.clear();
+        }
+      }
     } finally {
-      // ensure PreparedStatements are closed
-      pstmtHolder.clear();
+      nested--;
     }
+
   }
 
   /**
@@ -315,9 +331,20 @@ public final class BatchControl {
       if (transaction.isLogSummary()) {
         transaction.logSummary("BatchControl flush {0}", Arrays.toString(bsArray));
       }
+
       for (BatchedBeanHolder beanHolder : bsArray) {
-        beanHolder.executeNow();
+        beanHolder.addToQueue(persistQueue);
       }
+      PersistRequest elem;
+      int i = 0;
+      while ((elem = persistQueue.poll()) != null) {
+        if (++i % batchSize == 0) {
+          // hit the batch size so flush
+          flushPstmtHolder();
+        }
+        elem.executeNow();
+      }
+      flushPstmtHolder();
     } while (!isBeanHoldersEmpty());
   }
 
@@ -398,6 +425,23 @@ public final class BatchControl {
     }
 
     void add(PersistRequestUpdateSql request) {
+      queue.add(request);
+    }
+  }
+
+
+  public static class BatchQueue {
+
+    private final List<PersistRequest> queue = new ArrayList<>();
+
+    void executeNow() {
+      for (PersistRequest request : queue) {
+        request.executeNow();
+      }
+      queue.clear();
+    }
+
+    void add(PersistRequest request) {
       queue.add(request);
     }
   }
