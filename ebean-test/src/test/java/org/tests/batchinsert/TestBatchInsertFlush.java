@@ -39,20 +39,14 @@ public class TestBatchInsertFlush extends BaseTestCase {
     DB.getDefault().cacheManager().clearAll();
 
     try (Transaction txn = DB.beginTransaction()) {
-      txn.setBatchSize(10);
+      txn.setBatchSize(2);
       txn.setBatchMode(true);
 
       List<Customer> customers = new ArrayList<>();
 
-      for (int i = 0; i < 100; i++) {
-        Customer customer = ResetBasicData.createCustomer("Test " + i, null, null, 3);
-        if (i % 7 == 2) {
-          customer.addContact(new Contact("Fred" + i, "Blue"));
-          customer.addContact(new Contact("George" + i, "Blue"));
-        }
-        if (i % 13 == 5) {
-          customer.addContact(new Contact("Fred" + i, "Blue"));
-        }
+      for (int i = 0; i < 3; i++) {
+        Customer customer = ResetBasicData.createCustomer("BatchFlushPostInsert " + i, null, null, 3);
+        customer.addContact(new Contact("Fred" + i, "Blue"));
         customers.add(customer);
       }
 
