@@ -1,8 +1,10 @@
 package org.tests.model.basic.event;
 
+import io.ebean.DB;
 import io.ebean.event.BeanPersistAdapter;
 import io.ebean.event.BeanPersistRequest;
 import org.tests.model.basic.Customer;
+import org.tests.model.basic.TSMaster;
 
 public class CustomerPersistAdapter extends BeanPersistAdapter {
 
@@ -17,8 +19,7 @@ public class CustomerPersistAdapter extends BeanPersistAdapter {
 //		StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
 //		request.getTransaction().log("+++++ "+Arrays.toString(stackTrace));
     if (((Customer) request.bean()).getName().startsWith("BatchFlushPreInsert")) {
-      System.out.println("Batch Flush");
-      request.transaction().flush();
+      DB.find(TSMaster.class).where().eq("name", "master1").exists();
     }
     return true;
   }
@@ -35,10 +36,7 @@ public class CustomerPersistAdapter extends BeanPersistAdapter {
   public void postInsert(BeanPersistRequest<?> request) {
     super.postInsert(request);
     if (((Customer) request.bean()).getName().startsWith("BatchFlushPostInsert")) {
-      System.out.println("Batch Flush");
-      request.transaction().flush();
+      DB.find(TSMaster.class).where().eq("name", "master1").exists();
     }
-    //DB.find(TSMaster.class).where().eq("name", "master1").exists();
-    //System.out.println("POST INSERT");
   }
 }

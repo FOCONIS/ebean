@@ -548,15 +548,10 @@ class JdbcTransaction implements SpiTransaction, TxnProfileEventCodes {
 
   private void batchFlush() {
     if (batchControl != null) {
-      boolean old = isFlushOnQuery();
-      setFlushOnQuery(false);
-      // During a batch flush, we do not flush on queries, that may happen in persist controllers
       try {
         batchControl.flushOnCommit();
       } catch (BatchedSqlException e) {
         throw translate(e.getMessage(), e.getCause());
-      } finally {
-        setFlushOnQuery(old);
       }
     }
   }
