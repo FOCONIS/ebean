@@ -18,6 +18,13 @@ final class BatchDepthOrder {
     return (depth * 100) + slot.increment();
   }
 
+  /**
+   * Returns the transaction depth for a given order.
+   */
+  int depthFor(int order) {
+    return order / 100;
+  }
+
   void clear() {
     map.clear();
   }

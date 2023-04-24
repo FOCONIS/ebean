@@ -45,12 +45,17 @@ public class TestBatchInsertFlush extends BaseTestCase {
       List<Customer> customers = new ArrayList<>();
 
       for (int i = 0; i < 3; i++) {
+
         Customer customer = ResetBasicData.createCustomer("BatchFlushPostInsert " + i, null, null, 3);
         customer.addContact(new Contact("Fred" + i, "Blue"));
         customers.add(customer);
       }
 
+
       DB.saveAll(customers);
+      TSMaster m2 = new TSMaster();
+      m.setName("master2");
+      DB.save(m2);
 
       txn.commit();
     }

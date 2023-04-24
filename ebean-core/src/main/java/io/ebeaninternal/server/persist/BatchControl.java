@@ -266,9 +266,10 @@ public final class BatchControl {
 
   private void flushBuffer(boolean reset) throws BatchedSqlException {
     flushQueue(queues[0]);
-    flushInternal(reset);
-    flushQueue(queues[1]);
-    flushQueue(queues[2]);
+    if (flushInternal(reset)) {
+      flushQueue(queues[1]);
+      flushQueue(queues[2]);
+    }
   }
 
   private void flushQueue(Queue queue) throws BatchedSqlException {
@@ -282,7 +283,7 @@ public final class BatchControl {
    *
    * @param reset When true close all batched statements (completely empty)
    */
-  private void flushInternal(boolean reset) throws BatchedSqlException {
+  private boolean flushInternal(boolean reset) throws BatchedSqlException {
     try {
       bufferMax = 0;
       if (!pstmtHolder.isEmpty()) {
@@ -291,9 +292,11 @@ public final class BatchControl {
       }
       if (isEmpty()) {
         // Nothing in queue to flush
-        return;
+        return true;
       }
-      executeAll();
+      if (!executeAll()) {
+        return false;
+      }
       persistedBeans.clear();
       if (reset) {
         beanHoldMap.clear();
@@ -305,9 +308,10 @@ public final class BatchControl {
       clear();
       throw e;
     }
+    return true;
   }
 
-  private void executeAll() throws BatchedSqlException {
+  private boolean executeAll() throws BatchedSqlException {
     do {
       // convert entry map to array for sorting
       BatchedBeanHolder[] bsArray = beanHolderArray();
@@ -315,10 +319,21 @@ public final class BatchControl {
       if (transaction.isLogSummary()) {
         transaction.logSummary("BatchControl flush {0}", Arrays.toString(bsArray));
       }
+
+      int txnDepthExecuting = -1;
       for (BatchedBeanHolder beanHolder : bsArray) {
-        beanHolder.executeNow();
+        if (beanHolder.isExecuting()) {
+          // recursion detection
+          txnDepthExecuting = depthOrder.depthFor(beanHolder.order());
+        } else if (txnDepthExecuting == -1 || depthOrder.depthFor(beanHolder.order()) <= txnDepthExecuting) {
+          beanHolder.executeNow();
+        }
+      }
+      if (txnDepthExecuting != -1) {
+        return false;
       }
     } while (!isBeanHoldersEmpty());
+    return true;
   }
 
   /**

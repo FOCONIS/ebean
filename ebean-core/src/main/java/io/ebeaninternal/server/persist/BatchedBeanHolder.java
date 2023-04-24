@@ -52,6 +52,8 @@ final class BatchedBeanHolder {
    */
   private boolean empty = true;
 
+  private boolean executing = false;
+
   /**
    * Create a new entry with a given type and depth.
    */
@@ -76,6 +78,13 @@ final class BatchedBeanHolder {
   }
 
   /**
+   * Returns, if this beanHolder is currently executing something.
+   */
+  public boolean isExecuting() {
+    return executing;
+  }
+
+  /**
    * Execute all the persist requests in this entry.
    * <p>
    * This will Batch all the similar requests into one or more BatchStatements
@@ -90,19 +99,23 @@ final class BatchedBeanHolder {
     if (deletes != null && !deletes.isEmpty()) {
       ArrayList<PersistRequest> bufferedDeletes = deletes;
       deletes = new ArrayList<>();
+      executing = true;
       control.executeNow(bufferedDeletes);
     }
     if (inserts != null && !inserts.isEmpty()) {
       ArrayList<PersistRequest> bufferedInserts = inserts;
       inserts = new ArrayList<>();
+      executing = true;
       control.executeNow(bufferedInserts);
     }
     if (updates != null && !updates.isEmpty()) {
       ArrayList<PersistRequest> bufferedUpdates = updates;
       updates = new ArrayList<>();
+      executing = true;
       control.executeNow(bufferedUpdates);
     }
     empty = true;
+    executing = false;
   }
 
   @Override
