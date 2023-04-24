@@ -46,10 +46,17 @@ public class TestBatchInsertFlush extends BaseTestCase {
 
       for (int i = 0; i < 3; i++) {
 
+        Customer customer = ResetBasicData.createCustomer("BatchFlushPreInsert " + i, null, null, 3);
+        customer.addContact(new Contact("Fred" + i, "Blue"));
+        customers.add(customer);
+      }
+      for (int i = 3; i < 6; i++) {
         Customer customer = ResetBasicData.createCustomer("BatchFlushPostInsert " + i, null, null, 3);
         customer.addContact(new Contact("Fred" + i, "Blue"));
         customers.add(customer);
       }
+
+
 
 
       DB.saveAll(customers);
