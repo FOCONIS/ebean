@@ -1,14 +1,11 @@
 package org.tests.model.interfaces;
 
-import io.ebean.annotation.ext.EntityImplements;
-
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Version;
 
 @Entity
-@EntityImplements(IAddress.class)
 public class Address implements IAddress {
 
   @Id
@@ -17,13 +14,14 @@ public class Address implements IAddress {
   @Version
   private int version;
 
+  @ManyToOne(targetEntity=Person.class, optional=false)
+  private IPerson person;
+
   private String street;
 
-  @ManyToOne
-  private Person extraAddress;
-
-  public Address(String street) {
+  public Address(String street, IPerson person) {
     this.street = street;
+    this.person = person;
   }
 
   public long getOid() {

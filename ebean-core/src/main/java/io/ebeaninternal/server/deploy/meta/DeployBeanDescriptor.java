@@ -3,39 +3,20 @@ package io.ebeaninternal.server.deploy.meta;
 import io.ebean.annotation.Cache;
 import io.ebean.annotation.DocStore;
 import io.ebean.annotation.DocStoreMode;
-import io.ebean.annotation.ext.EntityOverride;
 import io.ebean.annotation.Identity;
 import io.ebean.config.DatabaseConfig;
 import io.ebean.config.TableName;
 import io.ebean.config.dbplatform.IdType;
 import io.ebean.config.dbplatform.PlatformIdGenerator;
-import io.ebean.event.BeanFindController;
-import io.ebean.event.BeanPersistController;
-import io.ebean.event.BeanPersistListener;
-import io.ebean.event.BeanPostConstructListener;
-import io.ebean.event.BeanPostLoad;
-import io.ebean.event.BeanQueryAdapter;
+import io.ebean.event.*;
 import io.ebean.event.changelog.ChangeLogFilter;
 import io.ebean.plugin.DeployBeanDescriptorMeta;
 import io.ebean.text.PathProperties;
-import io.ebean.util.AnnotationUtil;
 import io.ebean.util.SplitName;
 import io.ebeaninternal.api.ConcurrencyMode;
 import io.ebeaninternal.server.core.CacheOptions;
 import io.ebeaninternal.server.deploy.BeanDescriptor.EntityType;
-import io.ebeaninternal.server.deploy.BeanDescriptorManager;
-import io.ebeaninternal.server.deploy.ChainedBeanPersistController;
-import io.ebeaninternal.server.deploy.ChainedBeanPersistListener;
-import io.ebeaninternal.server.deploy.ChainedBeanPostConstructListener;
-import io.ebeaninternal.server.deploy.ChainedBeanPostLoad;
-import io.ebeaninternal.server.deploy.ChainedBeanQueryAdapter;
-import io.ebeaninternal.server.deploy.DeployPropertyParserMap;
-import io.ebeaninternal.server.deploy.IdentityMode;
-import io.ebeaninternal.server.deploy.IndexDefinition;
-import io.ebeaninternal.server.deploy.InheritInfo;
-import io.ebeaninternal.server.deploy.PartitionMeta;
-import io.ebeaninternal.server.deploy.TableJoin;
-import io.ebeaninternal.server.deploy.TablespaceMeta;
+import io.ebeaninternal.server.deploy.*;
 import io.ebeaninternal.server.deploy.parse.DeployBeanInfo;
 import io.ebeaninternal.server.idgen.UuidV1IdGenerator;
 import io.ebeaninternal.server.idgen.UuidV1RndIdGenerator;
@@ -44,15 +25,7 @@ import io.ebeaninternal.server.rawsql.SpiRawSql;
 
 import javax.persistence.Entity;
 import javax.persistence.MappedSuperclass;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Describes Beans including their deployment information.
@@ -164,10 +137,6 @@ public class DeployBeanDescriptor<T> implements DeployBeanDescriptorMeta {
   private DocStoreMode docStoreDelete;
   private DeployBeanProperty idProperty;
   private TableJoin primaryKeyJoin;
-
-  private final Set<Class<?>> interfaces = new HashSet<>();
-
-  private Integer overridePriority;
 
   /**
    * Construct the BeanDescriptor.
@@ -986,7 +955,7 @@ public class DeployBeanDescriptor<T> implements DeployBeanDescriptorMeta {
    * Check the mapping for class inheritance
    */
   public void checkInheritanceMapping() {
-    if (inheritInfo == null && overridePriority == null) {
+    if (inheritInfo == null) {
       checkInheritance(getBeanType());
     }
   }
@@ -1122,7 +1091,7 @@ public class DeployBeanDescriptor<T> implements DeployBeanDescriptorMeta {
     }
 
     @Override
-    public String getDeployWord(String expression) {
+    public String deployWord(String expression) {
       return descriptor.getDeployWord(expression);
     }
   }
@@ -1147,48 +1116,6 @@ public class DeployBeanDescriptor<T> implements DeployBeanDescriptorMeta {
       }
       return null;
     }
-  }
-
-  /**
-   * Adds a concrete interface, that will be registered as alias for a concrete implementation.
-   */
-  public void addInterface(Class<?> iface) {
-    if (!iface.isAssignableFrom(beanType)) {
-      throw new ClassCastException("Cannot cast " + iface.getName() + " to " + beanType.getName());
-    }
-    interfaces.add(iface);
-  }
-
-  /**
-   * Returns the interfaces.
-   */
-  public Set<Class<?>> getInterfaces() {
-    return interfaces;
-  }
-
-  /**
-   * Sets the override priority.
-   */
-  public void setOverridePriority(Integer overridePriority) {
-    this.overridePriority = overridePriority;
-  }
-
-  /**
-   * returns the override priority, or null if this is a base entity.
-   */
-  public Integer getOverridePriority() {
-    return overridePriority;
-  }
-
-  /**
-   * Returns the base bean type, if {@link EntityOverride} was used.
-   */
-  public Class<?> getBaseBeanType() {
-    Class<?> base = getBeanType();
-    while (AnnotationUtil.has(base, EntityOverride.class)) {
-      base = base.getSuperclass();
-    }
-    return base;
   }
 
   @Override
