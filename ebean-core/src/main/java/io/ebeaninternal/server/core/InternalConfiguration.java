@@ -603,6 +603,8 @@ public final class InternalConfiguration {
         return new QueryPlanLoggerSqlServer();
       case ORACLE:
         return new QueryPlanLoggerOracle();
+      case DB2:
+        return new QueryPlanLoggerDb2(config.getQueryPlanOptions());
       default:
         return new QueryPlanLoggerExplain();
     }
