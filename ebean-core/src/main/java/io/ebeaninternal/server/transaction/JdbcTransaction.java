@@ -51,6 +51,7 @@ class JdbcTransaction implements SpiTransaction, TxnProfileEventCodes {
   private SpiPersistenceContext persistenceContext;
   private boolean persistCascade = true;
   private boolean queryOnly = true;
+  boolean accessed = false;
   private boolean localReadOnly;
   private Boolean updateAllLoadedProperties;
   private boolean oldBatchMode;
@@ -751,6 +752,7 @@ class JdbcTransaction implements SpiTransaction, TxnProfileEventCodes {
    */
   @Override
   public Connection getInternalConnection() {
+    accessed = true;
     return connection;
   }
 
@@ -829,7 +831,9 @@ class JdbcTransaction implements SpiTransaction, TxnProfileEventCodes {
    */
   void performRollback() throws SQLException {
     long offset = profileOffset();
-    connection.rollback();
+    if (accessed) {
+      connection.rollback();
+    }
     if (profileStream != null) {
       profileStream.addEvent(EVT_ROLLBACK, offset);
     }
@@ -840,7 +844,9 @@ class JdbcTransaction implements SpiTransaction, TxnProfileEventCodes {
    */
   void performCommit() throws SQLException {
     long offset = profileOffset();
-    connection.commit();
+    if (accessed) {
+      connection.commit();
+    }
     if (profileStream != null) {
       profileStream.addEvent(EVT_COMMIT, offset);
     }

@@ -26,6 +26,7 @@ public class ExternalJdbcTransaction extends JdbcTransaction {
    */
   public ExternalJdbcTransaction(Connection connection) {
     super(true, connection, null);
+    accessed = true;
   }
 
   /**
