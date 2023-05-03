@@ -12,25 +12,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 public class TestM2MJsonUpdate {
 
   Map<Integer, String> jsons = new LinkedHashMap<>();
-
-  @Test
-  public void doubleInsert() {
-
-    DRol role = new DRol("rol");
-    role.save();
-
-    DCredit credit = new DCredit("x1");
-    credit.getDroles().add(role);
-    role.getCredits().add(credit);
-    credit.save();
-
-    DRot rot = new DRot("rot");
-    rot.getCroles().add(role);
-    DB.save(rot);
-  }
 
   @BeforeEach
   void init() {
@@ -42,19 +28,103 @@ public class TestM2MJsonUpdate {
     node2.setId(4712);
     DB.save(node1);
     DB.save(node2);
+    jsons.put(4711, "{\"id\":4711,\"outgoingEdges\":[{\"id\":47114712,\"to\":{\"id\":4712,\"name\":null},\"attribute\":\"foo\"}],\"incomingEdges\":[]}");
+    jsons.put(4712, "{\"id\":4712,\"outgoingEdges\":[],\"incomingEdges\":[{\"id\":47114712,\"from\":{\"id\":4711,\"name\":null},\"attribute\":\"foo\"}]}");
   }
 
   @Test
-  public void testJsonImport() {
+  public void testJsonImportSingle() {
 
+    LoggedSql.start();
+    for (Map.Entry<Integer, String> entry : jsons.entrySet()) {
+      MnyNode node = DB.find(MnyNode.class)
+        .fetch("outgoingEdges")
+        .fetch("incomingEdges")
+        .where().idEq(entry.getKey()).findOne();
+      DB.json().toBean(node, entry.getValue());
+      DB.save(node);
+    }
+    List<String> sql = LoggedSql.stop();
+    sql.forEach(System.out::println);
+    MnyEdge edge = DB.find(MnyEdge.class).findOne(); // there must be exactly one edge
 
-    jsons.put(4711, "{\"id\":4711,\"outgoingEdges\":[{\"id\":47114712,\"to\":{\"id\":4712}}],\"incomingEdges\":[]}");
-    jsons.put(4712, "{\"id\":4712,\"outgoingEdges\":[],\"incomingEdges\":[{\"id\":47114712,\"from\":{\"id\":4711}}]}");
+    assertThat(edge.getFrom().getId()).isEqualTo(4711);
+    assertThat(edge.getTo().getId()).isEqualTo(4712);
+
   }
+
+
   @Test
-  public void testCycle() {
+  public void testJsonImportWithMap() {
+
+    LoggedSql.start();
+    Map<Object, MnyNode> nodes = DB.find(MnyNode.class)
+      .fetch("outgoingEdges")
+      .fetch("incomingEdges")
+      .where().idIn(jsons.keySet()).findMap();
+
+    for (Map.Entry<Integer, String> entry : jsons.entrySet()) {
+      MnyNode node = nodes.get(entry.getKey());
+      DB.json().toBean(node, entry.getValue());
+      DB.save(node);
+    }
+    List<String> sql = LoggedSql.stop();
+    sql.forEach(System.out::println);
+    MnyEdge edge = DB.find(MnyEdge.class).findOne(); // there must be exactly one edge
+
+    assertThat(edge.getFrom().getId()).isEqualTo(4711);
+    assertThat(edge.getTo().getId()).isEqualTo(4712);
+
+  }
+
+  @Test
+  public void testJsonImportWithMapAndTxn() {
+
+    LoggedSql.start();
+    try (Transaction txn = DB.beginTransaction()) {
+      Map<Object, MnyNode> nodes = DB.find(MnyNode.class)
+        .fetch("outgoingEdges")
+        .fetch("incomingEdges")
+        .where().idIn(jsons.keySet()).findMap();
+
+      for (Map.Entry<Integer, String> entry : jsons.entrySet()) {
+        MnyNode node = nodes.get(entry.getKey());
+        DB.json().toBean(node, entry.getValue());
+        DB.save(node);
+      }
+      txn.commit();
+    }
+    List<String> sql = LoggedSql.stop();
+    sql.forEach(System.out::println);
+    MnyEdge edge = DB.find(MnyEdge.class).findOne(); // there must be exactly one edge
+
+    assertThat(edge.getFrom().getId()).isEqualTo(4711);
+    assertThat(edge.getTo().getId()).isEqualTo(4712);
+
+  }
+
+  @Test
+  public void generateJson() {
 
 
+    MnyEdge edge = new MnyEdge(DB.reference(MnyNode.class, 4711), DB.reference(MnyNode.class, 4712));
+    edge.setAttribute("foo");
+    DB.save(edge);
+
+    List<MnyNode> list = DB.find(MnyNode.class)
+      .fetch("outgoingEdges")
+      .fetch("incomingEdges").findList();
+    FetchPath path = PathProperties.parse("id,outgoingEdges(id,to,attribute),incomingEdges(id,from,attribute)");
+    for (MnyNode mnyNode : list) {
+      System.out.println(DB.json().toJson(mnyNode, path));
+
+    }
+
+
+  }
+
+  @Test
+  void testBasic() {
     LoggedSql.start();
 
     try (Transaction txn = DB.beginTransaction()) {
@@ -62,31 +132,18 @@ public class TestM2MJsonUpdate {
       MnyNode node2 = DB.find(MnyNode.class).fetch("incomingEdges").where().idEq(4712).findOne();
 
       MnyEdge edge = new MnyEdge(node1, DB.reference(MnyNode.class, 4712));
-      edge = DB.getDefault().pluginApi().deduplicate(edge);
-      edge.setDebug("D1");
-      node1.getOutgoingEdges().add(edge);
+      //edge = DB.getDefault().pluginApi().deduplicate(edge);
+      edge.setAttribute("foo");
+      node1.setOutgoingEdges(List.of(edge));
       DB.save(node1);
 
-      //node2 = DB.find(MnyNode.class, node2.getId());
       edge = new MnyEdge(DB.reference(MnyNode.class, 4711), node2);
-      edge = DB.getDefault().pluginApi().deduplicate(edge);
-      edge.setDebug("D2");
+      edge.setAttribute("bar");
       node2.getIncomingEdges().add(edge);
-      DB.save(node2);
+      //DB.save(node2);
       txn.commit();
     }
     List<String> sql = LoggedSql.stop();
     sql.forEach(System.out::println);
-
-    List<MnyNode> list = DB.find(MnyNode.class).select("id")
-      .fetch("outgoingEdges")
-      .fetch("incomingEdges").findList();
-      FetchPath path = PathProperties.parse("id,outgoingEdges(id,to),incomingEdges(id,from)");
-    for (MnyNode mnyNode : list) {
-      System.out.println(DB.json().toJson(mnyNode,path));
-
-    }
-
-
   }
 }

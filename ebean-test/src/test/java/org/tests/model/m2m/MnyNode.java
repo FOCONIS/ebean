@@ -5,7 +5,13 @@ import io.ebean.annotation.Platform;
 import io.ebean.annotation.Where;
 import io.ebean.annotation.ext.IntersectionFactory;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import java.util.List;
 
 @Identity(start = 1000)
@@ -71,6 +77,12 @@ public class MnyNode {
   @Where(clause = "'${dbTableName}' = ${ta}.name")
   List<MnyNode> withDbTableName;
 
+  @OneToMany(mappedBy = "from", cascade = {CascadeType.PERSIST, CascadeType.REMOVE, CascadeType.REFRESH}, orphanRemoval = true)
+  List<MnyEdge> outgoingEdges;
+
+  @OneToMany(mappedBy = "to", cascade = {CascadeType.PERSIST, CascadeType.REMOVE, CascadeType.REFRESH}, orphanRemoval = true)
+  List<MnyEdge> incomingEdges;
+
   public MnyNode() {
 
   }
@@ -127,4 +139,19 @@ public class MnyNode {
     this.withDbTableName = withDbTableName;
   }
 
+  public List<MnyEdge> getOutgoingEdges() {
+    return outgoingEdges;
+  }
+
+  public List<MnyEdge> getIncomingEdges() {
+    return incomingEdges;
+  }
+
+  public void setOutgoingEdges(List<MnyEdge> outgoingEdges) {
+    this.outgoingEdges = outgoingEdges;
+  }
+
+  public void setIncomingEdges(List<MnyEdge> incomingEdges) {
+    this.incomingEdges = incomingEdges;
+  }
 }

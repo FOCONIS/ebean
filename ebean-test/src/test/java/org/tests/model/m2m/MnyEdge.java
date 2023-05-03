@@ -5,6 +5,7 @@ import io.ebean.annotation.Index;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.Version;
 
 @Entity
 @Index(unique = true, columnNames = { "from_id", "to_id" })
@@ -19,6 +20,11 @@ public class MnyEdge {
 
   @ManyToOne
   private MnyNode to;
+
+  private String attribute;
+
+  @Version
+  private int version;
 
   public MnyEdge() {
   }
@@ -68,4 +74,11 @@ public class MnyEdge {
     this.flags = flags;
   }
 
+  public String getAttribute() {
+    return attribute;
+  }
+
+  public void setAttribute(String attribute) {
+    this.attribute = attribute;
+  }
 }
