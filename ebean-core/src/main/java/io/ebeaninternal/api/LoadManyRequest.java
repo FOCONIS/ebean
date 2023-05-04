@@ -23,6 +23,8 @@ public final class LoadManyRequest extends LoadRequest {
   private final boolean onlyIds;
   private final boolean loadCache;
 
+  private List<Object> referenceHolder;
+
   /**
    * Construct for lazy loading.
    */
@@ -55,11 +57,13 @@ public final class LoadManyRequest extends LoadRequest {
 
   private List<Object> parentIdList(SpiEbeanServer server) {
     List<Object> idList = new ArrayList<>();
+    referenceHolder = new ArrayList<>();
     BeanPropertyAssocMany<?> many = many();
     for (int i = 0; i < loadContext.size(); i++) {
       BeanCollection<?> bc = loadContext.get(i);
       if (bc != null) {
         idList.add(many.parentId(bc.getOwnerBean()));
+        referenceHolder.add(bc.getOwnerBean());
         bc.setLoader(server); // don't use the load buffer again
       }
     }
