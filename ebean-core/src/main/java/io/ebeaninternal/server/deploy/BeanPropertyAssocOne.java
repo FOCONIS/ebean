@@ -1,5 +1,8 @@
 package io.ebeaninternal.server.deploy;
 
+import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.ebean.Query;
 import io.ebean.SqlUpdate;
 import io.ebean.Transaction;
@@ -23,6 +26,7 @@ import io.ebeaninternal.server.deploy.id.ImportedId;
 import io.ebeaninternal.server.deploy.meta.DeployBeanPropertyAssocOne;
 import io.ebeaninternal.server.el.ElPropertyChainBuilder;
 import io.ebeaninternal.server.el.ElPropertyValue;
+import io.ebeaninternal.server.persist.DmlUtil;
 import io.ebeaninternal.server.query.STreePropertyAssocOne;
 import io.ebeaninternal.server.query.SqlBeanLoad;
 import io.ebeaninternal.server.query.SqlJoinType;
@@ -34,6 +38,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Property mapped to a joined bean.
@@ -812,14 +817,49 @@ public class BeanPropertyAssocOne<T> extends BeanPropertyAssoc<T> implements STr
   public void jsonRead(SpiJsonReader readJson, EntityBean bean) throws IOException {
     if (jsonDeserialize && targetDescriptor != null) {
       // CHECKME: may we skip reading the object from the json stream?
-      T target = readJson.update() ? (T) value(bean) : null;
-      T assocBean = targetDescriptor.jsonRead(readJson, name, target);
+      JsonToken token = readJson.parser().nextToken();
+      if (JsonToken.END_OBJECT == token) {
+        return; // skip empty objects (but not nulls)
+      }
+
+      T assocBean = getTargetBean(readJson, bean);
+
       if (readJson.update()) {
         setValueIntercept(bean, assocBean);
       } else {
         setValue(bean, assocBean);
       }
     }
+  }
+
+  private T getTargetBean(SpiJsonReader readJson, EntityBean bean) throws IOException {
+    JsonToken token = readJson.parser().currentToken();
+    if (JsonToken.VALUE_NULL == token || JsonToken.END_OBJECT == token) {
+      return null;
+    }
+    T target = (T) value(bean);
+    if (target == null || !targetDescriptor.hasIdValue(bean)) {
+      return targetDescriptor.jsonRead(readJson, name, target);
+    }
+
+    BeanProperty idProperty = targetDescriptor.idProperty();
+    Object targetId = idProperty.getValueIntercept((EntityBean) target);
+
+    // We have an ID property and a potential target. We must verify, if the target has the same json ID
+    // To extract the id. We have to buffer the JSON;
+    ObjectNode node = readJson.mapper().readTree(readJson.parser());
+    JsonNode idNode = node.get(idProperty.name());
+    Object jsonId = idNode == null ? null : idProperty.jsonRead(readJson.forJson(idNode.traverse()));
+    if (Objects.equals(jsonId, targetId) || DmlUtil.isNullOrZero(jsonId)) {
+      // id match reuse the target node
+      return targetDescriptor.jsonRead(readJson.forJson(node.traverse()), name, target);
+    } else if (readJson.enableLazyLoading()) {
+      target = targetDescriptor.createReference(jsonId, readJson.persistenceContext());
+      return targetDescriptor.jsonRead(readJson.forJson(node.traverse()), name, target);
+    } else {
+      return targetDescriptor.jsonRead(readJson.forJson(node.traverse()), name, null);
+    }
+
   }
 
   @Override

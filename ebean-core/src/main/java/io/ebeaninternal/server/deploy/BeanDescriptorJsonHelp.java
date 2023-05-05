@@ -124,6 +124,16 @@ final class BeanDescriptorJsonHelp<T> {
     if (path != null) {
       readJson.pushPath(path);
     }
+
+    // Check incoming bean, if it has already an id
+    Object id = desc.id(bean);
+    Object contextBean = null;
+    if (!isNullOrZero(id)) {
+      contextBean = readJson.persistenceContextPutIfAbsent(id, bean, desc);
+      if (contextBean != null) {
+        bean = (EntityBean) contextBean;
+      }
+    }
     // unmapped properties, send to JsonReadBeanVisitor later
     Map<String, Object> unmappedProperties = null;
     do {
@@ -157,11 +167,14 @@ final class BeanDescriptorJsonHelp<T> {
     if (unmappedProperties != null) {
       desc.setUnmappedJson(bean, unmappedProperties);
     }
-    Object contextBean = null;
-    Object id = desc.id(bean);
-    if (!isNullOrZero(id)) {
-      // check if the bean has already been loaded
-      contextBean = readJson.persistenceContextPutIfAbsent(id, bean, desc);
+
+    if (isNullOrZero(id)) {
+      // if incoming bean had no id, check again, if it has an ID now
+      id = desc.id(bean);
+      if (!isNullOrZero(id)) {
+        // check if the bean has already been loaded
+        contextBean = readJson.persistenceContextPutIfAbsent(id, bean, desc);
+      }
     }
     if (contextBean == null) {
       readJson.beanVisitor(bean, unmappedProperties);

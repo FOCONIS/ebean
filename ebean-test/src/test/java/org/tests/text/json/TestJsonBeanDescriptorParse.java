@@ -3,6 +3,8 @@ package org.tests.text.json;
 import com.fasterxml.jackson.core.JsonParser;
 import io.ebean.BeanState;
 import io.ebean.DB;
+import io.ebean.test.LoggedSql;
+import io.ebean.text.json.JsonReadOptions;
 import io.ebean.xtest.BaseTestCase;
 import io.ebeaninternal.api.SpiEbeanServer;
 import io.ebeaninternal.api.json.SpiJsonReader;
@@ -126,9 +128,11 @@ public class TestJsonBeanDescriptorParse extends BaseTestCase {
     assertEquals(null, customer.getName());
 
     assertEquals("foo", customer.getBillingAddress().getLine1());
-    DB.json().toBean(customer, "{\"billingAddress\":{\"line1\":\"foo\"}}");
+    JsonReadOptions opts = new JsonReadOptions();
+    opts.setEnableLazyLoading(true);
+    DB.json().toBean(customer, "{\"billingAddress\":{\"line1\":\"foo\"}}", opts);
     assertFalse(DB.beanState(customer.getBillingAddress()).isDirty());
-    DB.json().toBean(customer, "{\"billingAddress\":{\"line1\":\"bar\"}}");
+    DB.json().toBean(customer, "{\"billingAddress\":{\"line1\":\"bar\"}}", opts);
     assertEquals("bar", customer.getBillingAddress().getLine1());
     assertTrue(DB.beanState(customer.getBillingAddress()).isDirty());
 
@@ -180,7 +184,14 @@ public class TestJsonBeanDescriptorParse extends BaseTestCase {
     assertEquals("foo", customer.getBillingAddress().getLine2());
     DB.delete(customer); // cleanup*/
   }
+  @Test
+  public void testJsonLazyRead() throws IOException {
+    JsonReadOptions opts = new JsonReadOptions();
+    opts.setEnableLazyLoading(true);
+    Customer customer =  DB.json().toBean(Customer.class, "{\"id\": 234}", opts);
+    assertThat(customer.getBillingAddress().getLine1()).isEqualTo("foo");
 
+  }
   @Test
   public void testJsonUpdateManyToOne() throws IOException {
     Customer customer = DB.find(Customer.class, 234);
@@ -194,9 +205,16 @@ public class TestJsonBeanDescriptorParse extends BaseTestCase {
     DB.save(customer);
 
     assertThat(customer.getBillingAddress().getLine1()).isEqualTo("bar");
-
-    DB.json().toBean(customer, "{\"billingAddress\":{\"id\": 234}}");
+    JsonReadOptions opts = new JsonReadOptions();
+    opts.setEnableLazyLoading(true);
+    LoggedSql.start();
+    DB.json().toBean(customer, "{\"billingAddress\":{\"id\": 234}}", opts);
+    assertThat(LoggedSql.stop()).isEmpty();
+  //  DB.save(customer);
+  //  customer = DB.find(Customer.class, 234);
+    assertThat(DB.beanState(customer.getBillingAddress()).dirtyValues()).isEmpty();
     assertThat(customer.getBillingAddress().getLine1()).isEqualTo("foo");
+    //assertThat(customer.getBillingAddress().getLine1()).isEqualTo("foo");
   }
 
   private SpiJsonReader createRead(SpiEbeanServer server, BeanDescriptor<Customer> descriptor) {

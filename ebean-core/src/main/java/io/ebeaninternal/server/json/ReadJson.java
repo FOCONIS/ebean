@@ -219,4 +219,9 @@ public final class ReadJson implements SpiJsonReader {
   public boolean update() {
     return update;
   }
+
+  @Override
+  public boolean enableLazyLoading() {
+    return enableLazyLoading;
+  }
 }

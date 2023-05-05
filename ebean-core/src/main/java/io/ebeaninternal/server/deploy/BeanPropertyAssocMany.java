@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.*;
 
+import static io.ebeaninternal.server.persist.DmlUtil.isNullOrZero;
 import static java.lang.System.Logger.Level.ERROR;
 import static java.lang.System.Logger.Level.WARNING;
 
@@ -1034,7 +1035,7 @@ public class BeanPropertyAssocMany<T> extends BeanPropertyAssoc<T> implements ST
     Map<Object, T> existingBeans = extractBeans(targets);
     do {
 
-      EntityBean detailBean = getDetailBean(readJson, existingBeans);
+      EntityBean detailBean = (EntityBean) getDetailBean(readJson, existingBeans);
       if (detailBean == null) {
         // read the entire array
         break;
@@ -1052,21 +1053,33 @@ public class BeanPropertyAssocMany<T> extends BeanPropertyAssoc<T> implements ST
   /**
    * Find bean in the target collection and reuse it for JSON update.
    */
-  private EntityBean getDetailBean(SpiJsonReader readJson, Map<Object, T> targets) throws IOException {
+  private Object getDetailBean(SpiJsonReader readJson, Map<Object, T> targets) throws IOException {
+    JsonToken token = readJson.parser().nextToken();
+    if (JsonToken.VALUE_NULL == token || JsonToken.END_ARRAY == token) {
+      return null;
+    }
+
     BeanProperty idProperty = targetDescriptor.idProperty();
-    if (targets == null || idProperty == null) {
-      return (EntityBean) targetDescriptor.jsonRead(readJson, name, null);
+    if (idProperty == null || (targets == null && !readJson.enableLazyLoading())) {
+      return targetDescriptor.jsonRead(readJson, name, null);
     } else {
-      JsonToken token = readJson.parser().nextToken();
-      if (JsonToken.VALUE_NULL == token || JsonToken.END_ARRAY == token) {
-        return null;
-      }
-      // extract the id. We have to buffer the JSON;
+      // We have an ID property and either a map of targets or lazy load is enabled.
+      // so we must try to find either the bean in targets or construct a new reference.
+      // To extract the id. We have to buffer the JSON;
       ObjectNode node = readJson.mapper().readTree(readJson.parser());
-      SpiJsonReader jsonReader = readJson.forJson(node.traverse());
       JsonNode idNode = node.get(idProperty.name());
-      Object id = idNode == null ? null : idProperty.jsonRead(readJson.forJson(idNode.traverse()));
-      return (EntityBean) targetDescriptor.jsonRead(jsonReader, name, targets.get(id));
+      Object jsonId = idNode == null ? null : idProperty.jsonRead(readJson.forJson(idNode.traverse()));
+
+      if (isNullOrZero(jsonId)) {
+        return targetDescriptor.jsonRead(readJson.forJson(node.traverse()), name, null);
+      } else {
+        // reuse target, either from targets or create new reference from PC
+        T target = targets == null ? null : targets.get(jsonId);
+        if (target == null && readJson.enableLazyLoading()) {
+          target = targetDescriptor.createReference(jsonId, readJson.persistenceContext());
+        }
+        return targetDescriptor.jsonRead(readJson.forJson(node.traverse()), name, target);
+      }
     }
   }
 
