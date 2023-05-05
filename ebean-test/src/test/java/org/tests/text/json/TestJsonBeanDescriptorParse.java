@@ -34,6 +34,7 @@ public class TestJsonBeanDescriptorParse extends BaseTestCase {
     customer.setName("Hello Roland");
     customer.setId(234);
     Address address = new Address();
+    address.setId(234);
     address.setLine1("foo");
     DB.save(address);
     customer.setBillingAddress(address);
@@ -178,6 +179,24 @@ public class TestJsonBeanDescriptorParse extends BaseTestCase {
     DB.json().toBean(customer, "{\"billingAdress\":{\"line2\":\"foo\"}}");
     assertEquals("foo", customer.getBillingAddress().getLine2());
     DB.delete(customer); // cleanup*/
+  }
+
+  @Test
+  public void testJsonUpdateManyToOne() throws IOException {
+    Customer customer = DB.find(Customer.class, 234);
+    assertThat(customer.getBillingAddress().getLine1()).isEqualTo("foo");
+
+    Address address = new Address();
+    address.setId(987);
+    address.setLine1("bar");
+    DB.save(address);
+    customer.setBillingAddress(address);
+    DB.save(customer);
+
+    assertThat(customer.getBillingAddress().getLine1()).isEqualTo("bar");
+
+    DB.json().toBean(customer, "{\"billingAddress\":{\"id\": 234}}");
+    assertThat(customer.getBillingAddress().getLine1()).isEqualTo("foo");
   }
 
   private SpiJsonReader createRead(SpiEbeanServer server, BeanDescriptor<Customer> descriptor) {
