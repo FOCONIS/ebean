@@ -841,30 +841,29 @@ public class BeanPropertyAssocOne<T> extends BeanPropertyAssoc<T> implements STr
   @Override
   public void merge(EntityBean bean, EntityBean existing, BeanMergeHelp mergeHelp) {
     mergeHelp.pushPath(name);
-    EntityBean val = valueAsEntityBean(bean);
+    EntityBean beanValue = valueAsEntityBean(bean);
 
     EntityBean existingValue = valueAsEntityBean(existing);
 
-    if (mergeHelp.addExisting()) {
+    if (mergeHelp.addExistingToPersistenceContext()) {
       mergeHelp.contextPutIfAbsent(targetDescriptor, existingValue);
     }
 
-    EntityBean contextBean = mergeHelp.contextPutIfAbsent(targetDescriptor, val);
+    EntityBean contextBean = mergeHelp.contextPutIfAbsent(targetDescriptor, beanValue);
 
     if (contextBean != null) {
       // bean already in context
-      mergeHelp.mergeBeans(targetDescriptor, val, contextBean);
+      mergeHelp.mergeBeans(targetDescriptor, beanValue, contextBean);
 
       setValueIntercept(existing, contextBean);
-      mergeHelp.popPath();
     } else if (existingValue == null) {
       // existing bean was empty
-      val._ebean_getIntercept().setPersistenceContext(mergeHelp.persistenceContext());
+      beanValue._ebean_getIntercept().setPersistenceContext(mergeHelp.persistenceContext());
       // CHECKME: Copy loader?
-      setValueIntercept(existing, val);
+      setValueIntercept(existing, beanValue);
     } else {
       // not found in context (or no id) - merge with existing value
-      mergeHelp.mergeBeans(targetDescriptor, val, existingValue);
+      mergeHelp.mergeBeans(targetDescriptor, beanValue, existingValue);
     }
     mergeHelp.popPath();
   }

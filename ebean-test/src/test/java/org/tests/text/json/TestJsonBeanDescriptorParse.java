@@ -1,6 +1,7 @@
 package org.tests.text.json;
 
 import com.fasterxml.jackson.core.JsonParser;
+import io.ebean.BeanMergeOptions;
 import io.ebean.BeanState;
 import io.ebean.DB;
 import io.ebean.ValuePair;
@@ -99,8 +100,17 @@ public class TestJsonBeanDescriptorParse extends BaseTestCase {
         + "  ]},"
         + "  {\"id\": 790, \"firstName\": \"Anton\",  \"lastName\": null, \"notes\" : null } "
         + "]}";
-    DB.json().toBean(customer, json);
+
+    BeanMergeOptions opts = new BeanMergeOptions();
+    opts.setMergeCheck((a, b, c, d) -> {
+      System.out.println("Merge " + d + "." +c);
+      return true;
+    });
+    DB.json().toBean(customer, json, null, opts);
+    LoggedSql.start();
     DB.save(customer);
+    LoggedSql.stop().forEach(System.out::println);
+
 
     customer = DB.find(Customer.class, 234);
     assertThat(customer.getContacts()).hasSize(2);
@@ -193,14 +203,16 @@ public class TestJsonBeanDescriptorParse extends BaseTestCase {
     assertEquals("foo", customer.getBillingAddress().getLine2());
     DB.delete(customer); // cleanup*/
   }
+
   @Test
   public void testJsonLazyRead() throws IOException {
     JsonReadOptions opts = new JsonReadOptions();
     opts.setEnableLazyLoading(true);
-    Customer customer =  DB.json().toBean(Customer.class, "{\"id\": 234}", opts);
+    Customer customer = DB.json().toBean(Customer.class, "{\"id\": 234}", opts);
     assertThat(customer.getBillingAddress().getLine1()).isEqualTo("foo");
 
   }
+
   @Test
   public void testJsonUpdateManyToOne() throws IOException {
     Customer customer = DB.find(Customer.class, 234);
@@ -219,8 +231,8 @@ public class TestJsonBeanDescriptorParse extends BaseTestCase {
     LoggedSql.start();
     DB.json().toBean(customer, "{\"billingAddress\":{\"id\": 234, \"line1\" : \"bar\"}}", opts, null);
     assertThat(LoggedSql.stop()).isEmpty();
-  //  DB.save(customer);
-  //  customer = DB.find(Customer.class, 234);
+    //  DB.save(customer);
+    //  customer = DB.find(Customer.class, 234);
     Map<String, ValuePair> dirty = DB.beanState(customer.getBillingAddress()).dirtyValues();
     assertThat(dirty).containsKeys("line1").hasSize(1);
     assertThat(customer.getBillingAddress().getLine1()).isEqualTo("bar");

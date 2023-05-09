@@ -4,6 +4,7 @@ import io.ebean.BeanMergeOptions;
 import io.ebean.bean.EntityBean;
 import io.ebean.bean.EntityBeanIntercept;
 import io.ebean.bean.PersistenceContext;
+import io.ebeaninternal.server.json.PathStack;
 import io.ebeaninternal.server.transaction.DefaultPersistenceContext;
 
 import java.util.IdentityHashMap;
@@ -15,14 +16,41 @@ import static io.ebeaninternal.server.persist.DmlUtil.isNullOrZero;
  * @author Roland Praml, FOCONIS AG
  */
 public class BeanMergeHelp {
+
   private static final Object DUMMY = new Object();
   private final PersistenceContext persistenceContext;
   private final Map<Object, Object> processedBeans = new IdentityHashMap<>();
-  private final BeanMergeOptions options;
+  private final PathStack pathStack;
+
+  private final boolean mergeId;
+
+  private final boolean mergeVersion;
+
+  private final boolean clearCollections;
+
+  private final boolean addExistingToPersistenceContext;
+
+
+  private final BeanMergeOptions.MergeCheck mergeCheck;
+
 
   public BeanMergeHelp(EntityBean rootBean, BeanMergeOptions options) {
     this.persistenceContext = extractPersistenceContext(rootBean, options);
-    this.options = options;
+    if (options == null) {
+      this.mergeCheck = null;
+      this.pathStack = null;
+      this.mergeId = true;
+      this.mergeVersion = false;
+      this.clearCollections = true;
+      this.addExistingToPersistenceContext = true;
+    } else {
+      this.mergeCheck = options.getMergeCheck();
+      this.pathStack = mergeCheck == null ? null : new PathStack();
+      this.mergeId = options.isMergeId();
+      this.mergeVersion = options.isMergeVersion();
+      this.clearCollections = options.isClearCollections();
+      this.addExistingToPersistenceContext = true;
+    }
   }
 
   private PersistenceContext extractPersistenceContext(EntityBean rootBean, BeanMergeOptions options) {
@@ -45,8 +73,8 @@ public class BeanMergeHelp {
     return persistenceContext;
   }
 
-  public boolean addExisting() {
-    return true;
+  public boolean addExistingToPersistenceContext() {
+    return addExistingToPersistenceContext;
   }
 
   public EntityBean contextPutIfAbsent(BeanDescriptor<?> desc, EntityBean bean) {
@@ -60,42 +88,51 @@ public class BeanMergeHelp {
     return null;
   }
 
-  public void pushBeans(EntityBean bean, EntityBean existing) {
-  }
 
-  public void popBeans() {
-  }
+  boolean checkMerge(BeanProperty property, EntityBean bean, EntityBean existing) {
+    if (!bean._ebean_getIntercept().isLoadedProperty(property.propertyIndex())) {
+      return false;
+    }
+    if (property.isId() && !mergeId) {
+      return false;
+    }
+    if (property.isVersion() && !mergeVersion) {
+      return false;
+    }
+    return mergeCheck == null || mergeCheck.mergeBeans(bean, existing, property, pathStack.peekWithNull());
 
-  public boolean merge(BeanProperty property) {
-    return !property.isVersion();
   }
 
   public void pushPath(String name) {
+    if (pathStack != null) {
+      pathStack.pushPathKey(name);
+    }
   }
 
   public void popPath() {
+    if (pathStack != null) {
+      pathStack.pop();
+    }
   }
 
-  public boolean clearCollection() {
-    return true;
+  public boolean clearCollections() {
+    return clearCollections;
   }
 
-   public void mergeBeans(BeanDescriptor<?> desc, EntityBean bean, EntityBean existing) {
+  public void mergeBeans(BeanDescriptor<?> desc, EntityBean bean, EntityBean existing) {
     if (processed(bean)) {
       return;
     }
-    if (addExisting()) {
+    if (addExistingToPersistenceContext()) {
       contextPutIfAbsent(desc, existing);
     }
 
     EntityBeanIntercept fromEbi = bean._ebean_getIntercept();
 
     for (BeanProperty prop : desc.propertiesAll()) {
-      if (!prop.isVersion() && fromEbi.isLoadedProperty(prop.propertyIndex())) {
+      if (checkMerge(prop, bean, existing)) {
         prop.merge(bean, existing, this);
       }
     }
-
-    popBeans();
   }
 }

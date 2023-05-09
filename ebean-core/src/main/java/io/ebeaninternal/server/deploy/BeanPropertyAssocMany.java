@@ -221,13 +221,13 @@ public class BeanPropertyAssocMany<T> extends BeanPropertyAssoc<T> implements ST
       BeanCollection fromBC = (BeanCollection) fromCollection;
       BeanCollection toBC = (BeanCollection) existingCollection;
       if (fromBC.isPopulated()) {
-        if (mergeHelp.addExisting()) {
+        if (mergeHelp.addExistingToPersistenceContext()) {
           for (Object detailBean : toBC.actualEntries(true)) {
             mergeHelp.contextPutIfAbsent(targetDescriptor, (EntityBean) detailBean);
           }
         }
 
-        if (mergeHelp.clearCollection()) {
+        if (mergeHelp.clearCollections()) {
           toBC.clear();
         }
 
