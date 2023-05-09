@@ -23,6 +23,7 @@ import org.tests.model.basic.Customer;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -199,6 +200,18 @@ public class TestJsonBeanDescriptorParse extends BaseTestCase {
     opts.setEnableLazyLoading(true);
     Customer customer = DB.json().toBean(Customer.class, "{\"id\": 234}", opts);
     assertThat(customer.getBillingAddress().getLine1()).isEqualTo("foo");
+
+  }
+
+  @Test
+  public void testJsonCollectionUnpopulated() throws IOException {
+
+    Customer customer = DB.json().toBean(Customer.class, "{\"id\": 234, \"name\" : \"Roland\"}");
+
+    assertThat(customer.getBillingAddress()).isNull();
+    List<Contact> contacts = customer.getContacts();
+
+    assertThat(contacts).isEmpty();;
 
   }
 

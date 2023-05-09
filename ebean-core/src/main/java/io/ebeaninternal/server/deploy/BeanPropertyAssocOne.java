@@ -851,14 +851,16 @@ public class BeanPropertyAssocOne<T> extends BeanPropertyAssoc<T> implements STr
 
     EntityBean contextBean = mergeHelp.contextPutIfAbsent(targetDescriptor, beanValue);
 
-    if (contextBean != null) {
+    if (contextBean != null && contextBean != beanValue) {
       // bean already in context
       mergeHelp.mergeBeans(targetDescriptor, beanValue, contextBean);
 
       setValueIntercept(existing, contextBean);
     } else if (existingValue == null) {
       // existing bean was empty
-      beanValue._ebean_getIntercept().setPersistenceContext(mergeHelp.persistenceContext());
+      if (beanValue != null) {
+        beanValue._ebean_getIntercept().setPersistenceContext(mergeHelp.persistenceContext());
+      }
       // CHECKME: Copy loader?
       setValueIntercept(existing, beanValue);
     } else {

@@ -235,7 +235,7 @@ public class BeanPropertyAssocMany<T> extends BeanPropertyAssoc<T> implements ST
           if (detailBean instanceof EntityBean) {
             EntityBean localBean = (EntityBean) detailBean;
             EntityBean contextBean = mergeHelp.contextPutIfAbsent(targetDescriptor, localBean);
-            if (contextBean != null) {
+            if (contextBean != null && contextBean != localBean) {
               mergeHelp.mergeBeans(targetDescriptor, localBean, contextBean);
               localBean = contextBean;
             }
