@@ -119,8 +119,11 @@ public final class ReadJson implements SpiJsonReader {
     }
     EntityBean existing = beanDesc.contextPutIfAbsent(persistenceContext, id, bean);
     if (existing != null) {
+      // we foind a bean in the persistence context AND we have deserialized the same bean
+      // so copy every property to the existing bean
       BeanMergeOptions opts = new BeanMergeOptions();
       opts.setPersistenceContext(persistenceContext);
+      opts.setMergeVersion(true);
       beanDesc.mergeBeans(bean, existing, opts);
     } else {
       if (loadContext != null) {

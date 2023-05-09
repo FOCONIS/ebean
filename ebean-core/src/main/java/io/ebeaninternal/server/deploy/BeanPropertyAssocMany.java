@@ -311,8 +311,7 @@ public class BeanPropertyAssocMany<T> extends BeanPropertyAssoc<T> implements ST
   }
 
   @Override
-  public ElPropertyValue buildElPropertyValue(String propName, String remainder, ElPropertyChainBuilder chain,
-                                              boolean propertyDeploy) {
+  public ElPropertyValue buildElPropertyValue(String propName, String remainder, ElPropertyChainBuilder chain, boolean propertyDeploy) {
     return createElPropertyValue(propName, remainder, chain, propertyDeploy);
   }
 
@@ -332,8 +331,7 @@ public class BeanPropertyAssocMany<T> extends BeanPropertyAssoc<T> implements ST
   /**
    * Find the Id's of detail beans given a parent Id or list of parent Id's.
    */
-  public List<Object> findIdsByParentId(Object parentId, List<Object> parentIdList, Transaction
-    t, List<Object> excludeDetailIds, boolean hard) {
+  public List<Object> findIdsByParentId(Object parentId, List<Object> parentIdList, Transaction t, List<Object> excludeDetailIds, boolean hard) {
     if (parentId != null) {
       return sqlHelp.findIdsByParentId(parentId, t, excludeDetailIds, hard);
     } else {

@@ -46,7 +46,6 @@ import io.ebeaninternal.server.querydefn.DefaultOrmQuery;
 import io.ebeaninternal.server.querydefn.OrmQueryDetail;
 import io.ebeaninternal.server.querydefn.OrmQueryProperties;
 import io.ebeaninternal.server.rawsql.SpiRawSql;
-import io.ebeaninternal.server.transaction.DefaultPersistenceContext;
 import io.ebeaninternal.util.SortByClause;
 import io.ebeaninternal.util.SortByClauseParser;
 import io.ebeanservice.docstore.api.DocStoreBeanAdapter;
@@ -715,19 +714,6 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType, SpiBeanType {
   public void mergeBeans(EntityBean bean, EntityBean existing, BeanMergeOptions options) {
     new BeanMergeHelp(existing, options).mergeBeans(this, bean, existing);
   }
-
-  private PersistenceContext extractPersistenceContext(EntityBean existing) {
-    PersistenceContext pc = existing._ebean_getIntercept().persistenceContext();
-    if (pc == null) {
-      pc = new DefaultPersistenceContext();
-      Object id = id(existing);
-      if (!isNullOrZero(id)) {
-        contextPut(pc, id, existing);
-      }
-    }
-    return pc;
-  }
-
 
   /**
    * Bind all the property values to the SqlUpdate.

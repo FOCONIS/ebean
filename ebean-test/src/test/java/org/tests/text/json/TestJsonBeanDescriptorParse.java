@@ -79,15 +79,6 @@ public class TestJsonBeanDescriptorParse extends BaseTestCase {
     assertThat(beanState.dirtyValues()).isEmpty();
   }
 
-
-  @Test
-  public void testUpdateContacts() {
-    Customer customer = DB.find(Customer.class, 234);
-    customer.getContacts().clear();
-    customer.getContacts().add(DB.reference(Contact.class, 789));
-    DB.save(customer);
-  }
-
   @Test
   public void testJsonManyUpdate() throws IOException {
 
@@ -102,15 +93,13 @@ public class TestJsonBeanDescriptorParse extends BaseTestCase {
         + "]}";
 
     BeanMergeOptions opts = new BeanMergeOptions();
-    opts.setMergeCheck((a, b, c, d) -> {
-      System.out.println("Merge " + d + "." +c);
-      return true;
-    });
+    // example for a merge handler
+    //    opts.setMergeHandler((a, b, c, d) -> {
+    //      System.out.println("Merge " + d + "." +c);
+    //      return true;
+    //    });
     DB.json().toBean(customer, json, null, opts);
-    LoggedSql.start();
     DB.save(customer);
-    LoggedSql.stop().forEach(System.out::println);
-
 
     customer = DB.find(Customer.class, 234);
     assertThat(customer.getContacts()).hasSize(2);
@@ -227,18 +216,16 @@ public class TestJsonBeanDescriptorParse extends BaseTestCase {
 
     assertThat(customer.getBillingAddress().getLine1()).isEqualTo("bar");
     JsonReadOptions opts = new JsonReadOptions();
-    //opts.setEnableLazyLoading(true);
+
     LoggedSql.start();
     DB.json().toBean(customer, "{\"billingAddress\":{\"id\": 234, \"line1\" : \"bar\"}}", opts, null);
     assertThat(LoggedSql.stop()).isEmpty();
-    //  DB.save(customer);
-    //  customer = DB.find(Customer.class, 234);
+
     Map<String, ValuePair> dirty = DB.beanState(customer.getBillingAddress()).dirtyValues();
     assertThat(dirty).containsKeys("line1").hasSize(1);
     assertThat(customer.getBillingAddress().getLine1()).isEqualTo("bar");
     assertThat(dirty.get("line1").getOldValue()).isEqualTo("foo");
 
-    //assertThat(customer.getBillingAddress().getLine1()).isEqualTo("foo");
   }
 
   private SpiJsonReader createRead(SpiEbeanServer server, BeanDescriptor<Customer> descriptor) {

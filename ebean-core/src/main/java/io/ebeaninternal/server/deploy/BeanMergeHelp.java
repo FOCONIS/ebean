@@ -13,39 +13,37 @@ import java.util.Map;
 import static io.ebeaninternal.server.persist.DmlUtil.isNullOrZero;
 
 /**
+ * Helper class to control the merge process of two beans.
+ * <p>
+ * It holds the persistence context used during merge and various options to fine tune the merge.
+ *
  * @author Roland Praml, FOCONIS AG
  */
-public class BeanMergeHelp {
+class BeanMergeHelp {
 
   private static final Object DUMMY = new Object();
   private final PersistenceContext persistenceContext;
   private final Map<Object, Object> processedBeans = new IdentityHashMap<>();
   private final PathStack pathStack;
-
   private final boolean mergeId;
-
   private final boolean mergeVersion;
-
   private final boolean clearCollections;
-
   private final boolean addExistingToPersistenceContext;
-
-
-  private final BeanMergeOptions.MergeCheck mergeCheck;
+  private final BeanMergeOptions.MergeHandler mergeHandler;
 
 
   public BeanMergeHelp(EntityBean rootBean, BeanMergeOptions options) {
     this.persistenceContext = extractPersistenceContext(rootBean, options);
     if (options == null) {
-      this.mergeCheck = null;
+      this.mergeHandler = null;
       this.pathStack = null;
       this.mergeId = true;
       this.mergeVersion = false;
       this.clearCollections = true;
       this.addExistingToPersistenceContext = true;
     } else {
-      this.mergeCheck = options.getMergeCheck();
-      this.pathStack = mergeCheck == null ? null : new PathStack();
+      this.mergeHandler = options.getMergeHandler();
+      this.pathStack = mergeHandler == null ? null : new PathStack();
       this.mergeId = options.isMergeId();
       this.mergeVersion = options.isMergeVersion();
       this.clearCollections = options.isClearCollections();
@@ -64,19 +62,31 @@ public class BeanMergeHelp {
     return pc;
   }
 
-
-  public boolean processed(EntityBean bean) {
+  /**
+   * Returns, if this bean is already processed. This is to avoid cycles. Internally we use an IdentityHasnMap.
+   */
+  private boolean processed(EntityBean bean) {
     return processedBeans.put(bean, DUMMY) != null;
   }
 
+  /**
+   * The persistence context.
+   */
   public PersistenceContext persistenceContext() {
     return persistenceContext;
   }
 
+  /**
+   * Should we add existing beans to the current persistence-context?
+   */
   public boolean addExistingToPersistenceContext() {
     return addExistingToPersistenceContext;
   }
 
+  /**
+   * Add a given bean to the persistence-context. Returns the bean from the PC,
+   * if it was already there.
+   */
   public EntityBean contextPutIfAbsent(BeanDescriptor<?> desc, EntityBean bean) {
     if (bean == null) {
       return null;
@@ -88,7 +98,9 @@ public class BeanMergeHelp {
     return null;
   }
 
-
+  /**
+   * Checks, if we shold merge that property.
+   */
   boolean checkMerge(BeanProperty property, EntityBean bean, EntityBean existing) {
     if (!bean._ebean_getIntercept().isLoadedProperty(property.propertyIndex())) {
       return false;
@@ -99,7 +111,7 @@ public class BeanMergeHelp {
     if (property.isVersion() && !mergeVersion) {
       return false;
     }
-    return mergeCheck == null || mergeCheck.mergeBeans(bean, existing, property, pathStack.peekWithNull());
+    return mergeHandler == null || mergeHandler.mergeBeans(bean, existing, property, pathStack.peekWithNull());
 
   }
 
@@ -119,6 +131,9 @@ public class BeanMergeHelp {
     return clearCollections;
   }
 
+  /**
+   * Merges two beans.
+   */
   public void mergeBeans(BeanDescriptor<?> desc, EntityBean bean, EntityBean existing) {
     if (processed(bean)) {
       return;
