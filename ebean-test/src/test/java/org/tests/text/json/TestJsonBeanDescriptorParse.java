@@ -139,9 +139,9 @@ public class TestJsonBeanDescriptorParse extends BaseTestCase {
     assertEquals("foo", customer.getBillingAddress().getLine1());
     JsonReadOptions opts = new JsonReadOptions();
     opts.setEnableLazyLoading(true);
-    DB.json().toBean(customer, "{\"billingAddress\":{\"line1\":\"foo\"}}", opts);
+    DB.json().toBean(customer, "{\"billingAddress\":{\"line1\":\"foo\"}}", opts, null);
     assertFalse(DB.beanState(customer.getBillingAddress()).isDirty());
-    DB.json().toBean(customer, "{\"billingAddress\":{\"line1\":\"bar\"}}", opts);
+    DB.json().toBean(customer, "{\"billingAddress\":{\"line1\":\"bar\"}}", opts, null);
     assertEquals("bar", customer.getBillingAddress().getLine1());
     assertTrue(DB.beanState(customer.getBillingAddress()).isDirty());
 
@@ -217,7 +217,7 @@ public class TestJsonBeanDescriptorParse extends BaseTestCase {
     JsonReadOptions opts = new JsonReadOptions();
     //opts.setEnableLazyLoading(true);
     LoggedSql.start();
-    DB.json().toBean(customer, "{\"billingAddress\":{\"id\": 234, \"line1\" : \"bar\"}}", opts);
+    DB.json().toBean(customer, "{\"billingAddress\":{\"id\": 234, \"line1\" : \"bar\"}}", opts, null);
     assertThat(LoggedSql.stop()).isEmpty();
   //  DB.save(customer);
   //  customer = DB.find(Customer.class, 234);

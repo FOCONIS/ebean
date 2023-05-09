@@ -1196,6 +1196,11 @@ public interface Database {
   void merge(Object bean, MergeOptions options, Transaction transaction);
 
   /**
+   * Merges two beans (without saving them). All modified properties from <code>bean</code> are copied to <code>existing</code>
+   */
+  void mergeBeans(Object bean, Object existing, BeanMergeOptions options);
+
+  /**
    * Insert the bean.
    * <p>
    * Compared to save() this forces bean to perform an insert rather than trying to decide

@@ -449,6 +449,11 @@ public class TDSpiServer implements SpiServer {
   }
 
   @Override
+  public void mergeBeans(Object bean, Object existing, BeanMergeOptions options) {
+
+  }
+
+  @Override
   public void insert(Object bean) {
 
   }

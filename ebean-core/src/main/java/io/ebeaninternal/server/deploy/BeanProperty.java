@@ -1483,7 +1483,7 @@ public class BeanProperty implements ElPropertyValue, Property, STreeProperty {
     return type == DocPropertyType.TEXT && (docOptions.isCode() || id || discriminator);
   }
 
-  public void merge(EntityBean bean, EntityBean existing, BeanMergeRequest request) {
+  public void merge(EntityBean bean, EntityBean existing, BeanMergeHelp mergeHelp) {
     Object val = getValue(bean);
     setValueIntercept(existing, val);
   }

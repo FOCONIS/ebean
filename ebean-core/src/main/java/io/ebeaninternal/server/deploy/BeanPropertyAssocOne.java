@@ -35,8 +35,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static io.ebeaninternal.server.persist.DmlUtil.isNullOrZero;
-
 /**
  * Property mapped to a joined bean.
  */
@@ -841,35 +839,34 @@ public class BeanPropertyAssocOne<T> extends BeanPropertyAssoc<T> implements STr
   }
 
   @Override
-  public void merge(EntityBean bean, EntityBean existing, BeanMergeRequest request) {
+  public void merge(EntityBean bean, EntityBean existing, BeanMergeHelp mergeHelp) {
+    mergeHelp.pushPath(name);
     EntityBean val = valueAsEntityBean(bean);
+
     EntityBean existingValue = valueAsEntityBean(existing);
-    if (existingValue != null) {
-      // ensure, that existing value is in PC
-      Object id = targetDescriptor.id(existingValue);
-      if (!isNullOrZero(id)) {
-        targetDescriptor.contextPutIfAbsent(request.persistenceContext(), id, existingValue);
-      }
+
+    if (mergeHelp.addExisting()) {
+      mergeHelp.contextPutIfAbsent(targetDescriptor, existingValue);
     }
 
-    if (val != null) {
-      Object id = targetDescriptor.id(val);
-      if (!isNullOrZero(id)) {
-        EntityBean contextBean = targetDescriptor.contextPutIfAbsent(request.persistenceContext(), id, val);
-        if (contextBean != null) {
-          targetDescriptor.merge(val, contextBean, request);
-          setValueIntercept(existing, contextBean);
-          return;
-        }
-      }
-    }
+    EntityBean contextBean = mergeHelp.contextPutIfAbsent(targetDescriptor, val);
 
-    if (existingValue == null) {
-      val._ebean_getIntercept().setPersistenceContext(request.persistenceContext());
+    if (contextBean != null) {
+      // bean already in context
+      mergeHelp.mergeBeans(targetDescriptor, val, contextBean);
+
+      setValueIntercept(existing, contextBean);
+      mergeHelp.popPath();
+    } else if (existingValue == null) {
+      // existing bean was empty
+      val._ebean_getIntercept().setPersistenceContext(mergeHelp.persistenceContext());
+      // CHECKME: Copy loader?
       setValueIntercept(existing, val);
     } else {
-      targetDescriptor.merge(val, existingValue, request);
+      // not found in context (or no id) - merge with existing value
+      mergeHelp.mergeBeans(targetDescriptor, val, existingValue);
     }
+    mergeHelp.popPath();
   }
 
   public boolean hasCircularImportedId(BeanDescriptor<?> sourceDesc) {

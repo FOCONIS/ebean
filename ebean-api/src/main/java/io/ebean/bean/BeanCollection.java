@@ -119,7 +119,6 @@ public interface BeanCollection<E> extends Serializable, ToStringAware {
    */
   void setLoader(BeanCollectionLoader beanLoader);
 
-
   /**
    * Set to true if you want the BeanCollection to be treated as read only. This
    * means no elements can be added or removed etc.

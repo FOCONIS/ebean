@@ -3,6 +3,7 @@ package io.ebeaninternal.server.json;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.ebean.BeanMergeOptions;
 import io.ebean.bean.EntityBean;
 import io.ebean.bean.EntityBeanIntercept;
 import io.ebean.bean.PersistenceContext;
@@ -118,7 +119,9 @@ public final class ReadJson implements SpiJsonReader {
     }
     EntityBean existing = beanDesc.contextPutIfAbsent(persistenceContext, id, bean);
     if (existing != null) {
-      beanDesc.merge(bean, existing);
+      BeanMergeOptions opts = new BeanMergeOptions();
+      opts.setPersistenceContext(persistenceContext);
+      beanDesc.mergeBeans(bean, existing, opts);
     } else {
       if (loadContext != null) {
         EntityBeanIntercept ebi = bean._ebean_getIntercept();

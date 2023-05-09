@@ -2,6 +2,7 @@ package io.ebean.text.json;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
+import io.ebean.BeanMergeOptions;
 import io.ebean.FetchPath;
 import io.ebean.plugin.BeanType;
 import io.ebean.plugin.Property;
@@ -74,7 +75,7 @@ public interface JsonContext {
    *
    * @throws JsonIOException When IOException occurs
    */
-  <T> void toBean(T target, JsonParser parser, JsonReadOptions options) throws JsonIOException;
+  <T> void toBean(T target, JsonParser parser, JsonReadOptions options, BeanMergeOptions mergeOptions) throws JsonIOException;
 
   /**
    * Read json reader input into a given Bean.<br>
@@ -90,7 +91,7 @@ public interface JsonContext {
    *
    * @throws JsonIOException When IOException occurs
    */
-  <T> void toBean(T target, Reader json, JsonReadOptions options) throws JsonIOException;
+  <T> void toBean(T target, Reader json, JsonReadOptions options, BeanMergeOptions mergeOptions) throws JsonIOException;
 
   /**
    * Read json string input into a given Bean.<br>
@@ -106,7 +107,7 @@ public interface JsonContext {
    *
    * @throws JsonIOException When IOException occurs
    */
-  <T> void toBean(T target, String json, JsonReadOptions options) throws JsonIOException;
+  <T> void toBean(T target, String json, JsonReadOptions options, BeanMergeOptions mergeOptions) throws JsonIOException;
 
   /**
    * Read json parser input and returns the property value.

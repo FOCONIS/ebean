@@ -256,6 +256,10 @@ public class TDSpiEbeanServer extends TDSpiServer implements SpiEbeanServer {
   }
 
   @Override
+  public void mergeBeans(Object bean, Object existing, BeanMergeOptions options) {
+  }
+
+  @Override
   public <T> List<Version<T>> findVersions(Query<T> query, Transaction transaction) {
     return null;
   }

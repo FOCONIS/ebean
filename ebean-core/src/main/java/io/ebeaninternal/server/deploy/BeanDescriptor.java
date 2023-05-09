@@ -712,7 +712,11 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType, SpiBeanType {
   /**
    * Copies all modified fields from <code>bean</code> to <code>existing</code>.
    */
-  public void merge(EntityBean bean, EntityBean existing) {
+  public void mergeBeans(EntityBean bean, EntityBean existing, BeanMergeOptions options) {
+    new BeanMergeHelp(existing, options).mergeBeans(this, bean, existing);
+  }
+
+  private PersistenceContext extractPersistenceContext(EntityBean existing) {
     PersistenceContext pc = existing._ebean_getIntercept().persistenceContext();
     if (pc == null) {
       pc = new DefaultPersistenceContext();
@@ -721,28 +725,9 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType, SpiBeanType {
         contextPut(pc, id, existing);
       }
     }
-    merge(bean, existing, new BeanMergeRequest(pc));
+    return pc;
   }
 
-  public void merge(EntityBean bean, EntityBean existing, BeanMergeRequest request) {
-    if (request.processed(bean)) {
-      return;
-    }
-    EntityBeanIntercept fromEbi = bean._ebean_getIntercept();
-    EntityBeanIntercept toEbi = existing._ebean_getIntercept();
-    int propertyLength = toEbi.propertyLength();
-    String[] names = properties();
-
-    for (int i = 0; i < propertyLength; i++) {
-      if (fromEbi.isLoadedProperty(i)) {
-        BeanProperty property = beanProperty(names[i]);
-        if (property.isVersion()) {
-          continue; // we skip updating the version property
-        }
-        property.merge(bean, existing, request);
-      }
-    }
-  }
 
   /**
    * Bind all the property values to the SqlUpdate.

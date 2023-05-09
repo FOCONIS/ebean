@@ -2,6 +2,7 @@ package io.ebeaninternal.server.json;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
+import io.ebean.BeanMergeOptions;
 import io.ebean.FetchPath;
 import io.ebean.bean.EntityBean;
 import io.ebean.config.JsonConfig;
@@ -120,8 +121,8 @@ public final class DJsonContext implements SpiJsonContext {
   }
 
   @Override
-  public <T> void toBean(T target, String json, JsonReadOptions options) throws JsonIOException {
-    toBean(target, new StringReader(json), options);
+  public <T> void toBean(T target, String json, JsonReadOptions readOptions, BeanMergeOptions mergeOptions) throws JsonIOException {
+    toBean(target, new StringReader(json), readOptions, mergeOptions);
   }
 
   @Override
@@ -130,20 +131,25 @@ public final class DJsonContext implements SpiJsonContext {
   }
 
   @Override
-  public <T> void toBean(T target, Reader jsonReader, JsonReadOptions options) throws JsonIOException {
-    toBean(target, createParser(jsonReader), options);
+  public <T> void toBean(T target, Reader jsonReader, JsonReadOptions readOptions, BeanMergeOptions mergeOptions) throws JsonIOException {
+    toBean(target, createParser(jsonReader), readOptions, mergeOptions);
   }
 
   @Override
   public <T> void toBean(T target, JsonParser parser) throws JsonIOException {
-    toBean(target, parser, null);
+    toBean(target, parser, null, null);
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  public <T> void toBean(T target, JsonParser parser, JsonReadOptions options) throws JsonIOException {
-    JsonBeanReader br = createBeanReader(target.getClass(), parser, options);
-    br.read(target);
+  public <T> void toBean(T target, JsonParser parser, JsonReadOptions readOptions, BeanMergeOptions mergeOptions) throws JsonIOException {
+    BeanDescriptor<T> desc = (BeanDescriptor<T>) getDescriptor(target.getClass());
+    try {
+      T bean =  desc.jsonRead(new ReadJson(desc, parser, readOptions, determineObjectMapper(readOptions)), null);
+      desc.mergeBeans((EntityBean) bean, (EntityBean) target, mergeOptions);
+    } catch (IOException e) {
+      throw new JsonIOException(e);
+    }
   }
 
   @Override
