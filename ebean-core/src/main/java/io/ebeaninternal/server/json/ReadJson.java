@@ -32,13 +32,12 @@ public final class ReadJson implements SpiJsonReader {
   private final Object objectMapper;
   private final PersistenceContext persistenceContext;
   private final LoadContext loadContext;
-  private final boolean update;
   private final boolean enableLazyLoading;
 
   /**
    * Construct with parser and readOptions.
    */
-  public ReadJson(BeanDescriptor<?> desc, JsonParser parser, JsonReadOptions readOptions, Object objectMapper, boolean update) {
+  public ReadJson(BeanDescriptor<?> desc, JsonParser parser, JsonReadOptions readOptions, Object objectMapper) {
     this.rootDesc = desc;
     this.parser = parser;
     this.objectMapper = objectMapper;
@@ -48,7 +47,6 @@ public final class ReadJson implements SpiJsonReader {
     // only create visitorMap, pathStack if needed ...
     this.visitorMap = (readOptions == null) ? null : readOptions.getVisitorMap();
     this.pathStack = (visitorMap == null && loadContext == null) ? null : new PathStack();
-    this.update = update;
   }
 
   /**
@@ -62,7 +60,6 @@ public final class ReadJson implements SpiJsonReader {
     this.objectMapper = source.objectMapper;
     this.persistenceContext = source.persistenceContext;
     this.loadContext = source.loadContext;
-    this.update = source.update;
     this.enableLazyLoading = source.enableLazyLoading;
   }
 
@@ -119,9 +116,9 @@ public final class ReadJson implements SpiJsonReader {
       // no persistenceContext means no lazy loading either
       return null;
     }
-    Object existing = beanDesc.contextPutIfAbsent(persistenceContext, id, bean);
+    EntityBean existing = beanDesc.contextPutIfAbsent(persistenceContext, id, bean);
     if (existing != null) {
-      beanDesc.merge(bean, (EntityBean) existing);
+      beanDesc.merge(bean, existing);
     } else {
       if (loadContext != null) {
         EntityBeanIntercept ebi = bean._ebean_getIntercept();
@@ -192,7 +189,7 @@ public final class ReadJson implements SpiJsonReader {
    * call it's visit method with the bean and unmappedProperties.
    */
   @Override
-  @SuppressWarnings({ "unchecked", "rawtypes" })
+  @SuppressWarnings({"unchecked", "rawtypes"})
   public void beanVisitor(Object bean, Map<String, Object> unmappedProperties) {
     if (visitorMap != null) {
       JsonReadBeanVisitor visitor = visitorMap.get(pathStack.peekWithNull());
@@ -210,18 +207,5 @@ public final class ReadJson implements SpiJsonReader {
   @Override
   public Object readValueUsingObjectMapper(Class<?> propertyType) throws IOException {
     return mapper().readValue(parser, propertyType);
-  }
-
-  /**
-   * Do we update an existing bean? This meeans we have to set values via intercept and handle collections.
-   */
-  @Override
-  public boolean update() {
-    return update;
-  }
-
-  @Override
-  public boolean enableLazyLoading() {
-    return enableLazyLoading;
   }
 }

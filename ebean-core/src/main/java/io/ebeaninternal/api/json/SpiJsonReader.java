@@ -34,7 +34,4 @@ public interface SpiJsonReader {
 
   Object readValueUsingObjectMapper(Class<?> propertyType) throws IOException;
 
-  boolean update();
-
-  boolean enableLazyLoading();
 }

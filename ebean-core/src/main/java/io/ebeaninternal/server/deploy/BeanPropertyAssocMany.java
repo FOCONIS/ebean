@@ -2,8 +2,6 @@ package io.ebeaninternal.server.deploy;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.ebean.SqlUpdate;
 import io.ebean.Transaction;
 import io.ebean.bean.BeanCollection;
@@ -30,7 +28,6 @@ import java.util.*;
 
 import static io.ebeaninternal.server.persist.DmlUtil.isNullOrZero;
 import static java.lang.System.Logger.Level.ERROR;
-import static java.lang.System.Logger.Level.WARNING;
 
 /**
  * Property mapped to a List Set or Map.
@@ -217,19 +214,33 @@ public class BeanPropertyAssocMany<T> extends BeanPropertyAssoc<T> implements ST
    * Copy collection value if existing is empty.
    */
   @Override
-  public void merge(EntityBean bean, EntityBean existing) {
+  public void merge(EntityBean bean, EntityBean existing, BeanMergeRequest request) {
+    Object fromCollection = value(bean);
     Object existingCollection = value(existing);
-    if (existingCollection instanceof BeanCollection<?>) {
-      BeanCollection<?> toBC = (BeanCollection<?>) existingCollection;
-      if (!toBC.isPopulated()) {
-        Object fromCollection = value(bean);
-        if (fromCollection instanceof BeanCollection<?>) {
-          BeanCollection<?> fromBC = (BeanCollection<?>) fromCollection;
-          if (fromBC.isPopulated()) {
-            toBC.loadFrom(fromBC);
+    if (existingCollection instanceof BeanCollection<?> && fromCollection instanceof BeanCollection) {
+      BeanCollection fromBC = (BeanCollection) fromCollection;
+      BeanCollection toBC = (BeanCollection) existingCollection;
+      if (fromBC.isPopulated()) {
+        toBC.hashCode();
+        toBC.clear();
+
+        for (Object detailBean : fromBC.actualDetails()) {
+          if (detailBean instanceof EntityBean) {
+            EntityBean localBean = (EntityBean) detailBean;
+            Object id = targetDescriptor.id(detailBean);
+            if (!isNullOrZero(id)) {
+              EntityBean contextBean = targetDescriptor.contextPutIfAbsent(request.persistenceContext(), id, localBean);
+              if (contextBean != null) {
+                targetDescriptor.merge(localBean, contextBean, request);
+                localBean = contextBean;
+              }
+            }
+            toBC.addBean(localBean);
           }
         }
       }
+    } else {
+      setValueIntercept(existing, fromCollection);
     }
   }
 
@@ -1013,7 +1024,7 @@ public class BeanPropertyAssocMany<T> extends BeanPropertyAssoc<T> implements ST
     if (JsonToken.VALUE_NULL == event) {
       return null;
     }
-    return jsonReadCollection(ctx, null, null);
+    return jsonReadCollection(ctx, null);
   }
 
   /**
@@ -1026,16 +1037,15 @@ public class BeanPropertyAssocMany<T> extends BeanPropertyAssoc<T> implements ST
   /**
    * Read the collection (JSON Array) containing entity beans.
    */
-  public Object jsonReadCollection(SpiJsonReader readJson, EntityBean parentBean, Object targets) throws IOException {
+  public Object jsonReadCollection(SpiJsonReader readJson, EntityBean parentBean) throws IOException {
     if (elementDescriptor != null && elementDescriptor.isJsonReadCollection()) {
       return elementDescriptor.jsonReadCollection(readJson, parentBean);
     }
     BeanCollection<?> collection = createEmpty(parentBean);
     BeanCollectionAdd add = beanCollectionAdd(collection);
-    Map<Object, T> existingBeans = extractBeans(targets);
     do {
 
-      EntityBean detailBean = (EntityBean) getDetailBean(readJson, existingBeans);
+      EntityBean detailBean = (EntityBean) targetDescriptor.jsonRead(readJson, name);
       if (detailBean == null) {
         // read the entire array
         break;
@@ -1048,75 +1058,6 @@ public class BeanPropertyAssocMany<T> extends BeanPropertyAssoc<T> implements ST
       }
     } while (true);
     return collection;
-  }
-
-  /**
-   * Find bean in the target collection and reuse it for JSON update.
-   */
-  private Object getDetailBean(SpiJsonReader readJson, Map<Object, T> targets) throws IOException {
-    JsonToken token = readJson.parser().nextToken();
-    if (JsonToken.VALUE_NULL == token || JsonToken.END_ARRAY == token) {
-      return null;
-    }
-
-    BeanProperty idProperty = targetDescriptor.idProperty();
-    if (idProperty == null || (targets == null && !readJson.enableLazyLoading())) {
-      return targetDescriptor.jsonRead(readJson, name, null);
-    } else {
-      // We have an ID property and either a map of targets or lazy load is enabled.
-      // so we must try to find either the bean in targets or construct a new reference.
-      // To extract the id. We have to buffer the JSON;
-      ObjectNode node = readJson.mapper().readTree(readJson.parser());
-      JsonNode idNode = node.get(idProperty.name());
-      Object jsonId = idNode == null ? null : idProperty.jsonRead(readJson.forJson(idNode.traverse()));
-
-      if (isNullOrZero(jsonId)) {
-        return targetDescriptor.jsonRead(readJson.forJson(node.traverse()), name, null);
-      } else {
-        // reuse target, either from targets or create new reference from PC
-        T target = targets == null ? null : targets.get(jsonId);
-        if (target == null && readJson.enableLazyLoading()) {
-          target = targetDescriptor.createReference(jsonId, readJson.persistenceContext());
-        }
-        return targetDescriptor.jsonRead(readJson.forJson(node.traverse()), name, target);
-      }
-    }
-  }
-
-  /**
-   * Extract beans, that are currently in the target collection. (targets can be a List/Set/Map)
-   */
-  private Map<Object, T> extractBeans(Object targets) {
-    Collection<T> beans;
-
-    if (targets == null) {
-      return null;
-    } else if (targets instanceof Map) {
-      if (((Map<?, T>) targets).isEmpty()) {
-        return null;
-      }
-      beans = ((Map<?, T>) targets).values();
-    } else if (targets instanceof Collection) {
-      if (((Collection<?>) targets).isEmpty()) {
-        return null;
-      }
-      beans = (Collection<T>) targets;
-    } else {
-      CoreLog.log.log(WARNING, "Found non collection value " + targets.getClass().getSimpleName());
-      return null;
-    }
-
-    BeanProperty idProp = targetDescriptor.idProperty();
-    Map<Object, T> ret = new HashMap<>();
-    for (T bean : beans) {
-      if (bean instanceof EntityBean) {
-        Object id = idProp.getValue((EntityBean) bean);
-        if (id != null) {
-          ret.put(id, bean);
-        }
-      }
-    }
-    return ret.isEmpty() ? null : ret;
   }
 
   /**

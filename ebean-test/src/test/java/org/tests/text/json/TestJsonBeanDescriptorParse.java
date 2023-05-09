@@ -3,6 +3,7 @@ package org.tests.text.json;
 import com.fasterxml.jackson.core.JsonParser;
 import io.ebean.BeanState;
 import io.ebean.DB;
+import io.ebean.ValuePair;
 import io.ebean.test.LoggedSql;
 import io.ebean.text.json.JsonReadOptions;
 import io.ebean.xtest.BaseTestCase;
@@ -21,12 +22,11 @@ import org.tests.model.basic.Customer;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.Comparator;
+import java.util.Map;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TestJsonBeanDescriptorParse extends BaseTestCase {
 
@@ -65,7 +65,7 @@ public class TestJsonBeanDescriptorParse extends BaseTestCase {
     BeanDescriptor<Customer> descriptor = server.descriptor(Customer.class);
 
     SpiJsonReader readJson = createRead(server, descriptor);
-    Customer customer = descriptor.jsonRead(readJson, null, null);
+    Customer customer = descriptor.jsonRead(readJson, null);
 
     assertEquals(Integer.valueOf(123), customer.getId());
     assertEquals("Hello Rob", customer.getName());
@@ -76,6 +76,15 @@ public class TestJsonBeanDescriptorParse extends BaseTestCase {
     assertTrue(loadedProps.contains("id"));
     assertTrue(loadedProps.contains("name"));
     assertThat(beanState.dirtyValues()).isEmpty();
+  }
+
+
+  @Test
+  public void testUpdateContacts() {
+    Customer customer = DB.find(Customer.class, 234);
+    customer.getContacts().clear();
+    customer.getContacts().add(DB.reference(Contact.class, 789));
+    DB.save(customer);
   }
 
   @Test
@@ -206,14 +215,17 @@ public class TestJsonBeanDescriptorParse extends BaseTestCase {
 
     assertThat(customer.getBillingAddress().getLine1()).isEqualTo("bar");
     JsonReadOptions opts = new JsonReadOptions();
-    opts.setEnableLazyLoading(true);
+    //opts.setEnableLazyLoading(true);
     LoggedSql.start();
-    DB.json().toBean(customer, "{\"billingAddress\":{\"id\": 234}}", opts);
+    DB.json().toBean(customer, "{\"billingAddress\":{\"id\": 234, \"line1\" : \"bar\"}}", opts);
     assertThat(LoggedSql.stop()).isEmpty();
   //  DB.save(customer);
   //  customer = DB.find(Customer.class, 234);
-    assertThat(DB.beanState(customer.getBillingAddress()).dirtyValues()).isEmpty();
-    assertThat(customer.getBillingAddress().getLine1()).isEqualTo("foo");
+    Map<String, ValuePair> dirty = DB.beanState(customer.getBillingAddress()).dirtyValues();
+    assertThat(dirty).containsKeys("line1").hasSize(1);
+    assertThat(customer.getBillingAddress().getLine1()).isEqualTo("bar");
+    assertThat(dirty.get("line1").getOldValue()).isEqualTo("foo");
+
     //assertThat(customer.getBillingAddress().getLine1()).isEqualTo("foo");
   }
 
@@ -221,7 +233,7 @@ public class TestJsonBeanDescriptorParse extends BaseTestCase {
     StringReader reader = new StringReader("{\"id\":123,\"name\":\"Hello Rob\"}");
     JsonParser parser = server.json().createParser(reader);
 
-    SpiJsonReader readJson = new ReadJson(descriptor, parser, null, null, false);
+    SpiJsonReader readJson = new ReadJson(descriptor, parser, null, null);
     return readJson;
   }
 

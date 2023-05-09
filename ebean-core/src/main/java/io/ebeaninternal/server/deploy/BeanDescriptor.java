@@ -46,6 +46,7 @@ import io.ebeaninternal.server.querydefn.DefaultOrmQuery;
 import io.ebeaninternal.server.querydefn.OrmQueryDetail;
 import io.ebeaninternal.server.querydefn.OrmQueryProperties;
 import io.ebeaninternal.server.rawsql.SpiRawSql;
+import io.ebeaninternal.server.transaction.DefaultPersistenceContext;
 import io.ebeaninternal.util.SortByClause;
 import io.ebeaninternal.util.SortByClauseParser;
 import io.ebeanservice.docstore.api.DocStoreBeanAdapter;
@@ -708,20 +709,37 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType, SpiBeanType {
     iudMetrics.addNoBatch(type, startNanos);
   }
 
+  /**
+   * Copies all modified fields from <code>bean</code> to <code>existing</code>.
+   */
   public void merge(EntityBean bean, EntityBean existing) {
+    PersistenceContext pc = existing._ebean_getIntercept().persistenceContext();
+    if (pc == null) {
+      pc = new DefaultPersistenceContext();
+      Object id = id(existing);
+      if (!isNullOrZero(id)) {
+        contextPut(pc, id, existing);
+      }
+    }
+    merge(bean, existing, new BeanMergeRequest(pc));
+  }
+
+  public void merge(EntityBean bean, EntityBean existing, BeanMergeRequest request) {
+    if (request.processed(bean)) {
+      return;
+    }
     EntityBeanIntercept fromEbi = bean._ebean_getIntercept();
     EntityBeanIntercept toEbi = existing._ebean_getIntercept();
     int propertyLength = toEbi.propertyLength();
     String[] names = properties();
+
     for (int i = 0; i < propertyLength; i++) {
       if (fromEbi.isLoadedProperty(i)) {
         BeanProperty property = beanProperty(names[i]);
-        if (!toEbi.isLoadedProperty(i)) {
-          Object val = property.getValue(bean);
-          property.setValue(existing, val);
-        } else if (property.isMany()) {
-          property.merge(bean, existing);
+        if (property.isVersion()) {
+          continue; // we skip updating the version property
         }
+        property.merge(bean, existing, request);
       }
     }
   }
@@ -2044,8 +2062,8 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType, SpiBeanType {
    * Put the bean into the persistence context if it is absent.
    */
   @Override
-  public Object contextPutIfAbsent(PersistenceContext pc, Object id, EntityBean localBean) {
-    return pc.putIfAbsent(rootBeanType, id, localBean);
+  public EntityBean contextPutIfAbsent(PersistenceContext pc, Object id, EntityBean localBean) {
+    return (EntityBean) pc.putIfAbsent(rootBeanType, id, localBean);
   }
 
   /**
@@ -3391,12 +3409,13 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType, SpiBeanType {
     jsonHelp.jsonWriteProperties(writeJson, bean);
   }
 
-  public T jsonRead(SpiJsonReader jsonRead, String path, T target) throws IOException {
-    return jsonHelp.jsonRead(jsonRead, path, true, target);
+  public T jsonRead(SpiJsonReader jsonRead, String path) throws IOException {
+    return jsonHelp.jsonRead(jsonRead, path, true);
   }
 
-  T jsonReadObject(SpiJsonReader jsonRead, String path, T target) throws IOException {
-    return jsonHelp.jsonRead(jsonRead, path, false, target);
+
+  T jsonReadObject(SpiJsonReader jsonRead, String path) throws IOException {
+    return jsonHelp.jsonRead(jsonRead, path, false);
   }
 
   public List<BeanProperty[]> uniqueProps() {

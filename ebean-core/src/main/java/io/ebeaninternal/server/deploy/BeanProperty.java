@@ -1418,11 +1418,7 @@ public class BeanProperty implements ElPropertyValue, Property, STreeProperty {
   public void jsonRead(SpiJsonReader ctx, EntityBean bean) throws IOException {
     Object objValue = jsonRead(ctx);
     if (jsonDeserialize) {
-      if (ctx.update()) {
-        setValueIntercept(bean, objValue);
-      } else {
-        setValue(bean, objValue);
-      }
+      setValue(bean, objValue);
     }
   }
 
@@ -1487,8 +1483,9 @@ public class BeanProperty implements ElPropertyValue, Property, STreeProperty {
     return type == DocPropertyType.TEXT && (docOptions.isCode() || id || discriminator);
   }
 
-  public void merge(EntityBean bean, EntityBean existing) {
-    // do nothing unless Many property
+  public void merge(EntityBean bean, EntityBean existing, BeanMergeRequest request) {
+    Object val = getValue(bean);
+    setValueIntercept(existing, val);
   }
 
   public void registerColumn(BeanDescriptor<?> desc, String prefix) {

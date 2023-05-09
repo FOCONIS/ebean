@@ -2,6 +2,7 @@ package io.ebeaninternal.server.json;
 
 import com.fasterxml.jackson.core.JsonParser;
 import io.ebean.PersistenceIOException;
+import io.ebean.bean.EntityBean;
 import io.ebean.bean.PersistenceContext;
 import io.ebean.text.json.JsonBeanReader;
 import io.ebeaninternal.api.json.SpiJsonReader;
@@ -38,7 +39,12 @@ public final class DJsonBeanReader<T> implements JsonBeanReader<T> {
   @Override
   public T read(T target) {
     try {
-      return desc.jsonRead(readJson, null, target);
+      T ret = desc.jsonRead(readJson, null);
+      if (target != null) {
+        desc.merge((EntityBean) ret, (EntityBean) target);
+        return target;
+      }
+      return ret;
     } catch (IOException e) {
       throw new PersistenceIOException(e);
     }
