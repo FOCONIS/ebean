@@ -215,7 +215,7 @@ public class BeanPropertyAssocMany<T> extends BeanPropertyAssoc<T> implements ST
   @Override
   public void merge(EntityBean bean, EntityBean existing, BeanMergeHelp mergeHelp) {
     mergeHelp.pushPath(name);
-    Object fromCollection = value(bean);
+    Object fromCollection = beanCollection(bean);
     Object existingCollection = value(existing);
     if (fromCollection instanceof BeanCollection) {
       BeanCollection fromBC = (BeanCollection) fromCollection;
@@ -233,9 +233,9 @@ public class BeanPropertyAssocMany<T> extends BeanPropertyAssoc<T> implements ST
             toBC.clear();
           }
         } else {
-          toBC = beanCollection(existing);
+          toBC = createEmpty(existing);
+          setValueIntercept(existing, toBC);
         }
-
 
         for (Object detailBean : fromBC.actualDetails()) {
           if (detailBean instanceof EntityBean) {

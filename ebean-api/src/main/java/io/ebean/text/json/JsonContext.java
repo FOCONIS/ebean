@@ -99,7 +99,7 @@ public interface JsonContext {
    * @deprecated use {@link #toBean(Class, Reader, JsonReadOptions)} and {@link io.ebean.Database#mergeBeans(Object, Object, BeanMergeOptions)}
    */
   @Deprecated
-  <T> void toBean(T target, Reader json, JsonReadOptions options, BeanMergeOptions mergeOptions) throws JsonIOException;
+  <T> void toBean(T target, Reader json, JsonReadOptions options) throws JsonIOException;
 
   /**
    * Read json string input into a given Bean.<br>
@@ -119,7 +119,7 @@ public interface JsonContext {
    * @deprecated use {@link #toBean(Class, String, JsonReadOptions)} and {@link io.ebean.Database#mergeBeans(Object, Object, BeanMergeOptions)}
    */
   @Deprecated
-  <T> void toBean(T target, String json, JsonReadOptions options, BeanMergeOptions mergeOptions) throws JsonIOException;
+  <T> void toBean(T target, String json, JsonReadOptions options) throws JsonIOException;
 
   /**
    * Read json parser input and returns the property value.

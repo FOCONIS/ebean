@@ -2,7 +2,6 @@ package io.ebeaninternal.server.json;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
-import io.ebean.BeanMergeOptions;
 import io.ebean.FetchPath;
 import io.ebean.bean.EntityBean;
 import io.ebean.config.JsonConfig;
@@ -121,8 +120,8 @@ public final class DJsonContext implements SpiJsonContext {
   }
 
   @Override
-  public <T> void toBean(T target, String json, JsonReadOptions readOptions, BeanMergeOptions mergeOptions) throws JsonIOException {
-    toBean(target, new StringReader(json), readOptions, mergeOptions);
+  public <T> void toBean(T target, String json, JsonReadOptions readOptions) throws JsonIOException {
+    toBean(target, new StringReader(json), readOptions);
   }
 
   @Override
@@ -131,13 +130,13 @@ public final class DJsonContext implements SpiJsonContext {
   }
 
   @Override
-  public <T> void toBean(T target, Reader jsonReader, JsonReadOptions readOptions, BeanMergeOptions mergeOptions) throws JsonIOException {
-    toBean(target, createParser(jsonReader), readOptions, mergeOptions);
+  public <T> void toBean(T target, Reader jsonReader, JsonReadOptions readOptions) throws JsonIOException {
+    toBean(target, createParser(jsonReader), readOptions);
   }
 
   @Override
   public <T> void toBean(T target, JsonParser parser) throws JsonIOException {
-    toBean(target, parser, null, null);
+    toBean(target, parser, null);
   }
 
   @SuppressWarnings("unchecked")

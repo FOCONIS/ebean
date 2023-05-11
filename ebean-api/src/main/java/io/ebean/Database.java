@@ -1196,7 +1196,8 @@ public interface Database {
   void merge(Object bean, MergeOptions options, Transaction transaction);
 
   /**
-   * Merges two beans (without saving them). All modified properties from <code>bean</code> are copied to <code>existing</code>
+   * Merges two beans (without saving them). All modified properties from <code>bean</code> are copied to <code>existing</code>.
+   * Returns <code>existing</code> bean. If <code>null</code> is passed, a new instance of bean is retuned.
    */
   <T> T mergeBeans(T bean, T existing, BeanMergeOptions options);
 

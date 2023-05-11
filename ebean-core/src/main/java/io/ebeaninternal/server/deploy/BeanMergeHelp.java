@@ -52,7 +52,7 @@ class BeanMergeHelp {
 
   private PersistenceContext extractPersistenceContext(EntityBean rootBean, BeanMergeOptions options) {
     PersistenceContext pc = options == null ? null : options.getPersistenceContext();
-    if (pc == null) {
+    if (pc == null && rootBean != null) {
       pc = rootBean._ebean_getIntercept().persistenceContext();
     }
     if (pc == null) {

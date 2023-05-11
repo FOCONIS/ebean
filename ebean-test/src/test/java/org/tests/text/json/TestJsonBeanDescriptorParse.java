@@ -97,7 +97,8 @@ public class TestJsonBeanDescriptorParse extends BaseTestCase {
     //      System.out.println("Merge " + d + "." +c);
     //      return true;
     //    });
-    DB.json().toBean(customer, json, null, opts);
+    Customer jsonBean = DB.json().toBean(Customer.class, json);
+    DB.getDefault().mergeBeans(jsonBean, customer, null);
     DB.save(customer);
 
     customer = DB.find(Customer.class, 234);
@@ -137,9 +138,13 @@ public class TestJsonBeanDescriptorParse extends BaseTestCase {
     assertEquals("foo", customer.getBillingAddress().getLine1());
     JsonReadOptions opts = new JsonReadOptions();
     opts.setEnableLazyLoading(true);
-    DB.json().toBean(customer, "{\"billingAddress\":{\"line1\":\"foo\"}}", opts, null);
+
+    Customer jsonBean = DB.json().toBean(Customer.class, "{\"billingAddress\":{\"line1\":\"foo\"}}", opts);
+    DB.getDefault().mergeBeans(jsonBean, customer, null);
     assertFalse(DB.beanState(customer.getBillingAddress()).isDirty());
-    DB.json().toBean(customer, "{\"billingAddress\":{\"line1\":\"bar\"}}", opts, null);
+
+    jsonBean = DB.json().toBean(Customer.class, "{\"billingAddress\":{\"line1\":\"bar\"}}", opts);
+    DB.getDefault().mergeBeans(jsonBean, customer, null);
     assertEquals("bar", customer.getBillingAddress().getLine1());
     assertTrue(DB.beanState(customer.getBillingAddress()).isDirty());
 
@@ -230,7 +235,8 @@ public class TestJsonBeanDescriptorParse extends BaseTestCase {
     JsonReadOptions opts = new JsonReadOptions();
 
     LoggedSql.start();
-    DB.json().toBean(customer, "{\"billingAddress\":{\"id\": 234, \"line1\" : \"bar\"}}", opts, null);
+    Customer jsonBean = DB.json().toBean(Customer.class, "{\"billingAddress\":{\"id\": 234, \"line1\" : \"bar\"}}", opts);
+    DB.getDefault().mergeBeans(jsonBean, customer, null);
     assertThat(LoggedSql.stop()).isEmpty();
 
     Map<String, ValuePair> dirty = DB.beanState(customer.getBillingAddress()).dirtyValues();
