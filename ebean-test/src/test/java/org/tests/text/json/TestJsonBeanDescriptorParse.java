@@ -56,6 +56,7 @@ public class TestJsonBeanDescriptorParse extends BaseTestCase {
   @AfterEach
   void teardown() {
     DB.delete(Customer.class, 234);
+    DB.delete(UTMaster.class, 1);
   }
 
   @Test
@@ -248,13 +249,25 @@ public class TestJsonBeanDescriptorParse extends BaseTestCase {
     master.getJournal().addEntry();
     DB.save(master);
 
-    System.out.println(DB.json().toJson(master));
+    DB.json().toBean(master, "{\"id\":1,\"name\":\"newName\",\"description\":\"master\",\"journal\":{\"entries\":[\"newEntry\"]},\"details\":[],\"version\":1}");
+
+    assertThat(master.getName()).isEqualTo("newName");
+    assertThat(master.getDescription()).isEqualTo("master");
+    assertThat(master.getJournal().getEntries()).hasSize(1);
+
+    DB.json().toBean(master, "{\"id\":1,\"name\":\"name\",\"journal\":{}}");
+
+    assertThat(master.getName()).isEqualTo("name");
+    assertThat(master.getDescription()).isEqualTo("master");
+    assertThat(master.getJournal().getEntries()).hasSize(0);
 
     DB.json().toBean(master, "{\"id\":1,\"name\":\"newName\",\"description\":\"master\",\"journal\":{\"entries\":[\"newEntry\"]},\"details\":[],\"version\":1}");
 
     assertThat(master.getName()).isEqualTo("newName");
     assertThat(master.getDescription()).isEqualTo("master");
     assertThat(master.getJournal().getEntries()).hasSize(1);
+
+
   }
 
   private SpiJsonReader createRead(SpiEbeanServer server, BeanDescriptor<Customer> descriptor) {
