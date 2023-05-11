@@ -1485,6 +1485,10 @@ public class BeanProperty implements ElPropertyValue, Property, STreeProperty {
 
   public void merge(EntityBean bean, EntityBean existing, BeanMergeHelp mergeHelp) {
     Object val = getValue(bean);
+    if (val != null && scalarType != null && scalarType.mutable()) {
+      // for mutable types, we must "clone" the object.
+      val = scalarType.parse(scalarType.format(val));
+    }
     setValueIntercept(existing, val);
   }
 
