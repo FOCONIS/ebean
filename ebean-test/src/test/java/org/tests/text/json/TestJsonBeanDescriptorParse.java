@@ -15,10 +15,7 @@ import io.ebeaninternal.server.json.ReadJson;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.tests.model.basic.Address;
-import org.tests.model.basic.Contact;
-import org.tests.model.basic.ContactNote;
-import org.tests.model.basic.Customer;
+import org.tests.model.basic.*;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -211,7 +208,8 @@ public class TestJsonBeanDescriptorParse extends BaseTestCase {
     assertThat(customer.getBillingAddress()).isNull();
     List<Contact> contacts = customer.getContacts();
 
-    assertThat(contacts).isEmpty();;
+    assertThat(contacts).isEmpty();
+    ;
 
   }
 
@@ -239,6 +237,24 @@ public class TestJsonBeanDescriptorParse extends BaseTestCase {
     assertThat(customer.getBillingAddress().getLine1()).isEqualTo("bar");
     assertThat(dirty.get("line1").getOldValue()).isEqualTo("foo");
 
+  }
+
+  @Test
+  public void testJsonUpdateWithDbJson() {
+    UTMaster master = new UTMaster("m0");
+    master.setId(1);
+    master.setJournal(new UTMaster.Journal());
+    master.getJournal().addEntry();
+    master.getJournal().addEntry();
+    DB.save(master);
+
+    System.out.println(DB.json().toJson(master));
+
+    DB.json().toBean(master, "{\"id\":1,\"name\":\"newName\",\"description\":\"master\",\"journal\":{\"entries\":[\"newEntry\"]},\"details\":[],\"version\":1}");
+
+    assertThat(master.getName()).isEqualTo("newName");
+    assertThat(master.getDescription()).isEqualTo("master");
+    assertThat(master.getJournal().getEntries()).hasSize(1);
   }
 
   private SpiJsonReader createRead(SpiEbeanServer server, BeanDescriptor<Customer> descriptor) {
