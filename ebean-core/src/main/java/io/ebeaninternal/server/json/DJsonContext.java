@@ -142,11 +142,12 @@ public final class DJsonContext implements SpiJsonContext {
 
   @SuppressWarnings("unchecked")
   @Override
-  public <T> void toBean(T target, JsonParser parser, JsonReadOptions readOptions, BeanMergeOptions mergeOptions) throws JsonIOException {
+  @Deprecated
+  public <T> void toBean(T target, JsonParser parser, JsonReadOptions readOptions) throws JsonIOException {
     BeanDescriptor<T> desc = (BeanDescriptor<T>) getDescriptor(target.getClass());
     try {
       T bean =  desc.jsonRead(new ReadJson(desc, parser, readOptions, determineObjectMapper(readOptions)), null);
-      desc.mergeBeans((EntityBean) bean, (EntityBean) target, mergeOptions);
+      desc.mergeBeans((EntityBean) bean, (EntityBean) target, null);
     } catch (IOException e) {
       throw new JsonIOException(e);
     }

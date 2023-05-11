@@ -66,7 +66,9 @@ public interface JsonContext {
    * instances, so the object identity will not be preserved here.
    *
    * @throws JsonIOException When IOException occurs
+   * @deprecated use {@link #toBean(Class, JsonParser)} and {@link io.ebean.Database#mergeBeans(Object, Object, BeanMergeOptions)}
    */
+  @Deprecated
   <T> void toBean(T target, JsonParser parser) throws JsonIOException;
 
   /**
@@ -74,15 +76,19 @@ public interface JsonContext {
    * See {@link #toBean(Class, JsonParser)} for details modified.
    *
    * @throws JsonIOException When IOException occurs
+   * @deprecated use {@link #toBean(Class, JsonParser, JsonReadOptions)} and {@link io.ebean.Database#mergeBeans(Object, Object, BeanMergeOptions)}
    */
-  <T> void toBean(T target, JsonParser parser, JsonReadOptions options, BeanMergeOptions mergeOptions) throws JsonIOException;
+  @Deprecated
+  <T> void toBean(T target, JsonParser parser, JsonReadOptions options) throws JsonIOException;
 
   /**
    * Read json reader input into a given Bean.<br>
    * See {@link #toBean(Class, JsonParser)} for details
    *
    * @throws JsonIOException When IOException occurs
+   * @deprecated use {@link #toBean(Class, Reader)} and {@link io.ebean.Database#mergeBeans(Object, Object, BeanMergeOptions)}
    */
+  @Deprecated
   <T> void toBean(T target, Reader json) throws JsonIOException;
 
   /**
@@ -90,7 +96,9 @@ public interface JsonContext {
    * See {@link #toBean(Class, JsonParser)} for details modified.
    *
    * @throws JsonIOException When IOException occurs
+   * @deprecated use {@link #toBean(Class, Reader, JsonReadOptions)} and {@link io.ebean.Database#mergeBeans(Object, Object, BeanMergeOptions)}
    */
+  @Deprecated
   <T> void toBean(T target, Reader json, JsonReadOptions options, BeanMergeOptions mergeOptions) throws JsonIOException;
 
   /**
@@ -98,7 +106,9 @@ public interface JsonContext {
    * See {@link #toBean(Class, JsonParser)} for details
    *
    * @throws JsonIOException When IOException occurs
+   * @deprecated use {@link #toBean(Class, String)} and {@link io.ebean.Database#mergeBeans(Object, Object, BeanMergeOptions)}
    */
+  @Deprecated
   <T> void toBean(T target, String json) throws JsonIOException;
 
   /**
@@ -106,7 +116,9 @@ public interface JsonContext {
    * See {@link #toBean(Class, JsonParser)} for details
    *
    * @throws JsonIOException When IOException occurs
+   * @deprecated use {@link #toBean(Class, String, JsonReadOptions)} and {@link io.ebean.Database#mergeBeans(Object, Object, BeanMergeOptions)}
    */
+  @Deprecated
   <T> void toBean(T target, String json, JsonReadOptions options, BeanMergeOptions mergeOptions) throws JsonIOException;
 
   /**

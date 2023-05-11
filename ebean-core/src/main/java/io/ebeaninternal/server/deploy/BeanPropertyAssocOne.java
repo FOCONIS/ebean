@@ -841,32 +841,12 @@ public class BeanPropertyAssocOne<T> extends BeanPropertyAssoc<T> implements STr
   @Override
   public void merge(EntityBean bean, EntityBean existing, BeanMergeHelp mergeHelp) {
     mergeHelp.pushPath(name);
-    EntityBean beanValue = valueAsEntityBean(bean);
 
+    EntityBean beanValue = valueAsEntityBean(bean);
     EntityBean existingValue = valueAsEntityBean(existing);
 
-    if (mergeHelp.addExistingToPersistenceContext()) {
-      mergeHelp.contextPutIfAbsent(targetDescriptor, existingValue);
-    }
+    setValueIntercept(existing, mergeHelp.mergeBeans(targetDescriptor, beanValue, existingValue));
 
-    EntityBean contextBean = mergeHelp.contextPutIfAbsent(targetDescriptor, beanValue);
-
-    if (contextBean != null && contextBean != beanValue) {
-      // bean already in context
-      mergeHelp.mergeBeans(targetDescriptor, beanValue, contextBean);
-
-      setValueIntercept(existing, contextBean);
-    } else if (existingValue == null) {
-      // existing bean was empty
-      if (beanValue != null) {
-        beanValue._ebean_getIntercept().setPersistenceContext(mergeHelp.persistenceContext());
-      }
-      // CHECKME: Copy loader?
-      setValueIntercept(existing, beanValue);
-    } else {
-      // not found in context (or no id) - merge with existing value
-      mergeHelp.mergeBeans(targetDescriptor, beanValue, existingValue);
-    }
     mergeHelp.popPath();
   }
 

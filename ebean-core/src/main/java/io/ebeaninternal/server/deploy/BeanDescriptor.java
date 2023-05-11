@@ -710,9 +710,10 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType, SpiBeanType {
 
   /**
    * Copies all modified fields from <code>bean</code> to <code>existing</code>.
+   * It returns normally the existing bean (or a new instance, if it was null)
    */
-  public void mergeBeans(EntityBean bean, EntityBean existing, BeanMergeOptions options) {
-    new BeanMergeHelp(existing, options).mergeBeans(this, bean, existing);
+  public EntityBean mergeBeans(EntityBean bean, EntityBean existing, BeanMergeOptions options) {
+    return new BeanMergeHelp(existing, options).mergeBeans(this, bean, existing);
   }
 
   /**

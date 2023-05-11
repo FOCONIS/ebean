@@ -2,7 +2,6 @@ package io.ebeaninternal.server.deploy;
 
 import io.ebean.BeanMergeOptions;
 import io.ebean.bean.EntityBean;
-import io.ebean.bean.EntityBeanIntercept;
 import io.ebean.bean.PersistenceContext;
 import io.ebeaninternal.server.json.PathStack;
 import io.ebeaninternal.server.transaction.DefaultPersistenceContext;
@@ -87,13 +86,24 @@ class BeanMergeHelp {
    * Add a given bean to the persistence-context. Returns the bean from the PC,
    * if it was already there.
    */
-  public EntityBean contextPutIfAbsent(BeanDescriptor<?> desc, EntityBean bean) {
-    if (bean == null) {
+  public EntityBean contextPutExisting(BeanDescriptor<?> desc, EntityBean bean) {
+    if (bean == null || !addExistingToPersistenceContext) {
       return null;
     }
     Object id = desc.id(bean);
     if (!isNullOrZero(id)) {
       return desc.contextPutIfAbsent(persistenceContext, id, bean);
+    }
+    return null;
+  }
+
+  public EntityBean contextGet(BeanDescriptor<?> desc, EntityBean bean) {
+    if (bean == null) {
+      return null;
+    }
+    Object id = desc.id(bean);
+    if (!isNullOrZero(id)) {
+      return (EntityBean) desc.contextGet(persistenceContext, id);
     }
     return null;
   }
@@ -132,22 +142,40 @@ class BeanMergeHelp {
   }
 
   /**
-   * Merges two beans.
+   * Merges two beans. Returns the merge result. This is
+   * <ul>
+   *   <li><code>null</code> if bean was null</li>
+   *   <li><code>context bean</code> if found in context
+   *   <li><code>existing</code> if existing war not null</li>
+   *   <li><code>new instance</code> if existing was null</li>
+   * </ul>
    */
-  public void mergeBeans(BeanDescriptor<?> desc, EntityBean bean, EntityBean existing) {
-    if (processed(bean)) {
-      return;
+  public EntityBean mergeBeans(BeanDescriptor<?> desc, EntityBean bean, EntityBean existing) {
+    contextPutExisting(desc, existing);
+    if (bean == null) {
+      return null;
     }
-    if (addExistingToPersistenceContext()) {
-      contextPutIfAbsent(desc, existing);
+    EntityBean contextValue = contextGet(desc, bean);
+    if (contextValue != null) {
+      existing = contextValue;
+    }
+    if (processed(bean)) {
+      return existing;
     }
 
-    EntityBeanIntercept fromEbi = bean._ebean_getIntercept();
+    if (desc.inheritInfo() != null) {
+      desc = desc.inheritInfo().readType(bean.getClass()).desc();
+    }
+    if (existing == null) {
+      existing = desc.createEntityBean();
+    }
 
     for (BeanProperty prop : desc.propertiesAll()) {
       if (checkMerge(prop, bean, existing)) {
         prop.merge(bean, existing, this);
       }
     }
+    contextPutExisting(desc, existing); // bean might have an ID now
+    return existing;
   }
 }

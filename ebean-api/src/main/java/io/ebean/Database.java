@@ -1198,7 +1198,7 @@ public interface Database {
   /**
    * Merges two beans (without saving them). All modified properties from <code>bean</code> are copied to <code>existing</code>
    */
-  void mergeBeans(Object bean, Object existing, BeanMergeOptions options);
+  <T> T mergeBeans(T bean, T existing, BeanMergeOptions options);
 
   /**
    * Insert the bean.

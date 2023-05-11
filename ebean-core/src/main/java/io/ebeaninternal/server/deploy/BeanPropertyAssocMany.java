@@ -217,29 +217,29 @@ public class BeanPropertyAssocMany<T> extends BeanPropertyAssoc<T> implements ST
     mergeHelp.pushPath(name);
     Object fromCollection = value(bean);
     Object existingCollection = value(existing);
-    if (existingCollection instanceof BeanCollection<?> && fromCollection instanceof BeanCollection) {
+    if (fromCollection instanceof BeanCollection) {
       BeanCollection fromBC = (BeanCollection) fromCollection;
-      BeanCollection toBC = (BeanCollection) existingCollection;
+
       if (fromBC.isPopulated()) {
-        if (mergeHelp.addExistingToPersistenceContext()) {
-          for (Object detailBean : toBC.actualEntries(true)) {
-            mergeHelp.contextPutIfAbsent(targetDescriptor, (EntityBean) detailBean);
+        BeanCollection toBC;
+        if (existingCollection instanceof BeanCollection) {
+          toBC = (BeanCollection) existingCollection;
+          if (mergeHelp.addExistingToPersistenceContext()) {
+            for (Object detailBean : toBC.actualEntries(true)) {
+              mergeHelp.contextPutExisting(targetDescriptor, (EntityBean) detailBean);
+            }
           }
+          if (mergeHelp.clearCollections()) {
+            toBC.clear();
+          }
+        } else {
+          toBC = beanCollection(existing);
         }
 
-        if (mergeHelp.clearCollections()) {
-          toBC.clear();
-        }
 
         for (Object detailBean : fromBC.actualDetails()) {
           if (detailBean instanceof EntityBean) {
-            EntityBean localBean = (EntityBean) detailBean;
-            EntityBean contextBean = mergeHelp.contextPutIfAbsent(targetDescriptor, localBean);
-            if (contextBean != null && contextBean != localBean) {
-              mergeHelp.mergeBeans(targetDescriptor, localBean, contextBean);
-              localBean = contextBean;
-            }
-            toBC.addBean(localBean);
+            toBC.addBean(mergeHelp.mergeBeans(targetDescriptor, (EntityBean) detailBean, null));
           }
         }
       }
