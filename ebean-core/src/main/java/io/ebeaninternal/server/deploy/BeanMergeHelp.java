@@ -151,13 +151,15 @@ class BeanMergeHelp {
    * </ul>
    */
   public EntityBean mergeBeans(BeanDescriptor<?> desc, EntityBean bean, EntityBean existing) {
-    contextPutExisting(desc, existing);
     if (bean == null) {
       return null;
     }
-    EntityBean contextValue = contextGet(desc, bean);
-    if (contextValue != null) {
-      existing = contextValue;
+    Object id = desc.id(bean);
+    if (!isNullOrZero(id)) {
+      EntityBean contextBean = (EntityBean) desc.contextGet(persistenceContext, id);
+      if (contextBean != null) {
+        existing = contextBean;
+      }
     }
     if (processed(bean)) {
       return existing;
@@ -165,6 +167,15 @@ class BeanMergeHelp {
 
     if (desc.inheritInfo() != null) {
       desc = desc.inheritInfo().readType(bean.getClass()).desc();
+    }
+
+    if (existing == null && !isNullOrZero(id)) {
+      if (desc.isReference(bean._ebean_getIntercept())) {
+        existing = (EntityBean) desc.createRef(id, persistenceContext);
+      } else {
+        // Now, we must hit the database and try to find the reference bean
+        existing = (EntityBean) desc.findReferenceBean(id, persistenceContext);
+      }
     }
     if (existing == null) {
       existing = desc.createEntityBean();
@@ -175,7 +186,7 @@ class BeanMergeHelp {
         prop.merge(bean, existing, this);
       }
     }
-    contextPutExisting(desc, existing); // bean might have an ID now
+
     return existing;
   }
 }

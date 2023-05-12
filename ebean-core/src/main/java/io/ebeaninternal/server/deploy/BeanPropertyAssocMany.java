@@ -239,7 +239,11 @@ public class BeanPropertyAssocMany<T> extends BeanPropertyAssoc<T> implements ST
 
         for (Object detailBean : fromBC.actualDetails()) {
           if (detailBean instanceof EntityBean) {
-            toBC.addBean(mergeHelp.mergeBeans(targetDescriptor, (EntityBean) detailBean, null));
+            EntityBean toBean = mergeHelp.mergeBeans(targetDescriptor, (EntityBean) detailBean, null);
+            if (childMasterProperty != null) {
+              childMasterProperty.setValue(toBean, existing);
+            }
+            toBC.addBean(toBean);
           }
         }
       }

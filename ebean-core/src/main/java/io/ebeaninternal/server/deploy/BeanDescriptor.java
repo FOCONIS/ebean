@@ -713,6 +713,9 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType, SpiBeanType {
    * It returns normally the existing bean (or a new instance, if it was null)
    */
   public EntityBean mergeBeans(EntityBean bean, EntityBean existing, BeanMergeOptions options) {
+    if (existing == null) {
+      existing = createEntityBean();
+    }
     return new BeanMergeHelp(existing, options).mergeBeans(this, bean, existing);
   }
 
@@ -1771,7 +1774,7 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType, SpiBeanType {
   /**
    * We actually need to do a query because we don't know the type without the discriminator value.
    */
-  private T findReferenceBean(Object id, PersistenceContext pc) {
+  public T findReferenceBean(Object id, PersistenceContext pc) {
     DefaultOrmQuery<T> query = new DefaultOrmQuery<>(this, ebeanServer, ebeanServer.expressionFactory());
     query.setPersistenceContext(pc);
     return query.setId(id).findOne();
