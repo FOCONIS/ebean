@@ -169,7 +169,7 @@ class BeanMergeHelp {
       desc = desc.inheritInfo().readType(bean.getClass()).desc();
     }
 
-    if (existing == null && !isNullOrZero(id)) {
+    if (existing == null || !isNullOrZero(id)) {
       if (desc.isReference(bean._ebean_getIntercept())) {
         existing = (EntityBean) desc.createRef(id, persistenceContext);
       } else {
