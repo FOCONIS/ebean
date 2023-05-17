@@ -1,9 +1,9 @@
 package org.tests.insert;
 
-import io.ebean.xtest.BaseTestCase;
 import io.ebean.DB;
 import io.ebean.Transaction;
 import io.ebean.plugin.Property;
+import io.ebean.xtest.BaseTestCase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.tests.model.draftable.Document;
@@ -100,8 +100,8 @@ public class TestInsertCheckUnique extends BaseTestCase {
           msg.append(" property["+propertyName+"] value["+propertyValue+"]");
         });
 
-        System.out.println("uniqueProperties > "+uniqueProperties);
-        System.out.println("      custom msg > " + msg.toString());
+        System.out.println("uniqueProperties > " + uniqueProperties);
+        System.out.println("      custom msg > " + msg);
 
       }
 
