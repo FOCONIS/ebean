@@ -176,6 +176,6 @@ public class TestVirtualProps extends BaseTestCase {
     List<String> sql = LoggedSql.stop();
 
     assertThat(sql).hasSize(1);
-    assertThat(sql.get(0)).contains("select t0.kind, t0.id, t0.data, t0.num, t0.ext, t0.ext_a from virtual_base_inherit t0 where t0.kind = 'A' and t0.ext_a = ?");
+    assertThat(sql.get(0)).contains("select t0.kind, t0.id, t0.data, t0.num, t0.ext, t0.ext_a, t0.nums from virtual_base_inherit t0 where t0.kind = 'A' and t0.ext_a = ?");
   }
 }
