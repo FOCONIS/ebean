@@ -86,6 +86,13 @@ end if;
 end$$;
 delimiter $$
 begin
+if exists (select constname from syscat.tabconst where tabschema = current_schema and ucase(constname) = 'FK_DROP_REF_ONE_TO_ONE_PARENT_ID' and ucase(tabname) = 'DROP_REF_ONE_TO_ONE') then
+  prepare stmt from 'alter table drop_ref_one_to_one drop constraint fk_drop_ref_one_to_one_parent_id';
+  execute stmt;
+end if;
+end$$;
+delimiter $$
+begin
 if exists (select indname from syscat.indexes where indschema = current_schema and ucase(indname) = 'IX_MIGTEST_E_BASIC_INDEXTEST1') then
   prepare stmt from 'drop index ix_migtest_e_basic_indextest1';
   execute stmt;

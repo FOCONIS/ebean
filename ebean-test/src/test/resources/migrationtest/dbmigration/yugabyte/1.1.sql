@@ -10,6 +10,7 @@ alter table migtest_e_enum drop constraint if exists ck_migtest_e_enum_test_stat
 alter table if exists drop_main_drop_ref_many drop constraint if exists fk_drop_main_drop_ref_many_drop_main;
 alter table if exists drop_main_drop_ref_many drop constraint if exists fk_drop_main_drop_ref_many_drop_ref_many;
 alter table if exists drop_ref_one drop constraint if exists fk_drop_ref_one_parent_id;
+alter table if exists drop_ref_one_to_one drop constraint if exists fk_drop_ref_one_to_one_parent_id;
 drop index if exists ix_migtest_e_basic_indextest1;
 drop index if exists ix_migtest_e_basic_indextest5;
 drop index if exists ix_migtest_quoted_status1;
