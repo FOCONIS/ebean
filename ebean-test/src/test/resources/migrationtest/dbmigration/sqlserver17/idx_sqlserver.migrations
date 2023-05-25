@@ -2,7 +2,7 @@
 1018162080,     1.0__initial.sql
 1891205945,     1.1.sql
 -1184799088,    1.2__dropsFor_1.1.sql
-495243310,      1.3.sql
+-342972634,     1.3.sql
 -628940135,     1.4__dropsFor_1.3.sql
 1607822082,     R__order_views_mssql.sql
 

@@ -1,4 +1,4 @@
-package misc.migration.v1_0;
+package misc.migration.v1_2;
 
 import javax.persistence.*;
 import java.util.List;
@@ -47,13 +47,5 @@ public class DropMain {
 
   public void setRefsMany(List<DropRefMany> refsMany) {
     this.refsMany = refsMany;
-  }
-
-  public DropRefOneToOne getRefsOneToOne() {
-    return refsOneToOne;
-  }
-
-  public void setRefsOneToOne(DropRefOneToOne refsOneToOne) {
-    this.refsOneToOne = refsOneToOne;
   }
 }

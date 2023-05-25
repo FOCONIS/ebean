@@ -20,6 +20,35 @@ drop index ix_migtest_e_basic_indextest3 on migtest_e_basic;
 drop index ix_migtest_e_basic_indextest6 on migtest_e_basic;
 drop index ix_table_textfield2 on `table`;
 -- apply changes
+create table drop_main (
+  id                            integer auto_increment not null,
+  constraint pk_drop_main primary key (id)
+);
+
+create table drop_main_drop_ref_many (
+  drop_main_id                  integer not null,
+  drop_ref_many_id              integer not null,
+  constraint pk_drop_main_drop_ref_many primary key (drop_main_id,drop_ref_many_id)
+);
+
+create table drop_ref_many (
+  id                            integer auto_increment not null,
+  constraint pk_drop_ref_many primary key (id)
+);
+
+create table drop_ref_one (
+  id                            integer auto_increment not null,
+  parent_id                     integer,
+  constraint pk_drop_ref_one primary key (id)
+);
+
+create table drop_ref_one_to_one (
+  id                            integer auto_increment not null,
+  parent_id                     integer,
+  constraint uq_drop_ref_one_to_one_parent_id unique (parent_id),
+  constraint pk_drop_ref_one_to_one primary key (id)
+);
+
 create table `migtest_QuOtEd` (
   id                            varchar(255) not null,
   status1                       varchar(1),
@@ -131,6 +160,17 @@ unlock tables;
 alter table migtest_oto_child add constraint uq_m12_otoc72 unique  (name);
 alter table migtest_oto_master add constraint uq_migtest_oto_master_name unique  (name);
 -- foreign keys and indices
+create index ix_drop_main_drop_ref_many_drop_main on drop_main_drop_ref_many (drop_main_id);
+alter table drop_main_drop_ref_many add constraint fk_drop_main_drop_ref_many_drop_main foreign key (drop_main_id) references drop_main (id) on delete restrict on update restrict;
+
+create index ix_drop_main_drop_ref_many_drop_ref_many on drop_main_drop_ref_many (drop_ref_many_id);
+alter table drop_main_drop_ref_many add constraint fk_drop_main_drop_ref_many_drop_ref_many foreign key (drop_ref_many_id) references drop_ref_many (id) on delete restrict on update restrict;
+
+create index ix_drop_ref_one_parent_id on drop_ref_one (parent_id);
+alter table drop_ref_one add constraint fk_drop_ref_one_parent_id foreign key (parent_id) references drop_main (id) on delete restrict on update restrict;
+
+alter table drop_ref_one_to_one add constraint fk_drop_ref_one_to_one_parent_id foreign key (parent_id) references drop_main (id) on delete restrict on update restrict;
+
 alter table migtest_fk_cascade add constraint fk_migtest_fk_cascade_one_id foreign key (one_id) references migtest_fk_cascade_one (id) on delete cascade on update restrict;
 alter table migtest_fk_set_null add constraint fk_migtest_fk_set_null_one_id foreign key (one_id) references migtest_fk_one (id) on delete set null on update restrict;
 create index ix_migtest_e_basic_eref_id on migtest_e_basic (eref_id);

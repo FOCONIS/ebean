@@ -2,7 +2,7 @@
 -275240233,     1.0__initial.sql
 257301745,      1.1.sql
 -453067040,     1.2__dropsFor_1.1.sql
--657475021,     1.3.sql
+-378440456,     1.3.sql
 1185007986,     1.4__dropsFor_1.3.sql
 1906063401,     R__order_views_hana.sql
 
