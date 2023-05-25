@@ -128,6 +128,7 @@
         <dropTable name="drop_main_drop_ref_many"/>
         <dropTable name="drop_ref_many" sequenceCol="id"/>
         <dropTable name="drop_ref_one" sequenceCol="id"/>
+        <dropTable name="drop_ref_one_to_one" sequenceCol="id"/>
         <dropTable name="&quot;migtest_QuOtEd&quot;"/>
         <dropTable name="migtest_e_ref" sequenceCol="id"/>
     </changeSet>

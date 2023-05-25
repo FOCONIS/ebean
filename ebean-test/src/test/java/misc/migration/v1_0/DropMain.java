@@ -22,6 +22,9 @@ public class DropMain {
   @ManyToMany(cascade = CascadeType.ALL)
   List<DropRefMany> refsMany;
 
+  @OneToOne(mappedBy = "parent")
+  DropRefOneToOne refsOneToOne;
+
   public Integer getId() {
     return id;
   }

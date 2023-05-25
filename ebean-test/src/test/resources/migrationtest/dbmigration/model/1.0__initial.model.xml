@@ -53,6 +53,10 @@
             <column name="id" type="integer" primaryKey="true"/>
             <column name="parent_id" type="integer" references="drop_main.id" foreignKeyName="fk_drop_ref_one_parent_id" foreignKeyIndex="ix_drop_ref_one_parent_id"/>
         </createTable>
+        <createTable name="drop_ref_one_to_one" pkName="pk_drop_ref_one_to_one">
+            <column name="id" type="integer" primaryKey="true"/>
+            <column name="parent_id" type="integer" uniqueOneToOne="uq_drop_ref_one_to_one_parent_id" references="drop_main.id" foreignKeyName="fk_drop_ref_one_to_one_parent_id"/>
+        </createTable>
         <createTable name="migtest_e_basic" pkName="pk_migtest_e_basic" tablespace="db2;TSTABLES;" indexTablespace="db2;INDEXTS;" lobTablespace="db2;TSTABLES;">
             <column name="id" type="integer" primaryKey="true"/>
             <column name="status" type="varchar(1)" checkConstraint="check ( status in ('N','A','I'))" checkConstraintName="ck_migtest_e_basic_status"/>

@@ -81,6 +81,14 @@ create table drop_ref_one (
   foreign key (parent_id) references drop_main (id) on delete restrict on update restrict
 );
 
+create table drop_ref_one_to_one (
+  id                            integer not null,
+  parent_id                     integer,
+  constraint uq_drop_ref_one_to_one_parent_id unique (parent_id),
+  constraint pk_drop_ref_one_to_one primary key (id),
+  foreign key (parent_id) references drop_main (id) on delete restrict on update restrict
+);
+
 create table migtest_e_basic (
   id                            integer not null,
   status                        varchar(1),

@@ -63,6 +63,11 @@ create table drop_ref_one (
   parent_id                     UInt32
 ) ENGINE = Log();
 
+create table drop_ref_one_to_one (
+  id                            UInt32,
+  parent_id                     UInt32
+) ENGINE = Log();
+
 create table migtest_e_basic (
   id                            UInt32,
   status                        String,

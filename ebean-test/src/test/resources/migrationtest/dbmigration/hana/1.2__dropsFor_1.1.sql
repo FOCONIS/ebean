@@ -16,5 +16,6 @@ drop table drop_main cascade;
 drop table drop_main_drop_ref_many cascade;
 drop table drop_ref_many cascade;
 drop table drop_ref_one cascade;
+drop table drop_ref_one_to_one cascade;
 drop table "migtest_QuOtEd" cascade;
 drop table migtest_e_ref cascade;
