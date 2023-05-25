@@ -828,7 +828,16 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
   @Override
   public <T> T mergeBeans(T bean, T existing, BeanMergeOptions options) {
     BeanDescriptor<?> desc = desc(bean.getClass());
-    return (T) desc.mergeBeans(checkEntityBean(bean), (EntityBean) existing, options);
+    EntityBean existingBean = (EntityBean) existing;
+    if (existingBean == null) {
+      existingBean = desc.createEntityBean();
+      SpiTransaction t = transactionManager.active();
+      if (t != null) {
+        SpiPersistenceContext pc = t.getPersistenceContext();
+        existingBean._ebean_getIntercept().setPersistenceContext(pc);
+      }
+    }
+    return (T) desc.mergeBeans(checkEntityBean(bean), existingBean, options);
   }
 
   @Override

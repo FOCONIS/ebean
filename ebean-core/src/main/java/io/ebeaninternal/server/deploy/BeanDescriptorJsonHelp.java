@@ -109,6 +109,7 @@ final class BeanDescriptorJsonHelp<T> {
 
   private T jsonReadObject(SpiJsonReader readJson, String path) throws IOException {
     EntityBean bean = desc.createEntityBeanForJson();
+    bean._ebean_getIntercept().setPersistenceContext(readJson.persistenceContext());
     return jsonReadProperties(readJson, bean, path);
   }
 

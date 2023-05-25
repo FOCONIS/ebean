@@ -713,10 +713,7 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType, SpiBeanType {
    * It returns normally the existing bean (or a new instance, if it was null)
    */
   public EntityBean mergeBeans(EntityBean bean, EntityBean existing, BeanMergeOptions options) {
-    if (existing == null) {
-      existing = createEntityBean();
-    }
-    return new BeanMergeHelp(existing, options).mergeBeans(this, bean, existing);
+    return new BeanMergeHelp(existing, options).mergeBeans(this, bean, existing, false);
   }
 
   /**

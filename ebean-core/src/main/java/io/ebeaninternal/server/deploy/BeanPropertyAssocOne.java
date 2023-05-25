@@ -851,8 +851,7 @@ public class BeanPropertyAssocOne<T> extends BeanPropertyAssoc<T> implements STr
         existingValue = null;
       }
     }
-
-    setValueIntercept(existing, mergeHelp.mergeBeans(targetDescriptor, beanValue, existingValue));
+    setValueIntercept(existing, mergeHelp.mergeBeans(targetDescriptor, beanValue, existingValue, !orphanRemoval));
 
     mergeHelp.popPath();
   }

@@ -224,10 +224,8 @@ public class BeanPropertyAssocMany<T> extends BeanPropertyAssoc<T> implements ST
         BeanCollection toBC;
         if (existingCollection instanceof BeanCollection) {
           toBC = (BeanCollection) existingCollection;
-          if (mergeHelp.addExistingToPersistenceContext()) {
-            for (Object detailBean : toBC.actualEntries(true)) {
-              mergeHelp.contextPutExisting(targetDescriptor, (EntityBean) detailBean);
-            }
+          for (Object detailBean : toBC.actualEntries(true)) {
+            mergeHelp.contextPutIfAbsent(targetDescriptor, (EntityBean) detailBean);
           }
           if (mergeHelp.clearCollections()) {
             toBC.clear();
@@ -239,7 +237,7 @@ public class BeanPropertyAssocMany<T> extends BeanPropertyAssoc<T> implements ST
 
         for (Object detailBean : fromBC.actualDetails()) {
           if (detailBean instanceof EntityBean) {
-            EntityBean toBean = mergeHelp.mergeBeans(targetDescriptor, (EntityBean) detailBean, null);
+            EntityBean toBean = mergeHelp.mergeBeans(targetDescriptor, (EntityBean) detailBean, null, !orphanRemoval);
             if (childMasterProperty != null) {
               childMasterProperty.setValue(toBean, existing);
             }

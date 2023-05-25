@@ -27,34 +27,28 @@ class BeanMergeHelp {
   private final boolean mergeId;
   private final boolean mergeVersion;
   private final boolean clearCollections;
-  private final boolean addExistingToPersistenceContext;
   private final BeanMergeOptions.MergeHandler mergeHandler;
 
 
   public BeanMergeHelp(EntityBean rootBean, BeanMergeOptions options) {
-    this.persistenceContext = extractPersistenceContext(rootBean, options);
+    this.persistenceContext = extractPersistenceContext(rootBean);
     if (options == null) {
       this.mergeHandler = null;
       this.pathStack = null;
       this.mergeId = true;
       this.mergeVersion = false;
       this.clearCollections = true;
-      this.addExistingToPersistenceContext = true;
     } else {
       this.mergeHandler = options.getMergeHandler();
       this.pathStack = mergeHandler == null ? null : new PathStack();
       this.mergeId = options.isMergeId();
       this.mergeVersion = options.isMergeVersion();
       this.clearCollections = options.isClearCollections();
-      this.addExistingToPersistenceContext = true;
     }
   }
 
-  private PersistenceContext extractPersistenceContext(EntityBean rootBean, BeanMergeOptions options) {
-    PersistenceContext pc = options == null ? null : options.getPersistenceContext();
-    if (pc == null && rootBean != null) {
-      pc = rootBean._ebean_getIntercept().persistenceContext();
-    }
+  private PersistenceContext extractPersistenceContext(EntityBean rootBean) {
+    PersistenceContext pc = rootBean._ebean_getIntercept().persistenceContext();
     if (pc == null) {
       pc = new DefaultPersistenceContext();
     }
@@ -76,18 +70,11 @@ class BeanMergeHelp {
   }
 
   /**
-   * Should we add existing beans to the current persistence-context?
-   */
-  public boolean addExistingToPersistenceContext() {
-    return addExistingToPersistenceContext;
-  }
-
-  /**
    * Add a given bean to the persistence-context. Returns the bean from the PC,
    * if it was already there.
    */
-  public EntityBean contextPutExisting(BeanDescriptor<?> desc, EntityBean bean) {
-    if (bean == null || !addExistingToPersistenceContext) {
+  public EntityBean contextPutIfAbsent(BeanDescriptor<?> desc, EntityBean bean) {
+    if (bean == null) {
       return null;
     }
     Object id = desc.id(bean);
@@ -150,7 +137,7 @@ class BeanMergeHelp {
    *   <li><code>new instance</code> if existing was null</li>
    * </ul>
    */
-  public EntityBean mergeBeans(BeanDescriptor<?> desc, EntityBean bean, EntityBean existing) {
+  public EntityBean mergeBeans(BeanDescriptor<?> desc, EntityBean bean, EntityBean existing, boolean hitDb) {
     if (bean == null) {
       return null;
     }
@@ -172,13 +159,14 @@ class BeanMergeHelp {
     if (existing == null && !isNullOrZero(id)) {
       if (desc.isReference(bean._ebean_getIntercept())) {
         existing = (EntityBean) desc.createRef(id, persistenceContext);
-      } else {
+      } else if (hitDb) {
         // Now, we must hit the database and try to find the reference bean
         existing = (EntityBean) desc.findReferenceBean(id, persistenceContext);
       }
     }
     if (existing == null) {
       existing = desc.createEntityBean();
+      existing._ebean_getIntercept().setPersistenceContext(persistenceContext);
     }
 
     for (BeanProperty prop : desc.propertiesAll()) {

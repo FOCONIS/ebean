@@ -1,6 +1,5 @@
 package io.ebean;
 
-import io.ebean.bean.PersistenceContext;
 import io.ebean.plugin.Property;
 
 /**
@@ -26,7 +25,6 @@ public class BeanMergeOptions {
 
   }
 
-  private PersistenceContext persistenceContext;
 
   private MergeHandler<?> mergeHandler;
 
@@ -36,23 +34,7 @@ public class BeanMergeOptions {
 
   private boolean clearCollections = true;
 
-  private boolean addExistingToPersistenceContext = true;
 
-  /**
-   * Return the persistence context, that is used during merge.
-   * If no one is specified, the persistence context of the bean will be used
-   */
-  public PersistenceContext getPersistenceContext() {
-    return persistenceContext;
-  }
-
-  /**
-   * Sets the persistence context, that is used during merge.
-   * * If no one is specified, the persistence context of the bean will be used
-   */
-  public void setPersistenceContext(PersistenceContext persistenceContext) {
-    this.persistenceContext = persistenceContext;
-  }
 
   /**
    * Returns the merge handler, if you want to do special handling for some properties.
@@ -110,17 +92,4 @@ public class BeanMergeOptions {
     this.clearCollections = clearCollections;
   }
 
-  /**
-   * Returns if we should add existing beans to the persistenceContext (default=true).
-   */
-  public boolean isAddExistingToPersistenceContext() {
-    return addExistingToPersistenceContext;
-  }
-
-  /**
-   * Should we add existing beans to the persistenceContext (default=true).
-   */
-  public void setAddExistingToPersistenceContext(boolean addExistingToPersistenceContext) {
-    this.addExistingToPersistenceContext = addExistingToPersistenceContext;
-  }
 }
