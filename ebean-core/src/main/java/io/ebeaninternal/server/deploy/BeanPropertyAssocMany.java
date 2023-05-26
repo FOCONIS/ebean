@@ -219,7 +219,7 @@ public class BeanPropertyAssocMany<T> extends BeanPropertyAssoc<T> implements ST
     Object existingCollection = getValue(existing);
     if (fromCollection instanceof BeanCollection) {
       BeanCollection fromBC = (BeanCollection) fromCollection;
-
+      assert fromCollection != existingCollection;
       if (fromBC.isPopulated()) {
         BeanCollection toBC;
         if (existingCollection instanceof BeanCollection) {

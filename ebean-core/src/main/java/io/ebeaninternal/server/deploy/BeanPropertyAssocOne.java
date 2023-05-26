@@ -843,16 +843,16 @@ public class BeanPropertyAssocOne<T> extends BeanPropertyAssoc<T> implements STr
 
     EntityBean beanValue = valueAsEntityBean(bean);
     EntityBean existingValue = valueAsEntityBean(existing);
-
-    if (beanValue != null && existingValue != null) {
-      Object beanId = targetDescriptor.id(beanValue);
-      Object existingId = targetDescriptor.id(existingValue);
-      if (!isNullOrZero(beanId) && !isNullOrZero(existingId) && !Objects.equals(beanId, existingId)) {
-        existingValue = null;
+    if (beanValue != existingValue) {
+      if (beanValue != null && existingValue != null) {
+        Object beanId = targetDescriptor.id(beanValue);
+        Object existingId = targetDescriptor.id(existingValue);
+        if (!isNullOrZero(beanId) && !isNullOrZero(existingId) && !Objects.equals(beanId, existingId)) {
+          existingValue = null;
+        }
       }
+      setValueIntercept(existing, mergeHelp.mergeBeans(targetDescriptor, beanValue, existingValue, !orphanRemoval));
     }
-    setValueIntercept(existing, mergeHelp.mergeBeans(targetDescriptor, beanValue, existingValue, !orphanRemoval));
-
     mergeHelp.popPath();
   }
 

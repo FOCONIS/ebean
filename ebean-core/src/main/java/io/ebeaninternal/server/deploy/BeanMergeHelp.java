@@ -148,7 +148,7 @@ class BeanMergeHelp {
         existing = contextBean;
       }
     }
-    if (processed(bean)) {
+    if (processed(bean) || bean == existing) {
       return existing;
     }
 
