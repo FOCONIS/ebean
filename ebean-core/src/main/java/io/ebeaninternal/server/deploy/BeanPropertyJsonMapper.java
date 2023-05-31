@@ -93,6 +93,9 @@ public final class BeanPropertyJsonMapper extends BeanPropertyJsonBasic {
       if (bean != null) {
         setValue(bean, value);
         String json = reader.popJson();
+        if (json == null && value != null) {
+          json = scalarType.format(value);
+        }
         if (json != null) {
           final MutableValueInfo hash = createMutableInfo(json);
           bean._ebean_getIntercept().mutableInfo(propertyIndex, hash);
