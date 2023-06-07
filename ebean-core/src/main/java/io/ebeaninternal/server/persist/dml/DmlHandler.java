@@ -2,12 +2,12 @@ package io.ebeaninternal.server.persist.dml;
 
 import io.ebeaninternal.api.CoreLog;
 import io.ebeaninternal.api.SpiTransaction;
+import io.ebeaninternal.server.bind.DataBind;
 import io.ebeaninternal.server.core.PersistRequestBean;
 import io.ebeaninternal.server.deploy.BeanProperty;
 import io.ebeaninternal.server.persist.BatchedPstmt;
 import io.ebeaninternal.server.persist.BatchedPstmtHolder;
 import io.ebeaninternal.server.persist.dmlbind.BindableRequest;
-import io.ebeaninternal.server.bind.DataBind;
 
 import javax.persistence.OptimisticLockException;
 import java.sql.Connection;
@@ -66,7 +66,7 @@ public abstract class DmlHandler implements PersistHandler, BindableRequest {
    * Bind to the statement returning the DataBind.
    */
   DataBind bind(PreparedStatement stmt) {
-    return new DataBind(persistRequest.dataTimeZone(), stmt, transaction.getInternalConnection());
+    return new DataBind(persistRequest.dataTimeZone(), persistRequest.maxStringSize(), stmt, transaction.getInternalConnection());
   }
 
   /**

@@ -111,6 +111,11 @@ public class TDSpiEbeanServer extends TDSpiServer implements SpiEbeanServer {
   }
 
   @Override
+  public int maxStringSize() {
+    return 0;
+  }
+
+  @Override
   public Platform platform() {
     return Platform.GENERIC;
   }

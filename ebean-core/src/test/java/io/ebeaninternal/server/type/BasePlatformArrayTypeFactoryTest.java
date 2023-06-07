@@ -56,7 +56,7 @@ class BasePlatformArrayTypeFactoryTest {
     boolean wasPgoEmpty;
 
     TestDoubleDataBind() {
-      super(null, null, null);
+      super(null, 0,null, null);
     }
 
     @Override

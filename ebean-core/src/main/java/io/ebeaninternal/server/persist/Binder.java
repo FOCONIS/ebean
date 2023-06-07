@@ -7,11 +7,13 @@ import io.ebean.core.type.ScalarType;
 import io.ebeaninternal.api.BindParams;
 import io.ebeaninternal.api.CoreLog;
 import io.ebeaninternal.api.SpiLogManager;
-import io.ebeaninternal.server.core.timezone.DataTimeZone;
 import io.ebeaninternal.server.bind.DataBind;
+import io.ebeaninternal.server.core.timezone.DataTimeZone;
 import io.ebeaninternal.server.expression.platform.DbExpressionHandler;
 import io.ebeaninternal.server.persist.platform.MultiValueBind;
-import io.ebeaninternal.server.type.*;
+import io.ebeaninternal.server.type.GeoTypeBinder;
+import io.ebeaninternal.server.type.RsetDataReader;
+import io.ebeaninternal.server.type.TypeManager;
 
 import javax.persistence.PersistenceException;
 import java.math.BigDecimal;
@@ -34,15 +36,17 @@ public final class Binder {
   private final MultiValueBind multiValueBind;
   private final boolean enableBindLog;
   private final GeoTypeBinder geoTypeBinder;
+  private final int maxStringSize;
 
   public Binder(TypeManager typeManager, SpiLogManager logManager, int asOfBindCount, boolean asOfStandardsBased,
-                DbExpressionHandler dbExpressionHandler, DataTimeZone dataTimeZone, MultiValueBind multiValueBind) {
+                DbExpressionHandler dbExpressionHandler, DataTimeZone dataTimeZone, int maxStringSize, MultiValueBind multiValueBind) {
     this.typeManager = typeManager;
     this.geoTypeBinder = typeManager.geoTypeBinder();
     this.asOfBindCount = asOfBindCount;
     this.asOfStandardsBased = asOfStandardsBased;
     this.dbExpressionHandler = dbExpressionHandler;
     this.dataTimeZone = dataTimeZone;
+    this.maxStringSize = maxStringSize;
     this.multiValueBind = multiValueBind;
     this.enableBindLog = logManager.enableBindLog();
   }
@@ -72,7 +76,7 @@ public final class Binder {
    * Bind the parameters to the preparedStatement returning the bind log.
    */
   public String bind(BindParams bindParams, PreparedStatement statement, Connection connection) throws SQLException {
-    return bind(bindParams, new DataBind(dataTimeZone, statement, connection));
+    return bind(bindParams, new DataBind(dataTimeZone, maxStringSize, statement, connection));
   }
 
   /**
@@ -394,7 +398,7 @@ public final class Binder {
    * Create and return a DataBind for the statement.
    */
   public DataBind dataBind(PreparedStatement stmt, Connection connection) {
-    return new DataBind(dataTimeZone, stmt, connection);
+    return new DataBind(dataTimeZone, maxStringSize, stmt, connection);
   }
 
   public DataReader createDataReader(ResultSet resultSet) {

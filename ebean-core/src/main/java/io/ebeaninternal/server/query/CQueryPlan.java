@@ -8,11 +8,11 @@ import io.ebean.meta.MetricVisitor;
 import io.ebean.metric.MetricFactory;
 import io.ebean.metric.TimedMetric;
 import io.ebeaninternal.api.*;
+import io.ebeaninternal.server.bind.DataBind;
+import io.ebeaninternal.server.bind.DataBindCapture;
 import io.ebeaninternal.server.core.OrmQueryRequest;
 import io.ebeaninternal.server.core.timezone.DataTimeZone;
 import io.ebeaninternal.server.query.CQueryPlanStats.Snapshot;
-import io.ebeaninternal.server.bind.DataBind;
-import io.ebeaninternal.server.bind.DataBindCapture;
 import io.ebeaninternal.server.type.RsetDataReader;
 import io.ebeaninternal.server.util.Md5;
 import io.ebeaninternal.server.util.Str;
@@ -67,6 +67,7 @@ public class CQueryPlan implements SpiQueryPlan {
   private final CQueryPlanStats stats;
   private final Class<?> beanType;
   final DataTimeZone dataTimeZone;
+  private final int maxStringSize;
   private final int asOfTableCount;
 
   /**
@@ -82,6 +83,7 @@ public class CQueryPlan implements SpiQueryPlan {
   CQueryPlan(OrmQueryRequest<?> request, SqlLimitResponse sqlRes, SqlTreePlan sqlTree, boolean rawSql, String logWhereSql) {
     this.server = request.server();
     this.dataTimeZone = server.dataTimeZone();
+    this.maxStringSize = server.maxStringSize();
     this.beanType = request.descriptor().type();
     this.planKey = request.queryPlanKey();
     SpiQuery<?> query = request.query();
@@ -107,6 +109,7 @@ public class CQueryPlan implements SpiQueryPlan {
   CQueryPlan(OrmQueryRequest<?> request, String sql, SqlTreePlan sqlTree, String logWhereSql) {
     this.server = request.server();
     this.dataTimeZone = server.dataTimeZone();
+    this.maxStringSize = server.maxStringSize();
     this.beanType = request.descriptor().type();
     SpiQuery<?> query = request.query();
     this.profileLocation = query.getProfileLocation();
@@ -213,7 +216,7 @@ public class CQueryPlan implements SpiQueryPlan {
    * Bind keys for encrypted properties if necessary returning the DataBind.
    */
   final DataBind bindEncryptedProperties(PreparedStatement stmt, Connection conn) throws SQLException {
-    DataBind dataBind = new DataBind(dataTimeZone, stmt, conn);
+    DataBind dataBind = new DataBind(dataTimeZone, maxStringSize, stmt, conn);
     if (encryptedProps != null) {
       for (STreeProperty encryptedProp : encryptedProps) {
         dataBind.setString(encryptedProp.encryptKeyAsString());
@@ -223,7 +226,7 @@ public class CQueryPlan implements SpiQueryPlan {
   }
 
   private DataBindCapture bindCapture() throws SQLException {
-    DataBindCapture dataBind = DataBindCapture.of(dataTimeZone);
+    DataBindCapture dataBind = DataBindCapture.of(dataTimeZone, server.config().getMaxStringSize());
     if (encryptedProps != null) {
       for (STreeProperty encryptedProp : encryptedProps) {
         dataBind.setString(encryptedProp.encryptKeyAsString());

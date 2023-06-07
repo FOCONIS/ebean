@@ -85,6 +85,7 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
   private final QueryPlanManager queryPlanManager;
   private final ExtraMetrics extraMetrics;
   private final DataTimeZone dataTimeZone;
+  private final int maxStringSize;
   private final ClockService clockService;
   private final CallOriginFactory callStackFactory;
   private final Persister persister;
@@ -153,6 +154,7 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
     this.beanLoader = new DefaultBeanLoader(this);
     this.jsonContext = config.createJsonContext(this);
     this.dataTimeZone = config.getDataTimeZone();
+    this.maxStringSize = config.getMaxStringSize();
     this.clockService = config.getClockService();
 
     DocStoreIntegration docStoreComponents = config.createDocStoreIntegration(this);
@@ -244,6 +246,11 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
   @Override
   public DataTimeZone dataTimeZone() {
     return dataTimeZone;
+  }
+
+  @Override
+  public int maxStringSize() {
+    return maxStringSize;
   }
 
   @Override
