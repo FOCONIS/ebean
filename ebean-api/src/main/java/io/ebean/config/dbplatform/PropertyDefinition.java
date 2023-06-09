@@ -3,14 +3,14 @@ package io.ebean.config.dbplatform;
 /**
  * @author Roland Praml, FOCONIS AG
  */
-public class BindValidatorMeta {
+public class PropertyDefinition {
   private final int jdbcType;
   private final int dbLength;
   private final String table;
   private final String column;
   private final String columnDefn;
 
-  public BindValidatorMeta(int jdbcType, int dbLength, String baseTable, String column, String columnDefn) {
+  public PropertyDefinition(int jdbcType, int dbLength, String baseTable, String column, String columnDefn) {
     this.jdbcType = jdbcType;
     this.dbLength = dbLength;
     this.table = baseTable;
