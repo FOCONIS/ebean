@@ -4,10 +4,6 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import io.ebean.config.JsonConfig;
-import io.ebean.core.type.DataBinder;
-import io.ebean.core.type.DataReader;
-import io.ebean.core.type.DocPropertyType;
-import io.ebean.core.type.ScalarTypeBase;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -49,11 +45,14 @@ public abstract class ScalarTypeBaseDate<T> extends ScalarTypeBase<T> {
   public abstract T convertFromDate(java.sql.Date ts);
 
   @Override
-  public void bind(DataBinder binder, T value) throws SQLException {
+  public Object bind(DataBinder binder, T value) throws SQLException {
     if (value == null) {
       binder.setNull(Types.DATE);
+      return null;
     } else {
-      binder.setDate(convertToDate(value));
+      Date rawValue = convertToDate(value);
+      binder.setDate(rawValue);
+      return rawValue;
     }
   }
 

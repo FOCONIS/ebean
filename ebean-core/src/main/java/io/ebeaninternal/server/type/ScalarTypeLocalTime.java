@@ -2,11 +2,7 @@ package io.ebeaninternal.server.type;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
-import io.ebean.core.type.DataBinder;
-import io.ebean.core.type.DataReader;
-import io.ebean.core.type.DocPropertyType;
-import io.ebean.core.type.ScalarTypeBase;
-import io.ebean.core.type.BasicTypeConverter;
+import io.ebean.core.type.*;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -30,11 +26,14 @@ class ScalarTypeLocalTime extends ScalarTypeBase<LocalTime> {
   }
 
   @Override
-  public void bind(DataBinder binder, LocalTime value) throws SQLException {
+  public Object bind(DataBinder binder, LocalTime value) throws SQLException {
     if (value == null) {
       binder.setNull(Types.TIME);
+      return null;
     } else {
-      binder.setTime(Time.valueOf(value));
+      Time rawValue = Time.valueOf(value);
+      binder.setTime(rawValue);
+      return rawValue;
     }
   }
 

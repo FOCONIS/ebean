@@ -1,8 +1,8 @@
 package io.ebean.joda.time;
 
+import io.ebean.core.type.BasicTypeConverter;
 import io.ebean.core.type.DataBinder;
 import io.ebean.core.type.DataReader;
-import io.ebean.core.type.BasicTypeConverter;
 import org.joda.time.DateTimeZone;
 import org.joda.time.LocalTime;
 
@@ -20,12 +20,14 @@ final class ScalarTypeJodaLocalTimeUTC extends ScalarTypeJodaLocalTime {
   }
 
   @Override
-  public void bind(DataBinder binder, LocalTime value) throws SQLException {
+  public Time bind(DataBinder binder, LocalTime value) throws SQLException {
     if (value == null) {
       binder.setNull(Types.TIME);
+      return null;
     } else {
       Time sqlTime = new Time(value.getMillisOfDay());
       binder.setTime(sqlTime);
+      return sqlTime;
     }
   }
 

@@ -105,11 +105,14 @@ class ScalarTypeArraySet extends ScalarTypeArrayBase<Set> implements ScalarTypeA
   }
 
   @Override
-  public void bind(DataBinder binder, Set value) throws SQLException {
+  public Object[] bind(DataBinder binder, Set value) throws SQLException {
     if (value == null) {
       bindNull(binder);
+      return null;
     } else {
-      binder.setArray(arrayType, toArray(value));
+      Object[] rawValue = toArray(value);
+      binder.setArray(arrayType, rawValue);
+      return rawValue;
     }
   }
 

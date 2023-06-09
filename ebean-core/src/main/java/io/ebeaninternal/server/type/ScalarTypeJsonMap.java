@@ -107,8 +107,10 @@ abstract class ScalarTypeJsonMap extends ScalarTypeBase<Map> {
     }
 
     @Override
-    protected void bindJson(DataBinder binder, String rawJson) throws SQLException {
-      binder.setBytes(rawJson.getBytes(StandardCharsets.UTF_8));
+    protected byte[] bindJson(DataBinder binder, String rawJson) throws SQLException {
+      byte[] rawValue = rawJson.getBytes(StandardCharsets.UTF_8);
+      binder.setBytes(rawValue);
+      return rawValue;
     }
 
   }
@@ -158,15 +160,16 @@ abstract class ScalarTypeJsonMap extends ScalarTypeBase<Map> {
   }
 
   @Override
-  public final void bind(DataBinder binder, Map value) throws SQLException {
+  public final Object bind(DataBinder binder, Map value) throws SQLException {
     String rawJson = keepSource ? binder.popJson() : null;
     if (rawJson == null && value != null) {
       rawJson = formatValue(value);
     }
-    if (value == null) {
+    if (rawJson == null) {
       bindNull(binder);
+      return null;
     } else {
-      bindJson(binder, rawJson);
+      return bindJson(binder, rawJson);
     }
   }
 
@@ -174,8 +177,9 @@ abstract class ScalarTypeJsonMap extends ScalarTypeBase<Map> {
     binder.setNull(Types.VARCHAR);
   }
 
-  protected void bindJson(DataBinder binder, String rawJson) throws SQLException {
+  protected Object bindJson(DataBinder binder, String rawJson) throws SQLException {
     binder.setString(rawJson);
+    return rawJson;
   }
 
   @Override

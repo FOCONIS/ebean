@@ -32,7 +32,7 @@ public final class ScalarJsonJacksonMapper implements ScalarJsonMapper {
   @SuppressWarnings("unchecked")
   @Override
   public <A extends Annotation> Class<A> markerAnnotation() {
-    return (Class<A>)com.fasterxml.jackson.annotation.JacksonAnnotation.class;
+    return (Class<A>) com.fasterxml.jackson.annotation.JacksonAnnotation.class;
   }
 
   /**
@@ -116,21 +116,24 @@ public final class ScalarJsonJacksonMapper implements ScalarJsonMapper {
     }
 
     @Override
-    public void bind(DataBinder binder, Object value) throws SQLException {
+    public Object bind(DataBinder binder, Object value) throws SQLException {
       // popJson as dirty detection already converted to json string
       String rawJson = binder.popJson();
       if (rawJson == null && value != null) {
         rawJson = formatValue(value); // not expected, need to check?
       }
       if (pgType != null) {
-        binder.setObject(PostgresHelper.asObject(pgType, rawJson));
+        Object rawValue = PostgresHelper.asObject(pgType, rawJson);
+        binder.setObject(rawValue);
+        return rawValue;
       } else {
-        if (value == null) {
+        if (rawJson == null) {
           // use varchar, otherwise SqlServer/db2 will fail with 'Invalid JDBC data type 5.001.'
           binder.setNull(Types.VARCHAR);
         } else {
           binder.setString(rawJson);
         }
+        return rawJson;
       }
     }
   }
@@ -149,7 +152,7 @@ public final class ScalarJsonJacksonMapper implements ScalarJsonMapper {
 
     Base(Class<T> cls, ScalarJsonManager jsonManager, AnnotatedField field, int dbType, DocPropertyType docType) {
       super(cls, false, dbType);
-      this.objectReader = (ObjectMapper)jsonManager.mapper();
+      this.objectReader = (ObjectMapper) jsonManager.mapper();
       this.pgType = jsonManager.postgresType(dbType);
       this.docType = docType;
       final JacksonTypeHelper helper = new JacksonTypeHelper(field, objectReader);
@@ -171,15 +174,20 @@ public final class ScalarJsonJacksonMapper implements ScalarJsonMapper {
     }
 
     @Override
-    public void bind(DataBinder binder, T value) throws SQLException {
+    public Object bind(DataBinder binder, T value) throws SQLException {
       if (pgType != null) {
         String rawJson = (value == null) ? null : formatValue(value);
-        binder.setObject(PostgresHelper.asObject(pgType, rawJson));
+        Object rawValue = PostgresHelper.asObject(pgType, rawJson);
+        binder.setObject(rawValue);
+        return rawValue;
       } else {
         if (value == null) {
           binder.setNull(Types.VARCHAR); // use varchar, otherwise SqlServer/db2 will fail with 'Invalid JDBC data type 5.001.'
+          return null;
         } else {
-          binder.setString(formatValue(value));
+          String rawJson = formatValue(value);
+          binder.setString(rawJson);
+          return rawJson;
         }
       }
     }

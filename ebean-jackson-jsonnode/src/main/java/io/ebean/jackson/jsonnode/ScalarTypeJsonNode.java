@@ -73,12 +73,15 @@ abstract class ScalarTypeJsonNode extends ScalarTypeBase<JsonNode> {
     }
 
     @Override
-    public void bind(DataBinder binder, JsonNode value) throws SQLException {
+    public byte[] bind(DataBinder binder, JsonNode value) throws SQLException {
       if (value == null) {
         binder.setNull(Types.BLOB);
+        return null;
       } else {
         String rawJson = formatValue(value);
-        binder.setBlob(rawJson.getBytes(StandardCharsets.UTF_8));
+        byte[] rawValue = rawJson.getBytes(StandardCharsets.UTF_8);
+        binder.setBlob(rawValue);
+        return rawValue;
       }
     }
   }
@@ -119,12 +122,14 @@ abstract class ScalarTypeJsonNode extends ScalarTypeBase<JsonNode> {
   }
 
   @Override
-  public void bind(DataBinder binder, JsonNode value) throws SQLException {
+  public Object bind(DataBinder binder, JsonNode value) throws SQLException {
     if (value == null) {
       binder.setNull(Types.VARCHAR);
+      return null;
     } else {
       String rawJson = formatValue(value);
       binder.setString(rawJson);
+      return rawJson;
     }
   }
 

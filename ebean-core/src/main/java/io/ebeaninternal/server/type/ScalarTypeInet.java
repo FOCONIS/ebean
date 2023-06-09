@@ -19,7 +19,7 @@ abstract class ScalarTypeInet extends ScalarTypeBaseVarchar<Inet> {
   }
 
   @Override
-  public abstract void bind(DataBinder binder, Inet value) throws SQLException;
+  public abstract String bind(DataBinder binder, Inet value) throws SQLException;
 
   @Override
   public Inet convertFromDbString(String dbValue) {
@@ -51,11 +51,14 @@ abstract class ScalarTypeInet extends ScalarTypeBaseVarchar<Inet> {
     }
 
     @Override
-    public void bind(DataBinder binder, Inet value) throws SQLException {
+    public String bind(DataBinder binder, Inet value) throws SQLException {
       if (value == null) {
         binder.setNull(Types.VARCHAR);
+        return null;
       } else {
-        binder.setString(convertToDbString(value));
+        String rawValue = convertToDbString(value);
+        binder.setString(rawValue);
+        return rawValue;
       }
     }
   }
@@ -70,12 +73,14 @@ abstract class ScalarTypeInet extends ScalarTypeBaseVarchar<Inet> {
     }
 
     @Override
-    public void bind(DataBinder binder, Inet value) throws SQLException {
+    public String bind(DataBinder binder, Inet value) throws SQLException {
       if (value == null) {
         binder.setNull(Types.OTHER);
+        return null;
       } else {
         String strValue = convertToDbString(value);
         binder.setObject(PostgresHelper.asInet(strValue));
+        return strValue;
       }
     }
   }

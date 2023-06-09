@@ -2,11 +2,7 @@ package io.ebeaninternal.server.type;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
-import io.ebean.core.type.DataBinder;
-import io.ebean.core.type.DataReader;
-import io.ebean.core.type.DocPropertyType;
-import io.ebean.core.type.ScalarTypeBase;
-import io.ebean.core.type.BasicTypeConverter;
+import io.ebean.core.type.*;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -25,11 +21,14 @@ final class ScalarTypeMathBigInteger extends ScalarTypeBase<BigInteger> {
   }
 
   @Override
-  public void bind(DataBinder binder, BigInteger value) throws SQLException {
+  public Long bind(DataBinder binder, BigInteger value) throws SQLException {
     if (value == null) {
       binder.setNull(Types.BIGINT);
+      return null;
     } else {
-      binder.setLong(value.longValue());
+      long rawValue = value.longValue();
+      binder.setLong(rawValue);
+      return rawValue;
     }
   }
 

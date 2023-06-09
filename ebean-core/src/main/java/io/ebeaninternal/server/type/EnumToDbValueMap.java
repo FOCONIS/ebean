@@ -67,8 +67,10 @@ abstract class EnumToDbValueMap<T> {
 
   /**
    * Bind using the correct database type.
+   *
+   * @return the effective bound value
    */
-  public abstract void bind(DataBinder binder, Object value) throws SQLException;
+  public abstract Object bind(DataBinder binder, Object value) throws SQLException;
 
   /**
    * Read using the correct database type.

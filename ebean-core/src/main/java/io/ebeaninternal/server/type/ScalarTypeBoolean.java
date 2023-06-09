@@ -3,11 +3,7 @@ package io.ebeaninternal.server.type;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import io.ebean.core.type.DataBinder;
-import io.ebean.core.type.DataReader;
-import io.ebean.core.type.DocPropertyType;
-import io.ebean.core.type.ScalarTypeBase;
-import io.ebean.core.type.BasicTypeConverter;
+import io.ebean.core.type.*;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -53,12 +49,13 @@ public final class ScalarTypeBoolean {
     }
 
     @Override
-    public void bind(DataBinder binder, Boolean value) throws SQLException {
+    public Boolean bind(DataBinder binder, Boolean value) throws SQLException {
       if (value == null) {
         binder.setNull(Types.BOOLEAN);
       } else {
         binder.setBoolean(value);
       }
+      return value;
     }
 
     @Override
@@ -106,13 +103,14 @@ public final class ScalarTypeBoolean {
     }
 
     @Override
-    public void bind(DataBinder binder, Boolean value) throws SQLException {
+    public Boolean bind(DataBinder binder, Boolean value) throws SQLException {
       if (value == null) {
         binder.setNull(Types.BIT);
       } else {
         // use JDBC driver to convert boolean to bit
         binder.setBoolean(value);
       }
+      return value;
     }
 
     @Override
@@ -151,12 +149,14 @@ public final class ScalarTypeBoolean {
     }
 
     @Override
-    public void bind(DataBinder binder, Boolean value) throws SQLException {
-      if (value == null) {
+    public Integer bind(DataBinder binder, Boolean value) throws SQLException {
+      Integer rawValue = toInteger(value);
+      if (rawValue == null) {
         binder.setNull(Types.INTEGER);
       } else {
-        binder.setInt(toInteger(value));
+        binder.setInt(rawValue);
       }
+      return rawValue;
     }
 
     @Override
@@ -238,12 +238,14 @@ public final class ScalarTypeBoolean {
     }
 
     @Override
-    public void bind(DataBinder binder, Boolean value) throws SQLException {
-      if (value == null) {
+    public String bind(DataBinder binder, Boolean value) throws SQLException {
+      String rawValue = toString(value);
+      if (rawValue == null) {
         binder.setNull(Types.VARCHAR);
       } else {
-        binder.setString(toString(value));
+        binder.setString(rawValue);
       }
+      return rawValue;
     }
 
     @Override

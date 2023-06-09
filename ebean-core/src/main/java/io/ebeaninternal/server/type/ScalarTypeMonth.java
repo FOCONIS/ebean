@@ -37,12 +37,15 @@ final class ScalarTypeMonth extends ScalarTypeEnumWithMapping {
    * Bind Month enum value.
    */
   @Override
-  public void bind(DataBinder binder, Object value) throws SQLException {
+  public Integer bind(DataBinder binder, Object value) throws SQLException {
     if (value == null) {
       binder.setNull(Types.INTEGER);
+      return null;
     } else {
       // avoiding the map lookup
-      binder.setInt(((Month) value).getValue());
+      int rawValue = ((Month) value).getValue();
+      binder.setInt(rawValue);
+      return rawValue;
     }
   }
 

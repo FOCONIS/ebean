@@ -2,11 +2,7 @@ package io.ebeaninternal.server.type;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
-import io.ebean.core.type.DataBinder;
-import io.ebean.core.type.DataReader;
-import io.ebean.core.type.DocPropertyType;
-import io.ebean.core.type.ScalarTypeBase;
-import io.ebean.core.type.BasicTypeConverter;
+import io.ebean.core.type.*;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -25,12 +21,13 @@ class ScalarTypeBigDecimal extends ScalarTypeBase<BigDecimal> {
   }
 
   @Override
-  public void bind(DataBinder binder, BigDecimal value) throws SQLException {
+  public BigDecimal bind(DataBinder binder, BigDecimal value) throws SQLException {
     if (value == null) {
       binder.setNull(Types.DECIMAL);
     } else {
       binder.setBigDecimal(value);
     }
+    return value;
   }
 
   @Override

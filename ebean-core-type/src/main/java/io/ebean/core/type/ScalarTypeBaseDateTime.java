@@ -73,11 +73,14 @@ public abstract class ScalarTypeBaseDateTime<T> extends ScalarTypeBase<T> {
   }
 
   @Override
-  public void bind(DataBinder binder, T value) throws SQLException {
+  public java.util.Date bind(DataBinder binder, T value) throws SQLException {
     if (value == null) {
       binder.setNull(Types.TIMESTAMP);
+      return null;
     } else {
-      binder.setTimestamp(convertToTimestamp(value));
+      Timestamp rawValue = convertToTimestamp(value);
+      binder.setTimestamp(rawValue);
+      return rawValue;
     }
   }
 

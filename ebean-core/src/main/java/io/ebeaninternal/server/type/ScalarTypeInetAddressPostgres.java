@@ -20,12 +20,15 @@ final class ScalarTypeInetAddressPostgres extends ScalarTypeBaseVarchar<InetAddr
   }
 
   @Override
-  public void bind(DataBinder binder, InetAddress value) throws SQLException {
+  public Object bind(DataBinder binder, InetAddress value) throws SQLException {
     if (value == null) {
       binder.setNull(Types.OTHER);
+      return null;
     } else {
       String strValue = convertToDbString(value);
-      binder.setObject(PostgresHelper.asInet(strValue));
+      Object rawValue = PostgresHelper.asInet(strValue);
+      binder.setObject(rawValue);
+      return rawValue;
     }
   }
 

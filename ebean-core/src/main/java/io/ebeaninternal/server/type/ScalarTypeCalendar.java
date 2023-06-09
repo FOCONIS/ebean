@@ -1,9 +1,9 @@
 package io.ebeaninternal.server.type;
 
 import io.ebean.config.JsonConfig;
+import io.ebean.core.type.BasicTypeConverter;
 import io.ebean.core.type.DataBinder;
 import io.ebean.core.type.ScalarTypeBaseDateTime;
-import io.ebean.core.type.BasicTypeConverter;
 
 import java.sql.Date;
 import java.sql.SQLException;
@@ -24,16 +24,19 @@ final class ScalarTypeCalendar extends ScalarTypeBaseDateTime<Calendar> {
   }
 
   @Override
-  public void bind(DataBinder binder, Calendar value) throws SQLException {
+  public java.util.Date bind(DataBinder binder, Calendar value) throws SQLException {
     if (value == null) {
       binder.setNull(Types.TIMESTAMP);
+      return null;
     } else {
       if (jdbcType == Types.TIMESTAMP) {
         Timestamp timestamp = new Timestamp(value.getTimeInMillis());
         binder.setTimestamp(timestamp);
+        return timestamp;
       } else {
         Date d = new Date(value.getTimeInMillis());
         binder.setDate(d);
+        return d;
       }
     }
   }

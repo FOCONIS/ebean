@@ -23,13 +23,14 @@ final class EnumToDbStringMap extends EnumToDbValueMap<String> {
   }
 
   @Override
-  public void bind(DataBinder binder, Object value) throws SQLException {
-    if (value == null) {
+  public String bind(DataBinder binder, Object value) throws SQLException {
+    String rawValue = getDbValue(value);
+    if (rawValue == null) {
       binder.setNull(Types.VARCHAR);
     } else {
-      String s = getDbValue(value);
-      binder.setString(s);
+      binder.setString(rawValue);
     }
+    return rawValue;
   }
 
   @Override

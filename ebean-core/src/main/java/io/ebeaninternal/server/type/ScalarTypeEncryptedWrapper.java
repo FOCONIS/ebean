@@ -74,9 +74,9 @@ public final class ScalarTypeEncryptedWrapper<T> implements ScalarType<T>, Local
   }
 
   @Override
-  public void bind(DataBinder binder, T value) throws SQLException {
+  public byte[] bind(DataBinder binder, T value) throws SQLException {
     byte[] encryptedValue = encrypt(value);
-    byteArrayType.bind(binder, encryptedValue);
+    return byteArrayType.bind(binder, encryptedValue);
   }
 
   @Override

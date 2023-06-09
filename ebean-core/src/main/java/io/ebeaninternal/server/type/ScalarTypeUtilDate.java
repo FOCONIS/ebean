@@ -1,11 +1,7 @@
 package io.ebeaninternal.server.type;
 
 import io.ebean.config.JsonConfig;
-import io.ebean.core.type.DataBinder;
-import io.ebean.core.type.DataReader;
-import io.ebean.core.type.ScalarTypeBaseDate;
-import io.ebean.core.type.ScalarTypeBaseDateTime;
-import io.ebean.core.type.BasicTypeConverter;
+import io.ebean.core.type.*;
 
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -52,11 +48,14 @@ final class ScalarTypeUtilDate {
     }
 
     @Override
-    public void bind(DataBinder binder, java.util.Date value) throws SQLException {
+    public Timestamp bind(DataBinder binder, java.util.Date value) throws SQLException {
       if (value == null) {
         binder.setNull(Types.TIMESTAMP);
+        return null;
       } else {
-        binder.setTimestamp(new Timestamp(value.getTime()));
+        Timestamp rawValue = new Timestamp(value.getTime());
+        binder.setTimestamp(rawValue);
+        return rawValue;
       }
     }
 

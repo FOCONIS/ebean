@@ -2,12 +2,8 @@ package io.ebeaninternal.server.type;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
-import io.ebean.core.type.DataBinder;
-import io.ebean.core.type.DataReader;
-import io.ebean.core.type.DocPropertyType;
-import io.ebean.core.type.ScalarTypeBase;
+import io.ebean.core.type.*;
 import io.ebean.text.TextException;
-import io.ebean.core.type.BasicTypeConverter;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataInput;
@@ -31,12 +27,13 @@ final class ScalarTypeByte extends ScalarTypeBase<Byte> {
   }
 
   @Override
-  public void bind(DataBinder binder, Byte value) throws SQLException {
+  public Byte bind(DataBinder binder, Byte value) throws SQLException {
     if (value == null) {
       binder.setNull(Types.TINYINT);
     } else {
       binder.setByte(value);
     }
+    return value;
   }
 
   @Override

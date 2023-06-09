@@ -22,11 +22,14 @@ final class ScalarTypeUUIDVarchar extends ScalarTypeUUIDBase {
   }
 
   @Override
-  public void bind(DataBinder binder, UUID value) throws SQLException {
+  public String bind(DataBinder binder, UUID value) throws SQLException {
     if (value == null) {
       binder.setNull(Types.VARCHAR);
+      return null;
     } else {
-      binder.setString(formatValue(value));
+      String rawValue = formatValue(value);
+      binder.setString(rawValue);
+      return rawValue;
     }
   }
 

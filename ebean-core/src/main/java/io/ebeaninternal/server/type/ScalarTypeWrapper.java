@@ -75,12 +75,12 @@ public class ScalarTypeWrapper<B, S> implements ScalarType<B> {
   }
 
   @Override
-  public void bind(DataBinder binder, B value) throws SQLException {
+  public Object bind(DataBinder binder, B value) throws SQLException {
     if (value == null) {
-      scalarType.bind(binder, null);
+      return scalarType.bind(binder, null);
     } else {
       S sv = converter.unwrapValue(value);
-      scalarType.bind(binder, sv);
+      return scalarType.bind(binder, sv);
     }
   }
 

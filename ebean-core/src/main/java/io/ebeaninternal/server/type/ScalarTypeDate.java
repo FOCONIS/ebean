@@ -1,10 +1,10 @@
 package io.ebeaninternal.server.type;
 
 import io.ebean.config.JsonConfig;
+import io.ebean.core.type.BasicTypeConverter;
 import io.ebean.core.type.DataBinder;
 import io.ebean.core.type.DataReader;
 import io.ebean.core.type.ScalarTypeBaseDate;
-import io.ebean.core.type.BasicTypeConverter;
 
 import java.sql.Date;
 import java.sql.SQLException;
@@ -40,12 +40,13 @@ final class ScalarTypeDate extends ScalarTypeBaseDate<Date> {
   }
 
   @Override
-  public void bind(DataBinder binder, java.sql.Date value) throws SQLException {
+  public java.sql.Date bind(DataBinder binder, java.sql.Date value) throws SQLException {
     if (value == null) {
       binder.setNull(Types.DATE);
     } else {
       binder.setDate(value);
     }
+    return value;
   }
 
   @Override

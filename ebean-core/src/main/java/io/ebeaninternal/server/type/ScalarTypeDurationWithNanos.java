@@ -1,8 +1,8 @@
 package io.ebeaninternal.server.type;
 
+import io.ebean.core.type.BasicTypeConverter;
 import io.ebean.core.type.DataBinder;
 import io.ebean.core.type.DataReader;
-import io.ebean.core.type.BasicTypeConverter;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
@@ -22,11 +22,14 @@ final class ScalarTypeDurationWithNanos extends ScalarTypeDuration {
   }
 
   @Override
-  public void bind(DataBinder binder, Duration value) throws SQLException {
+  public BigDecimal bind(DataBinder binder, Duration value) throws SQLException {
     if (value == null) {
       binder.setNull(Types.DECIMAL);
+      return null;
     } else {
-      binder.setBigDecimal(convertToBigDecimal(value));
+      BigDecimal rawValue = convertToBigDecimal(value);
+      binder.setBigDecimal(rawValue);
+      return rawValue;
     }
   }
 

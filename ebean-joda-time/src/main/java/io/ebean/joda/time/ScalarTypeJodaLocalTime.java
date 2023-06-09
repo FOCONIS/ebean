@@ -3,11 +3,7 @@ package io.ebean.joda.time;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import io.ebean.core.type.DataBinder;
-import io.ebean.core.type.DataReader;
-import io.ebean.core.type.DocPropertyType;
-import io.ebean.core.type.ScalarTypeBase;
-import io.ebean.core.type.BasicTypeConverter;
+import io.ebean.core.type.*;
 import org.joda.time.DateTimeZone;
 import org.joda.time.LocalTime;
 
@@ -28,11 +24,14 @@ class ScalarTypeJodaLocalTime extends ScalarTypeBase<LocalTime> {
   }
 
   @Override
-  public void bind(DataBinder binder, LocalTime value) throws SQLException {
+  public Time bind(DataBinder binder, LocalTime value) throws SQLException {
     if (value == null) {
       binder.setNull(Types.TIME);
+      return null;
     } else {
-      binder.setTime(new Time(value.toDateTimeToday().getMillis()));
+      Time time = new Time(value.toDateTimeToday().getMillis());
+      binder.setTime(time);
+      return time;
     }
   }
 

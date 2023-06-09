@@ -1,8 +1,8 @@
 package io.ebeaninternal.server.type;
 
+import io.ebean.core.type.BasicTypeConverter;
 import io.ebean.core.type.DataBinder;
 import io.ebean.core.type.DataReader;
-import io.ebean.core.type.BasicTypeConverter;
 
 import java.sql.SQLException;
 import java.sql.Types;
@@ -18,11 +18,14 @@ final class ScalarTypeLocalTimeWithNanos extends ScalarTypeLocalTime {
   }
 
   @Override
-  public void bind(DataBinder binder, LocalTime value) throws SQLException {
+  public Long bind(DataBinder binder, LocalTime value) throws SQLException {
     if (value == null) {
       binder.setNull(Types.BIGINT);
+      return null;
     } else {
-      binder.setLong(value.toNanoOfDay());
+      long rawValue = value.toNanoOfDay();
+      binder.setLong(rawValue);
+      return rawValue;
     }
   }
 

@@ -19,7 +19,7 @@ abstract class ScalarTypeCidr extends ScalarTypeBaseVarchar<Cidr> {
   }
 
   @Override
-  public abstract void bind(DataBinder binder, Cidr value) throws SQLException;
+  public abstract Object bind(DataBinder binder, Cidr value) throws SQLException;
 
   @Override
   public Cidr convertFromDbString(String dbValue) {
@@ -47,11 +47,14 @@ abstract class ScalarTypeCidr extends ScalarTypeBaseVarchar<Cidr> {
   static final class Varchar extends ScalarTypeCidr {
 
     @Override
-    public void bind(DataBinder binder, Cidr value) throws SQLException {
+    public String bind(DataBinder binder, Cidr value) throws SQLException {
       if (value == null) {
         binder.setNull(Types.VARCHAR);
+        return null;
       } else {
-        binder.setString(convertToDbString(value));
+        String rawValue = convertToDbString(value);
+        binder.setString(rawValue);
+        return rawValue;
       }
     }
   }
@@ -62,12 +65,15 @@ abstract class ScalarTypeCidr extends ScalarTypeBaseVarchar<Cidr> {
   static final class Postgres extends ScalarTypeCidr {
 
     @Override
-    public void bind(DataBinder binder, Cidr value) throws SQLException {
+    public Object bind(DataBinder binder, Cidr value) throws SQLException {
       if (value == null) {
         binder.setNull(Types.OTHER);
+        return null;
       } else {
         String strValue = convertToDbString(value);
-        binder.setObject(PostgresHelper.asInet(strValue));
+        Object rawValue = PostgresHelper.asInet(strValue);
+        binder.setObject(rawValue);
+        return rawValue;
       }
     }
   }

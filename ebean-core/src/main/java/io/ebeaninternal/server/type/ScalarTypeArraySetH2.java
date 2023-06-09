@@ -69,11 +69,14 @@ final class ScalarTypeArraySetH2 extends ScalarTypeArraySet {
   }
 
   @Override
-  public void bind(DataBinder binder, Set value) throws SQLException {
+  public Object[] bind(DataBinder binder, Set value) throws SQLException {
     if (value == null) {
       bindNull(binder);
+      return null;
     } else {
-      binder.setObject(toArray(value));
+      Object[] rawValue = toArray(value);
+      binder.setObject(rawValue);
+      return rawValue;
     }
   }
 

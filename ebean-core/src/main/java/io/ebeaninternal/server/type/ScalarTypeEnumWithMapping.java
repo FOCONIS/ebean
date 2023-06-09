@@ -69,8 +69,8 @@ class ScalarTypeEnumWithMapping extends ScalarTypeEnumStandard.EnumBase implemen
   }
 
   @Override
-  public void bind(DataBinder binder, Object value) throws SQLException {
-    beanDbMap.bind(binder, value);
+  public Object bind(DataBinder binder, Object value) throws SQLException {
+    return beanDbMap.bind(binder, value);
   }
 
   @Override

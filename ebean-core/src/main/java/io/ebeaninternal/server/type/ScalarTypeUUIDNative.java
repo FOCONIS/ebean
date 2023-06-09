@@ -29,8 +29,9 @@ final class ScalarTypeUUIDNative extends ScalarTypeUUIDBase {
   }
 
   @Override
-  public void bind(DataBinder binder, UUID value) throws SQLException {
+  public UUID bind(DataBinder binder, UUID value) throws SQLException {
     binder.setObject(value);
+    return value;
   }
 
   @Override

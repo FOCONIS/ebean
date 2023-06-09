@@ -23,6 +23,7 @@ final class EnumToDbIntegerMap extends EnumToDbValueMap<Integer> {
   public EnumToDbIntegerMap() {
     this(true);
   }
+
   /**
    * Construct with  integerType=true
    */
@@ -57,13 +58,14 @@ final class EnumToDbIntegerMap extends EnumToDbValueMap<Integer> {
   }
 
   @Override
-  public void bind(DataBinder binder, Object value) throws SQLException {
-    if (value == null) {
+  public Integer bind(DataBinder binder, Object value) throws SQLException {
+    Integer rawValue = getDbValue(value);
+    if (rawValue == null) {
       binder.setNull(Types.INTEGER);
     } else {
-      Integer s = getDbValue(value);
-      binder.setInt(s);
+      binder.setInt(rawValue);
     }
+    return rawValue;
 
   }
 

@@ -34,11 +34,14 @@ class ScalarTypeDuration extends ScalarTypeBase<Duration> {
   }
 
   @Override
-  public void bind(DataBinder binder, Duration value) throws SQLException {
+  public Object bind(DataBinder binder, Duration value) throws SQLException {
     if (value == null) {
       binder.setNull(Types.BIGINT);
+      return null;
     } else {
-      binder.setLong(value.getSeconds());
+      long rawValue = value.getSeconds();
+      binder.setLong(rawValue);
+      return rawValue;
     }
   }
 

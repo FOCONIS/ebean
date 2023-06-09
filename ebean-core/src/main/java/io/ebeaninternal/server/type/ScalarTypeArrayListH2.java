@@ -75,11 +75,14 @@ final class ScalarTypeArrayListH2 extends ScalarTypeArrayList {
   }
 
   @Override
-  public void bind(DataBinder binder, List value) throws SQLException {
+  public Object[] bind(DataBinder binder, List value) throws SQLException {
     if (value == null) {
       bindNull(binder);
+      return null;
     } else {
-      binder.setObject(toArray(value));
+      Object[] rawValue = toArray(value);
+      binder.setObject(rawValue);
+      return rawValue;
     }
   }
 

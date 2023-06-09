@@ -1,10 +1,10 @@
 package io.ebeaninternal.server.type;
 
 import io.ebean.config.JsonConfig;
+import io.ebean.core.type.BasicTypeConverter;
 import io.ebean.core.type.DataBinder;
 import io.ebean.core.type.DataReader;
 import io.ebean.core.type.ScalarTypeBaseDateTime;
-import io.ebean.core.type.BasicTypeConverter;
 
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -58,12 +58,13 @@ final class ScalarTypeTimestamp extends ScalarTypeBaseDateTime<Timestamp> {
   }
 
   @Override
-  public void bind(DataBinder binder, Timestamp value) throws SQLException {
+  public Timestamp bind(DataBinder binder, Timestamp value) throws SQLException {
     if (value == null) {
       binder.setNull(Types.TIMESTAMP);
     } else {
       binder.setTimestamp(value);
     }
+    return value;
   }
 
   @Override

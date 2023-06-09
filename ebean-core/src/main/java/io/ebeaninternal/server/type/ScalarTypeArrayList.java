@@ -117,11 +117,14 @@ class ScalarTypeArrayList extends ScalarTypeArrayBase<List> implements ScalarTyp
   }
 
   @Override
-  public void bind(DataBinder binder, List value) throws SQLException {
+  public Object[] bind(DataBinder binder, List value) throws SQLException {
     if (value == null) {
       bindNull(binder);
+      return null;
     } else {
-      binder.setArray(arrayType, toArray(value));
+      Object[] rawValue = toArray(value);
+      binder.setArray(arrayType, rawValue);
+      return rawValue;
     }
   }
 

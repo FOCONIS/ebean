@@ -110,8 +110,9 @@ public interface ScalarType<T> extends StringParser, StringFormatter, ScalarData
    * <p>
    * value may need to be converted from the logical bean property type to the
    * JDBC type.
+   * @return the effective bound value (for further checks, e.g. length check)
    */
-  void bind(DataBinder binder, T value) throws SQLException;
+  Object bind(DataBinder binder, T value) throws SQLException;
 
   /**
    * Convert the value as necessary to the JDBC type.

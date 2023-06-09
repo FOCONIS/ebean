@@ -1,9 +1,9 @@
 package io.ebeaninternal.server.type;
 
+import io.ebean.core.type.BasicTypeConverter;
 import io.ebean.core.type.DataBinder;
 import io.ebean.core.type.DataReader;
 import io.ebean.core.type.ScalarTypeBaseVarchar;
-import io.ebean.core.type.BasicTypeConverter;
 
 import java.sql.SQLException;
 import java.sql.Types;
@@ -28,12 +28,14 @@ final class ScalarTypeChar extends ScalarTypeBaseVarchar<Character> {
   }
 
   @Override
-  public void bind(DataBinder binder, Character value) throws SQLException {
+  public String bind(DataBinder binder, Character value) throws SQLException {
     if (value == null) {
       binder.setNull(Types.VARCHAR);
+      return null;
     } else {
       String s = BasicTypeConverter.toString(value);
       binder.setString(s);
+      return s;
     }
   }
 

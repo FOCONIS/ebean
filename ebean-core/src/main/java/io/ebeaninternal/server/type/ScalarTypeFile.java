@@ -77,14 +77,18 @@ final class ScalarTypeFile extends ScalarTypeBase<File> {
 
 
   @Override
-  public void bind(DataBinder binder, File value) throws SQLException {
+  public File bind(DataBinder binder, File value) throws SQLException {
     if (value == null) {
       binder.setNull(jdbcType);
+      return null;
     } else {
       try {
         // stream from our file to the db
         InputStream fi = getInputStream(value);
         binder.setBinaryStream(fi, value.length());
+        // Important note: If the stream is consumed, it cannot be written to databays anymore.
+        // so, we return the file here for further checks
+        return value;
       } catch (IOException e) {
         throw new SQLException("Error trying to set file inputStream", e);
       }

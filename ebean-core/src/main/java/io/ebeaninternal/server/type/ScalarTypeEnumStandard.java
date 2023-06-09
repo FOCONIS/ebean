@@ -78,11 +78,14 @@ final class ScalarTypeEnumStandard {
     }
 
     @Override
-    public void bind(DataBinder binder, Object value) throws SQLException {
+    public String bind(DataBinder binder, Object value) throws SQLException {
       if (value == null) {
         binder.setNull(Types.VARCHAR);
+        return null;
       } else {
-        binder.setString(format(value));
+        String rawValue = format(value);
+        binder.setString(rawValue);
+        return rawValue;
       }
     }
 
@@ -148,11 +151,14 @@ final class ScalarTypeEnumStandard {
     }
 
     @Override
-    public void bind(DataBinder binder, Object value) throws SQLException {
+    public Integer bind(DataBinder binder, Object value) throws SQLException {
       if (value == null) {
         binder.setNull(Types.INTEGER);
+        return null;
       } else {
-        binder.setInt(((Enum<?>) value).ordinal());
+        int rawValue = ((Enum<?>) value).ordinal();
+        binder.setInt(rawValue);
+        return rawValue;
       }
     }
 

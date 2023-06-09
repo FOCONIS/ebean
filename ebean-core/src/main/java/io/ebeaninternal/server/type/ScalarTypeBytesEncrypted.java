@@ -32,9 +32,9 @@ public final class ScalarTypeBytesEncrypted implements ScalarType<byte[]> {
   }
 
   @Override
-  public void bind(DataBinder binder, byte[] value) throws SQLException {
+  public byte[] bind(DataBinder binder, byte[] value) throws SQLException {
     value = dataEncryptSupport.encrypt(value);
-    baseType.bind(binder, value);
+    return baseType.bind(binder, value);
   }
 
   @Override

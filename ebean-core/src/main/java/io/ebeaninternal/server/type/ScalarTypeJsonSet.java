@@ -135,15 +135,16 @@ final class ScalarTypeJsonSet {
     }
 
     @Override
-    public final void bind(DataBinder binder, Set value) throws SQLException {
+    public final Object bind(DataBinder binder, Set value) throws SQLException {
       String rawJson = keepSource ? binder.popJson() : null;
       if (rawJson == null && value != null) {
         rawJson = formatValue(value);
       }
-      if (value == null) {
+      if (rawJson == null) {
         bindNull(binder);
+        return null;
       } else {
-        bindRawJson(binder, rawJson);
+        return bindRawJson(binder, rawJson);
       }
     }
 
@@ -156,8 +157,9 @@ final class ScalarTypeJsonSet {
       }
     }
 
-    protected void bindRawJson(DataBinder binder, String rawJson) throws SQLException {
+    protected Object bindRawJson(DataBinder binder, String rawJson) throws SQLException {
       binder.setString(rawJson);
+      return rawJson;
     }
 
     @Override
@@ -207,8 +209,10 @@ final class ScalarTypeJsonSet {
     }
 
     @Override
-    protected final void bindRawJson(DataBinder binder, String rawJson) throws SQLException {
-      binder.setObject(PostgresHelper.asObject(pgType, rawJson));
+    protected final Object bindRawJson(DataBinder binder, String rawJson) throws SQLException {
+      Object rawValue = PostgresHelper.asObject(pgType, rawJson);
+      binder.setObject(rawValue);
+      return rawValue;
     }
 
     @Override

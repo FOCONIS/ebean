@@ -32,12 +32,13 @@ public abstract class ScalarTypeBytesBase extends ScalarTypeBase<byte[]> {
   }
 
   @Override
-  public void bind(DataBinder binder, byte[] value) throws SQLException {
+  public byte[] bind(DataBinder binder, byte[] value) throws SQLException {
     if (value == null) {
       binder.setNull(jdbcType);
     } else {
       binder.setBytes(value);
     }
+    return value;
   }
 
   @Override

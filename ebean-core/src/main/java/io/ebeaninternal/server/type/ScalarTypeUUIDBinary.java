@@ -1,8 +1,8 @@
 package io.ebeaninternal.server.type;
 
+import io.ebean.core.type.BasicTypeConverter;
 import io.ebean.core.type.DataBinder;
 import io.ebean.core.type.DataReader;
-import io.ebean.core.type.BasicTypeConverter;
 import io.ebean.core.type.ScalarTypeUtils;
 
 import java.sql.SQLException;
@@ -38,11 +38,14 @@ public final class ScalarTypeUUIDBinary extends ScalarTypeUUIDBase {
   }
 
   @Override
-  public void bind(DataBinder binder, UUID value) throws SQLException {
+  public byte[] bind(DataBinder binder, UUID value) throws SQLException {
     if (value == null) {
       binder.setNull(Types.BINARY);
+      return null;
     } else {
-      binder.setBytes(convertToBytes(value, optimized));
+      byte[] rawValue = convertToBytes(value, optimized);
+      binder.setBytes(rawValue);
+      return rawValue;
     }
   }
 

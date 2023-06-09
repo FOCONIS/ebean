@@ -51,8 +51,9 @@ final class ScalarTypePostgresHstore extends ScalarTypeBase<Map> {
   }
 
   @Override
-  public void bind(DataBinder binder, Map value) throws SQLException {
+  public Map bind(DataBinder binder, Map value) throws SQLException {
     binder.setObject(value);
+    return value;
   }
 
   @Override

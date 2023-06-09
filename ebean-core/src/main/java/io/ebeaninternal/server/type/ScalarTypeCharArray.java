@@ -1,10 +1,10 @@
 package io.ebeaninternal.server.type;
 
 import com.fasterxml.jackson.core.JsonParser;
+import io.ebean.core.type.BasicTypeConverter;
 import io.ebean.core.type.DataBinder;
 import io.ebean.core.type.DataReader;
 import io.ebean.core.type.ScalarTypeBaseVarchar;
-import io.ebean.core.type.BasicTypeConverter;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -30,12 +30,14 @@ final class ScalarTypeCharArray extends ScalarTypeBaseVarchar<char[]> {
   }
 
   @Override
-  public void bind(DataBinder binder, char[] value) throws SQLException {
+  public String bind(DataBinder binder, char[] value) throws SQLException {
     if (value == null) {
       binder.setNull(Types.VARCHAR);
+      return null;
     } else {
       String s = BasicTypeConverter.toString(value);
       binder.setString(s);
+      return s;
     }
   }
 

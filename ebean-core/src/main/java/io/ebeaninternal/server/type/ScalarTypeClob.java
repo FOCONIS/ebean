@@ -20,12 +20,13 @@ class ScalarTypeClob extends ScalarTypeStringBase {
   }
 
   @Override
-  public void bind(DataBinder binder, String value) throws SQLException {
+  public String bind(DataBinder binder, String value) throws SQLException {
     if (value == null) {
       binder.setNull(Types.VARCHAR);
     } else {
       binder.setClob(value);
     }
+    return value;
   }
 
   @Override

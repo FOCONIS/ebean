@@ -48,11 +48,14 @@ final class ScalarTypeMonthDay extends ScalarTypeBase<MonthDay> {
   }
 
   @Override
-  public void bind(DataBinder binder, MonthDay value) throws SQLException {
+  public Date bind(DataBinder binder, MonthDay value) throws SQLException {
     if (value == null) {
       binder.setNull(Types.DATE);
+      return null;
     } else {
-      binder.setDate(convertToDate(value));
+      Date rawValue = convertToDate(value);
+      binder.setDate(rawValue);
+      return rawValue;
     }
   }
 
