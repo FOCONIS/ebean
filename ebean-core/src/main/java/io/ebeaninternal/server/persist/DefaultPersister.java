@@ -106,9 +106,9 @@ public final class DefaultPersister implements Persister {
   }
 
   @Override
-  public void executeOrQueue(SpiSqlUpdate update, SpiTransaction t, boolean queue) {
+  public void executeOrQueue(SpiSqlUpdate update, SpiTransaction t, boolean queue, int queuePosition) {
     if (queue) {
-      addToFlushQueue(update, t, 2);
+      addToFlushQueue(update, t, queuePosition);
     } else {
       executeSqlUpdate(update, t);
     }
