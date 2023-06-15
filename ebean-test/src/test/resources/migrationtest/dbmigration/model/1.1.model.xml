@@ -103,10 +103,10 @@
         <addColumn tableName="migtest_oto_child">
             <column name="master_id" type="bigint" uniqueOneToOne="uq_migtest_oto_child_master_id" references="migtest_oto_master.id" foreignKeyName="fk_migtest_oto_child_master_id"/>
         </addColumn>
-        <alterForeignKey name="fk_drop_main_drop_ref_many_drop_main" columnNames="DROP FOREIGN KEY" indexName="ix_drop_main_drop_ref_many_drop_main" tableName="drop_main_drop_ref_many"/>
-        <alterForeignKey name="fk_drop_main_drop_ref_many_drop_ref_many" columnNames="DROP FOREIGN KEY" indexName="ix_drop_main_drop_ref_many_drop_ref_many" tableName="drop_main_drop_ref_many"/>
-        <alterForeignKey name="fk_drop_ref_one_parent_id" columnNames="DROP FOREIGN KEY" indexName="ix_drop_ref_one_parent_id" tableName="drop_ref_one"/>
-        <alterForeignKey name="fk_drop_ref_one_to_one_parent_id" columnNames="DROP FOREIGN KEY" tableName="drop_ref_one_to_one"/>
+        <alterForeignKey name="fk_migtest_drop_main_migtest_drop_ref_many_migtest_drop_m_1" columnNames="DROP FOREIGN KEY" indexName="ix_migtest_drop_main_migtest_drop_ref_many_migtest_drop_m_1" tableName="migtest_drop_main_migtest_drop_ref_many"/>
+        <alterForeignKey name="fk_migtest_drop_main_migtest_drop_ref_many_migtest_drop_r_2" columnNames="DROP FOREIGN KEY" indexName="ix_migtest_drop_main_migtest_drop_ref_many_migtest_drop_r_2" tableName="migtest_drop_main_migtest_drop_ref_many"/>
+        <alterForeignKey name="fk_migtest_drop_ref_one_parent_id" columnNames="DROP FOREIGN KEY" indexName="ix_migtest_drop_ref_one_parent_id" tableName="migtest_drop_ref_one"/>
+        <alterForeignKey name="fk_migtest_drop_ref_one_to_one_parent_id" columnNames="DROP FOREIGN KEY" tableName="migtest_drop_ref_one_to_one"/>
         <createIndex indexName="ix_migtest_e_basic_indextest3" tableName="migtest_e_basic" columns="indextest3"/>
         <createIndex indexName="ix_migtest_e_basic_indextest6" tableName="migtest_e_basic" columns="indextest6"/>
         <createIndex indexName="ix_table_textfield2" tableName="&quot;table&quot;" columns="textfield2"/>
@@ -125,11 +125,11 @@
         <dropColumn columnName="eref_id" tableName="migtest_e_basic"/>
         <dropColumn columnName="obsolete_string1" tableName="migtest_e_history2" withHistory="true"/>
         <dropColumn columnName="obsolete_string2" tableName="migtest_e_history2" withHistory="true"/>
-        <dropTable name="drop_main" sequenceCol="id"/>
-        <dropTable name="drop_main_drop_ref_many"/>
-        <dropTable name="drop_ref_many" sequenceCol="id"/>
-        <dropTable name="drop_ref_one" sequenceCol="id"/>
-        <dropTable name="drop_ref_one_to_one" sequenceCol="id"/>
+        <dropTable name="migtest_drop_main" sequenceCol="id"/>
+        <dropTable name="migtest_drop_main_migtest_drop_ref_many"/>
+        <dropTable name="migtest_drop_ref_many" sequenceCol="id"/>
+        <dropTable name="migtest_drop_ref_one" sequenceCol="id"/>
+        <dropTable name="migtest_drop_ref_one_to_one" sequenceCol="id"/>
         <dropTable name="&quot;migtest_QuOtEd&quot;"/>
         <dropTable name="migtest_e_ref" sequenceCol="id"/>
     </changeSet>

@@ -7,7 +7,7 @@ import javax.persistence.Table;
 import java.util.List;
 
 @Entity
-@Table(name = "drop_ref_many")
+@Table(name = "migtest_drop_ref_many")
 public class DropRefMany {
 
   @Id

@@ -56,37 +56,37 @@ create table migtest_fk_set_null (
   foreign key (one_id) references migtest_fk_one (id) on delete set null on update restrict
 );
 
-create table drop_main (
+create table migtest_drop_main (
   id                            integer not null,
-  constraint pk_drop_main primary key (id)
+  constraint pk_migtest_drop_main primary key (id)
 );
 
-create table drop_main_drop_ref_many (
-  drop_main_id                  integer not null,
-  drop_ref_many_id              integer not null,
-  constraint pk_drop_main_drop_ref_many primary key (drop_main_id,drop_ref_many_id),
-  foreign key (drop_main_id) references drop_main (id) on delete restrict on update restrict,
-  foreign key (drop_ref_many_id) references drop_ref_many (id) on delete restrict on update restrict
+create table migtest_drop_main_migtest_drop_ref_many (
+  migtest_drop_main_id          integer not null,
+  migtest_drop_ref_many_id      integer not null,
+  constraint pk_migtest_drop_main_migtest_drop_ref_many primary key (migtest_drop_main_id,migtest_drop_ref_many_id),
+  foreign key (migtest_drop_main_id) references migtest_drop_main (id) on delete restrict on update restrict,
+  foreign key (migtest_drop_ref_many_id) references migtest_drop_ref_many (id) on delete restrict on update restrict
 );
 
-create table drop_ref_many (
+create table migtest_drop_ref_many (
   id                            integer not null,
-  constraint pk_drop_ref_many primary key (id)
+  constraint pk_migtest_drop_ref_many primary key (id)
 );
 
-create table drop_ref_one (
-  id                            integer not null,
-  parent_id                     integer,
-  constraint pk_drop_ref_one primary key (id),
-  foreign key (parent_id) references drop_main (id) on delete restrict on update restrict
-);
-
-create table drop_ref_one_to_one (
+create table migtest_drop_ref_one (
   id                            integer not null,
   parent_id                     integer,
-  constraint uq_drop_ref_one_to_one_parent_id unique (parent_id),
-  constraint pk_drop_ref_one_to_one primary key (id),
-  foreign key (parent_id) references drop_main (id) on delete restrict on update restrict
+  constraint pk_migtest_drop_ref_one primary key (id),
+  foreign key (parent_id) references migtest_drop_main (id) on delete restrict on update restrict
+);
+
+create table migtest_drop_ref_one_to_one (
+  id                            integer not null,
+  parent_id                     integer,
+  constraint uq_migtest_drop_ref_one_to_one_parent_id unique (parent_id),
+  constraint pk_migtest_drop_ref_one_to_one primary key (id),
+  foreign key (parent_id) references migtest_drop_main (id) on delete restrict on update restrict
 );
 
 create table migtest_e_basic (

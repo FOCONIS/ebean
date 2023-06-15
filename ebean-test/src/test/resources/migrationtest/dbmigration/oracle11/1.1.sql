@@ -52,10 +52,10 @@ exception
   when expected_error then null;
 end;
 $$;
-alter table drop_main_drop_ref_many drop constraint fk_drp_mn_drp_rf_mny_drp_mn;
-alter table drop_main_drop_ref_many drop constraint fk_drp_mn_drp_rf_mny_dr_joeslj;
-alter table drop_ref_one drop constraint fk_drop_ref_one_parent_id;
-alter table drop_ref_one_to_one drop constraint fk_drp_rf_n_t_n_prnt_d;
+alter table migtest_drop_main_migtest_drop_ref_many drop constraint fk_mgtst_drp_mn_mgtst_d_xkyhop;
+alter table migtest_drop_main_migtest_drop_ref_many drop constraint fk_mgtst_drp_mn_mgtst_d_xkyle7;
+alter table migtest_drop_ref_one drop constraint fk_mgtst_drp_rf_n_prnt_d;
+alter table migtest_drop_ref_one_to_one drop constraint fk_mgtst_drp_rf_n_t_n_prnt_d;
 drop index ix_migtest_e_basic_indextest1;
 drop index ix_migtest_e_basic_indextest5;
 drop index ix_migtest_quoted_status1;

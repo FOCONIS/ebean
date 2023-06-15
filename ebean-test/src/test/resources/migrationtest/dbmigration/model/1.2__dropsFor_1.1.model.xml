@@ -7,11 +7,11 @@
         <dropColumn columnName="eref_id" tableName="migtest_e_basic"/>
         <dropColumn columnName="obsolete_string1" tableName="migtest_e_history2" withHistory="true"/>
         <dropColumn columnName="obsolete_string2" tableName="migtest_e_history2" withHistory="true"/>
-        <dropTable name="drop_main" sequenceCol="id"/>
-        <dropTable name="drop_main_drop_ref_many"/>
-        <dropTable name="drop_ref_many" sequenceCol="id"/>
-        <dropTable name="drop_ref_one" sequenceCol="id"/>
-        <dropTable name="drop_ref_one_to_one" sequenceCol="id"/>
+        <dropTable name="migtest_drop_main" sequenceCol="id"/>
+        <dropTable name="migtest_drop_main_migtest_drop_ref_many"/>
+        <dropTable name="migtest_drop_ref_many" sequenceCol="id"/>
+        <dropTable name="migtest_drop_ref_one" sequenceCol="id"/>
+        <dropTable name="migtest_drop_ref_one_to_one" sequenceCol="id"/>
         <dropTable name="&quot;migtest_QuOtEd&quot;"/>
         <dropTable name="migtest_e_ref" sequenceCol="id"/>
     </changeSet>

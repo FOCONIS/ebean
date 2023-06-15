@@ -45,25 +45,25 @@ create table migtest_fk_set_null (
   one_id                        UInt64
 ) ENGINE = Log();
 
-create table drop_main (
+create table migtest_drop_main (
   id                            UInt32
 ) ENGINE = Log();
 
-create table drop_main_drop_ref_many (
-  drop_main_id                  UInt32,
-  drop_ref_many_id              UInt32
+create table migtest_drop_main_migtest_drop_ref_many (
+  migtest_drop_main_id          UInt32,
+  migtest_drop_ref_many_id      UInt32
 ) ENGINE = Log();
 
-create table drop_ref_many (
+create table migtest_drop_ref_many (
   id                            UInt32
 ) ENGINE = Log();
 
-create table drop_ref_one (
+create table migtest_drop_ref_one (
   id                            UInt32,
   parent_id                     UInt32
 ) ENGINE = Log();
 
-create table drop_ref_one_to_one (
+create table migtest_drop_ref_one_to_one (
   id                            UInt32,
   parent_id                     UInt32
 ) ENGINE = Log();

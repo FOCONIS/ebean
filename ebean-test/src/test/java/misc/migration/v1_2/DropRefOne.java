@@ -6,7 +6,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "drop_ref_one")
+@Table(name = "migtest_drop_ref_one")
 public class DropRefOne {
 
   @Id

@@ -7,47 +7,47 @@ alter table migtest_e_basic drop column eref_id;
 alter table migtest_e_history2 drop column obsolete_string1;
 alter table migtest_e_history2 drop column obsolete_string2;
 -- apply post alter
-drop table drop_main cascade constraints purge;
+drop table migtest_drop_main cascade constraints purge;
 delimiter $$
 declare
   expected_error exception;
   pragma exception_init(expected_error, -2289);
 begin
-  execute immediate 'drop sequence drop_main_seq';
+  execute immediate 'drop sequence migtest_drop_main_seq';
 exception
   when expected_error then null;
 end;
 $$;
-drop table drop_main_drop_ref_many cascade constraints purge;
-drop table drop_ref_many cascade constraints purge;
+drop table migtest_drop_main_migtest_drop_ref_many cascade constraints purge;
+drop table migtest_drop_ref_many cascade constraints purge;
 delimiter $$
 declare
   expected_error exception;
   pragma exception_init(expected_error, -2289);
 begin
-  execute immediate 'drop sequence drop_ref_many_seq';
+  execute immediate 'drop sequence migtest_drop_ref_many_seq';
 exception
   when expected_error then null;
 end;
 $$;
-drop table drop_ref_one cascade constraints purge;
+drop table migtest_drop_ref_one cascade constraints purge;
 delimiter $$
 declare
   expected_error exception;
   pragma exception_init(expected_error, -2289);
 begin
-  execute immediate 'drop sequence drop_ref_one_seq';
+  execute immediate 'drop sequence migtest_drop_ref_one_seq';
 exception
   when expected_error then null;
 end;
 $$;
-drop table drop_ref_one_to_one cascade constraints purge;
+drop table migtest_drop_ref_one_to_one cascade constraints purge;
 delimiter $$
 declare
   expected_error exception;
   pragma exception_init(expected_error, -2289);
 begin
-  execute immediate 'drop sequence drop_ref_one_to_one_seq';
+  execute immediate 'drop sequence migtest_drop_ref_one_to_one_seq';
 exception
   when expected_error then null;
 end;

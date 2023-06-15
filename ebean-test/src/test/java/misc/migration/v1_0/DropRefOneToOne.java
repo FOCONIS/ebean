@@ -3,7 +3,7 @@ package misc.migration.v1_0;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "drop_ref_one_to_one")
+@Table(name = "migtest_drop_ref_one_to_one")
 public class DropRefOneToOne {
 
   @Id

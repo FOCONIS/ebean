@@ -10,7 +10,7 @@ import java.util.List;
  * @author Jonas P&ouml;hler, FOCONIS AG
  */
 @Entity
-@Table(name = "drop_main")
+@Table(name = "migtest_drop_main")
 public class DropMain {
 
   @Id

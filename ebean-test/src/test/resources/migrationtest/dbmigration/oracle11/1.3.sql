@@ -95,38 +95,38 @@ drop index ix_migtest_e_basic_indextest3;
 drop index ix_migtest_e_basic_indextest6;
 drop index ix_table_textfield2;
 -- apply changes
-create table drop_main (
+create table migtest_drop_main (
   id                            number(10) not null,
-  constraint pk_drop_main primary key (id)
+  constraint pk_migtest_drop_main primary key (id)
 );
-create sequence drop_main_seq;
+create sequence migtest_drop_main_seq;
 
-create table drop_main_drop_ref_many (
-  drop_main_id                  number(10) not null,
-  drop_ref_many_id              number(10) not null,
-  constraint pk_drop_main_drop_ref_many primary key (drop_main_id,drop_ref_many_id)
+create table migtest_drop_main_migtest_drop_ref_many (
+  migtest_drop_main_id          number(10) not null,
+  migtest_drop_ref_many_id      number(10) not null,
+  constraint pk_migtest_drop_main_migtest_drop_ref_many primary key (migtest_drop_main_id,migtest_drop_ref_many_id)
 );
 
-create table drop_ref_many (
+create table migtest_drop_ref_many (
   id                            number(10) not null,
-  constraint pk_drop_ref_many primary key (id)
+  constraint pk_migtest_drop_ref_many primary key (id)
 );
-create sequence drop_ref_many_seq;
+create sequence migtest_drop_ref_many_seq;
 
-create table drop_ref_one (
-  id                            number(10) not null,
-  parent_id                     number(10),
-  constraint pk_drop_ref_one primary key (id)
-);
-create sequence drop_ref_one_seq;
-
-create table drop_ref_one_to_one (
+create table migtest_drop_ref_one (
   id                            number(10) not null,
   parent_id                     number(10),
-  constraint uq_drop_ref_one_to_one_parent_id unique (parent_id),
-  constraint pk_drop_ref_one_to_one primary key (id)
+  constraint pk_migtest_drop_ref_one primary key (id)
 );
-create sequence drop_ref_one_to_one_seq;
+create sequence migtest_drop_ref_one_seq;
+
+create table migtest_drop_ref_one_to_one (
+  id                            number(10) not null,
+  parent_id                     number(10),
+  constraint uq_migtest_drop_ref_one_to_one_parent_id unique (parent_id),
+  constraint pk_migtest_drop_ref_one_to_one primary key (id)
+);
+create sequence migtest_drop_ref_one_to_one_seq;
 
 create table "migtest_QuOtEd" (
   id                            varchar2(255) not null,
@@ -189,16 +189,16 @@ comment on column migtest_e_history.test_string is '';
 comment on table migtest_e_history is '';
 comment on column "table"."index" is 'this is a comment';
 -- foreign keys and indices
-create index ix_drp_mn_drp_rf_mny_drp_mn on drop_main_drop_ref_many (drop_main_id);
-alter table drop_main_drop_ref_many add constraint fk_drp_mn_drp_rf_mny_drp_mn foreign key (drop_main_id) references drop_main (id);
+create index ix_mgtst_drp_mn_mgtst_d_n334kf on migtest_drop_main_migtest_drop_ref_many (migtest_drop_main_id);
+alter table migtest_drop_main_migtest_drop_ref_many add constraint fk_mgtst_drp_mn_mgtst_d_xkyhop foreign key (migtest_drop_main_id) references migtest_drop_main (id);
 
-create index ix_drp_mn_drp_rf_mny_dr_d70vl on drop_main_drop_ref_many (drop_ref_many_id);
-alter table drop_main_drop_ref_many add constraint fk_drp_mn_drp_rf_mny_dr_joeslj foreign key (drop_ref_many_id) references drop_ref_many (id);
+create index ix_mgtst_drp_mn_mgtst_d_n3389x on migtest_drop_main_migtest_drop_ref_many (migtest_drop_ref_many_id);
+alter table migtest_drop_main_migtest_drop_ref_many add constraint fk_mgtst_drp_mn_mgtst_d_xkyle7 foreign key (migtest_drop_ref_many_id) references migtest_drop_ref_many (id);
 
-create index ix_drop_ref_one_parent_id on drop_ref_one (parent_id);
-alter table drop_ref_one add constraint fk_drop_ref_one_parent_id foreign key (parent_id) references drop_main (id);
+create index ix_mgtst_drp_rf_n_prnt_d on migtest_drop_ref_one (parent_id);
+alter table migtest_drop_ref_one add constraint fk_mgtst_drp_rf_n_prnt_d foreign key (parent_id) references migtest_drop_main (id);
 
-alter table drop_ref_one_to_one add constraint fk_drp_rf_n_t_n_prnt_d foreign key (parent_id) references drop_main (id);
+alter table migtest_drop_ref_one_to_one add constraint fk_mgtst_drp_rf_n_t_n_prnt_d foreign key (parent_id) references migtest_drop_main (id);
 
 alter table migtest_fk_cascade add constraint fk_migtest_fk_cascade_one_id foreign key (one_id) references migtest_fk_cascade_one (id) on delete cascade;
 alter table migtest_fk_set_null add constraint fk_migtest_fk_set_null_one_id foreign key (one_id) references migtest_fk_one (id) on delete set null;

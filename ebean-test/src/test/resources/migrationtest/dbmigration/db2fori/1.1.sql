@@ -65,29 +65,29 @@ end if;
 end$$;
 delimiter $$
 begin
-if exists (select constname from syscat.tabconst where tabschema = current_schema and ucase(constname) = 'FK_DROP_MAIN_DROP_REF_MANY_DROP_MAIN' and ucase(tabname) = 'DROP_MAIN_DROP_REF_MANY') then
-  prepare stmt from 'alter table drop_main_drop_ref_many drop constraint fk_drop_main_drop_ref_many_drop_main';
+if exists (select constname from syscat.tabconst where tabschema = current_schema and ucase(constname) = 'FK_MIGTEST_DROP_MAIN_MIGTEST_DROP_REF_MANY_MIGTEST_DROP_M_1' and ucase(tabname) = 'MIGTEST_DROP_MAIN_MIGTEST_DROP_REF_MANY') then
+  prepare stmt from 'alter table migtest_drop_main_migtest_drop_ref_many drop constraint fk_migtest_drop_main_migtest_drop_ref_many_migtest_drop_m_1';
   execute stmt;
 end if;
 end$$;
 delimiter $$
 begin
-if exists (select constname from syscat.tabconst where tabschema = current_schema and ucase(constname) = 'FK_DROP_MAIN_DROP_REF_MANY_DROP_REF_MANY' and ucase(tabname) = 'DROP_MAIN_DROP_REF_MANY') then
-  prepare stmt from 'alter table drop_main_drop_ref_many drop constraint fk_drop_main_drop_ref_many_drop_ref_many';
+if exists (select constname from syscat.tabconst where tabschema = current_schema and ucase(constname) = 'FK_MIGTEST_DROP_MAIN_MIGTEST_DROP_REF_MANY_MIGTEST_DROP_R_2' and ucase(tabname) = 'MIGTEST_DROP_MAIN_MIGTEST_DROP_REF_MANY') then
+  prepare stmt from 'alter table migtest_drop_main_migtest_drop_ref_many drop constraint fk_migtest_drop_main_migtest_drop_ref_many_migtest_drop_r_2';
   execute stmt;
 end if;
 end$$;
 delimiter $$
 begin
-if exists (select constname from syscat.tabconst where tabschema = current_schema and ucase(constname) = 'FK_DROP_REF_ONE_PARENT_ID' and ucase(tabname) = 'DROP_REF_ONE') then
-  prepare stmt from 'alter table drop_ref_one drop constraint fk_drop_ref_one_parent_id';
+if exists (select constname from syscat.tabconst where tabschema = current_schema and ucase(constname) = 'FK_MIGTEST_DROP_REF_ONE_PARENT_ID' and ucase(tabname) = 'MIGTEST_DROP_REF_ONE') then
+  prepare stmt from 'alter table migtest_drop_ref_one drop constraint fk_migtest_drop_ref_one_parent_id';
   execute stmt;
 end if;
 end$$;
 delimiter $$
 begin
-if exists (select constname from syscat.tabconst where tabschema = current_schema and ucase(constname) = 'FK_DROP_REF_ONE_TO_ONE_PARENT_ID' and ucase(tabname) = 'DROP_REF_ONE_TO_ONE') then
-  prepare stmt from 'alter table drop_ref_one_to_one drop constraint fk_drop_ref_one_to_one_parent_id';
+if exists (select constname from syscat.tabconst where tabschema = current_schema and ucase(constname) = 'FK_MIGTEST_DROP_REF_ONE_TO_ONE_PARENT_ID' and ucase(tabname) = 'MIGTEST_DROP_REF_ONE_TO_ONE') then
+  prepare stmt from 'alter table migtest_drop_ref_one_to_one drop constraint fk_migtest_drop_ref_one_to_one_parent_id';
   execute stmt;
 end if;
 end$$;

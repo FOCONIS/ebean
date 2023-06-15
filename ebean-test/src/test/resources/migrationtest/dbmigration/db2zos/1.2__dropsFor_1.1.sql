@@ -15,36 +15,36 @@ alter table migtest_e_history2_history drop column obsolete_string2;
 call sysproc.admin_cmd('reorg table migtest_e_history2_history');
 -- apply post alter
 alter table migtest_e_history2 add versioning use history table migtest_e_history2_history;
-drop table drop_main;
+drop table migtest_drop_main;
 delimiter $$
 begin
-if exists (select seqschema from syscat.sequences where seqschema = current_schema and ucase(seqname) = 'DROP_MAIN_SEQ') then
-  prepare stmt from 'drop sequence drop_main_seq';
+if exists (select seqschema from syscat.sequences where seqschema = current_schema and ucase(seqname) = 'MIGTEST_DROP_MAIN_SEQ') then
+  prepare stmt from 'drop sequence migtest_drop_main_seq';
   execute stmt;
 end if;
 end$$;
-drop table drop_main_drop_ref_many;
-drop table drop_ref_many;
+drop table migtest_drop_main_migtest_drop_ref_many;
+drop table migtest_drop_ref_many;
 delimiter $$
 begin
-if exists (select seqschema from syscat.sequences where seqschema = current_schema and ucase(seqname) = 'DROP_REF_MANY_SEQ') then
-  prepare stmt from 'drop sequence drop_ref_many_seq';
+if exists (select seqschema from syscat.sequences where seqschema = current_schema and ucase(seqname) = 'MIGTEST_DROP_REF_MANY_SEQ') then
+  prepare stmt from 'drop sequence migtest_drop_ref_many_seq';
   execute stmt;
 end if;
 end$$;
-drop table drop_ref_one;
+drop table migtest_drop_ref_one;
 delimiter $$
 begin
-if exists (select seqschema from syscat.sequences where seqschema = current_schema and ucase(seqname) = 'DROP_REF_ONE_SEQ') then
-  prepare stmt from 'drop sequence drop_ref_one_seq';
+if exists (select seqschema from syscat.sequences where seqschema = current_schema and ucase(seqname) = 'MIGTEST_DROP_REF_ONE_SEQ') then
+  prepare stmt from 'drop sequence migtest_drop_ref_one_seq';
   execute stmt;
 end if;
 end$$;
-drop table drop_ref_one_to_one;
+drop table migtest_drop_ref_one_to_one;
 delimiter $$
 begin
-if exists (select seqschema from syscat.sequences where seqschema = current_schema and ucase(seqname) = 'DROP_REF_ONE_TO_ONE_SEQ') then
-  prepare stmt from 'drop sequence drop_ref_one_to_one_seq';
+if exists (select seqschema from syscat.sequences where seqschema = current_schema and ucase(seqname) = 'MIGTEST_DROP_REF_ONE_TO_ONE_SEQ') then
+  prepare stmt from 'drop sequence migtest_drop_ref_one_to_one_seq';
   execute stmt;
 end if;
 end$$;
