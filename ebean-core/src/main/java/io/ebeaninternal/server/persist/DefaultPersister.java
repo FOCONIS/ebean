@@ -907,7 +907,7 @@ public final class DefaultPersister implements Persister {
   void deleteManyIntersection(EntityBean bean, BeanPropertyAssocMany<?> many, SpiTransaction t, boolean publish, boolean queue) {
     SpiSqlUpdate sqlDelete = deleteAllIntersection(bean, many, publish);
     if (queue) {
-      addToFlushQueue(sqlDelete, t, 1);
+      addToFlushQueue(sqlDelete, t, BatchControl.DELETE_QUEUE);
     } else {
       executeSqlUpdate(sqlDelete, t);
     }
