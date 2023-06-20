@@ -8,7 +8,6 @@ import io.ebean.core.type.ScalarType;
 import io.ebean.meta.MetricVisitor;
 import io.ebean.metric.MetricFactory;
 import io.ebean.metric.TimedMetricMap;
-import io.ebeaninternal.api.SpiQuery;
 import io.ebeaninternal.server.core.RelationalQueryEngine;
 import io.ebeaninternal.server.core.RelationalQueryRequest;
 import io.ebeaninternal.server.core.RowReader;
@@ -130,7 +129,7 @@ public final class DefaultRelationalQueryEngine implements RelationalQueryEngine
     ScalarType<T> scalarType = (ScalarType<T>) binder.getScalarType(cls);
     try {
       request.executeSql(binder);
-      final DataReader dataReader = binder.createDataReader(request.getResultSet());
+      final DataReader dataReader = binder.createDataReader(request.resultSet());
       T value = null;
       if (dataReader.next()) {
         value = scalarType.read(dataReader);
@@ -152,7 +151,7 @@ public final class DefaultRelationalQueryEngine implements RelationalQueryEngine
     ScalarType<T> scalarType = (ScalarType<T>) binder.getScalarType(cls);
     try {
       request.executeSql(binder);
-      final DataReader dataReader = binder.createDataReader(request.getResultSet());
+      final DataReader dataReader = binder.createDataReader(request.resultSet());
       List<T> rows = new ArrayList<>();
       while (dataReader.next()) {
         rows.add(scalarType.read(dataReader));
@@ -174,7 +173,7 @@ public final class DefaultRelationalQueryEngine implements RelationalQueryEngine
     ScalarType<T> scalarType = (ScalarType<T>) binder.getScalarType(cls);
     try {
       request.executeSql(binder);
-      final DataReader dataReader = binder.createDataReader(request.getResultSet());
+      final DataReader dataReader = binder.createDataReader(request.resultSet());
       while (dataReader.next()) {
         consumer.accept(scalarType.read(dataReader));
       }

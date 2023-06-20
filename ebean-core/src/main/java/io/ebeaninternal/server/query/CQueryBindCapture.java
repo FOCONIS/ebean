@@ -99,12 +99,7 @@ final class CQueryBindCapture implements SpiQueryBindCapture {
         final long captureMicros = TimeUnit.MICROSECONDS.convert(System.nanoTime() - startNanos, TimeUnit.NANOSECONDS);
         request.add(queryPlan.with(queryTimeMicros, captureCount, captureMicros, whenCaptured, tenant));
         // effectively turn off bind capture for this plan
-        lock.lock();
-        try {
-          thresholdMicros = Long.MAX_VALUE;
-        } finally {
-          lock.unlock();
-        }
+        thresholdMicros = Long.MAX_VALUE;
         return true;
       }
     } catch (SQLException e) {

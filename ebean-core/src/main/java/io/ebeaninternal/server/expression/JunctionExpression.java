@@ -896,16 +896,6 @@ final class JunctionExpression<T> implements SpiJunction<T>, SpiExpression, Expr
   }
 
   @Override
-  public OrderBy<T> order() {
-    return exprList.order();
-  }
-
-  @Override
-  public ExpressionList<T> order(String orderByClause) {
-    return exprList.order(orderByClause);
-  }
-
-  @Override
   public OrderBy<T> orderBy() {
     return exprList.orderBy();
   }
@@ -978,11 +968,6 @@ final class JunctionExpression<T> implements SpiJunction<T>, SpiExpression, Expr
   @Override
   public ExpressionList<T> setMaxRows(int maxRows) {
     return exprList.setMaxRows(maxRows);
-  }
-
-  @Override
-  public Query<T> setOrderBy(String orderBy) {
-    return exprList.setOrderBy(orderBy);
   }
 
   @Override

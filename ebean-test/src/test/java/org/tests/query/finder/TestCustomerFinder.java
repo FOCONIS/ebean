@@ -33,7 +33,7 @@ public class TestCustomerFinder extends BaseTestCase {
 
     StringBuilder buffer0 = new StringBuilder();
     DB.getDefault().metaInfo()
-      .collectMetricsAsJson()
+      .collectMetrics().asJson()
       .withHeader(false)
       .write(buffer0);
 
@@ -47,7 +47,7 @@ public class TestCustomerFinder extends BaseTestCase {
 
     StringBuilder buffer1 = new StringBuilder();
     DB.getDefault().metaInfo()
-      .collectMetricsAsJson()
+      .collectMetrics().asJson()
       .withHeader(false)
       .write(buffer1);
 
@@ -260,7 +260,7 @@ public class TestCustomerFinder extends BaseTestCase {
     runQueries();
 
     String metricsJson = server().metaInfo()
-      .collectMetricsAsJson()
+      .collectMetrics().asJson()
       .withHash(true)
       .withExtraAttributes(true)
       .withNewLine(true)
@@ -284,7 +284,7 @@ public class TestCustomerFinder extends BaseTestCase {
     runQueries();
 
     String metricsJson = server().metaInfo()
-      .collectMetricsAsJson()
+      .collectMetrics().asJson()
       .withHash(false)
       .withExtraAttributes(false)
       .withNewLine(false)
@@ -307,7 +307,7 @@ public class TestCustomerFinder extends BaseTestCase {
 
     StringBuilder buffer = new StringBuilder();
     server().metaInfo()
-      .collectMetricsAsJson()
+      .collectMetrics().asJson()
       .withHeader(false)
       .write(buffer);
 
@@ -325,7 +325,7 @@ public class TestCustomerFinder extends BaseTestCase {
 
     StringBuilder buffer = new StringBuilder();
     server().metaInfo()
-      .collectMetricsAsJson()
+      .collectMetrics().asJson()
       .withHeader(true)
       .write(buffer);
 

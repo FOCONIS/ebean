@@ -80,7 +80,7 @@ final class ImplicitReadOnlyTransaction implements SpiTransaction, TxnProfileEve
   }
 
   @Override
-  public long getStartNanoTime() {
+  public long startNanoTime() {
     // not used on read only transaction
     return startNanos;
   }
@@ -101,7 +101,7 @@ final class ImplicitReadOnlyTransaction implements SpiTransaction, TxnProfileEve
   }
 
   @Override
-  public String getLabel() {
+  public String label() {
     return null;
   }
 
@@ -131,7 +131,7 @@ final class ImplicitReadOnlyTransaction implements SpiTransaction, TxnProfileEve
   }
 
   @Override
-  public ProfileLocation getProfileLocation() {
+  public ProfileLocation profileLocation() {
     return profileLocation;
   }
 
@@ -175,7 +175,7 @@ final class ImplicitReadOnlyTransaction implements SpiTransaction, TxnProfileEve
   }
 
   @Override
-  public DocStoreMode getDocStoreMode() {
+  public DocStoreMode docStoreMode() {
     return null;
   }
 
@@ -371,7 +371,7 @@ final class ImplicitReadOnlyTransaction implements SpiTransaction, TxnProfileEve
   }
 
   @Override
-  public BatchControl getBatchControl() {
+  public BatchControl batchControl() {
     return null;
   }
 
@@ -396,7 +396,7 @@ final class ImplicitReadOnlyTransaction implements SpiTransaction, TxnProfileEve
    * Return the persistence context associated with this transaction.
    */
   @Override
-  public SpiPersistenceContext getPersistenceContext() {
+  public SpiPersistenceContext persistenceContext() {
     return persistenceContext;
   }
 
@@ -416,7 +416,7 @@ final class ImplicitReadOnlyTransaction implements SpiTransaction, TxnProfileEve
   }
 
   @Override
-  public TransactionEvent getEvent() {
+  public TransactionEvent event() {
     throw new IllegalStateException(notExpectedMessage);
   }
 
@@ -457,7 +457,7 @@ final class ImplicitReadOnlyTransaction implements SpiTransaction, TxnProfileEve
    * Return the transaction id.
    */
   @Override
-  public String getId() {
+  public String id() {
     return null;
   }
 
@@ -467,7 +467,7 @@ final class ImplicitReadOnlyTransaction implements SpiTransaction, TxnProfileEve
   }
 
   @Override
-  public Object getTenantId() {
+  public Object tenantId() {
     return tenantId;
   }
 
@@ -475,7 +475,7 @@ final class ImplicitReadOnlyTransaction implements SpiTransaction, TxnProfileEve
    * Return the underlying connection for internal use.
    */
   @Override
-  public Connection getInternalConnection() {
+  public Connection internalConnection() {
     if (!active) {
       throw new IllegalStateException(illegalStateMessage);
     }
@@ -487,7 +487,7 @@ final class ImplicitReadOnlyTransaction implements SpiTransaction, TxnProfileEve
    */
   @Override
   public Connection connection() {
-    return getInternalConnection();
+    return internalConnection();
   }
 
   private void deactivate() {
@@ -617,7 +617,7 @@ final class ImplicitReadOnlyTransaction implements SpiTransaction, TxnProfileEve
   }
 
   @Override
-  public DocStoreTransaction getDocStoreTransaction() {
+  public DocStoreTransaction docStoreTransaction() {
     throw new IllegalStateException(notExpectedMessage);
   }
 

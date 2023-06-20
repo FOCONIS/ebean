@@ -23,7 +23,6 @@ final class DQueryPlanOutput implements MetaQueryPlan, SpiDbQueryPlan {
   private long captureCount;
   private long captureMicros;
   private Instant whenCaptured;
-
   private Object tenantId;
 
   DQueryPlanOutput(Class<?> beanType, String label, String hash, String sql, ProfileLocation profileLocation, String bind, String plan) {

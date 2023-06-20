@@ -192,7 +192,7 @@ public final class PersistRequestBean<T> extends PersistRequest implements BeanP
    * don't want to send to the doc store.
    */
   private DocStoreMode calcDocStoreMode(SpiTransaction txn, Type type) {
-    DocStoreMode txnMode = (txn == null) ? null : txn.getDocStoreMode();
+    DocStoreMode txnMode = (txn == null) ? null : txn.docStoreMode();
     return beanDescriptor.docStoreMode(type, txnMode);
   }
 
@@ -553,7 +553,7 @@ public final class PersistRequestBean<T> extends PersistRequest implements BeanP
    * <p>
    * Takes into account the class type and id value.
    */
-  private Integer getBeanHash() {
+  private Integer beanHash() {
     if (beanHash == null) {
       Object id = beanDescriptor.getId(entityBean);
       int hc = 92821 * bean.getClass().getName().hashCode();
@@ -566,7 +566,7 @@ public final class PersistRequestBean<T> extends PersistRequest implements BeanP
   }
 
   public void registerDeleteBean() {
-    Integer hash = getBeanHash();
+    Integer hash = beanHash();
     transaction.registerDeleteBean(hash);
   }
 
@@ -574,7 +574,7 @@ public final class PersistRequestBean<T> extends PersistRequest implements BeanP
     if (transaction == null) {
       return false;
     } else {
-      Integer hash = getBeanHash();
+      Integer hash = beanHash();
       return transaction.isRegisteredDeleteBean(hash);
     }
   }
@@ -718,7 +718,7 @@ public final class PersistRequestBean<T> extends PersistRequest implements BeanP
   /**
    * Return the original / old value for the given property.
    */
-  public Object getOrigValue(BeanProperty prop) {
+  public Object origValue(BeanProperty prop) {
     return intercept.origValue(prop.propertyIndex());
   }
 
@@ -756,7 +756,7 @@ public final class PersistRequestBean<T> extends PersistRequest implements BeanP
   public int executeOrQueue() {
     boolean batch = isBatchThisRequest();
     try {
-      BatchControl control = transaction.getBatchControl();
+      BatchControl control = transaction.batchControl();
       if (control != null) {
         return control.executeOrQueue(this, batch);
       }
@@ -827,7 +827,7 @@ public final class PersistRequestBean<T> extends PersistRequest implements BeanP
    */
   private void postUpdate() {
     if (statelessUpdate) {
-      beanDescriptor.contextClear(transaction.getPersistenceContext(), idValue);
+      beanDescriptor.contextClear(transaction.persistenceContext(), idValue);
     }
   }
 
@@ -842,14 +842,14 @@ public final class PersistRequestBean<T> extends PersistRequest implements BeanP
    */
   public void removeFromPersistenceContext() {
     idValue = beanDescriptor.getId(entityBean);
-    beanDescriptor.contextDeleted(transaction.getPersistenceContext(), idValue);
+    beanDescriptor.contextDeleted(transaction.persistenceContext(), idValue);
   }
 
   /**
    * Aggressive L1 and L2 cache cleanup for deletes.
    */
   private void postDelete() {
-    beanDescriptor.contextClear(transaction.getPersistenceContext(), idValue);
+    beanDescriptor.contextClear(transaction.persistenceContext(), idValue);
   }
 
   private void changeLog() {
@@ -958,7 +958,7 @@ public final class PersistRequestBean<T> extends PersistRequest implements BeanP
    * Add the request to TransactionEvent if there are post commit listeners.
    */
   private void addPostCommitListeners() {
-    TransactionEvent event = transaction.getEvent();
+    TransactionEvent event = transaction.event();
     if (event != null && isNotifyListeners()) {
       event.addListenerNotify(this);
     }
@@ -990,7 +990,7 @@ public final class PersistRequestBean<T> extends PersistRequest implements BeanP
     }
     if (transaction.isAutoPersistUpdates() && idValue != null) {
       // with getGeneratedKeys off we will not have a idValue
-      beanDescriptor.contextPut(transaction.getPersistenceContext(), idValue, entityBean);
+      beanDescriptor.contextPut(transaction.persistenceContext(), idValue, entityBean);
     }
   }
 
@@ -1063,7 +1063,7 @@ public final class PersistRequestBean<T> extends PersistRequest implements BeanP
     postExecute = true;
     if (notifyCache && complete) {
       // add cache notification (on batch persist)
-      TransactionEvent event = transaction.getEvent();
+      TransactionEvent event = transaction.event();
       if (event != null) {
         notifyCache(event.obtainCacheChangeSet());
       }
@@ -1077,7 +1077,7 @@ public final class PersistRequestBean<T> extends PersistRequest implements BeanP
     complete = true;
     if (notifyCache && postExecute) {
       // add cache notification (on non-batch persist)
-      TransactionEvent event = transaction.getEvent();
+      TransactionEvent event = transaction.event();
       if (event != null) {
         notifyCache(event.obtainCacheChangeSet());
       }
@@ -1193,7 +1193,7 @@ public final class PersistRequestBean<T> extends PersistRequest implements BeanP
   }
 
   private void setTenantId() {
-    Object tenantId = transaction.getTenantId();
+    Object tenantId = transaction.tenantId();
     if (tenantId != null) {
       beanDescriptor.setTenantId(entityBean, tenantId);
     }
@@ -1248,13 +1248,13 @@ public final class PersistRequestBean<T> extends PersistRequest implements BeanP
     // processing now so set IGNORE (unlike DB + DocStore processing with post-commit)
     docStoreMode = DocStoreMode.IGNORE;
     try {
-      docStoreUpdate(transaction.getDocStoreTransaction().obtain());
+      docStoreUpdate(transaction.docStoreTransaction().obtain());
       postExecute();
       if (type == Type.UPDATE
         && beanDescriptor.isDocStoreEmbeddedInvalidation()
         && transaction.isPersistCascade()) {
         // queue embedded/nested updates for later processing
-        beanDescriptor.docStoreUpdateEmbedded(this, transaction.getDocStoreTransaction().queue());
+        beanDescriptor.docStoreUpdateEmbedded(this, transaction.docStoreTransaction().queue());
       }
     } catch (IOException e) {
       throw new PersistenceException("Error persisting doc store bean", e);
@@ -1366,7 +1366,7 @@ public final class PersistRequestBean<T> extends PersistRequest implements BeanP
    * Set an orphan bean that needs to be deleted AFTER the request has persisted.
    */
   public void setImportedOrphanForRemoval(BeanPropertyAssocOne<?> prop) {
-    Object orphan = getOrigValue(prop);
+    Object orphan = origValue(prop);
     if (orphan instanceof EntityBean) {
       orphanBean = (EntityBean) orphan;
     }
@@ -1379,7 +1379,7 @@ public final class PersistRequestBean<T> extends PersistRequest implements BeanP
   /**
    * Return the SQL used to fetch the last inserted id value.
    */
-  public String getSelectLastInsertedId() {
+  public String selectLastInsertedId() {
     return beanDescriptor.selectLastInsertedId(publish);
   }
 

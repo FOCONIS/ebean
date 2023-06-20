@@ -14,12 +14,7 @@ import io.ebean.xtest.IgnorePlatform;
 import io.ebean.xtest.base.DtoQuery2Test;
 import io.ebeaninternal.api.SpiTransaction;
 import org.junit.jupiter.api.Test;
-import org.tests.model.basic.Contact;
-import org.tests.model.basic.Customer;
-import org.tests.model.basic.EBasicVer;
-import org.tests.model.basic.ResetBasicData;
-import org.tests.model.basic.TSDetail;
-import org.tests.model.basic.TSMaster;
+import org.tests.model.basic.*;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -107,7 +102,7 @@ public class TestBatchInsertFlush extends BaseTestCase {
       // detail
       assertThat(sql.get(3)).contains("insert into t_detail_with_other_namexxxyy");
 
-      assertThat(((SpiTransaction) transaction).getLabel()).isEqualTo("TestBatchInsertFlush.no_cascade");
+      assertThat(((SpiTransaction)transaction).label()).isEqualTo("TestBatchInsertFlush.no_cascade");
 
     } finally {
       transaction.end();

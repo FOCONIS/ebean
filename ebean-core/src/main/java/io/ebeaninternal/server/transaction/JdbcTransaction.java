@@ -137,12 +137,12 @@ class JdbcTransaction implements SpiTransaction, TxnProfileEventCodes {
   }
 
   @Override
-  public final String getLabel() {
+  public final String label() {
     return label;
   }
 
   @Override
-  public final long getStartNanoTime() {
+  public final long startNanoTime() {
     return startNanos;
   }
 
@@ -174,7 +174,7 @@ class JdbcTransaction implements SpiTransaction, TxnProfileEventCodes {
   }
 
   @Override
-  public final ProfileLocation getProfileLocation() {
+  public final ProfileLocation profileLocation() {
     return profileLocation;
   }
 
@@ -310,7 +310,7 @@ class JdbcTransaction implements SpiTransaction, TxnProfileEventCodes {
   }
 
   @Override
-  public final DocStoreMode getDocStoreMode() {
+  public final DocStoreMode docStoreMode() {
     return docStoreMode;
   }
 
@@ -629,7 +629,7 @@ class JdbcTransaction implements SpiTransaction, TxnProfileEventCodes {
   }
 
   @Override
-  public final BatchControl getBatchControl() {
+  public final BatchControl batchControl() {
     return batchControl;
   }
 
@@ -687,7 +687,7 @@ class JdbcTransaction implements SpiTransaction, TxnProfileEventCodes {
    * Return the persistence context associated with this transaction.
    */
   @Override
-  public final SpiPersistenceContext getPersistenceContext() {
+  public final SpiPersistenceContext persistenceContext() {
     return persistenceContext;
   }
 
@@ -707,7 +707,7 @@ class JdbcTransaction implements SpiTransaction, TxnProfileEventCodes {
    * Return the underlying TransactionEvent.
    */
   @Override
-  public final TransactionEvent getEvent() {
+  public final TransactionEvent event() {
     queryOnly = false;
     if (event == null) {
       event = new TransactionEvent();
@@ -752,7 +752,7 @@ class JdbcTransaction implements SpiTransaction, TxnProfileEventCodes {
    * Return the transaction id.
    */
   @Override
-  public final String getId() {
+  public final String id() {
     return id;
   }
 
@@ -762,7 +762,7 @@ class JdbcTransaction implements SpiTransaction, TxnProfileEventCodes {
   }
 
   @Override
-  public final Object getTenantId() {
+  public final Object tenantId() {
     return tenantId;
   }
 
@@ -770,7 +770,7 @@ class JdbcTransaction implements SpiTransaction, TxnProfileEventCodes {
    * Return the underlying connection for internal use.
    */
   @Override
-  public Connection getInternalConnection() {
+  public Connection internalConnection() {
     return connection;
   }
 
@@ -780,7 +780,7 @@ class JdbcTransaction implements SpiTransaction, TxnProfileEventCodes {
   @Override
   public Connection connection() {
     queryOnly = false;
-    return getInternalConnection();
+    return internalConnection();
   }
 
   void deactivate() {
@@ -1105,11 +1105,11 @@ class JdbcTransaction implements SpiTransaction, TxnProfileEventCodes {
 
   @Override
   public final void addModification(String tableName, boolean inserts, boolean updates, boolean deletes) {
-    getEvent().add(tableName, inserts, updates, deletes);
+    event().add(tableName, inserts, updates, deletes);
   }
 
   @Override
-  public final DocStoreTransaction getDocStoreTransaction() {
+  public final DocStoreTransaction docStoreTransaction() {
     if (docStoreTxn == null) {
       queryOnly = false;
       docStoreTxn = manager.createDocStoreTransaction(docStoreBatchSize);

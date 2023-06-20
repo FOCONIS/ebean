@@ -121,3 +121,4 @@ To set this option as the global default for IntelliJ use:
 `Run - Edit Configurations -> Edit configuration templates -> JUnit -> modify options - Do not use module-path option`
 
 
+end
