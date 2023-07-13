@@ -311,7 +311,7 @@ final class SaveManyBeans extends SaveManyBase {
         // build a intersection row for 'delete'
         IntersectionRow intRow = many.buildManyToManyMapBean(parentBean, otherDelete, publish);
         SpiSqlUpdate sqlDelete = intRow.createDelete(server, DeleteMode.HARD, many.extraWhere());
-        persister.executeOrQueue(sqlDelete, transaction, queue);
+        persister.executeOrQueue(sqlDelete, transaction, queue, BatchControl.DELETE_QUEUE);
         needsFlush = true;
       }
     }
@@ -347,7 +347,7 @@ final class SaveManyBeans extends SaveManyBase {
             // build a intersection row for 'insert'
             IntersectionRow intRow = many.buildManyToManyMapBean(parentBean, otherBean, publish);
             SpiSqlUpdate sqlInsert = intRow.createInsert(server);
-            persister.executeOrQueue(sqlInsert, transaction, queue);
+            persister.executeOrQueue(sqlInsert, transaction, queue, BatchControl.INSERT_QUEUE);
           }
         }
       }
