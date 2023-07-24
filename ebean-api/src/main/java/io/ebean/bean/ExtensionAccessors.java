@@ -3,10 +3,7 @@ package io.ebean.bean;
 import io.ebean.bean.extend.EntityExtension;
 import io.ebean.bean.extend.ExtendableBean;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -151,8 +148,10 @@ public class ExtensionAccessors implements Iterable<ExtensionAccessor> {
       if (propertyLength != -1) {
         return;
       }
+      // sort the accessors, so they are "stable"
       if (parent != null) {
         parent.init();
+        accessors.sort(Comparator.comparing(e -> e.getType().getName()));
         if (accessors.isEmpty()) {
           accessors = parent.accessors;
         } else {

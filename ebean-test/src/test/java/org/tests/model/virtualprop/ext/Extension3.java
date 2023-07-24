@@ -13,6 +13,10 @@ import javax.persistence.OneToOne;
 @EntityExtension(VirtualBase.class)
 public class Extension3 {
 
+  public static String foo() {
+    return "foo";
+  }
+
   @OneToOne(mappedBy = "base")
   private VirtualExtendOne virtualExtendOne;
 

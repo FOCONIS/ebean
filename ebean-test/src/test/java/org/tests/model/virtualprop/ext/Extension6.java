@@ -5,11 +5,7 @@ import io.ebean.bean.NotEnhancedException;
 import io.ebean.bean.extend.EntityExtension;
 import org.tests.model.virtualprop.VirtualBaseA;
 
-import javax.persistence.OneToMany;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
 
 /**

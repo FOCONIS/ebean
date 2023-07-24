@@ -2,9 +2,7 @@ package org.tests.model.virtualprop.ext;
 
 import io.ebean.bean.NotEnhancedException;
 import io.ebean.bean.extend.EntityExtension;
-import org.tests.model.virtualprop.AbstractVirtualBase;
 import org.tests.model.virtualprop.VirtualBase;
-import org.tests.model.virtualprop.VirtualBaseA;
 
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
@@ -15,6 +13,10 @@ import java.util.List;
  */
 @EntityExtension(VirtualBase.class)
 public class Extension2 {
+
+  public static String foo() {
+    return "foo";
+  }
 
   @ManyToMany
   @JoinTable(name = "kreuztabelle")

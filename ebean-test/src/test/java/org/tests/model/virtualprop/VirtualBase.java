@@ -1,6 +1,6 @@
 package org.tests.model.virtualprop;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
 
 @Entity
 public class VirtualBase extends AbstractVirtualBase {

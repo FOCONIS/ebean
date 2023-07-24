@@ -10,6 +10,11 @@ import org.tests.model.virtualprop.AbstractVirtualBase;
 @EntityExtension(AbstractVirtualBase.class)
 public class Extension1 {
 
+
+  public static String foo() {
+    return "foo";
+  }
+
   private String ext;
 
   public String getExt() {
