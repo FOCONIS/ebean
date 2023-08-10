@@ -1,27 +1,22 @@
 package org.tests.model.onetoone;
 
-import jakarta.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Version;
 import java.util.UUID;
 
 @Entity
-public class OtoUBPrimeExtra {
+public class OtoUPrimeExtraWithConstraint {
 
   @Id
   UUID eid;
 
   String extra;
 
-  /**
-   * Child side of bi-directional PrimaryJoinColumn.
-   */
-  @OneToOne(optional = false)
-  @PrimaryKeyJoinColumn
-  OtoUBPrime prime;
-
   @Version
   Long version;
 
-  public OtoUBPrimeExtra(String extra) {
+  public OtoUPrimeExtraWithConstraint(String extra) {
     this.extra = extra;
   }
 
@@ -46,14 +41,6 @@ public class OtoUBPrimeExtra {
     this.extra = extra;
   }
 
-  public OtoUBPrime getPrime() {
-    return prime;
-  }
-
-  public void setPrime(OtoUBPrime prime) {
-    this.prime = prime;
-  }
-
   public Long getVersion() {
     return version;
   }
@@ -61,4 +48,5 @@ public class OtoUBPrimeExtra {
   public void setVersion(Long version) {
     this.version = version;
   }
+
 }

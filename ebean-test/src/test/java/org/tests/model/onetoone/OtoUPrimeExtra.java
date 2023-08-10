@@ -3,6 +3,7 @@ package org.tests.model.onetoone;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Version;
+
 import java.util.UUID;
 
 @Entity
@@ -22,7 +23,7 @@ public class OtoUPrimeExtra {
 
   @Override
   public String toString() {
-    return "exId:"+ eid +" "+extra;
+    return "exId:" + eid + " " + extra;
   }
 
   public UUID getEid() {
@@ -48,4 +49,5 @@ public class OtoUPrimeExtra {
   public void setVersion(Long version) {
     this.version = version;
   }
+
 }
