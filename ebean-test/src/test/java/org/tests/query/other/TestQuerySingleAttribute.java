@@ -489,7 +489,20 @@ class TestQuerySingleAttribute extends BaseTestCase {
     Query<Contact> query = DB.find(Contact.class)
       .setDistinct(true)
       .select("customer.id")
-      .order().desc("customer.id");
+      .order().desc("concat(customer.id, customer.billingAddress)");
+
+    query.findSingleAttributeList();
+
+    assertThat(sqlOf(query)).contains("select distinct t0.customer_id from contact t0 order by t0.customer_id desc");
+  }
+
+  @Test
+  void distinctWithOrderByPkWithId2() {
+    ResetBasicData.reset();
+
+    Query<Contact> query = DB.find(Contact.class)
+      .setDistinct(true)
+      .select("concat(customer.id, customer.billingAddress)");
 
     query.findSingleAttributeList();
 

@@ -417,7 +417,7 @@ public final class SqlTreeBuilder {
 
       // make sure we only included the base/embedded bean once
       if (!selectProps.containsProperty(baseName)) {
-        STreeProperty p = desc.findPropertyWithDynamic(baseName, null);
+        STreeProperty p = desc.findProperty(baseName);
         if (p == null) {
           // maybe dynamic formula with schema prefix
           p = desc.findPropertyWithDynamic(propName, null);
