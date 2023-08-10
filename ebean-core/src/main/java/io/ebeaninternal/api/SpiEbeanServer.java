@@ -198,6 +198,11 @@ public interface SpiEbeanServer extends SpiServer, ExtendedServer, BeanCollectio
   DataTimeZone dataTimeZone();
 
   /**
+   * Returns the maximum string size in bind values.
+   */
+  int maxStringSize();
+
+  /**
    * Check for slow query event.
    */
   void slowQueryCheck(long executionTimeMicros, int rowCount, SpiQuery<?> query);

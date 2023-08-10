@@ -123,4 +123,8 @@ public abstract class BeanRequest {
   public DataTimeZone dataTimeZone() {
     return server.dataTimeZone();
   }
+
+  public int maxStringSize() {
+    return server.maxStringSize();
+  }
 }

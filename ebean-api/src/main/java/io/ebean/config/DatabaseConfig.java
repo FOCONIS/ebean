@@ -548,6 +548,10 @@ public class DatabaseConfig {
   private List<String> mappingLocations = new ArrayList<>();
 
   /**
+   * The maximum string size in clob fields.
+   */
+  private int maxStringSize = 0;
+  /**
    * When true we do not need explicit GeneratedValue mapping.
    */
   private boolean idGeneratorAutomatic = true;
@@ -2944,6 +2948,7 @@ public class DatabaseConfig {
     useValidationNotNull = p.getBoolean("useValidationNotNull", useValidationNotNull);
     autoReadOnlyDataSource = p.getBoolean("autoReadOnlyDataSource", autoReadOnlyDataSource);
     idGeneratorAutomatic = p.getBoolean("idGeneratorAutomatic", idGeneratorAutomatic);
+    maxStringSize = p.getInt("maxStringSize", maxStringSize);
 
     backgroundExecutorSchedulePoolSize = p.getInt("backgroundExecutorSchedulePoolSize", backgroundExecutorSchedulePoolSize);
     backgroundExecutorShutdownSecs = p.getInt("backgroundExecutorShutdownSecs", backgroundExecutorShutdownSecs);
@@ -3314,6 +3319,21 @@ public class DatabaseConfig {
    */
   public void setIdGeneratorAutomatic(boolean idGeneratorAutomatic) {
     this.idGeneratorAutomatic = idGeneratorAutomatic;
+  }
+
+  /**
+   * When maxStringSize is set, the string length in binds is limited to this size. If the string exceeds the given size,
+   * a Persistence exception is thrown. This is to handle DoS attacks or discover programming errors.
+   */
+  public int getMaxStringSize() {
+    return maxStringSize;
+  }
+
+  /**
+   * Setst the maximum size a string can have in bind arguments. See {@link #getMaxStringSize()}
+   */
+  public void setMaxStringSize(int maxStringSize) {
+    this.maxStringSize = maxStringSize;
   }
 
   /**

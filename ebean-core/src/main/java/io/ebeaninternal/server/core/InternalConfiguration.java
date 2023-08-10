@@ -4,11 +4,7 @@ import com.fasterxml.jackson.core.JsonFactory;
 import io.ebean.ExpressionFactory;
 import io.ebean.annotation.Platform;
 import io.ebean.cache.*;
-import io.ebean.config.DatabaseConfig;
-import io.ebean.config.ExternalTransactionManager;
-import io.ebean.config.ProfilingConfig;
-import io.ebean.config.SlowQueryListener;
-import io.ebean.config.TempFileProvider;
+import io.ebean.config.*;
 import io.ebean.config.dbplatform.DatabasePlatform;
 import io.ebean.config.dbplatform.DbHistorySupport;
 import io.ebean.event.changelog.ChangeLogListener;
@@ -38,6 +34,7 @@ import io.ebeaninternal.server.dto.DtoBeanManager;
 import io.ebeaninternal.server.expression.DefaultExpressionFactory;
 import io.ebeaninternal.server.expression.platform.DbExpressionHandler;
 import io.ebeaninternal.server.expression.platform.DbExpressionHandlerFactory;
+import io.ebeaninternal.server.json.DJsonContext;
 import io.ebeaninternal.server.logger.DLogManager;
 import io.ebeaninternal.server.logger.DLoggerFactory;
 import io.ebeaninternal.server.persist.Binder;
@@ -47,7 +44,6 @@ import io.ebeaninternal.server.persist.platform.PostgresMultiValueBind;
 import io.ebeaninternal.server.query.*;
 import io.ebeaninternal.server.readaudit.DefaultReadAuditLogger;
 import io.ebeaninternal.server.readaudit.DefaultReadAuditPrepare;
-import io.ebeaninternal.server.json.DJsonContext;
 import io.ebeaninternal.server.transaction.*;
 import io.ebeaninternal.server.type.DefaultTypeManager;
 import io.ebeaninternal.server.type.TypeManager;
@@ -81,6 +77,7 @@ public final class InternalConfiguration {
   private final DtoBeanManager dtoBeanManager;
   private final ClockService clockService;
   private final DataTimeZone dataTimeZone;
+  private final int maxStringSize;
   private final Binder binder;
   private final DeployCreateProperties deployCreateProperties;
   private final DeployUtil deployUtil;
@@ -133,7 +130,8 @@ public final class InternalConfiguration {
     Map<String, String> draftTableMap = beanDescriptorManager.draftTableMap();
     beanDescriptorManager.scheduleBackgroundTrim();
     this.dataTimeZone = initDataTimeZone();
-    this.binder = getBinder(typeManager, databasePlatform, dataTimeZone);
+    this.maxStringSize = config.getMaxStringSize();
+    this.binder = getBinder(typeManager, databasePlatform, dataTimeZone, maxStringSize);
     this.cQueryEngine = new CQueryEngine(config, databasePlatform, binder, asOfTableMapping, draftTableMap);
   }
 
@@ -269,15 +267,15 @@ public final class InternalConfiguration {
   /**
    * For 'As Of' queries return the number of bind variables per predicate.
    */
-  private Binder getBinder(TypeManager typeManager, DatabasePlatform databasePlatform, DataTimeZone dataTimeZone) {
+  private Binder getBinder(TypeManager typeManager, DatabasePlatform databasePlatform, DataTimeZone dataTimeZone, int maxStringSize) {
 
     DbExpressionHandler jsonHandler = getDbExpressionHandler(databasePlatform);
 
     DbHistorySupport historySupport = databasePlatform.historySupport();
     if (historySupport == null) {
-      return new Binder(typeManager, logManager, 0, false, jsonHandler, dataTimeZone, multiValueBind);
+      return new Binder(typeManager, logManager, 0, false, jsonHandler, dataTimeZone, maxStringSize, multiValueBind);
     }
-    return new Binder(typeManager, logManager, historySupport.getBindCount(), historySupport.isStandardsBased(), jsonHandler, dataTimeZone, multiValueBind);
+    return new Binder(typeManager, logManager, historySupport.getBindCount(), historySupport.isStandardsBased(), jsonHandler, dataTimeZone, maxStringSize, multiValueBind);
   }
 
   /**
@@ -473,6 +471,10 @@ public final class InternalConfiguration {
 
   public DataTimeZone getDataTimeZone() {
     return dataTimeZone;
+  }
+
+  public int getMaxStringSize() {
+    return maxStringSize;
   }
 
   public ServerCacheManager cacheManager() {

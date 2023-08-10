@@ -4,7 +4,11 @@ import io.ebean.core.type.DataBinder;
 import io.ebeaninternal.api.CoreLog;
 import io.ebeaninternal.server.core.timezone.DataTimeZone;
 
-import java.io.*;
+import javax.persistence.PersistenceException;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringReader;
 import java.math.BigDecimal;
 import java.sql.*;
 import java.util.ArrayList;
@@ -16,15 +20,19 @@ import static java.lang.System.Logger.Level.WARNING;
 public class DataBind implements DataBinder {
 
   private final DataTimeZone dataTimeZone;
+  private final int maxStringSize;
   private final PreparedStatement pstmt;
   private final Connection connection;
   private final StringBuilder bindLog = new StringBuilder();
+
   private List<InputStream> inputStreams;
   protected int pos;
   private String json;
 
-  public DataBind(DataTimeZone dataTimeZone, PreparedStatement pstmt, Connection connection) {
+
+  public DataBind(DataTimeZone dataTimeZone, int maxStringSize, PreparedStatement pstmt, Connection connection) {
     this.dataTimeZone = dataTimeZone;
+    this.maxStringSize = maxStringSize;
     this.pstmt = pstmt;
     this.connection = connection;
   }
@@ -116,6 +124,10 @@ public class DataBind implements DataBinder {
 
   @Override
   public void setString(String value) throws SQLException {
+    if (maxStringSize > 0 && maxStringSize < value.length()) {
+      throw new PersistenceException("The value '" + value.substring(0, 50) + "...' ("
+        + value.length() + " chars) exceeds the max string size of " + maxStringSize + " chars)");
+    }
     pstmt.setString(++pos, value);
   }
 
