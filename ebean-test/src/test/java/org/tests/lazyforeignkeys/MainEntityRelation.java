@@ -15,6 +15,10 @@ public class MainEntityRelation {
   @Id
   private UUID id;
 
+  @Lob
+  @Column(columnDefinition = "db2;clob inline length 200 COMPACT;")
+  private String description;
+
   @ManyToOne
   @JoinColumn(name = "id1")
   @DbForeignKey(noConstraint = true)
@@ -76,5 +80,13 @@ public class MainEntityRelation {
 
   public void setAttr1(String attr1) {
     this.attr1 = attr1;
+  }
+
+  public String getDescription() {
+    return description;
+  }
+
+  public void setDescription(String description) {
+    this.description = description;
   }
 }
