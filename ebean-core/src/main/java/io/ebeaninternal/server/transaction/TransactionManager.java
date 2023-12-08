@@ -174,13 +174,6 @@ public class TransactionManager implements SpiTransactionManager {
   }
 
   /**
-   * Return the current active transaction as a scoped transaction.
-   */
-  private ScopedTransaction activeScoped() {
-    return (ScopedTransaction) scopeManager.active();
-  }
-
-  /**
    * Return the current transaction from thread local scope. Note that it may be inactive.
    */
   public final SpiTransaction inScope() {
@@ -479,7 +472,7 @@ public class TransactionManager implements SpiTransactionManager {
    */
   public final ScopedTransaction beginScopedTransaction(TxScope txScope) {
     txScope = initTxScope(txScope);
-    ScopedTransaction txnContainer = activeScoped();
+    ScopedTransaction txnContainer = (ScopedTransaction) inScope();
 
     boolean setToScope;
     boolean nestedSavepoint;
