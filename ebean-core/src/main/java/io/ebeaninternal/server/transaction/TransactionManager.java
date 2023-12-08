@@ -453,6 +453,9 @@ public class TransactionManager implements SpiTransactionManager {
    * Begin an implicit transaction.
    */
   public final SpiTransaction beginServerTransaction() {
+    if (scopeManager.inScope() != null) {
+      return beginScopedTransaction(TxScope.required());
+    }
     SpiTransaction t = createTransaction(false, -1);
     scopeManager.set(t);
     return t;

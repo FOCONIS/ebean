@@ -1,7 +1,7 @@
 package io.ebeaninternal.server.transaction;
 
+import io.ebeaninternal.api.ScopedTransaction;
 import io.ebeaninternal.api.SpiTransaction;
-
 import jakarta.persistence.PersistenceException;
 
 /**
@@ -44,14 +44,22 @@ public class DefaultTransactionScopeManager extends TransactionScopeManager {
     if (trans == null) {
       throw new IllegalStateException("Setting a null transaction?");
     }
-    checkForActiveTransaction();
+    SpiTransaction transaction = local.get();
+    if (transaction != null) {
+      throw new PersistenceException("Invalid state - there is an existing transaction " + transaction);
+    }
     local.set(trans);
   }
 
   @Override
   public final void clear() {
     checkForActiveTransaction();
-    local.remove();
+    SpiTransaction transaction = local.get();
+    if (transaction instanceof ScopedTransaction) {
+      transaction.end();
+    } else {
+      local.remove();
+    }
   }
 
   @Override
@@ -62,7 +70,7 @@ public class DefaultTransactionScopeManager extends TransactionScopeManager {
   private void checkForActiveTransaction() {
     SpiTransaction transaction = local.get();
     if (transaction != null && transaction.isActive()) {
-      throw new PersistenceException("Invalid state - there is an existing Active transaction " + transaction);
+      //throw new PersistenceException("Invalid state - there is an existing Active transaction " + transaction);
     }
   }
 }
