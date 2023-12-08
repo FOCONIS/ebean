@@ -26,7 +26,9 @@ import io.ebeaninternal.server.cluster.ClusterManager;
 import io.ebeaninternal.server.deploy.BeanDescriptorManager;
 import io.ebeaninternal.server.profile.TimedProfileLocation;
 import io.ebeaninternal.server.profile.TimedProfileLocationRegistry;
-
+import io.ebeanservice.docstore.api.DocStoreTransaction;
+import io.ebeanservice.docstore.api.DocStoreUpdateProcessor;
+import io.ebeanservice.docstore.api.DocStoreUpdates;
 import jakarta.persistence.PersistenceException;
 import org.jspecify.annotations.Nullable;
 
@@ -171,13 +173,6 @@ public class TransactionManager implements SpiTransactionManager {
   @Override
   public final SpiTransaction active() {
     return scopeManager.active();
-  }
-
-  /**
-   * Return the current active transaction as a scoped transaction.
-   */
-  private ScopedTransaction activeScoped() {
-    return (ScopedTransaction) scopeManager.active();
   }
 
   /**
@@ -479,7 +474,7 @@ public class TransactionManager implements SpiTransactionManager {
    */
   public final ScopedTransaction beginScopedTransaction(TxScope txScope) {
     txScope = initTxScope(txScope);
-    ScopedTransaction txnContainer = activeScoped();
+    ScopedTransaction txnContainer = (ScopedTransaction) inScope();
 
     boolean setToScope;
     boolean nestedSavepoint;

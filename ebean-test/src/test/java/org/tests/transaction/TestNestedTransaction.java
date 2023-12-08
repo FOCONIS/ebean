@@ -293,4 +293,22 @@ public class TestNestedTransaction extends BaseTestCase {
     }
   }
 
+  public void test_txn_with_not_supported() {
+
+    try (Transaction txn1 = DB.beginTransaction()) {
+      assertThat(getInScopeTransaction()).isNotNull();
+      getInScopeTransaction().putUserObject("foo", "bar");
+
+      try (Transaction txn2 = DB.beginTransaction(TxScope.notSupported())) {
+        // pause txn1
+        try (Transaction txn3 = DB.beginTransaction()) {
+          // create a new Txn scope
+          txn3.commit();
+        }
+        txn2.commit();
+      }
+      // resume txn1
+      assertThat(getInScopeTransaction().getUserObject("foo")).isEqualTo("bar");
+    }
+  }
 }
