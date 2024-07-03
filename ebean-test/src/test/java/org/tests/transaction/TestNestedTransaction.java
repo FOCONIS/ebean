@@ -256,4 +256,74 @@ public class TestNestedTransaction extends BaseTestCase {
       assertThat(getInScopeTransaction().getUserObject("foo")).isEqualTo("bar");
     }
   }
+
+  // 1.63.X Kontrolllauf
+  @Test
+  public void test_txn_63() {
+
+    try (Transaction txn1 = DB.beginTransaction(TxScope.requiresNew())) {
+      // executeKontrolle()
+      // ctx.close()
+
+      // BatchProcessor.flush()
+      try (Transaction txn2 = DB.beginTransaction()) {
+        // Vorgang.save() --> NotificationCallback, Hinweise sammeln, aber noch kein createNotification
+
+        // WF-Action in JS (Zuständige berechnen und Vorgang zuordnen)
+        // ScriptStatementExecutor.execute
+        for (int i = 0; i < 2; i++) {
+
+          try (Transaction txn3 = DB.beginTransaction()) {
+            Object x = Transaction.current().getUserObject("x");
+            if (i == 0) {
+              assertThat(x).isNull();
+            } else {
+              assertThat(x).isEqualTo(2);
+            }
+            Transaction.current().putUserObject("x", 2);
+            txn3.commit();
+          }
+        }
+        txn2.commit();
+      }
+    }
+  }
+
+  // 1.62.X Kontrolllauf
+  @Test
+  public void test_txn_62() {
+
+    // TaskRunnable.run()
+    try (Transaction txn0 = DB.beginTransaction()) {
+      //AbstractKontrolllauf.runWithContext()
+      // protocol.runObserved
+      try (Transaction txn1 = DB.beginTransaction(TxScope.mandatory())) {
+        // task.run()
+        // executeKontrolle()
+        // ctx.close()
+
+        // BatchProcessor.flush()
+        try (Transaction txn2 = DB.beginTransaction()) {
+          // Vorgang.save() --> NotificationCallback, Hinweise sammeln, aber noch kein createNotification
+
+          //WF-Action in JS (Zuständige berechnen und Vorgang zuordnen)
+          // ScriptStatementExecutor.execute
+          for (int i = 0; i < 2; i++) {
+
+            try (Transaction txn3 = DB.beginTransaction()) {
+              Object x = Transaction.current().getUserObject("x");
+              if (i == 0) {
+                assertThat(x).isNull();
+              } else {
+                assertThat(x).isEqualTo(2);
+              }
+              Transaction.current().putUserObject("x", 2);
+              txn3.commit();
+            }
+          }
+          txn2.commit();
+        }
+      }
+    }
+  }
 }
