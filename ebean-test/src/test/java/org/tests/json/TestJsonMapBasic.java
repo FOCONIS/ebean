@@ -70,7 +70,7 @@ public class TestJsonMapBasic extends BaseTestCase {
     bean.getDetails().add(new EBasicJsonMapDetail("db2-detail2"));
 
     DB.save(bean);
-    Query<EBasicJsonMap> query1 = DB.find(EBasicJsonMap.class).select("*").fetch("details").where()
+    Query<EBasicJsonMap> query1 = DB.find(EBasicJsonMap.class).select("id, name, version").fetch("details").where()
         .startsWith("details.name", "db2-detail").query();
 
     List<EBasicJsonMap> lst = query1.findList();
@@ -80,7 +80,7 @@ public class TestJsonMapBasic extends BaseTestCase {
     assertThat(lst).hasSize(1);
     assertThat(lst.get(0).getContent()).containsEntry("foo", "bar");
 
-    Query<EBasicJsonMap> query2 = DB.find(EBasicJsonMap.class).where().startsWith("details.name", "db2-detail")
+    Query<EBasicJsonMap> query2 = DB.find(EBasicJsonMap.class).select("id, name, version").where().startsWith("details.name", "db2-detail")
         .query();
     query2.findList();
 

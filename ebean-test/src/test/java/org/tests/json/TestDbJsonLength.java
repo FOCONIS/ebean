@@ -2,13 +2,20 @@ package org.tests.json;
 
 import io.ebean.DB;
 import io.ebean.DataIntegrityException;
+import io.ebean.xtest.BaseTestCase;
+import jakarta.persistence.PersistenceException;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.Test;
 import org.tests.model.json.EBasicJsonMap;
 
+import java.net.SocketException;
+import java.sql.SQLNonTransientConnectionException;
 import java.util.Map;
 
-class TestDbJsonLength {
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+class TestDbJsonLength extends BaseTestCase {
 
 
     /**
@@ -33,16 +40,27 @@ class TestDbJsonLength {
 
     SoftAssertions softly = new SoftAssertions();
 
-    softly.assertThatThrownBy(() -> {
+    if (isSqlServer()) {
       DB.save(bean);
-    }).isInstanceOf(DataIntegrityException.class);
+    } else if (isMariaDB()) {
+      softly.assertThatThrownBy(() -> {
+        // max_allowed_packet from MariaDb Default: 16MB => SocketException https://mariadb.com/docs/server/ref/mdb/system-variables/max_allowed_packet/
+        DB.save(bean);
+      }).isInstanceOf(PersistenceException.class).cause().isInstanceOf(SQLNonTransientConnectionException.class).cause().isInstanceOf(SocketException.class);
+    } else {
+      softly.assertThatThrownBy(() -> {
+        DB.save(bean);
+      }).isInstanceOf(DataIntegrityException.class);
+    }
 
 
     if (bean.getId() != null) {
       // we expect, that we could NOT save the bean, but this is not true for sqlServer.
       // we will get a javax.persistence.PersistenceException: Error loading on org.tests.model.json.EBasicJsonMap.content
       // when we try to load the bean back from DB
-      DB.find(EBasicJsonMap.class, bean.getId());
+      assertThatThrownBy(() -> {
+        DB.find(EBasicJsonMap.class, bean.getId());
+      }).isInstanceOf(PersistenceException.class);
     }
 
     softly.assertAll();
