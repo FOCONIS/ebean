@@ -51,7 +51,8 @@ public class TestLength extends BaseTestCase {
     if (isSqlServer() || isMariaDB()) {
       DB.save(sfb2);
     } else {
-      assertThatThrownBy(() -> DB.save(sfb2)).isInstanceOf(DataIntegrityException.class);
+      assertThatThrownBy(() -> DB.save(sfb2))
+        .isInstanceOf(DataIntegrityException.class);
     }
 
   }
@@ -82,7 +83,11 @@ public class TestLength extends BaseTestCase {
       assertThatThrownBy(() -> {
         // max_allowed_packet from MariaDb Default: 16MB => SocketException https://mariadb.com/docs/server/ref/mdb/system-variables/max_allowed_packet/
         DB.save(bean);
-      }).isInstanceOf(PersistenceException.class).cause().isInstanceOf(SQLNonTransientConnectionException.class).cause().isInstanceOf(SocketException.class);
+      }).isInstanceOf(PersistenceException.class)
+        .cause()
+        .isInstanceOf(SQLNonTransientConnectionException.class)
+        .cause()
+        .isInstanceOf(SocketException.class);
     } else {
       assertThatThrownBy(() -> {
         // we expect, that we can NOT save the bean, this is ensured by the bind validator.

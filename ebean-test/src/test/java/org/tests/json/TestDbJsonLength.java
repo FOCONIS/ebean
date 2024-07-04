@@ -46,7 +46,11 @@ class TestDbJsonLength extends BaseTestCase {
       softly.assertThatThrownBy(() -> {
         // max_allowed_packet from MariaDb Default: 16MB => SocketException https://mariadb.com/docs/server/ref/mdb/system-variables/max_allowed_packet/
         DB.save(bean);
-      }).isInstanceOf(PersistenceException.class).cause().isInstanceOf(SQLNonTransientConnectionException.class).cause().isInstanceOf(SocketException.class);
+      }).isInstanceOf(PersistenceException.class)
+        .cause()
+        .isInstanceOf(SQLNonTransientConnectionException.class)
+        .cause()
+        .isInstanceOf(SocketException.class);
     } else {
       softly.assertThatThrownBy(() -> {
         DB.save(bean);
