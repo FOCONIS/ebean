@@ -47,8 +47,7 @@ public class TestLength extends BaseTestCase {
 
     SomeFileBean sfb2 = new SomeFileBean();
     sfb2.setContent(f1);
-    // SqlServer uses varbinary(max) and MariaDB uses a mediumblob (can not set a length),
-    // therefore the save works without exception.
+    // SqlServer uses varbinary(max) and MariaDB uses a mediumblob (can not set a length), therefore the save works without exception.
     if (isSqlServer() || isMariaDB()) {
       DB.save(sfb2);
     } else {
@@ -82,8 +81,7 @@ public class TestLength extends BaseTestCase {
       DB.save(bean);
     } else if (isMariaDB()) {
       assertThatThrownBy(() -> {
-        // max_allowed_packet from MariaDb Default: 16MB => SocketException
-        // https://mariadb.com/docs/server/ref/mdb/system-variables/max_allowed_packet/
+        // max_allowed_packet from MariaDb Default: 16MB => SocketException https://mariadb.com/docs/server/ref/mdb/system-variables/max_allowed_packet/
         DB.save(bean);
       }).isInstanceOf(PersistenceException.class)
         .cause()
