@@ -14,7 +14,6 @@ public class TestCacheInterceptSaveWhenLazyLoaded extends BaseTestCase {
 
   @Test
   public void test() {
-
     ResetBasicData.reset();
 
     Customer customer = new Customer();
