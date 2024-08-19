@@ -33,19 +33,17 @@ create table o_customer (
   constraint pk_o_customer primary key (id)
 );
 
--- Creating the table for TestPackage1
 create table test_package1 (
-                               id BIGINT PRIMARY KEY AUTO_INCREMENT,  -- Primary key
-                               current_time_stamp TIMESTAMP,            -- Formula field (included here for completeness)
+                               id BIGINT PRIMARY KEY AUTO_INCREMENT,
+                               current_time_stamp TIMESTAMP,
                                version varchar(255)
 );
 
--- Creating the table for TestPackage2
 create table test_package2 (
-                               id BIGINT PRIMARY KEY AUTO_INCREMENT,   -- Primary key
-                               when_created TIMESTAMP,                 -- When the entity was created
-                               test_package_id BIGINT,                -- Foreign key reference to TestPackage1
+                               id BIGINT PRIMARY KEY AUTO_INCREMENT,
+                               when_created TIMESTAMP,
+                               test_package_id BIGINT,
                                CONSTRAINT fk_test_package1
                                    FOREIGN KEY (test_package_id)
-                                       REFERENCES test_package1(id) ON DELETE CASCADE -- Setting up the relationship with TestPackage1
+                                       REFERENCES test_package1(id) ON DELETE CASCADE
 );
