@@ -53,7 +53,7 @@
     <ebean-migration.version>14.2.1-FOC1</ebean-migration.version> <!-- basiert auf Rob's 14.2.0 -->
     <ebean-test-containers.version>7.4</ebean-test-containers.version>
     <ebean-datasource.version>9.0</ebean-datasource.version>
-    <ebean-agent.version>13.20.1-FOC1</ebean-agent.version> <!-- Rob: 14.6.0 -->
+    <ebean-agent.version>14.5.2-FOC1</ebean-agent.version>
     <ebean-maven-plugin.version>14.6.0</ebean-maven-plugin.version>
     <surefire.useModulePath>false</surefire.useModulePath>
   </properties>
