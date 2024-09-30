@@ -127,6 +127,12 @@ public class DatabaseConfig implements DatabaseBuilder.Settings {
   private boolean loadModuleInfo = true;
 
   /**
+   * When true then include a sql comment in generated SELECT queries with the query
+   * label or profile location label.
+   */
+  private boolean includeLabelInSql = true;
+
+  /**
    * Interesting classes such as entities, embedded, ScalarTypes,
    * Listeners, Finders, Controllers, AttributeConverters etc.
    */
@@ -237,7 +243,7 @@ public class DatabaseConfig implements DatabaseBuilder.Settings {
    */
   private PersistBatch persistBatchOnCascade = PersistBatch.INHERIT;
 
-  private int persistBatchSize = 20;
+  private int persistBatchSize = 100;
 
   private EnumType defaultEnumType = EnumType.ORDINAL;
 
@@ -557,6 +563,7 @@ public class DatabaseConfig implements DatabaseBuilder.Settings {
   private String dumpMetricsOptions;
 
   private LengthCheck lengthCheck = LengthCheck.OFF;
+
   private Function<String, String> metricNaming = MetricNamingMatch.INSTANCE;
 
   /**
@@ -2183,6 +2190,7 @@ public class DatabaseConfig implements DatabaseBuilder.Settings {
     readOnlyDatabase = p.getBoolean("readOnlyDatabase", readOnlyDatabase);
     autoPersistUpdates = p.getBoolean("autoPersistUpdates", autoPersistUpdates);
     loadModuleInfo = p.getBoolean("loadModuleInfo", loadModuleInfo);
+    includeLabelInSql = p.getBoolean("includeLabelInSql", includeLabelInSql);
     maxCallStack = p.getInt("maxCallStack", maxCallStack);
     dumpMetricsOnShutdown = p.getBoolean("dumpMetricsOnShutdown", dumpMetricsOnShutdown);
     dumpMetricsOptions = p.get("dumpMetricsOptions", dumpMetricsOptions);
@@ -2619,6 +2627,11 @@ public class DatabaseConfig implements DatabaseBuilder.Settings {
     return loadModuleInfo;
   }
 
+  @Override
+  public boolean isIncludeLabelInSql() {
+    return includeLabelInSql;
+  }
+
   /**
    * @deprecated - migrate to {@link #isLoadModuleInfo()}.
    */
@@ -2632,6 +2645,12 @@ public class DatabaseConfig implements DatabaseBuilder.Settings {
   @Override
   public DatabaseConfig setLoadModuleInfo(boolean loadModuleInfo) {
     this.loadModuleInfo = loadModuleInfo;
+    return this;
+  }
+
+  @Override
+  public DatabaseConfig includeLabelInSql(boolean includeLabelInSql) {
+    this.includeLabelInSql = includeLabelInSql;
     return this;
   }
 

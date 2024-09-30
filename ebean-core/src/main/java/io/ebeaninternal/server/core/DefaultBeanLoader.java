@@ -63,8 +63,8 @@ final class DefaultBeanLoader {
     Object parentId = parentDesc.getId(parentBean);
     if (pc == null) {
       pc = new DefaultPersistenceContext();
-      parentDesc.contextPut(pc, parentId, parentBean);
     }
+    parentDesc.contextPutIfAbsent(pc, parentId, parentBean);
     boolean useManyIdCache = beanCollection != null && parentDesc.isManyPropCaching() && many.isUseCache();
     if (useManyIdCache) {
       Boolean readOnly = null;
@@ -126,9 +126,7 @@ final class DefaultBeanLoader {
     if (loadRequest.checkEmpty()) {
       throw new RuntimeException("Nothing in batch?");
     }
-    final SpiQuery<?> query = server.createQuery(loadRequest.beanType());
-    query.usingTransaction(loadRequest.transaction());
-    loadRequest.configureQuery(query);
+    final SpiQuery<?> query = loadRequest.createQuery(server);
     loadRequest.postLoad(executeQuery(loadRequest, query));
   }
 

@@ -57,7 +57,9 @@ public class DefaultOrmQuery<T> extends AbstractQuery implements SpiQuery<T> {
   private ProfilingListener profilingListener;
   private Type type;
   private String label;
+  private String hint;
   private Mode mode = Mode.NORMAL;
+  private boolean usingFuture;
   private Object tenantId;
   /**
    * Holds query in structured form.
@@ -70,6 +72,7 @@ public class DefaultOrmQuery<T> extends AbstractQuery implements SpiQuery<T> {
    * Lazy loading batch size (can override server wide default).
    */
   private int lazyLoadBatchSize;
+  private String distinctOn;
   private OrderBy<T> orderBy;
   private String loadMode;
   private String loadDescription;
@@ -236,6 +239,11 @@ public class DefaultOrmQuery<T> extends AbstractQuery implements SpiQuery<T> {
   }
 
   @Override
+  public final String hint() {
+    return hint;
+  }
+
+  @Override
   public final String planLabel() {
     if (label != null) {
       return label;
@@ -259,6 +267,12 @@ public class DefaultOrmQuery<T> extends AbstractQuery implements SpiQuery<T> {
   }
 
   @Override
+  public final Query<T> setHint(String hint) {
+    this.hint = hint;
+    return this;
+  }
+
+  @Override
   public final boolean isAutoTunable() {
     return nativeSql == null && beanDescriptor.isAutoTunable();
   }
@@ -277,6 +291,12 @@ public class DefaultOrmQuery<T> extends AbstractQuery implements SpiQuery<T> {
   @Override
   public final Query<T> apply(FetchPath fetchPath) {
     fetchPath.apply(this);
+    return this;
+  }
+
+  @Override
+  public Query<T> also(Consumer<Query<T>> apply) {
+    apply.accept(this);
     return this;
   }
 
@@ -491,19 +511,26 @@ public class DefaultOrmQuery<T> extends AbstractQuery implements SpiQuery<T> {
   }
 
   @Override
-  public final SpiQuerySecondary convertJoins() {
+  public final SpiQueryManyJoin convertJoins() {
     if (!useDocStore) {
       createExtraJoinsToSupportManyWhereClause();
     }
-    markQueryJoins();
+    return markQueryJoins();
+  }
+
+  @Override
+  public SpiQuerySecondary secondaryQuery() {
     return new OrmQuerySecondary(removeQueryJoins(), removeLazyJoins());
   }
 
   /**
    * Limit the number of fetch joins to Many properties, mark as query joins as needed.
+   *
+   * @return The query join many property or null.
    */
-  private void markQueryJoins() {
-    detail.markQueryJoins(beanDescriptor, lazyLoadManyPath, isAllowOneManyFetch(), type.defaultSelect());
+  private SpiQueryManyJoin markQueryJoins() {
+    // no automatic join to query join conversion when distinctOn is used
+    return distinctOn != null ? null : detail.markQueryJoins(beanDescriptor, lazyLoadManyPath, isAllowOneManyFetch(), type.defaultSelect());
   }
 
   private boolean isAllowOneManyFetch() {
@@ -627,12 +654,11 @@ public class DefaultOrmQuery<T> extends AbstractQuery implements SpiQuery<T> {
     return countDistinctOrder;
   }
 
-  /**
-   * Return true if the Id should be included in the query.
-   */
   @Override
   public final boolean isWithId() {
-    return !manualId && !distinct && !singleAttribute;
+    // distinctOn orm query will auto include the id property
+    // distinctOn dto query does NOT (via setting manualId to true)
+    return !manualId && !singleAttribute && (!distinct || distinctOn != null);
   }
 
   @Override
@@ -728,10 +754,12 @@ public class DefaultOrmQuery<T> extends AbstractQuery implements SpiQuery<T> {
     copy.baseTable = baseTable;
     copy.rootTableAlias = rootTableAlias;
     copy.distinct = distinct;
+    copy.distinctOn = distinctOn;
     copy.allowLoadErrors = allowLoadErrors;
     copy.timeout = timeout;
     copy.mapKey = mapKey;
     copy.id = id;
+    copy.hint = hint;
     copy.label = label;
     copy.nativeSql = nativeSql;
     copy.useBeanCache = useBeanCache;
@@ -784,6 +812,11 @@ public class DefaultOrmQuery<T> extends AbstractQuery implements SpiQuery<T> {
   @Override
   public final void setType(Type type) {
     this.type = type;
+  }
+
+  @Override
+  public String distinctOn() {
+    return distinctOn;
   }
 
   @Override
@@ -973,6 +1006,16 @@ public class DefaultOrmQuery<T> extends AbstractQuery implements SpiQuery<T> {
   }
 
   @Override
+  public final void usingFuture() {
+    this.usingFuture = true;
+  }
+
+  @Override
+  public final boolean isUsingFuture() {
+    return usingFuture;
+  }
+
+  @Override
   public final boolean isUsageProfiling() {
     return usageProfiling;
   }
@@ -1059,8 +1102,14 @@ public class DefaultOrmQuery<T> extends AbstractQuery implements SpiQuery<T> {
     if (manualId) {
       sb.append("/md");
     }
+    if (hint != null) {
+      sb.append("/h:").append(hint);
+    }
     if (distinct) {
       sb.append("/dt");
+      if (distinctOn != null) {
+        sb.append("/o:").append(distinctOn);
+      }
     }
     if (allowLoadErrors) {
       sb.append("/ae");
@@ -1315,6 +1364,13 @@ public class DefaultOrmQuery<T> extends AbstractQuery implements SpiQuery<T> {
   }
 
   @Override
+  public final Query<T> distinctOn(String distinctOn) {
+    this.distinctOn = distinctOn;
+    this.distinct = true;
+    return this;
+  }
+
+  @Override
   public final Query<T> select(String columns) {
     detail.select(columns);
     return this;
@@ -1322,7 +1378,9 @@ public class DefaultOrmQuery<T> extends AbstractQuery implements SpiQuery<T> {
 
   @Override
   public final Query<T> select(FetchGroup<T> fetchGroup) {
-    this.detail = ((SpiFetchGroup<T>) fetchGroup).detail();
+    if (fetchGroup != null) {
+      this.detail = ((SpiFetchGroup<T>) fetchGroup).detail();
+    }
     return this;
   }
 
@@ -1772,6 +1830,22 @@ public class DefaultOrmQuery<T> extends AbstractQuery implements SpiQuery<T> {
   @Override
   public final Query<T> setMaxRows(int maxRows) {
     this.maxRows = maxRows;
+    return this;
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  public Query<T> setPaging(@Nullable Paging paging) {
+    if (paging != null && paging.pageSize() > 0) {
+      firstRow = paging.pageIndex() * paging.pageSize();
+      maxRows = paging.pageSize();
+      orderBy = (OrderBy<T>) paging.orderBy();
+      if (orderBy == null || orderBy.isEmpty()) {
+        // should not be paging without any order by clause so set
+        // orderById such that the Id property is used
+        orderById = true;
+      }
+    }
     return this;
   }
 

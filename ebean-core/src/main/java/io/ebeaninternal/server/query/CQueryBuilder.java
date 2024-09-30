@@ -1,12 +1,8 @@
 package io.ebeaninternal.server.query;
 
-import io.ebean.CountDistinctOrder;
-import io.ebean.Query;
-import io.ebean.RawSql;
-import io.ebean.RawSqlBuilder;
+import io.ebean.*;
 import io.ebean.annotation.Platform;
 import io.ebean.config.dbplatform.DatabasePlatform;
-import io.ebean.config.dbplatform.SqlLimitRequest;
 import io.ebean.config.dbplatform.SqlLimitResponse;
 import io.ebean.config.dbplatform.SqlLimiter;
 import io.ebean.event.readaudit.ReadAuditQueryPlan;
@@ -52,11 +48,13 @@ final class CQueryBuilder {
   private final CQueryDraftSupport draftSupport;
   private final DatabasePlatform dbPlatform;
   private final boolean selectCountWithColumnAlias;
+  private final boolean includeLabelInSql;
 
   /**
    * Create the SqlGenSelect.
    */
-  CQueryBuilder(DatabasePlatform dbPlatform, Binder binder, CQueryHistorySupport historySupport, CQueryDraftSupport draftSupport) {
+  CQueryBuilder(DatabaseBuilder.Settings config, DatabasePlatform dbPlatform, Binder binder, CQueryHistorySupport historySupport, CQueryDraftSupport draftSupport) {
+    this.includeLabelInSql = config.isIncludeLabelInSql();
     this.dbPlatform = dbPlatform;
     this.binder = binder;
     this.draftSupport = draftSupport;
@@ -534,7 +532,7 @@ final class CQueryBuilder {
     private final boolean distinct;
     private final boolean countSingleAttribute;
     private final String dbOrderBy;
-    private boolean useSqlLimiter;
+    private final boolean useSqlLimiter;
     private boolean hasWhere;
 
     private BuildReq(String selectClause, OrmQueryRequest<?> request, CQueryPredicates predicates, SqlTree select) {
@@ -551,13 +549,15 @@ final class CQueryBuilder {
       this.distinct = query.isDistinct() || select.isSqlDistinct();
       this.dbOrderBy = predicates.dbOrderBy();
       this.countSingleAttribute = query.isCountDistinct() && query.isSingleAttribute();
+      this.useSqlLimiter = selectClause == null
+        && query.hasMaxRowsOrFirstRow()
+        && (select.distinctOn() != null || select.manyProperty() == null || query.isSingleAttribute());
     }
 
     private void appendSelect() {
       if (selectClause != null) {
         sb.append(selectClause);
       } else {
-        useSqlLimiter = (query.hasMaxRowsOrFirstRow() && (select.manyProperty() == null || query.isSingleAttribute()));
         if (!useSqlLimiter) {
           appendSelectDistinct();
         }
@@ -582,7 +582,7 @@ final class CQueryBuilder {
         if (request.isInlineCountDistinct()) {
           sb.append(')');
         }
-        if (distinct && dbOrderBy != null) {
+        if (distinct && dbOrderBy != null && query.distinctOn() == null) {
           // add the orderBy columns to the select clause (due to distinct)
           String[] tokens = DbOrderByTrim.trim(dbOrderBy).split(",");
           for (String token : tokens) {
@@ -596,7 +596,7 @@ final class CQueryBuilder {
     }
 
     private void appendSelectDistinct() {
-      sb.append("select ");
+      sb.append("select ").append(hint()).append(inlineSqlComment());
       if (distinct && !countSingleAttribute) {
         if (request.isInlineCountDistinct()) {
           sb.append("count(");
@@ -607,6 +607,30 @@ final class CQueryBuilder {
           sb.append("on (").append(distinctOn).append(") ");
         }
       }
+    }
+
+    private String hint() {
+      String hint = query.hint();
+      return hint == null ? "" : dbPlatform.inlineSqlHint(hint);
+    }
+
+    private String inlineSqlComment() {
+      if (!includeLabelInSql) {
+        return "";
+      }
+      SpiQuery.Type type = query.type();
+      if (type == SpiQuery.Type.SQ_EX || type == SpiQuery.Type.SQ_EXISTS) {
+        return "";
+      }
+      final var label = query.label();
+      if (label != null) {
+        return dbPlatform.inlineSqlComment(label);
+      }
+      final var profileLocation = query.profileLocation();
+      if (profileLocation != null) {
+        return dbPlatform.inlineSqlComment(profileLocation.label());
+      }
+      return "";
     }
 
     private void appendFrom() {
@@ -710,7 +734,7 @@ final class CQueryBuilder {
       }
       if (useSqlLimiter) {
         // use LIMIT/OFFSET, ROW_NUMBER() or rownum type SQL query limitation
-        SqlLimitRequest r = new OrmQueryLimitRequest(sb.toString(), dbOrderBy, query, dbPlatform, distinct);
+        var r = new OrmQueryLimitRequest(sb.toString(), dbOrderBy, query, dbPlatform, distinct, select.distinctOn(), hint(), inlineSqlComment());
         return sqlLimiter.limit(r);
       } else {
         if (updateStatement) {

@@ -1,6 +1,8 @@
 package io.ebean.metric;
 
 import io.ebean.ProfileLocation;
+import io.ebean.XBootstrapService;
+import io.ebean.service.BootstrapService;
 
 import java.util.function.IntSupplier;
 import java.util.function.LongSupplier;
@@ -8,13 +10,13 @@ import java.util.function.LongSupplier;
 /**
  * Factory to create timed metric counters.
  */
-public interface MetricFactory {
+public interface MetricFactory extends BootstrapService {
 
   /**
    * Return the factory instance.
    */
   static MetricFactory get() {
-    return MetricServiceProvider.get();
+    return XBootstrapService.metricFactory();
   }
 
   /**

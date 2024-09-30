@@ -762,16 +762,6 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
   }
 
   @Override
-  public void commitTransaction() {
-    currentTransaction().commit();
-  }
-
-  @Override
-  public void rollbackTransaction() {
-    currentTransaction().rollback();
-  }
-
-  @Override
   public void endTransaction() {
     Transaction transaction = transactionManager.inScope();
     if (transaction != null) {
@@ -1314,6 +1304,7 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
   @Override
   public <T> FutureRowCount<T> findFutureCount(SpiQuery<T> query) {
     SpiQuery<T> copy = query.copy();
+    copy.usingFuture();
     boolean createdTransaction = false;
     SpiTransaction transaction = query.transaction();
     if (transaction == null) {
@@ -1332,6 +1323,7 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
   @Override
   public <T> FutureIds<T> findFutureIds(SpiQuery<T> query) {
     SpiQuery<T> copy = query.copy();
+    copy.usingFuture();
     boolean createdTransaction = false;
     SpiTransaction transaction = query.transaction();
     if (transaction == null) {
@@ -1350,6 +1342,7 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
   @Override
   public <T> FutureList<T> findFutureList(SpiQuery<T> query) {
     SpiQuery<T> spiQuery = query.copy();
+    spiQuery.usingFuture();
     // FutureList query always run in it's own persistence content
     spiQuery.setPersistenceContext(new DefaultPersistenceContext());
     if (!spiQuery.isDisableReadAudit()) {
@@ -1693,41 +1686,50 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
     }, transaction);
   }
 
-  /**
-   * Insert the bean.
-   */
   @Override
   public void insert(Object bean) {
-    insert(bean, null);
+    persister.insert(checkEntityBean(bean), null, null);
   }
 
-  /**
-   * Insert the bean with a transaction.
-   */
+  @Override
+  public void insert(Object bean, @Nullable InsertOptions insertOptions) {
+    persister.insert(checkEntityBean(bean), insertOptions, null);
+  }
+
   @Override
   public void insert(Object bean, @Nullable Transaction transaction) {
-    persister.insert(checkEntityBean(bean), transaction);
+    persister.insert(checkEntityBean(bean), null, transaction);
   }
 
-  /**
-   * Insert all beans in the collection.
-   */
+  @Override
+  public void insert(Object bean, InsertOptions insertOptions, Transaction transaction) {
+    persister.insert(checkEntityBean(bean), insertOptions, transaction);
+  }
+
   @Override
   public void insertAll(Collection<?> beans) {
-    insertAll(beans, null);
+    insertAll(beans, null, null);
   }
 
-  /**
-   * Insert all beans in the collection with a transaction.
-   */
+  @Override
+  public void insertAll(Collection<?> beans, InsertOptions options) {
+    insertAll(beans, options, null);
+  }
+
   @Override
   public void insertAll(@Nullable Collection<?> beans, @Nullable Transaction transaction) {
+    insertAll(beans, null, transaction);
+  }
+
+  @Override
+  public void insertAll(@Nullable Collection<?> beans, InsertOptions options, @Nullable Transaction transaction) {
     if (beans == null || beans.isEmpty()) {
       return;
     }
     executeInTrans((txn) -> {
+      txn.checkBatchEscalationOnCollection();
       for (Object bean : beans) {
-        persister.insert(checkEntityBean(bean), txn);
+        persister.insert(checkEntityBean(bean), options, txn);
       }
       return 0;
     }, transaction);
@@ -2224,7 +2226,9 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
   @Override
   public void slowQueryCheck(long timeMicros, int rowCount, SpiQuery<?> query) {
     if (timeMicros > slowQueryMicros && slowQueryListener != null) {
-      slowQueryListener.process(new SlowQueryEvent(query.getGeneratedSql(), timeMicros / 1000L, rowCount, query.parentNode()));
+      List<Object> bindParams = new SlowQueryBindCapture(query).capture();
+      slowQueryListener.process(new DSlowQueryEvent(query.getGeneratedSql(), timeMicros / 1000L, rowCount,
+        query.parentNode(), bindParams, query.label(), query.profileLocation()));
     }
   }
 

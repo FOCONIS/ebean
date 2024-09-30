@@ -4,6 +4,7 @@ import io.ebean.*;
 import io.ebean.annotation.Transactional;
 import io.ebean.test.LoggedSql;
 import io.ebean.types.Inet;
+import io.ebeaninternal.api.SpiQuery;
 import org.example.domain.Address;
 import org.example.domain.Country;
 import org.example.domain.Customer;
@@ -147,6 +148,31 @@ public class QCustomerTest {
     assertThat(batchSizes.get(1)).isEqualTo(9);
   }
 
+  // using QCustomer.forFetchGroup() ... does not need any Ebean Database initialisation etc
+  // and so is good for when we want to build a static final OrderBy
+  static final OrderBy<Customer> orderBy = QCustomer.forFetchGroup()
+    .name.asc()
+    .email.desc()
+    .query().orderBy();
+
+  @Test
+  void findWithPaging() {
+    // OrderBy<Customer> orderBy = new QCustomer().name.asc().email.desc().query().orderBy();
+    OrderBy<Customer> orderBy = OrderBy.of("name, email desc");
+    var paging = Paging.of(2, 10, QCustomerTest.orderBy);
+
+    LoggedSql.start();
+
+    new QCustomer()
+      .name.isNotNull()
+      .setPaging(paging)
+      .findList();
+
+    List<String> sql = LoggedSql.stop();
+    assertThat(sql).hasSize(1);
+    assertThat(sql.get(0)).contains("where t0.name is not null order by t0.name, t0.email desc limit 10 offset 20");
+  }
+
   @Test
   public void findIterate() {
 
@@ -226,6 +252,22 @@ public class QCustomerTest {
       .findList();
   }
 
+  @Test
+  public void distinctOn() {
+    var c = QContact.alias();
+    var q = new QContact()
+      .distinctOn(c.customer)
+      .select(c.lastName, c.whenCreated)
+      .orderBy()
+      .customer.id.asc()
+      .whenCreated.desc()
+      .query();
+
+    SpiQuery<?> spiQuery = (SpiQuery<?>) q;
+    assertThat(spiQuery.distinctOn()).isEqualTo("customer");
+    assertThat(spiQuery.isDistinct()).isTrue();
+  }
+
   @Transactional
   @Test
   public void forUpdate() {
@@ -284,7 +326,7 @@ public class QCustomerTest {
       .query();
 
     q.findList();
-    assertThat(q.getGeneratedSql()).isEqualTo("select t0.id, t0.name, t1.id, t1.first_name, t1.last_name from be_customer t0 left join be_contact t1 on t1.customer_id = t0.id where t1.first_name like ? escape'|' and t1.email is not null order by t0.id");
+    assertThat(q.getGeneratedSql()).isEqualTo("select /* QCustomerTest.filterMany */ t0.id, t0.name, t1.id, t1.first_name, t1.last_name from be_customer t0 left join be_contact t1 on t1.customer_id = t0.id where (t1.id is null or (t1.first_name like ? escape'|' and t1.email is not null)) order by t0.id");
   }
 
   @Test
@@ -296,7 +338,7 @@ public class QCustomerTest {
       .query();
 
     q.findList();
-    assertThat(q.getGeneratedSql()).isEqualTo("select t0.id, t0.name, t1.id, t1.first_name, t1.last_name from be_customer t0 left join be_contact t1 on t1.customer_id = t0.id where t1.first_name like ? escape'|' order by t0.id");
+    assertThat(q.getGeneratedSql()).isEqualTo("select /* QCustomerTest.filterManySingle */ t0.id, t0.name, t1.id, t1.first_name, t1.last_name from be_customer t0 left join be_contact t1 on t1.customer_id = t0.id where (t1.id is null or (t1.first_name like ? escape'|')) order by t0.id");
   }
 
   @Test
@@ -314,7 +356,7 @@ public class QCustomerTest {
       .query();
 
     q.findList();
-    assertThat(q.getGeneratedSql()).isEqualTo("select t0.id, t0.name from be_customer t0 limit 10");
+    assertThat(q.getGeneratedSql()).isEqualTo("select /* QCustomerTest.filterManySeparateQuery */ t0.id, t0.name from be_customer t0 limit 10");
   }
 
   @Test
@@ -331,7 +373,7 @@ public class QCustomerTest {
       .query();
 
     q.findList();
-    assertThat(q.getGeneratedSql()).contains(" from be_customer t0 left join be_contact t1 on t1.customer_id = t0.id where t1.first_name like ? and t1.first_name like ");
+    assertThat(q.getGeneratedSql()).contains(" from be_customer t0 left join be_contact t1 on t1.customer_id = t0.id where (t1.id is null or (t1.first_name like ? and t1.first_name like ? escape'|')) order by t0.id");
   }
 
   @Test

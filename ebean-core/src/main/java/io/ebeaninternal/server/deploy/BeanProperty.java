@@ -45,8 +45,8 @@ import io.ebeanservice.docstore.api.mapping.DocMappingBuilder;
 import io.ebeanservice.docstore.api.mapping.DocPropertyMapping;
 import io.ebeanservice.docstore.api.mapping.DocPropertyOptions;
 import io.ebeanservice.docstore.api.support.DocStructure;
-
 import jakarta.persistence.PersistenceException;
+
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
@@ -515,6 +515,11 @@ public class BeanProperty implements ElPropertyValue, Property, STreeProperty {
 
   public boolean isAssignableFrom(Class<?> type) {
     return owningType.isAssignableFrom(type);
+  }
+
+  @Override
+  public String idNullOr(String filterManyExpression) {
+    throw new UnsupportedOperationException();
   }
 
   @Override
@@ -1194,14 +1199,14 @@ public class BeanProperty implements ElPropertyValue, Property, STreeProperty {
    * Returns true if this <code>isLob()</code> or the type will effectively map to a lob.
    */
   @Override
-  public boolean isDbLob() {
+  public boolean isLobForPlatform() {
     if (lob) {
       return true;
     }
     switch (dbType) {
       case DbPlatformType.JSON:
       case DbPlatformType.JSONB:
-        return dbLength == 0; // must be analog to DbPlatformTypeMapping.lookup
+        return dbLength == 0 || dbLength > 4000; // must be analog to DbPlatformTypeMapping.lookup
       case DbPlatformType.JSONBlob:
       case DbPlatformType.JSONClob:
         return true;

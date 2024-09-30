@@ -16,4 +16,6 @@ module io.ebean.ddl.generator {
 
   // support existing tests
   exports io.ebeaninternal.extraddl.model to io.ebean.test;
+
+  opens io.ebeaninternal.extraddl.model to jakarta.xml.bind;
 }

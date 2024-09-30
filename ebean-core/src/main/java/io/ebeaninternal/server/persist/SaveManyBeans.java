@@ -185,7 +185,9 @@ final class SaveManyBeans extends SaveManyBase {
           } else if (ebi.isNewOrDirty()) {
             skipSavingThisBean = false;
             // set the parent bean to detailBean
-            many.setJoinValuesToChild(parentBean, detail, mapKeyValue);
+            many.setParentToChild(parentBean, detail, mapKeyValue);
+          } else if (many.setParentToChild(parentBean, detail, mapKeyValue, request.descriptor())) {
+            skipSavingThisBean = false;
           } else {
             skipSavingThisBean = saveRecurseSkippable;
           }
@@ -358,7 +360,7 @@ final class SaveManyBeans extends SaveManyBase {
   }
 
   private boolean isChangedProperty() {
-    return parentBean._ebean_getIntercept().isChangedProperty(many.propertyIndex());
+    return request.isChangedProperty(many.propertyIndex());
   }
 
   private void removeAssocManyOrphans() {
