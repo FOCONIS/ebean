@@ -460,7 +460,13 @@ public abstract class SpiTransactionProxy implements SpiTransaction {
   }
 
   @Override
+  public void deactivateExternal() {
+    transaction.deactivateExternal();
+  }
+
+  @Override
   public Transaction root() {
     return transaction.root();
   }
+
 }

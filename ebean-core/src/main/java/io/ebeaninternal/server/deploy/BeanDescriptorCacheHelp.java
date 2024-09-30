@@ -511,7 +511,7 @@ abstract class BeanDescriptorCacheHelp<T> {
 
     if (natKeys != null && !natKeys.isEmpty()) {
       if (natLog.isLoggable(DEBUG)) {
-        natLog.log(DEBUG, " MPUT {0}({1}, {2})", cacheName, naturalKey, natKeys.keySet());
+        natLog.log(DEBUG, " MPUT {0}({1}, {2})", cacheName, Arrays.toString(naturalKey), natKeys.keySet());
       }
       getNaturalKeyCache().putAll(natKeys);
     }
