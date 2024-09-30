@@ -89,8 +89,8 @@ public class TestServerOffline {
       DatabaseConfig config = config(props);
 
       LazyDatasourceInitializer alert = new LazyDatasourceInitializer() ;
-      config.getDataSourceConfig().setAlert(alert);
-      config.getDataSourceConfig().setHeartbeatFreqSecs(1);
+      config.getDataSourceConfig().alert(alert);
+      config.getDataSourceConfig().heartbeatFreqSecs(1);
 
       Database h2Offline = DatabaseFactory.create(config);
       alert.server = h2Offline;
@@ -147,7 +147,7 @@ public class TestServerOffline {
     config.loadFromProperties(props);
     config.setDefaultServer(false);
     config.setRegister(false);
-    config.getClasses().add(EBasicVer.class);
+    config.classes().add(EBasicVer.class);
     return config;
   }
 
