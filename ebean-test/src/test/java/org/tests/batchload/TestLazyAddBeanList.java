@@ -133,7 +133,7 @@ public class TestLazyAddBeanList extends BaseTestCase {
       containsExactlyInAnyOrder("jim", "joe", "charlie");
     List<String> sql = LoggedSql.stop();
 
-    assertThat(sql.get(0)).contains("from o_customer t0 left join contact t1 ");
+    assertThat(sql.get(0)).contains("from contact t0 where (t0.customer_id) in (?)");
     assertThat(sql).hasSize(1);
   }
 
