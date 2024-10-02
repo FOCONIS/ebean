@@ -367,7 +367,7 @@ public class TestBatchInsertFlush extends BaseTestCase {
 
     ResetBasicData.reset();
 
-    try (Transaction txn = DB.beginTransaction(TxScope.requiresNew())) { // AbstractKontrolllauf
+    try (Transaction txn = DB.beginTransaction(TxScope.requiresNew())) {
       // do anything, that enables batch mode
       // in ebean 14
       DB.insertAll(List.of(new Acl("test")));
