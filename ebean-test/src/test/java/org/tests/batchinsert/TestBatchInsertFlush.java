@@ -3,6 +3,7 @@ package org.tests.batchinsert;
 import io.ebean.DB;
 import io.ebean.Database;
 import io.ebean.Transaction;
+import io.ebean.TxScope;
 import io.ebean.annotation.PersistBatch;
 import io.ebean.annotation.Platform;
 import io.ebean.annotation.Transactional;
@@ -15,6 +16,7 @@ import io.ebean.xtest.base.DtoQuery2Test;
 import io.ebeaninternal.api.SpiTransaction;
 import org.junit.jupiter.api.Test;
 import org.tests.model.basic.*;
+import org.tests.query.cache.Acl;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -357,6 +359,37 @@ public class TestBatchInsertFlush extends BaseTestCase {
 
     } finally {
       txn.end();
+    }
+  }
+
+  @Test
+  public void testFlushWithOrder() {
+
+    ResetBasicData.reset();
+
+    try (Transaction txn = DB.beginTransaction(TxScope.requiresNew())) { // AbstractKontrolllauf
+      // do anything, that enables batch mode
+      // in ebean 14
+      DB.insertAll(List.of(new Acl("test")));
+      // does the same as txn.setBatchMode(true);
+
+      // Save contact without group assigned
+      Contact contact = new Contact();
+      contact.setCustomer(DB.find(Customer.class).setMaxRows(1).findOne());
+      DB.save(contact);
+
+      // create new group with fixed id
+      ContactGroup group = new ContactGroup();
+      group.setName("Max");
+      group.setId(42);
+      DB.save(group);
+
+      // assign new group to contact
+      contact.setGroup(group);
+      DB.save(contact);
+      // Ebean holds in it's internal batch queue Contact:0. ContactGroup:1
+
+      txn.commit();
     }
   }
 }
