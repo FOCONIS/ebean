@@ -567,4 +567,9 @@ public class TDSpiServer implements SpiServer {
   public void loadBean(EntityBeanIntercept ebi) {
 
   }
+
+  @Override
+  public void runDdl() {
+
+  }
 }
