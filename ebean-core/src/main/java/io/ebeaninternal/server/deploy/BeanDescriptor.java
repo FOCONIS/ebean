@@ -278,7 +278,7 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType, SpiBeanType {
     this.idOnlyReference = isIdOnlyReference(propertiesBaseScalar);
     boolean noRelationships = propertiesOne.length + propertiesMany.length == 0;
     this.cacheSharableBeans = noRelationships && deploy.getCacheOptions().isReadOnly();
-    this.cacheHelp = new BeanDescriptorCacheHelp<>(this, owner.cacheManager(), deploy.getCacheOptions(), cacheSharableBeans, propertiesOneImported);
+    this.cacheHelp = BeanDescriptorCacheHelpPartitioned.create(this, owner.cacheManager(), deploy.getCacheOptions(), cacheSharableBeans, propertiesOneImported);
     this.jsonHelp = initJsonHelp();
     // Check if there are no cascade save associated beans ( subject to change
     // in initialiseOther()). Note that if we are in an inheritance hierarchy
