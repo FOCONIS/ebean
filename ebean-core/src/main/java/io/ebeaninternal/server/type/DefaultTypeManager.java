@@ -7,7 +7,6 @@ import io.ebean.config.*;
 import io.ebean.config.dbplatform.DatabasePlatform;
 import io.ebean.config.dbplatform.DbPlatformType;
 import io.ebean.core.type.*;
-import io.ebean.plugin.Lookups;
 import io.ebean.types.Cidr;
 import io.ebean.types.Inet;
 import io.ebean.util.AnnotationUtil;
@@ -17,11 +16,12 @@ import io.ebeaninternal.api.GeoTypeProvider;
 import io.ebeaninternal.server.core.ServiceUtil;
 import io.ebeaninternal.server.core.bootup.BootupClasses;
 import io.ebeaninternal.server.deploy.meta.DeployBeanProperty;
+import io.ebeaninternal.server.deploy.meta.DeployProperty;
 
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.EnumType;
 import java.io.File;
-import java.lang.invoke.MethodType;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
@@ -191,7 +191,8 @@ public final class DefaultTypeManager implements TypeManager {
   }
 
   @Override
-  public ScalarType<?> type(Type propertyType, Class<?> propertyClass) {
+  public ScalarType<?> type(DeployProperty prop) {
+    Type propertyType = prop.getGenericType();
     if (propertyType instanceof ParameterizedType) {
       ParameterizedType pt = (ParameterizedType) propertyType;
       Type rawType = pt.getRawType();
@@ -199,7 +200,7 @@ public final class DefaultTypeManager implements TypeManager {
         return dbArrayType((Class<?>) rawType, propertyType, true);
       }
     }
-    return type(propertyClass);
+    return type(prop.getPropertyType());
   }
 
   /**
@@ -215,9 +216,6 @@ public final class DefaultTypeManager implements TypeManager {
             + " either 'normal' or 'utc'.  UTC is the old mode using UTC timezone but local time zone is now preferred as 'normal' mode.");
       }
       found = checkInheritedTypes(type);
-    }
-    if (found instanceof ScalarTypeClass) {
-      log.log(WARNING, "@Column mapping for type Class is deprecated. Please refer to https://ebean.io/docs/deprecated#class-mapping");
     }
     return found != ScalarTypeNotFound.INSTANCE ? found : null; // Do not return ScalarTypeNotFound, otherwise checks will fail
   }
@@ -300,8 +298,14 @@ public final class DefaultTypeManager implements TypeManager {
     return TypeReflectHelper.isEnumType(valueType);
   }
 
+
   @Override
-  public ScalarType<?> dbJsonType(DeployBeanProperty prop, int dbType, int dbLength) {
+  public Class<? extends Annotation> jsonMarkerAnnotation() {
+    return jsonMapper == null ? null : jsonMapper.markerAnnotation();
+  }
+
+  @Override
+  public ScalarType<?> dbJsonType(DeployProperty prop, int dbType, int dbLength) {
     Class<?> type = prop.getPropertyType();
     if (type.equals(String.class)) {
       return ScalarTypeJsonString.typeFor(postgres, dbType);
@@ -331,14 +335,14 @@ public final class DefaultTypeManager implements TypeManager {
     return createJsonObjectMapperType(prop, dbType, DocPropertyType.OBJECT);
   }
 
-  private boolean keepSource(DeployBeanProperty prop) {
+  private boolean keepSource(DeployProperty prop) {
     if (prop.getMutationDetection() == MutationDetection.DEFAULT) {
       prop.setMutationDetection(jsonManager.mutationDetection());
     }
     return prop.getMutationDetection() == MutationDetection.SOURCE;
   }
 
-  private DocPropertyType docPropertyType(DeployBeanProperty prop, Class<?> type) {
+  private DocPropertyType docPropertyType(DeployProperty prop, Class<?> type) {
     return type.equals(List.class) || type.equals(Set.class) ? docType(prop.getGenericType()) : DocPropertyType.OBJECT;
   }
 
@@ -372,14 +376,18 @@ public final class DefaultTypeManager implements TypeManager {
     return Object.class.equals(typeArgs[1]) || "?".equals(typeArgs[1].toString());
   }
 
-  private ScalarType<?> createJsonObjectMapperType(DeployBeanProperty prop, int dbType, DocPropertyType docType) {
+  private ScalarType<?> createJsonObjectMapperType(DeployProperty prop, int dbType, DocPropertyType docType) {
     if (jsonMapper == null) {
-      throw new IllegalArgumentException("Unsupported @DbJson mapping - Missing dependency ebean-jackson-mapper? Jackson ObjectMapper not present for " + prop);
+      throw new IllegalArgumentException("Unsupported @DbJson mapping - Jackson ObjectMapper not present for " + prop);
     }
     if (MutationDetection.DEFAULT == prop.getMutationDetection()) {
       prop.setMutationDetection(jsonManager.mutationDetection());
     }
-    var req = new ScalarJsonRequest(jsonManager, dbType, docType, prop.getDesc().getBeanType(), prop.getMutationDetection(), prop.getName());
+    Class<?> type = prop.getOwnerType();
+    if (prop instanceof DeployBeanProperty) {
+      type = ((DeployBeanProperty) prop).getField().getDeclaringClass();
+    }
+    var req = new ScalarJsonRequest(jsonManager, dbType, docType, type, prop.getMutationDetection(), prop.getName());
     return jsonMapper.createType(req);
   }
 
@@ -602,20 +610,19 @@ public final class DefaultTypeManager implements TypeManager {
   private void initialiseCustomScalarTypes(BootupClasses bootupClasses) {
     for (Class<? extends ScalarType<?>> cls : bootupClasses.getScalarTypes()) {
       try {
-        var lookup = Lookups.getLookup(cls);
         ScalarType<?> scalarType;
         if (objectMapper == null) {
-          scalarType = Lookups.newDefaultInstance(cls);
+          scalarType = cls.getDeclaredConstructor().newInstance();
         } else {
           try {
             // first try objectMapper constructor
-            scalarType = (ScalarType<?>) lookup.findConstructor(cls, MethodType.methodType(ObjectMapper.class)).invoke(objectMapper);
+            scalarType = cls.getDeclaredConstructor(ObjectMapper.class).newInstance(objectMapper);
           } catch (NoSuchMethodException e) {
-            scalarType = Lookups.newDefaultInstance(cls);
+            scalarType = cls.getDeclaredConstructor().newInstance();
           }
         }
         add(scalarType);
-      } catch (Throwable e) {
+      } catch (Exception e) {
         log.log(ERROR, "Error loading ScalarType " + cls.getName(), e);
       }
     }
@@ -645,11 +652,11 @@ public final class DefaultTypeManager implements TypeManager {
         if (wrappedType == null) {
           throw new IllegalStateException("Could not find ScalarType for: " + paramTypes[1]);
         }
-        ScalarTypeConverter converter = Lookups.newDefaultInstance(foundType);
+        ScalarTypeConverter converter = foundType.getDeclaredConstructor().newInstance();
         ScalarTypeWrapper stw = new ScalarTypeWrapper(logicalType, wrappedType, converter);
         log.log(DEBUG, "Register ScalarTypeWrapper from {0} -> {1} using:{2}", logicalType, persistType, foundType);
         add(stw);
-      } catch (Throwable e) {
+      } catch (Exception e) {
         log.log(ERROR, "Error registering ScalarTypeConverter " + foundType.getName(), e);
       }
     }
@@ -669,11 +676,11 @@ public final class DefaultTypeManager implements TypeManager {
         if (wrappedType == null) {
           throw new IllegalStateException("Could not find ScalarType for: " + paramTypes[1]);
         }
-        AttributeConverter converter =  Lookups.newDefaultInstance(foundType);
+        AttributeConverter converter = foundType.getDeclaredConstructor().newInstance();
         ScalarTypeWrapper stw = new ScalarTypeWrapper(logicalType, wrappedType, new AttributeConverterAdapter(converter));
         log.log(DEBUG, "Register ScalarTypeWrapper from {0} -> {1} using:{2}", logicalType, persistType, foundType);
         add(stw);
-      } catch (Throwable e) {
+      } catch (Exception e) {
         log.log(ERROR, "Error registering AttributeConverter " + foundType.getName(), e);
       }
     }
