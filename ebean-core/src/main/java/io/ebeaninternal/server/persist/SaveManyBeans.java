@@ -7,9 +7,12 @@ import io.ebeaninternal.api.CoreLog;
 import io.ebeaninternal.api.SpiSqlUpdate;
 import io.ebeaninternal.server.core.PersistRequestBean;
 import io.ebeaninternal.server.deploy.*;
-import jakarta.persistence.PersistenceException;
 
-import java.util.*;
+import jakarta.persistence.PersistenceException;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import static io.ebeaninternal.server.persist.DmlUtil.isNullOrZero;
 import static java.lang.System.Logger.Level.WARNING;

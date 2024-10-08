@@ -1,9 +1,5 @@
 package io.ebeaninternal.server.properties;
 
-import io.ebean.bean.ExtensionAccessor;
-import io.ebean.bean.ExtensionAccessors;
-
-import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 

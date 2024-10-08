@@ -597,9 +597,6 @@ public class DatabaseConfig implements DatabaseBuilder.Settings {
     return this;
   }
 
-  /**
-   * Return the slow query time in millis.
-   */
   @Override
   public long getSlowQueryMillis() {
     return slowQueryMillis;
@@ -1212,15 +1209,22 @@ public class DatabaseConfig implements DatabaseBuilder.Settings {
     return this;
   }
 
+  /**
+   * Returns, if the caches are partitioned by tenant.
+   */
+  @Override
   public boolean isTenantPartitionedCache() {
     return tenantPartitionedCache;
   }
 
-  public void tenantPartitionedCache(boolean tenantPartitionedCache) {
+  /**
+   * Sets the tenant partitioning mode for caches. This means, caches are created on demand,
+   * but they may not get invalidated across tenant boundaries   *
+   */
+  @Override
+  public void setTenantPartitionedCache(boolean tenantPartitionedCache) {
     this.tenantPartitionedCache = tenantPartitionedCache;
   }
-
-  public void setTenantPartitionedCache(boolean tenantPartitionedCache) { tenantPartitionedCache(tenantPartitionedCache); }
 
   /**
    * Return the L2 cache default max size.
@@ -2032,10 +2036,13 @@ public class DatabaseConfig implements DatabaseBuilder.Settings {
     return configStartupListeners;
   }
 
-  public void addCustomDeployParser(CustomDeployParser customDeployParser) {
+  @Override
+  public DatabaseConfig addCustomDeployParser(CustomDeployParser customDeployParser) {
     customDeployParsers.add(customDeployParser);
+    return this;
   }
 
+  @Override
   public List<CustomDeployParser> getCustomDeployParsers() {
     return customDeployParsers;
   }
@@ -2510,16 +2517,15 @@ public class DatabaseConfig implements DatabaseBuilder.Settings {
     return this;
   }
 
+  @Override
   public String getQueryPlanOptions() {
     return queryPlanOptions;
   }
 
-  public void queryPlanOptions(String queryPlanOptions) {
+  @Override
+  public DatabaseConfig queryPlanOptions(String queryPlanOptions) {
     this.queryPlanOptions = queryPlanOptions;
-  }
-
-  public void setQueryPlanOptions(String queryPlanOptions) {
-    queryPlanOptions(queryPlanOptions) ;
+    return this;
   }
 
   @Override

@@ -1,8 +1,8 @@
 package io.ebeaninternal.server.core.bootup;
 
 import io.ebean.annotation.DocStore;
-import io.ebean.bean.extend.EntityExtension;
 import io.ebean.DatabaseBuilder;
+import io.ebean.bean.extend.EntityExtension;
 import io.ebean.config.IdGenerator;
 import io.ebean.config.ScalarTypeConverter;
 import io.ebean.core.type.ScalarType;

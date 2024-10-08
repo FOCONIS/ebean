@@ -300,14 +300,6 @@ public interface DatabaseBuilder {
   DatabaseBuilder setClock(Clock clock);
 
   /**
-   * @deprecated migrate to {@link #tempFileProvider(TempFileProvider)}.
-   */
-  @Deprecated
-  void setTempFileProvider(final TempFileProvider tempFileProvider);
-
-  void tempFileProvider(final TempFileProvider tempFileProvider);
-
-  /**
    * Set the slow query time in millis.
    */
   default DatabaseBuilder slowQueryMillis(long slowQueryMillis) {
@@ -909,12 +901,6 @@ public interface DatabaseBuilder {
    * Sets the tenant partitioning mode for caches. This means, caches are created on demand,
    * but they may not get invalidated across tenant boundaries   *
    */
-  void tenantPartitionedCache(boolean tenantPartitionedCache);
-
-  /**
-   * @deprecated migrate to {@link #tenantPartitionedCache(boolean)}.
-   */
-  @Deprecated
   void setTenantPartitionedCache(boolean tenantPartitionedCache);
 
   /**
@@ -1851,7 +1837,7 @@ public interface DatabaseBuilder {
   /**
    * Add a CustomDeployParser.
    */
-  void addCustomDeployParser(CustomDeployParser customDeployParser);
+  DatabaseConfig addCustomDeployParser(CustomDeployParser customDeployParser);
 
   /**
    * Register all the BeanPersistListener instances.
@@ -2106,6 +2092,11 @@ public interface DatabaseBuilder {
   DatabaseBuilder setQueryPlanEnable(boolean queryPlanEnable);
 
   /**
+   * Set platform specific query plan options.
+   */
+  DatabaseBuilder queryPlanOptions(String queryPlanOptions);
+
+  /**
    * Set the query plan collection threshold in microseconds.
    * <p>
    * Queries executing slower than this will have bind values captured such that later
@@ -2120,17 +2111,6 @@ public interface DatabaseBuilder {
    */
   @Deprecated
   DatabaseBuilder setQueryPlanThresholdMicros(long queryPlanThresholdMicros);
-
-  /**
-   * @deprecated migrate to {@link #queryPlanOptions(String)}.
-   */
-  @Deprecated
-  void setQueryPlanOptions(String queryPlanOptions);
-
-  /**
-   * Set platform specific query plan options.
-   */
-  void queryPlanOptions(String queryPlanOptions);
 
   /**
    * Set to true to turn on periodic capture of query plans.
@@ -2296,8 +2276,6 @@ public interface DatabaseBuilder {
      * Get the clock used for setting the timestamps (e.g. @UpdatedTimestamp) on objects.
      */
     Clock getClock();
-
-    TempFileProvider getTempFileProvider();
 
     /**
      * Return the slow query time in millis.
@@ -2598,14 +2576,14 @@ public interface DatabaseBuilder {
     BackgroundExecutorWrapper getBackgroundExecutorWrapper();
 
     /**
-     * Returns, if the caches are partitioned by tenant.
-     */
-    boolean isTenantPartitionedCache();
-
-    /**
      * Return true if dirty beans are automatically persisted.
      */
     boolean isAutoPersistUpdates();
+
+    /**
+     * Returns, if the caches are partitioned by tenant.
+     */
+    boolean isTenantPartitionedCache();
 
     /**
      * Return the L2 cache default max size.
@@ -3004,8 +2982,6 @@ public interface DatabaseBuilder {
      */
     List<BeanPersistController> getPersistControllers();
 
-    List<CustomDeployParser> getCustomDeployParsers();
-
     /**
      * Return the BeanPersistListener instances.
      */
@@ -3020,6 +2996,11 @@ public interface DatabaseBuilder {
      * Return the list of ServerConfigStartup instances.
      */
     List<ServerConfigStartup> getServerConfigStartupListeners();
+
+    /**
+     * Returns the registered CustomDeployParsers.
+     */
+    List<CustomDeployParser> getCustomDeployParsers();
 
     /**
      * Return the default PersistenceContextScope to be used if one is not explicitly set on a query.
@@ -3110,7 +3091,7 @@ public interface DatabaseBuilder {
     /**
      * Returns platform specific query plan options.
      */
-     String getQueryPlanOptions();
+    String getQueryPlanOptions();
 
     /**
      * Return the query plan collection threshold in microseconds.

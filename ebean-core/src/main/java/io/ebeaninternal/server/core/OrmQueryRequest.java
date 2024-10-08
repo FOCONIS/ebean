@@ -174,11 +174,11 @@ public final class OrmQueryRequest<T> extends BeanRequest implements SpiOrmQuery
     if (!prepared) {
       manyJoin = query.convertJoins();
       secondaryQueries = query.secondaryQuery();
+      beanDescriptor.prepareQuery(query);
       adapterPreQuery();
       queryPlanKey = query.prepare(this);
       prepared = true;
     }
-
   }
 
   /**
