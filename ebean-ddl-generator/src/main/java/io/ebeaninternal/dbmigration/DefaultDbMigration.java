@@ -752,10 +752,10 @@ public class DefaultDbMigration implements DbMigration {
       //  We shoild change either DefaultDbMigration or databaseConfig, so that it is only
       //  defined on one place
       if (strictMode != null) {
-        databaseBuilder.setDdlStrictMode(strictMode);
+        databaseBuilder.ddlStrictMode(strictMode);
       }
       if (header != null) {
-        databaseBuilder.setDdlHeader(header);
+        databaseBuilder.ddlHeader(header);
       }
     }
   }
