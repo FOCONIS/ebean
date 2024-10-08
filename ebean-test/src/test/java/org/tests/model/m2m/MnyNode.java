@@ -3,7 +3,6 @@ package org.tests.model.m2m;
 import io.ebean.annotation.Identity;
 import io.ebean.annotation.Platform;
 import io.ebean.annotation.Where;
-import io.ebean.annotation.ext.IntersectionFactory;
 
 import jakarta.persistence.*;
 import java.util.List;
@@ -17,19 +16,16 @@ public class MnyNode {
 
   String name;
 
-  @ManyToMany(cascade = CascadeType.ALL)
+  @ManyToMany
   @JoinTable(name = "mny_edge",
     joinColumns = @JoinColumn(name = "from_id", referencedColumnName = "id"),
     inverseJoinColumns = @JoinColumn(name = "to_id", referencedColumnName = "id"))
-  @IntersectionFactory(MnyEdge.class)
-  @Where(clause = "${mta}.flags != 12345 and '${dbTableName}' = 'mny_node'")
   List<MnyNode> allRelations;
 
-  @ManyToMany(cascade = CascadeType.ALL)
+  @ManyToMany
   @JoinTable(name = "mny_edge",
     joinColumns = @JoinColumn(name = "to_id", referencedColumnName = "id"),
     inverseJoinColumns = @JoinColumn(name = "from_id", referencedColumnName = "id"))
-  @IntersectionFactory(value =MnyEdge.class, factoryMethod =  "createReverseRelation")
   List<MnyNode> allReverseRelations;
 
   @ManyToMany

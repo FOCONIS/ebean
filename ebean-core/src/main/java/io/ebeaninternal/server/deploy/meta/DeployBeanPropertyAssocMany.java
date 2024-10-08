@@ -2,7 +2,6 @@ package io.ebeaninternal.server.deploy.meta;
 
 import io.ebean.bean.BeanCollection.ModifyListenMode;
 import io.ebeaninternal.server.deploy.BeanDescriptor;
-import io.ebeaninternal.server.deploy.IntersectionFactoryHelp;
 import io.ebeaninternal.server.deploy.ManyType;
 import io.ebeaninternal.server.deploy.TableJoin;
 import io.ebeaninternal.server.type.TypeReflectHelper;
@@ -33,12 +32,6 @@ public class DeployBeanPropertyAssocMany<T> extends DeployBeanPropertyAssoc<T> {
    * Join for manyToMany intersection table.
    */
   private DeployTableJoin intersectionJoin;
-
-  /**
-   * Factory to create intersection beans (instead of rows). For managed intersections.
-   */
-  private IntersectionFactoryHelp intersectionFactory;
-
   /**
    * For ManyToMany this is the Inverse join used to build reference queries.
    */
@@ -120,10 +113,6 @@ public class DeployBeanPropertyAssocMany<T> extends DeployBeanPropertyAssoc<T> {
     }
   }
 
-  public boolean isTableManaged() {
-    return intersectionJoin != null && desc.isTableManaged(intersectionJoin.getTable());
-  }
-
   /**
    * Create the immutable version of the inverse join.
    */
@@ -158,20 +147,6 @@ public class DeployBeanPropertyAssocMany<T> extends DeployBeanPropertyAssoc<T> {
    */
   public void setInverseJoin(DeployTableJoin inverseJoin) {
     this.inverseJoin = inverseJoin;
-  }
-
-  /**
-   * Return the intersection factory.
-   */
-  public IntersectionFactoryHelp getIntersectionFactory() {
-    return intersectionFactory;
-  }
-
-  /**
-   * Sets the intersection factory.
-   */
-  public void setIntersectionFactory(IntersectionFactoryHelp intersectionFactory) {
-    this.intersectionFactory = intersectionFactory;
   }
 
   /**

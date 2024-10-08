@@ -38,5 +38,5 @@ module io.ebean.api {
   exports io.ebean.text;
   exports io.ebean.text.json;
   exports io.ebean.util;
-  exports io.ebean.annotation.ext;
+
 }

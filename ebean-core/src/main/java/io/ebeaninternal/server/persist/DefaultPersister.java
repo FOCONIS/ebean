@@ -1002,7 +1002,7 @@ public final class DefaultPersister implements Persister {
 
   private SpiSqlUpdate deleteAllIntersection(EntityBean bean, BeanPropertyAssocMany<?> many, boolean publish) {
     IntersectionRow intRow = many.buildManyToManyDeleteChildren(bean, publish);
-    return intRow.createDeleteChildren(server, many.extraWhere());
+    return intRow.createDeleteChildren(server);
   }
 
   /**
@@ -1100,7 +1100,7 @@ public final class DefaultPersister implements Persister {
           && (excludeDetailIds == null || excludeDetailIds.size() <= batch)) {
           // Just delete all the children with one statement
           IntersectionRow intRow = many.buildManyDeleteChildren(parentBean, excludeDetailIds);
-          SqlUpdate sqlDelete = intRow.createDelete(server, deleteMode, many.extraWhere());
+          SqlUpdate sqlDelete = intRow.createDelete(server, deleteMode);
           executeSqlUpdate(sqlDelete, t);
 
         } else {
