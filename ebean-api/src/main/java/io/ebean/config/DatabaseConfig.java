@@ -409,8 +409,6 @@ public class DatabaseConfig implements DatabaseBuilder.Settings {
    */
   private Clock clock = Clock.systemUTC();
 
-  private TempFileProvider tempFileProvider = new WeakRefTempFileProvider();
-
   private List<IdGenerator> idGenerators = new ArrayList<>();
   private List<BeanFindController> findControllers = new ArrayList<>();
   private List<BeanPersistController> persistControllers = new ArrayList<>();
@@ -598,16 +596,6 @@ public class DatabaseConfig implements DatabaseBuilder.Settings {
     this.clock = clock;
     return this;
   }
-
-  public TempFileProvider getTempFileProvider() {
-    return tempFileProvider;
-  }
-
-  public void tempFileProvider(final TempFileProvider tempFileProvider) {
-    this.tempFileProvider = tempFileProvider;
-  }
-
-  public void setTempFileProvider(final TempFileProvider tempFileProvider) { tempFileProvider(tempFileProvider); }
 
   /**
    * Return the slow query time in millis.

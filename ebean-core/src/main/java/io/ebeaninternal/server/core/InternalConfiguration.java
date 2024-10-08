@@ -74,7 +74,6 @@ public final class InternalConfiguration {
   private final DatabasePlatform databasePlatform;
   private final DeployInherit deployInherit;
   private final TypeManager typeManager;
-  private final TempFileProvider tempFileProvider;
   private final DtoBeanManager dtoBeanManager;
   private final ClockService clockService;
   private final DataTimeZone dataTimeZone;
@@ -115,7 +114,6 @@ public final class InternalConfiguration {
     this.databasePlatform = config.getDatabasePlatform();
     this.expressionFactory = initExpressionFactory(config);
     this.typeManager = new DefaultTypeManager(config, bootupClasses);
-    this.tempFileProvider = config.getTempFileProvider();
     this.multiValueBind = createMultiValueBind(databasePlatform.platform());
     this.deployInherit = new DeployInherit(bootupClasses);
     this.deployCreateProperties = new DeployCreateProperties(typeManager);
@@ -518,10 +516,6 @@ public final class InternalConfiguration {
 
   SpiLogManager getLogManager() {
     return logManager;
-  }
-
-  public TempFileProvider getTempFileProvider() {
-    return tempFileProvider;
   }
 
   private ServerCachePlugin initServerCachePlugin() {
