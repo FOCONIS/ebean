@@ -1731,6 +1731,7 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
       for (Object bean : beans) {
         persister.insert(checkEntityBean(bean), options, txn);
       }
+      txn.flushBatchOnCollection();
       return 0;
     }, transaction);
   }
