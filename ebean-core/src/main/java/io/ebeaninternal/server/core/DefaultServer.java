@@ -1014,7 +1014,7 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
     if (SpiQuery.Mode.NORMAL == query.mode() && !query.isForceHitDatabase()) {
       // See if we can skip doing the fetch completely by getting the bean from the
       // persistence context or the bean cache
-      SpiTransaction t = query.transaction();
+      SpiTransaction t = (SpiTransaction) query.transaction();
       if (t == null) {
         t = currentServerTransaction();
       }

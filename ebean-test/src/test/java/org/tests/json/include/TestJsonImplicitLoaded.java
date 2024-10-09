@@ -14,7 +14,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class TestJsonImplicitLoaded {
 
   @Test
-  void testToBeanToJson() throws Exception {
+  void testToBeanToJson() {
     ResetBasicData.reset();
 
     FetchPath path = PathProperties.parse("*");

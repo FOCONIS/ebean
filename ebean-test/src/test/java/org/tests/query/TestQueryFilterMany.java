@@ -1,10 +1,10 @@
 package org.tests.query;
 
+import io.ebean.xtest.BaseTestCase;
 import io.ebean.DB;
 import io.ebean.ExpressionList;
 import io.ebean.Query;
 import io.ebean.test.LoggedSql;
-import io.ebean.xtest.BaseTestCase;
 import org.junit.jupiter.api.Test;
 import org.tests.model.basic.Customer;
 import org.tests.model.basic.Order;

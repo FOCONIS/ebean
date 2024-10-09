@@ -406,6 +406,7 @@ public class TestQueryJoinOnFormula extends BaseTestCase {
         + "where t2.name = ?");
   }
 
+  @Test
   public void test_softRef() {
 
     LoggedSql.start();

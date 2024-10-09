@@ -3,10 +3,7 @@ package org.tests.model.composite;
 
 import io.ebean.annotation.Formula;
 import io.ebean.annotation.Index;
-import jakarta.persistence.EmbeddedId;
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 
 @Entity
 public class DataWithFormula {

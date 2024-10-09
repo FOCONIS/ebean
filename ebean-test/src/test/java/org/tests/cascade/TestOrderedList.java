@@ -217,7 +217,22 @@ public class TestOrderedList extends BaseTestCase {
     masterDb.getDetails().remove(2);
     DB.save(masterDb);
 
+    LoggedSql.start();
     OmCacheOrderedMaster masterDbNew = DB.find(OmCacheOrderedMaster.class, master.getId());
+    masterDbNew.getDetails().size();
+    assertThat(masterDbNew.getDetails()).containsExactly(detail2, detail1);
+    List<String> sql = LoggedSql.stop();
+    assertThat(sql).hasSize(1).first().asString()
+      .startsWith("select t0.id, t1.id, t1.name, t1.version, t1.sort_order, t1.master_id from om_cache_ordered_master t0 left join om_cache_ordered_detail t1 on t1.master_id = t0.id where t0.id = ? order by t1.sort_order;");
+
+    DB.cacheManager().clearAll();
+    masterDbNew = DB.find(OmCacheOrderedMaster.class, master.getId());
+    LoggedSql.start();
+    masterDbNew.getDetails().size();
+    sql = LoggedSql.stop();
+    assertThat(sql).hasSize(1).first().asString()
+      .startsWith("select t0.master_id, t0.id, t0.name, t0.version, t0.sort_order, t0.master_id from om_cache_ordered_detail t0 where (t0.master_id) in (?) order by t0.master_id, t0.sort_order;");
+
     assertThat(masterDbNew.getDetails()).containsExactly(detail2, detail1);
   }
 }
