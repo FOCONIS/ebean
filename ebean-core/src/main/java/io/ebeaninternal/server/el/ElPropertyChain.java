@@ -290,4 +290,9 @@ public final class ElPropertyChain implements ElPropertyValue {
   public String idNullOr(String filterManyExpression) {
     throw new UnsupportedOperationException();
   }
+
+  @Override
+  public boolean isRangeValid(Object value) {
+    return lastElPropertyValue.isRangeValid(value);
+  }
 }

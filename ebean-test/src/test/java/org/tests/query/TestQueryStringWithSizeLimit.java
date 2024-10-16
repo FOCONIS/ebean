@@ -1,6 +1,8 @@
 package org.tests.query;
 
 import io.ebean.DB;
+import io.ebean.ExpressionList;
+import io.ebean.Query;
 import io.ebean.test.LoggedSql;
 import io.ebean.xtest.BaseTestCase;
 import org.junit.jupiter.api.Test;
@@ -21,11 +23,14 @@ public class TestQueryStringWithSizeLimit extends BaseTestCase {
 
     ResetBasicData.reset();
 
-    LoggedSql.start();
-    List<Customer> list = DB.find(Customer.class).select("id,name, status").where().eq("name", DB2_SEARCH_VALUE).findList();
-    List<String> stop = LoggedSql.stop();
+    Query<Customer> query = DB.find(Customer.class).select("id,name,status").where().eq("name", SEARCH_VALUE).query();
+    List<Customer> list = query.findList();
+    assertThat(query.getGeneratedSql()).isEqualTo("select t0.id, t0.name, t0.status from o_customer t0 where 1=0");
 
-    assertThat(list).isEmpty();
+    query = DB.find(Customer.class).select("id,name,status").where().eq("name", "Rob").query();
+    list = query.findList();
+    assertThat(query.getGeneratedSql()).isEqualTo("select t0.id, t0.name, t0.status from o_customer t0 where t0.name = ?");
+
     //assertThat(stop).hasSize(1);
     //assertThat(stop.get(0)).contains("--bind(" + SEARCH_VALUE);
 

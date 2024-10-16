@@ -19,7 +19,9 @@ public interface SpiExpression extends Expression {
   /**
    * Simplify nested expressions if possible.
    */
-  void simplify();
+  default SpiExpression simplify(BeanDescriptor<?> descriptor) {
+    return this;
+  }
 
   /**
    * Write the expression as an elastic search expression.

@@ -1913,7 +1913,10 @@ public class DefaultOrmQuery<T> extends AbstractQuery implements SpiQuery<T> {
   @Override
   public final void simplifyExpressions() {
     if (whereExpressions != null) {
-      whereExpressions.simplify();
+      whereExpressions.simplify(descriptor());
+    }
+    if (havingExpressions != null) {
+      havingExpressions.simplify(descriptor());
     }
   }
 
