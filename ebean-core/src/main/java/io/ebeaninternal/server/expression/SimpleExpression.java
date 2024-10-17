@@ -66,14 +66,14 @@ public final class SimpleExpression extends AbstractValueExpression {
     return value();
   }
 
-  @Override
-  public SpiExpression simplify(BeanDescriptor<?> descriptor) {
-    ElPropertyValue prop = descriptor.elGetValue(propName);
-    if (prop != null && !prop.isRangeValid(value())) {
-      return new RawExpression(SQL_FALSE, null);
-    }
-    return this;
-  }
+//  @Override
+//  public SpiExpression simplify(BeanDescriptor<?> descriptor) {
+//    ElPropertyValue prop = descriptor.elGetValue(propName);
+//    if (prop != null && !prop.isRangeValid(value())) {
+//      return new RawExpression(SQL_FALSE, null);
+//    }
+//    return this;
+//  }
 
   @Override
   public void addBindValues(SpiExpressionBind request) {

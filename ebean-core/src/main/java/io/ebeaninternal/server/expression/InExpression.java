@@ -3,6 +3,7 @@ package io.ebeaninternal.server.expression;
 import io.ebean.bean.EntityBean;
 import io.ebean.event.BeanQueryRequest;
 import io.ebeaninternal.api.*;
+import io.ebeaninternal.server.deploy.BeanDescriptor;
 import io.ebeaninternal.server.el.ElPropertyValue;
 import io.ebeaninternal.server.persist.MultiValueWrapper;
 
@@ -213,5 +214,24 @@ public final class InExpression extends AbstractExpression implements IdInCommon
       }
     }
     return true;
+  }
+
+  @Override
+  public SpiExpression simplify(BeanDescriptor<?> descriptor) {
+    ElPropertyValue prop = descriptor.elGetValue(propName);
+    if (prop == null) {
+      Iterator<?> it = sourceValues.iterator();
+      while (it.hasNext()) {
+        Object value = it.next();
+        if (!prop.isRangeValid(value)) {
+          // removing this value
+          it.remove();
+        }
+      }
+    }
+    if (sourceValues.isEmpty()) {
+      return new RawExpression(SQL_FALSE, null);
+    }
+    return this;
   }
 }

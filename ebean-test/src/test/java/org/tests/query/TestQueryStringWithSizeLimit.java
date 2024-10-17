@@ -222,6 +222,10 @@ public class TestQueryStringWithSizeLimit extends BaseTestCase {
     query.findList();
     assertThat(query.getGeneratedSql()).isEqualTo("select t0.id, t0.name, t0.status from o_customer t0 where t0.name in (?)");
 
+    query = DB.find(Customer.class).select("id,name, status").where().in("name", "a", SEARCH_VALUE).query();
+    query.findList();
+    assertThat(query.getGeneratedSql()).isEqualTo("select t0.id, t0.name, t0.status from o_customer t0 where t0.name in (?)");
+
     query = DB.find(Customer.class).select("id,name, status").where().not().in("name", SEARCH_VALUE).endNot().query();
     query.findList();
     assertThat(query.getGeneratedSql()).isEqualTo("select t0.id, t0.name, t0.status from o_customer t0 where not (1=0)");
@@ -258,7 +262,7 @@ public class TestQueryStringWithSizeLimit extends BaseTestCase {
 
     query = DB.find(Customer.class).select("id,name, status").where().gt("name", "Rob").query();
     query.findList();
-    assertThat(query.getGeneratedSql()).isEqualTo("select t0.id, t0.name, t0.status from o_customer t0 where t0.name in (?)");
+    assertThat(query.getGeneratedSql()).isEqualTo("select t0.id, t0.name, t0.status from o_customer t0 where t0.name > ?");
 
     query = DB.find(Customer.class).select("id,name, status").where().not().gt("name", SEARCH_VALUE).endNot().query();
     query.findList();
@@ -277,7 +281,7 @@ public class TestQueryStringWithSizeLimit extends BaseTestCase {
 
     query = DB.find(Customer.class).select("id,name, status").where().ge("name", "Rob").query();
     query.findList();
-    assertThat(query.getGeneratedSql()).isEqualTo("select t0.id, t0.name, t0.status from o_customer t0 where t0.name in (?)");
+    assertThat(query.getGeneratedSql()).isEqualTo("select t0.id, t0.name, t0.status from o_customer t0 where t0.name >= ?");
 
     query = DB.find(Customer.class).select("id,name, status").where().not().ge("name", SEARCH_VALUE).endNot().query();
     query.findList();
@@ -296,7 +300,7 @@ public class TestQueryStringWithSizeLimit extends BaseTestCase {
 
     query = DB.find(Customer.class).select("id,name, status").where().lt("name", "Rob").query();
     query.findList();
-    assertThat(query.getGeneratedSql()).isEqualTo("select t0.id, t0.name, t0.status from o_customer t0 where t0.name in (?)");
+    assertThat(query.getGeneratedSql()).isEqualTo("select t0.id, t0.name, t0.status from o_customer t0 where t0.name < ?");
 
     query = DB.find(Customer.class).select("id,name, status").where().not().lt("name", SEARCH_VALUE).endNot().query();
     query.findList();
@@ -315,7 +319,7 @@ public class TestQueryStringWithSizeLimit extends BaseTestCase {
 
     query = DB.find(Customer.class).select("id,name, status").where().le("name", "Rob").query();
     query.findList();
-    assertThat(query.getGeneratedSql()).isEqualTo("select t0.id, t0.name, t0.status from o_customer t0 where t0.name in (?)");
+    assertThat(query.getGeneratedSql()).isEqualTo("select t0.id, t0.name, t0.status from o_customer t0 where t0.name <= ?");
 
     query = DB.find(Customer.class).select("id,name, status").where().not().le("name", SEARCH_VALUE).endNot().query();
     query.findList();
