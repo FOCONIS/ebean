@@ -338,7 +338,7 @@ public class TestQueryStringWithSizeLimit extends BaseTestCase {
 
     query = DB.find(Customer.class).select("id,name, status").where().between("name", "a", "Rob").query();
     query.findList();
-    assertThat(query.getGeneratedSql()).isEqualTo("select t0.id, t0.name, t0.status from o_customer t0 where t0.name in (?)");
+    assertThat(query.getGeneratedSql()).isEqualTo("select t0.id, t0.name, t0.status from o_customer t0 where t0.name between ? and ?");
 
     query = DB.find(Customer.class).select("id,name, status").where().not().between("name", "a", SEARCH_VALUE).endNot().query();
     query.findList();
