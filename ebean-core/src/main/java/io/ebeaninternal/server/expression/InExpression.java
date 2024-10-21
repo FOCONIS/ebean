@@ -18,6 +18,7 @@ public final class InExpression extends AbstractExpression implements IdInCommon
   private final boolean empty;
   private final boolean not;
   private final Collection<?> sourceValues;
+  private Collection<Object> simplifiedSourceValues;
   private List<Object> bindValues;
   private boolean multiValueSupported;
 
@@ -30,6 +31,7 @@ public final class InExpression extends AbstractExpression implements IdInCommon
     this.sourceValues = sourceValues;
     this.not = not;
     this.empty = orEmpty && (sourceValues == null || sourceValues.isEmpty());
+    this.simplifiedSourceValues = null;
   }
 
   InExpression(String propertyName, Object[] array, boolean not) {
@@ -37,6 +39,7 @@ public final class InExpression extends AbstractExpression implements IdInCommon
     this.sourceValues = Arrays.asList(array);
     this.not = not;
     this.empty = false;
+    this.simplifiedSourceValues = null;
   }
 
   public String property() {
@@ -46,7 +49,11 @@ public final class InExpression extends AbstractExpression implements IdInCommon
   @Override
   public Collection<?> idValues() {
     if (bindValues == null) {
-      bindValues = new ArrayList<>(sourceValues);
+      if (simplifiedSourceValues != null) {
+        bindValues = new ArrayList<>(simplifiedSourceValues);
+      } else {
+        bindValues = new ArrayList<>(sourceValues);
+      }
     }
     return bindValues;
   }
@@ -61,12 +68,21 @@ public final class InExpression extends AbstractExpression implements IdInCommon
     if (empty || sourceValues == null) {
       return Collections.emptyList();
     }
-    List<Object> vals = new ArrayList<>(sourceValues.size());
-    for (Object sourceValue : sourceValues) {
-      assert sourceValue != null : "null is not allowed in in-queries";
-      NamedParamHelp.valueAdd(vals, sourceValue);
+    if (simplifiedSourceValues != null) {
+      List<Object> vals = new ArrayList<>(simplifiedSourceValues.size());
+      for (Object sourceValue : simplifiedSourceValues) {
+        assert sourceValue != null : "null is not allowed in in-queries";
+        NamedParamHelp.valueAdd(vals, sourceValue);
+      }
+      return vals;
+    } else {
+      List<Object> vals = new ArrayList<>(sourceValues.size());
+      for (Object sourceValue : sourceValues) {
+        assert sourceValue != null : "null is not allowed in in-queries";
+        NamedParamHelp.valueAdd(vals, sourceValue);
+      }
+      return vals;
     }
-    return vals;
   }
 
   private List<Object> initBindValues() {
@@ -219,17 +235,15 @@ public final class InExpression extends AbstractExpression implements IdInCommon
   @Override
   public SpiExpression simplify(BeanDescriptor<?> descriptor) {
     ElPropertyValue prop = descriptor.elGetValue(propName);
-    if (prop == null) {
-      Iterator<?> it = sourceValues.iterator();
-      while (it.hasNext()) {
-        Object value = it.next();
-        if (!prop.isRangeValid(value)) {
-          // removing this value
-          it.remove();
+    if (prop != null) {
+      simplifiedSourceValues = new ArrayList<>();
+      for (Object sourceValue : sourceValues) {
+        if (prop.isRangeValid(sourceValue)) {
+          simplifiedSourceValues.add(sourceValue);
         }
       }
     }
-    if (sourceValues.isEmpty()) {
+    if (simplifiedSourceValues == null || simplifiedSourceValues.isEmpty()) {
       return new RawExpression(SQL_FALSE, null);
     }
     return this;
