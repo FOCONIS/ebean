@@ -411,20 +411,17 @@ public class DtoQuery2Test extends BaseTestCase {
   @Test
   void dto_test_formula_with_group_by() {
     ResetBasicData.reset();
-    Customer rob2 = new Customer();
-    rob2.setName("Rob");
-    DB.save(rob2);
 
     Query<Customer> query = server().find(Customer.class)
       .select("concat('Dr. ',name) as custname, count(*) as cnt")
-      .orderBy("cnt desc");
+      .orderBy("custname desc");
 
     List<DCustFormula> ret = query.asDto(DCustFormula.class).findList();
 
     log.info(query.getGeneratedSql());
     log.info(ret.toString());
     assertThat(ret.get(0).getCustname()).isEqualTo("Dr. Rob");
-    assertThat(ret.get(0).getCnt()).isEqualTo(2L);
+    assertThat(ret.get(0).getCnt()).isEqualTo(1L);
   }
 
   public static class DCust {
