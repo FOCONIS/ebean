@@ -57,7 +57,7 @@ final class JunctionExpression<T> implements SpiJunction<T>, SpiExpression, Expr
   @SuppressWarnings("unchecked")
   @Override
   public SpiExpression simplify(BeanDescriptor<?> descriptor) {
-    exprList.simplifyEntries();
+    exprList.simplifyEntries(descriptor);
 
     List<SpiExpression> list = exprList.list;
     if (list.size() == 1 && list.get(0) instanceof JunctionExpression) {

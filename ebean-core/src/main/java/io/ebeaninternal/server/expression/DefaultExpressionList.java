@@ -24,7 +24,7 @@ public class DefaultExpressionList<T> implements SpiExpressionList<T> {
   private static final String AND = " and ";
 
   protected List<SpiExpression> list;
-  protected final SpiQuery<T> query;
+  protected final Query<T> query;
   private final ExpressionList<T> parentExprList;
   protected final ExpressionFactory expr;
   String allDocNestedPath;
@@ -56,7 +56,7 @@ public class DefaultExpressionList<T> implements SpiExpressionList<T> {
   private DefaultExpressionList(Query<T> query, ExpressionFactory expr, ExpressionList<T> parentExprList, List<SpiExpression> list, boolean textRoot) {
     this.textRoot = textRoot;
     this.list = list;
-    this.query = (SpiQuery<T>) query;
+    this.query = query;
     this.expr = expr;
     this.parentExprList = parentExprList;
   }
@@ -87,10 +87,10 @@ public class DefaultExpressionList<T> implements SpiExpressionList<T> {
     }
   }
 
-  void simplifyEntries() {
+  void simplifyEntries(BeanDescriptor<?> descriptor) {
     if (!simplified) {
       for (int i = 0; i < list.size(); i++) {
-        list.set(i, list.get(i).simplify(query.descriptor()));
+        list.set(i, list.get(i).simplify(descriptor));
       }
       simplified = true;
     }
@@ -116,7 +116,7 @@ public class DefaultExpressionList<T> implements SpiExpressionList<T> {
 
   @Override
   public SpiExpression simplify(BeanDescriptor<?> descriptor) {
-    simplifyEntries();
+    simplifyEntries(descriptor);
     return this;
   }
 

@@ -3,8 +3,6 @@ package io.ebeaninternal.server.expression;
 import io.ebean.bean.EntityBean;
 import io.ebean.plugin.ExpressionPath;
 import io.ebeaninternal.api.*;
-import io.ebeaninternal.server.deploy.BeanDescriptor;
-import io.ebeaninternal.server.deploy.BeanProperty;
 import io.ebeaninternal.server.el.ElPropertyValue;
 
 import java.io.IOException;
@@ -65,15 +63,6 @@ public final class SimpleExpression extends AbstractValueExpression {
   public Object getValue() {
     return value();
   }
-
-//  @Override
-//  public SpiExpression simplify(BeanDescriptor<?> descriptor) {
-//    ElPropertyValue prop = descriptor.elGetValue(propName);
-//    if (prop != null && !prop.isRangeValid(value())) {
-//      return new RawExpression(SQL_FALSE, null);
-//    }
-//    return this;
-//  }
 
   @Override
   public void addBindValues(SpiExpressionBind request) {

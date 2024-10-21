@@ -243,7 +243,11 @@ public final class InExpression extends AbstractExpression implements IdInCommon
         }
       }
       if (simplifiedSourceValues == null || simplifiedSourceValues.isEmpty()) {
-        return new RawExpression(SQL_FALSE, null);
+        if(not) {
+          return new RawExpression(SQL_TRUE, null);
+        } else {
+          return new RawExpression(SQL_FALSE, null);
+        }
       }
     }
     return this;
