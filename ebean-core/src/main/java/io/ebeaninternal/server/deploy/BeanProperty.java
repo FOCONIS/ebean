@@ -1534,6 +1534,6 @@ public class BeanProperty implements ElPropertyValue, Property, STreeProperty {
 
   @Override
   public boolean isRangeValid(Object value) {
-    return bindMaxLength == null || bindMaxLength.length(dbLength, value) < dbLength;
+    return bindMaxLength == null || bindMaxLength.length(dbLength, value) <= dbLength;
   }
 }

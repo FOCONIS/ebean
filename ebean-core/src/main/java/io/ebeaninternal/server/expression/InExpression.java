@@ -235,16 +235,16 @@ public final class InExpression extends AbstractExpression implements IdInCommon
   @Override
   public SpiExpression simplify(BeanDescriptor<?> descriptor) {
     ElPropertyValue prop = descriptor.elGetValue(propName);
-    if (prop != null) {
+    if (prop != null && sourceValues != null) {
       simplifiedSourceValues = new ArrayList<>();
       for (Object sourceValue : sourceValues) {
         if (prop.isRangeValid(sourceValue)) {
           simplifiedSourceValues.add(sourceValue);
         }
       }
-    }
-    if (simplifiedSourceValues == null || simplifiedSourceValues.isEmpty()) {
-      return new RawExpression(SQL_FALSE, null);
+      if (simplifiedSourceValues == null || simplifiedSourceValues.isEmpty()) {
+        return new RawExpression(SQL_FALSE, null);
+      }
     }
     return this;
   }
