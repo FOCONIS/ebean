@@ -234,14 +234,6 @@ public final class BindParams implements Serializable {
   /**
    * Set a named In parameter that is multi-valued.
    */
-  public void setArrayParameter(int position, Collection<?> value) {
-    Param p = parameter(position);
-    p.setInValue(new MultiValueWrapper(value));
-  }
-
-  /**
-   * Set a named In parameter that is multi-valued.
-   */
   public void setArrayParameter(String name, Collection<?> value) {
     Param p = parameter(name);
     p.setInValue(new MultiValueWrapper(value));

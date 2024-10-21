@@ -1,7 +1,7 @@
 package io.ebean;
 
-import org.jspecify.annotations.NullMarked;
-import org.jspecify.annotations.Nullable;
+import io.avaje.lang.NonNullApi;
+import io.avaje.lang.Nullable;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -42,7 +42,7 @@ import java.util.stream.Stream;
  *
  * }</pre>
  */
-@NullMarked
+@NonNullApi
 public interface DtoQuery<T> extends CancelableQuery {
 
   /**
@@ -140,17 +140,6 @@ public interface DtoQuery<T> extends CancelableQuery {
    * Bind the named multi-value array parameter which we would use with Postgres ANY.
    * <p>
    * For Postgres this binds an ARRAY rather than expands into multiple bind values.
-   * <pre>{@code
-   *
-   *   String sql = "select id, name from o_customer where id = any(:idList)";
-   *
-   *   var ids = List.of(1, 2, 3);
-   *
-   *   List<CustomerDto> list2 = DB.findDto(CustomerDto.class, sql)
-   *       .setArrayParameter("idList", ids)
-   *       .findList();
-   *
-   * }</pre>
    */
   DtoQuery<T> setArrayParameter(String name, Collection<?> values);
 

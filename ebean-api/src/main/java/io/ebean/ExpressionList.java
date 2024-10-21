@@ -1,7 +1,7 @@
 package io.ebean;
 
-import org.jspecify.annotations.NullMarked;
-import org.jspecify.annotations.Nullable;
+import io.avaje.lang.NonNullApi;
+import io.avaje.lang.Nullable;
 import io.ebean.search.*;
 
 import jakarta.persistence.NonUniqueResultException;
@@ -31,7 +31,7 @@ import java.util.function.Predicate;
  *
  * @see Query#where()
  */
-@NullMarked
+@NonNullApi
 public interface ExpressionList<T> {
 
   /**

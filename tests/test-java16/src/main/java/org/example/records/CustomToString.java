@@ -1,10 +1,10 @@
 package org.example.records;
 
-import org.jspecify.annotations.NullMarked;
+import io.avaje.lang.NonNullApi;
 
 import jakarta.persistence.Embeddable;
 
-@NullMarked
+@NonNullApi
 @Embeddable
 public record CustomToString(String line1, String line2, String city) {
 

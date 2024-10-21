@@ -1,6 +1,6 @@
 package io.ebeaninternal.server.core;
 
-import org.jspecify.annotations.Nullable;
+import io.avaje.lang.Nullable;
 import io.ebean.*;
 import io.ebean.bean.EntityBean;
 import io.ebean.meta.MetricVisitor;

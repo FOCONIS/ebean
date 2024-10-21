@@ -1,6 +1,6 @@
 package io.ebeaninternal.server.el;
 
-import org.jspecify.annotations.NullMarked;
+import io.avaje.lang.NonNullApi;
 import io.ebean.Filter;
 import io.ebeaninternal.server.deploy.BeanDescriptor;
 
@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
 /**
  * Default implementation of the Filter interface.
  */
-@NullMarked
+@NonNullApi
 public final class ElFilter<T> implements Filter<T> {
 
   private final BeanDescriptor<T> beanDescriptor;

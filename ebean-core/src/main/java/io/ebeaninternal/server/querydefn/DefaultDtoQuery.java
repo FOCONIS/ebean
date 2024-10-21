@@ -1,6 +1,6 @@
 package io.ebeaninternal.server.querydefn;
 
-import org.jspecify.annotations.NullMarked;
+import io.avaje.lang.NonNullApi;
 import io.ebean.DtoQuery;
 import io.ebean.ProfileLocation;
 import io.ebean.QueryIterator;
@@ -23,7 +23,7 @@ import java.util.stream.Stream;
 /**
  * Default implementation of DtoQuery.
  */
-@NullMarked
+@NonNullApi
 public final class DefaultDtoQuery<T> extends AbstractQuery implements SpiDtoQuery<T> {
 
   private final SpiEbeanServer server;

@@ -1,6 +1,6 @@
 package io.ebeaninternal.api;
 
-import org.jspecify.annotations.Nullable;
+import io.avaje.lang.Nullable;
 
 /**
  * SQL query binding (for SqlQuery and DtoQuery).

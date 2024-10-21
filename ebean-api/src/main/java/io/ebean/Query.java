@@ -1,6 +1,6 @@
 package io.ebean;
 
-import org.jspecify.annotations.NullMarked;
+import io.avaje.lang.NonNullApi;
 
 /**
  * Object relational query for finding a List, Set, Map or single entity bean.
@@ -149,7 +149,7 @@ import org.jspecify.annotations.NullMarked;
  *
  * @param <T> the type of Entity bean this query will fetch.
  */
-@NullMarked
+@NonNullApi
 public interface Query<T> extends CancelableQuery, QueryBuilder<Query<T>, T> {
 
   /**

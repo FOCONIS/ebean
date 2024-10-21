@@ -1,6 +1,6 @@
 package io.ebean.xtest.internal.api;
 
-import org.jspecify.annotations.NullMarked;
+import io.avaje.lang.NonNullApi;
 import io.ebean.*;
 import io.ebean.annotation.Platform;
 import io.ebean.annotation.TxIsolation;
@@ -25,7 +25,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
-@NullMarked
+@NonNullApi
 public class TDSpiServer implements SpiServer {
   @Override
   public void shutdown() {

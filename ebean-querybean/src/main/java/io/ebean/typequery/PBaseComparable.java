@@ -1,7 +1,7 @@
 package io.ebean.typequery;
 
 
-import org.jspecify.annotations.Nullable;
+import io.avaje.lang.Nullable;
 import io.ebean.Query;
 
 /**

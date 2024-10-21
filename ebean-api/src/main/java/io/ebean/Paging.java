@@ -1,6 +1,6 @@
 package io.ebean;
 
-import org.jspecify.annotations.Nullable;
+import io.avaje.lang.Nullable;
 
 /**
  * Used to specify Paging on a Query as an alternative to setting each of the

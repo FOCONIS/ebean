@@ -1,12 +1,11 @@
 package io.ebean;
 
-import org.jspecify.annotations.NullMarked;
-import org.jspecify.annotations.Nullable;
+import io.avaje.lang.NonNullApi;
+import io.avaje.lang.Nullable;
 
 import javax.sql.DataSource;
 import java.io.Serializable;
 import java.sql.Connection;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -40,7 +39,7 @@ import java.util.function.Predicate;
  *
  * }</pre>
  */
-@NullMarked
+@NonNullApi
 public interface SqlQuery extends Serializable, CancelableQuery {
 
   /**
@@ -172,7 +171,7 @@ public interface SqlQuery extends Serializable, CancelableQuery {
    *   List<SqlRow> list =
    *     DB.sqlQuery(sql)
    *       .setParameter("Rob")
-   *       .setParameter(Status.NEW)
+   *       .setParameter("Status.NEW)
    *       .findList();
    *
    *   // the same as ...
@@ -243,43 +242,9 @@ public interface SqlQuery extends Serializable, CancelableQuery {
   SqlQuery setParameter(int position, Object value);
 
   /**
-   * Bind the array parameter by its index position for use with Postgres ANY.
-   * <p>
-   * For Postgres this binds an ARRAY rather than expands into multiple bind values.
-   * <pre>{@code
-   *
-   *    String sql = "select name from customer where id = any(?)";
-   *
-   *    List<SqlRow> list =
-   *      DB.sqlQuery(sql)
-   *        .setArrayParameter(1, List.of(1, 2, 3))
-   *        .findList();
-   *
-   * }</pre>
-   */
-  SqlQuery setArrayParameter(int position, Collection<?> value);
-
-  /**
    * Bind the named parameter value.
    */
   SqlQuery setParameter(String name, Object value);
-
-  /**
-   * Bind the named array parameter which we would use with Postgres ANY.
-   * <p>
-   * For Postgres this binds an ARRAY rather than expands into multiple bind values.
-   * <pre>{@code
-   *
-   *    String sql = "select name from customer where id = any(:idList)";
-   *
-   *    List<SqlRow> list =
-   *      DB.sqlQuery(sql)
-   *        .setArrayParameter("idList", List.of(1, 2, 3))
-   *        .findList();
-   *
-   * }</pre>
-   */
-  SqlQuery setArrayParameter(String name, Collection<?> value);
 
   /**
    * Set the index of the first row of the results to return.

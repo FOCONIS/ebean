@@ -1,6 +1,6 @@
 package io.ebean.cache;
 
-import org.jspecify.annotations.Nullable;
+import io.avaje.lang.Nullable;
 import io.ebean.meta.MetricVisitor;
 
 import java.util.LinkedHashMap;

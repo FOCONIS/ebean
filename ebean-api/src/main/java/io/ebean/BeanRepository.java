@@ -1,6 +1,6 @@
 package io.ebean;
 
-import org.jspecify.annotations.NullMarked;
+import io.avaje.lang.NonNullApi;
 import io.ebean.bean.EntityBean;
 
 import java.util.Collection;
@@ -36,7 +36,7 @@ import java.util.Collection;
  * @param <I> The ID type
  * @param <T> The Bean type
  */
-@NullMarked
+@NonNullApi
 public abstract class BeanRepository<I, T> extends BeanFinder<I, T> {
 
   /**

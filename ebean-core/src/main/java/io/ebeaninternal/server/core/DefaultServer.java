@@ -1,7 +1,7 @@
 package io.ebeaninternal.server.core;
 
-import org.jspecify.annotations.NullMarked;
-import org.jspecify.annotations.Nullable;
+import io.avaje.lang.NonNullApi;
+import io.avaje.lang.Nullable;
 import io.ebean.*;
 import io.ebean.annotation.Platform;
 import io.ebean.annotation.TxIsolation;
@@ -72,7 +72,7 @@ import static java.util.stream.StreamSupport.stream;
 /**
  * The default server side implementation of EbeanServer.
  */
-@NullMarked
+@NonNullApi
 public final class DefaultServer implements SpiServer, SpiEbeanServer {
 
   private static final System.Logger log = CoreLog.internal;
@@ -1728,7 +1728,6 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
       for (Object bean : beans) {
         persister.insert(checkEntityBean(bean), options, txn);
       }
-      txn.flushBatchOnCollection();
       return 0;
     }, transaction);
   }

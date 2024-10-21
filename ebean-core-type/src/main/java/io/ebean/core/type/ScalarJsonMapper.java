@@ -1,6 +1,6 @@
 package io.ebean.core.type;
 
-import org.jspecify.annotations.Nullable;
+import io.avaje.lang.Nullable;
 
 import java.lang.annotation.Annotation;
 

@@ -1,6 +1,6 @@
 package io.ebean.xtest.internal.api;
 
-import org.jspecify.annotations.NullMarked;
+import io.avaje.lang.NonNullApi;
 import io.ebean.*;
 import io.ebean.annotation.Platform;
 import io.ebean.annotation.TxIsolation;
@@ -38,7 +38,7 @@ import java.util.stream.Stream;
 /**
  * Test double for SpiEbeanServer.
  */
-@NullMarked
+@NonNullApi
 public class TDSpiEbeanServer extends TDSpiServer implements SpiEbeanServer {
 
   String name;

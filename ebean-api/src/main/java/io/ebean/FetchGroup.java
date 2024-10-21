@@ -1,6 +1,6 @@
 package io.ebean;
 
-import org.jspecify.annotations.NullMarked;
+import io.avaje.lang.NonNullApi;
 import io.ebean.service.SpiFetchGroupQuery;
 
 /**
@@ -61,7 +61,7 @@ import io.ebean.service.SpiFetchGroupQuery;
  *
  * @param <T> The bean type the Fetch group can be applied to
  */
-@NullMarked
+@NonNullApi
 public interface FetchGroup<T> {
 
   /**
