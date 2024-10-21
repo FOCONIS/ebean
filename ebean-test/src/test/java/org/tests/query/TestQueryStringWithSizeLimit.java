@@ -14,7 +14,6 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@Disabled
 public class TestQueryStringWithSizeLimit extends BaseTestCase {
 
   private String SEARCH_VALUE = "a".repeat(41);
@@ -239,7 +238,7 @@ public class TestQueryStringWithSizeLimit extends BaseTestCase {
 
     Query<Customer> query = DB.find(Customer.class).select("id,name, status").where().notIn("name", SEARCH_VALUE).query();
     query.findList();
-    assertThat(query.getGeneratedSql()).isEqualTo("select t0.id, t0.name, t0.status from o_customer t0 where 1=0");
+    assertThat(query.getGeneratedSql()).isEqualTo("select t0.id, t0.name, t0.status from o_customer t0 where 1=1");
 
     query = DB.find(Customer.class).select("id,name, status").where().notIn("name", "Rob").query();
     query.findList();
@@ -247,7 +246,7 @@ public class TestQueryStringWithSizeLimit extends BaseTestCase {
 
     query = DB.find(Customer.class).select("id,name, status").where().not().notIn("name", SEARCH_VALUE).endNot().query();
     query.findList();
-    assertThat(query.getGeneratedSql()).isEqualTo("select t0.id, t0.name, t0.status from o_customer t0 where not (1=0)");
+    assertThat(query.getGeneratedSql()).isEqualTo("select t0.id, t0.name, t0.status from o_customer t0 where not (1=1)");
 
   }
 
