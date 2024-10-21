@@ -106,13 +106,13 @@ public class DefaultExpressionListTest extends BaseExpressionTest {
     same(exp1, exp2);
     assertThat(exp1.isSameByBind(exp2)).isTrue();
   }
-  
+
   @SuppressWarnings("unchecked")
   @Test
   void copy() {
     DefaultExpressionList<?> orig = exp();
     orig.eq("a", 10).in("b", 11);
-    DefaultExpressionList<?> copy = (DefaultExpressionList<?>)orig.copy(mock(Query.class));
+    DefaultExpressionList<?> copy = (DefaultExpressionList<?>)orig.copy(mock(SpiQuery.class));
 
     assertThat(copy).isNotSameAs(orig);
     assertThat(copy.list).hasSize(2);
@@ -128,7 +128,7 @@ public class DefaultExpressionListTest extends BaseExpressionTest {
     SpiQuery<?> existsSubQuery = mock(SpiQuery.class);
     orig.eq("a", 10).in("name", inSubQuery).exists(existsSubQuery);
 
-    DefaultExpressionList<?> copy = (DefaultExpressionList<?>)orig.copy(mock(Query.class));
+    DefaultExpressionList<?> copy = (DefaultExpressionList<?>)orig.copy(mock(SpiQuery.class));
 
     assertThat(copy.list).hasSize(3);
     assertThat(copy.list.get(0)).isSameAs(orig.list.get(0));

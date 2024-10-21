@@ -56,7 +56,7 @@ final class JunctionExpression<T> implements SpiJunction<T>, SpiExpression, Expr
    */
   @SuppressWarnings("unchecked")
   @Override
-  public void simplify() {
+  public SpiExpression simplify(BeanDescriptor<?> descriptor) {
     exprList.simplifyEntries();
 
     List<SpiExpression> list = exprList.list;
@@ -74,6 +74,7 @@ final class JunctionExpression<T> implements SpiJunction<T>, SpiExpression, Expr
         this.exprList = nested.exprList;
       }
     }
+    return this;
   }
 
   @Override

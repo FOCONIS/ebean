@@ -30,11 +30,6 @@ final class ExistsSqlQueryExpression implements SpiExpression, UnsupportedDocSto
   }
 
   @Override
-  public void simplify() {
-    // do nothing
-  }
-
-  @Override
   public void writeDocQuery(DocQueryContext context) {
     throw new IllegalStateException("Not supported");
   }

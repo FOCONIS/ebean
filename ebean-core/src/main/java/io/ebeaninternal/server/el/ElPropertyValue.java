@@ -63,4 +63,10 @@ public interface ElPropertyValue extends ElPropertyDeploy, ExpressionPath {
    */
   Object pathGetNested(Object bean);
 
+  /**
+   * Returns true, if the value range is valid. DB2 will throw errors, if the range of a value exceeds.
+   * The intention is more or less to get no result in such a case.
+   */
+  boolean isRangeValid(Object value);
+
 }
