@@ -1,6 +1,7 @@
 package io.ebeaninternal.server.expression;
 
 import io.ebeaninternal.api.SpiExpression;
+import io.ebeaninternal.api.SpiExpressionValidation;
 import io.ebeaninternal.server.deploy.BeanDescriptor;
 import io.ebeaninternal.server.el.ElPropertyValue;
 
@@ -42,4 +43,8 @@ abstract class AbstractValueExpression extends AbstractExpression {
     return this;
   }
 
+  @Override
+  public void validate(SpiExpressionValidation validation) {
+    validation.validate(propName, value());
+  }
 }

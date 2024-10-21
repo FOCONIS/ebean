@@ -1,5 +1,6 @@
 package io.ebeaninternal.api;
 
+import io.ebean.ValidationResult;
 import org.jspecify.annotations.Nullable;
 import io.ebean.CacheMode;
 import io.ebean.CountDistinctOrder;
@@ -935,7 +936,7 @@ public interface SpiQuery<T> extends Query<T>, SpiQueryFetch, TxnProfileEventCod
   /**
    * Validate the query returning the set of properties with unknown paths.
    */
-  Set<String> validate(BeanType<T> desc);
+  ValidationResult validate(BeanType<T> desc, boolean validateParameters);
 
   /**
    * Return the properties for an update query.

@@ -786,8 +786,8 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
   }
 
   @Override
-  public <T> Set<String> validateQuery(Query<T> query) {
-    return ((SpiQuery<T>) query).validate(desc(query.getBeanType()));
+  public <T> ValidationResult validateQuery(Query<T> query, boolean validateParameters) {
+    return ((SpiQuery<T>) query).validate(desc(query.getBeanType()), validateParameters);
   }
 
   @Override
@@ -971,7 +971,7 @@ public final class DefaultServer implements SpiServer, SpiEbeanServer {
       transaction = currentServerTransaction();
     }
     if (!query.isRawSql()) {
-      query.simplifyExpressions();
+    //  query.simplifyExpressions();
       query.setDefaultRawSqlIfRequired();
       if (!query.isAutoTunable() || !autoTuneService.tuneQuery(query)) {
         // use deployment FetchType.LAZY/EAGER annotations

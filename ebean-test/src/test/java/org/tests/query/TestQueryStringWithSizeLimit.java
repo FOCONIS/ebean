@@ -1,11 +1,9 @@
 package org.tests.query;
 
 import io.ebean.DB;
-import io.ebean.ExpressionList;
 import io.ebean.Query;
-import io.ebean.test.LoggedSql;
+import io.ebean.ValidationResult;
 import io.ebean.xtest.BaseTestCase;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.tests.model.basic.Customer;
 import org.tests.model.basic.ResetBasicData;
@@ -16,7 +14,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class TestQueryStringWithSizeLimit extends BaseTestCase {
 
-  private String SEARCH_VALUE = "a".repeat(41);
+  private String SEARCH_VALUE = "G".repeat(41);
 
   @Test
   public void testEq() {
@@ -34,6 +32,38 @@ public class TestQueryStringWithSizeLimit extends BaseTestCase {
     query = DB.find(Customer.class).select("id,name,status").where().not().eq("name", SEARCH_VALUE).endNot().query();
     query.findList();
     assertThat(query.getGeneratedSql()).isEqualTo("select t0.id, t0.name, t0.status from o_customer t0 where not (1=0)");
+
+    query = DB.find(Customer.class).select("id,name,status").where()
+      .and()
+        .eq("name", SEARCH_VALUE)
+        .eq("status", Customer.Status.ACTIVE)
+      .endAnd().query();
+    query.findList();
+    assertThat(query.getGeneratedSql()).isEqualTo("select t0.id, t0.name, t0.status from o_customer t0 where (1=0 and t0.status = ?)");
+
+    query = DB.find(Customer.class).select("id,name,status").where()
+      .and()
+      .not().eq("name", SEARCH_VALUE).endNot()
+      .eq("status", Customer.Status.ACTIVE)
+      .endAnd().query();
+    query.findList();
+    assertThat(query.getGeneratedSql()).isEqualTo("select t0.id, t0.name, t0.status from o_customer t0 where (not (1=0) and t0.status = ?)");
+
+    query = DB.find(Customer.class).select("id,name,status").where()
+      .and()
+      .not().eq("name", SEARCH_VALUE).endNot()
+      .not().eq("status", Customer.Status.ACTIVE).endNot()
+      .endAnd().query();
+    query.findList();
+    assertThat(query.getGeneratedSql()).isEqualTo("select t0.id, t0.name, t0.status from o_customer t0 where (not (1=0) and not (t0.status = ?))");
+
+    query = DB.find(Customer.class).select("id,name,status").where()
+      .or()
+        .eq("name", SEARCH_VALUE)
+        .eq("status", Customer.Status.ACTIVE)
+      .endOr().query();
+    query.findList();
+    assertThat(query.getGeneratedSql()).isEqualTo("select t0.id, t0.name, t0.status from o_customer t0 where (1=0 or t0.status = ?)");
 
   }
 
@@ -274,7 +304,13 @@ public class TestQueryStringWithSizeLimit extends BaseTestCase {
 
     ResetBasicData.reset();
 
+//    List<Customer> list = DB.findDto(Customer.class, "select t0.id, t0.name, t0.status from o_customer t0 where t0.name < '" + SEARCH_VALUE + "'").findList();
+//    assertThat(list).hasSize(2);
+//    list = DB.findDto(Customer.class, "select t0.id, t0.name, t0.status from o_customer t0 where t0.name < :param").setParameter("param", SEARCH_VALUE).findList();
+
     Query<Customer> query = DB.find(Customer.class).select("id,name, status").where().ge("name", SEARCH_VALUE).query();
+    ValidationResult result = query.validate(true);
+    assertThat(result.tooLongProperties()).isEmpty();
     query.findList();
     assertThat(query.getGeneratedSql()).isEqualTo("select t0.id, t0.name, t0.status from o_customer t0 where 1=0");
 
@@ -344,7 +380,5 @@ public class TestQueryStringWithSizeLimit extends BaseTestCase {
     assertThat(query.getGeneratedSql()).isEqualTo("select t0.id, t0.name, t0.status from o_customer t0 where not (1=0)");
 
   }
-
-  // Tests noch für not(), and(), or(), match?, lgIfPresent?
 
 }

@@ -609,7 +609,7 @@ final class DefaultFetchGroupQuery<T> implements SpiFetchGroupQuery<T>, SpiQuery
   }
 
   @Override
-  public Set<String> validate() {
+  public ValidationResult validate(boolean validateProperties) {
     throw new RuntimeException("EB102: Only select() and fetch() clause is allowed on FetchGroup");
   }
 

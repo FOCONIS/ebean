@@ -552,8 +552,8 @@ public abstract class QueryBean<T, R extends QueryBean<T, R>> implements IQueryB
   }
 
   @Override
-  public final Set<String> validate() {
-    return query.validate();
+  public final ValidationResult validate(boolean validateProperties) {
+    return query.validate(validateProperties);
   }
 
   @Override

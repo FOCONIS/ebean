@@ -536,7 +536,11 @@ public interface QueryBuilder<SELF extends QueryBuilder<SELF, T>, T> extends Que
    * Validate the query checking the where and orderBy expression paths to confirm if
    * they represent valid properties or paths for the given bean type.
    */
-  Set<String> validate();
+  default Set<String> validate() {
+    return validate(false).unknownProperties();
+  }
+
+  ValidationResult validate(boolean validateParameters);
 
   /**
    * Return the sql that was generated for executing this query.

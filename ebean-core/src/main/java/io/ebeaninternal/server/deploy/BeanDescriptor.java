@@ -2274,6 +2274,11 @@ public class BeanDescriptor<T> implements BeanType<T>, STreeType, SpiBeanType {
     }
   }
 
+  @Override
+  public boolean isValidValue(String property, Object value) {
+    return elGetValue(property).isRangeValid(value);
+  }
+
   /**
    * Get an Expression language Value object.
    */

@@ -89,7 +89,7 @@ abstract class AbstractExpression implements SpiExpression {
 
   @Override
   public void validate(SpiExpressionValidation validation) {
-    validation.validate(propName);
+    validation.validate(propName, null);
   }
 
   protected final ElPropertyValue getElProp(SpiExpressionBind request) {
