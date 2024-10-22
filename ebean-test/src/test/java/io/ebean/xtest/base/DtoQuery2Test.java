@@ -11,6 +11,7 @@ import io.ebean.test.LoggedSql;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tests.model.basic.Contact;
 import org.tests.model.basic.Customer;
 import org.tests.model.basic.ResetBasicData;
 
@@ -412,15 +413,15 @@ public class DtoQuery2Test extends BaseTestCase {
   void dto_test_formula_with_group_by() {
     ResetBasicData.reset();
 
-    Query<Customer> query = server().find(Customer.class)
-      .select("concat('Dr. ',name) as custname, count(*) as cnt")
+    Query<Contact> query = server().find(Contact.class)
+      .select("concat(first_name, last_name) as custname, count(*) as cnt")
       .orderBy("custname desc");
 
     List<DCustFormula> ret = query.asDto(DCustFormula.class).findList();
 
     log.info(query.getGeneratedSql());
     log.info(ret.toString());
-    assertThat(ret.get(0).getCustname()).isEqualTo("Dr. Rob");
+    assertThat(ret.get(0).getCustname()).isEqualTo("TracyRed");
     assertThat(ret.get(0).getCnt()).isEqualTo(1L);
   }
 
