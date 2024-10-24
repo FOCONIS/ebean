@@ -30,11 +30,6 @@ abstract class AbstractExpression implements SpiExpression {
   }
 
   @Override
-  public void simplify() {
-    // do nothing
-  }
-
-  @Override
   public Object getIdEqualTo(String idName) {
     // override on SimpleExpression
     return null;

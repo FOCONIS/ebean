@@ -225,4 +225,8 @@ public final class BeanFkeyProperty implements ElPropertyValue {
     throw new RuntimeException("ElPropertyDeploy only - not implemented");
   }
 
+  @Override
+  public boolean isRangeValid(Object value) {
+    return true;
+  }
 }

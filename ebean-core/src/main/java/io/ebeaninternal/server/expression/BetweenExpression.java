@@ -4,6 +4,7 @@ import io.ebeaninternal.api.BindValuesKey;
 import io.ebeaninternal.api.SpiExpression;
 import io.ebeaninternal.api.SpiExpressionBind;
 import io.ebeaninternal.api.SpiExpressionRequest;
+import io.ebeaninternal.server.deploy.BeanDescriptor;
 import io.ebeaninternal.server.el.ElPropertyValue;
 
 import java.io.IOException;
@@ -70,5 +71,14 @@ final class BetweenExpression extends AbstractExpression {
   public boolean isSameByBind(SpiExpression other) {
     BetweenExpression that = (BetweenExpression) other;
     return low().equals(that.low()) && high().equals(that.high());
+  }
+
+  @Override
+  public SpiExpression simplify(BeanDescriptor<?> descriptor) {
+    ElPropertyValue prop = descriptor.elGetValue(propName);
+    if (prop != null && (!prop.isRangeValid(high()) || !prop.isRangeValid(low()))) {
+      return new RawExpression(SQL_FALSE, null);
+    }
+    return this;
   }
 }
