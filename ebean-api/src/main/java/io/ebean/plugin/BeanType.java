@@ -76,6 +76,11 @@ public interface BeanType<T> {
   boolean isValidExpression(String property);
 
   /**
+   * Returns true, if the value is valid for this poperty. E.g. is not too long.
+   */
+  boolean isValidValue(String property, Object value);
+
+  /**
    * Return true if bean caching is on for this bean type.
    */
   boolean isBeanCaching();

@@ -44,11 +44,6 @@ final class ExistsQueryExpression implements SpiExpression, UnsupportedDocStoreE
   }
 
   @Override
-  public void simplify() {
-    // do nothing
-  }
-
-  @Override
   public void writeDocQuery(DocQueryContext context) {
     throw new IllegalStateException("Not supported");
   }

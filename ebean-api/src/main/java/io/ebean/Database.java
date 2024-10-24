@@ -1509,7 +1509,7 @@ public interface Database {
    * Validate the query checking the where and orderBy expression paths to confirm if
    * they represent valid properties/path for the given bean type.
    */
-  <T> Set<String> validateQuery(Query<T> query);
+  <T> ValidationResult validateQuery(Query<T> query, boolean validateParameters);
 
   /**
    * Load and lock the bean using {@code select for update}.

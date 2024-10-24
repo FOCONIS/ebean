@@ -32,6 +32,7 @@ public class DefaultExpressionList<T> implements SpiExpressionList<T> {
    * Set to true for the "Text" root expression list.
    */
   private final boolean textRoot;
+  private boolean simplified;
 
   public static <P> ExpressionList<P> forFetchGroup(Query<P> q) {
     return new DefaultExpressionList<>(q, null, null, null, false);
@@ -86,9 +87,12 @@ public class DefaultExpressionList<T> implements SpiExpressionList<T> {
     }
   }
 
-  void simplifyEntries() {
-    for (SpiExpression expr : list) {
-      expr.simplify();
+  void simplifyEntries(BeanDescriptor<?> descriptor) {
+    if (!simplified) {
+      for (int i = 0; i < list.size(); i++) {
+        list.set(i, list.get(i).simplify(descriptor));
+      }
+      simplified = true;
     }
   }
 
@@ -111,8 +115,9 @@ public class DefaultExpressionList<T> implements SpiExpressionList<T> {
   }
 
   @Override
-  public void simplify() {
-    simplifyEntries();
+  public SpiExpression simplify(BeanDescriptor<?> descriptor) {
+    simplifyEntries(descriptor);
+    return this;
   }
 
   /**
@@ -562,6 +567,7 @@ public class DefaultExpressionList<T> implements SpiExpressionList<T> {
 
   @Override
   public ExpressionList<T> add(Expression expr) {
+    simplified = false;
     list.add((SpiExpression) expr);
     return this;
   }
@@ -569,6 +575,7 @@ public class DefaultExpressionList<T> implements SpiExpressionList<T> {
   @Override
   public ExpressionList<T> addAll(ExpressionList<T> exprList) {
     SpiExpressionList<T> spiList = (SpiExpressionList<T>) exprList;
+    simplified = false;
     list.addAll(spiList.underlyingList());
     return this;
   }

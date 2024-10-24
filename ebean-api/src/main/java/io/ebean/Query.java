@@ -262,7 +262,7 @@ public interface Query<T> extends CancelableQuery, QueryBuilder<Query<T>, T> {
    * }</pre>
    *
    * @param name  the parameter name
-   * @param value the parameter value
+   * @parame the parameter value
    */
   Query<T> setParameter(String name, Object value);
 

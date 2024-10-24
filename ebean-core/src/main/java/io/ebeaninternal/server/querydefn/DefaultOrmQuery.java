@@ -1913,7 +1913,10 @@ public class DefaultOrmQuery<T> extends AbstractQuery implements SpiQuery<T> {
   @Override
   public final void simplifyExpressions() {
     if (whereExpressions != null) {
-      whereExpressions.simplify();
+      whereExpressions.simplify(descriptor());
+    }
+    if (havingExpressions != null) {
+      havingExpressions.simplify(descriptor());
     }
   }
 
@@ -2039,18 +2042,17 @@ public class DefaultOrmQuery<T> extends AbstractQuery implements SpiQuery<T> {
     return rootTableAlias != null ? rootTableAlias : defaultAlias;
   }
 
-
   @Override
-  public final Set<String> validate() {
-    return server.validateQuery(this);
+  public final ValidationResult validate(boolean validateParameters) {
+    return server.validateQuery(this, validateParameters);
   }
 
   /**
    * Validate all the expression properties/paths given the bean descriptor.
    */
   @Override
-  public final Set<String> validate(BeanType<T> desc) {
-    SpiExpressionValidation validation = new SpiExpressionValidation(desc);
+  public final ValidationResult validate(BeanType<T> desc, boolean validateParameters) {
+    SpiExpressionValidation validation = new SpiExpressionValidation(desc, validateParameters);
     if (whereExpressions != null) {
       whereExpressions.validate(validation);
     }
@@ -2062,7 +2064,7 @@ public class DefaultOrmQuery<T> extends AbstractQuery implements SpiQuery<T> {
         validation.validate(property.getProperty());
       }
     }
-    return validation.unknownProperties();
+    return validation;
   }
 
   final void setUpdateProperties(OrmUpdateProperties updateProperties) {

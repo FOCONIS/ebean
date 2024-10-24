@@ -106,7 +106,7 @@ public class DefaultExpressionListTest extends BaseExpressionTest {
     same(exp1, exp2);
     assertThat(exp1.isSameByBind(exp2)).isTrue();
   }
-  
+
   @SuppressWarnings("unchecked")
   @Test
   void copy() {

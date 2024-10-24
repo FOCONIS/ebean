@@ -387,7 +387,7 @@ public class TDSpiEbeanServer extends TDSpiServer implements SpiEbeanServer {
   }
 
   @Override
-  public <T> Set<String> validateQuery(Query<T> query) {
+  public <T> ValidationResult validateQuery(Query<T> query, boolean validateParameters) {
     return null;
   }
 

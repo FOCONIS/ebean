@@ -64,11 +64,6 @@ abstract class LogicExpression implements SpiExpression {
   }
 
   @Override
-  public void simplify() {
-    // do nothing
-  }
-
-  @Override
   public void writeDocQuery(DocQueryContext context) throws IOException {
 
     context.startBool(conjunction ? Junction.Type.AND : Junction.Type.OR);

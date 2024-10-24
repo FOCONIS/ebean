@@ -1,5 +1,10 @@
 package io.ebeaninternal.server.expression;
 
+import io.ebeaninternal.api.SpiExpression;
+import io.ebeaninternal.api.SpiExpressionValidation;
+import io.ebeaninternal.server.deploy.BeanDescriptor;
+import io.ebeaninternal.server.el.ElPropertyValue;
+
 /**
  * Abstract expression that helps with named parameter use.
  */
@@ -29,4 +34,17 @@ abstract class AbstractValueExpression extends AbstractExpression {
     return NamedParamHelp.valueAsString(bindValue);
   }
 
+  @Override
+  public SpiExpression simplify(BeanDescriptor<?> descriptor) {
+    ElPropertyValue prop = descriptor.elGetValue(propName);
+    if (prop != null && !prop.isRangeValid(value())) {
+      return new RawExpression(SQL_FALSE, null);
+    }
+    return this;
+  }
+
+  @Override
+  public void validate(SpiExpressionValidation validation) {
+    validation.validate(propName, value());
+  }
 }

@@ -21,11 +21,6 @@ abstract class NonPrepareExpression implements SpiExpression {
   }
 
   @Override
-  public void simplify() {
-    // do nothing
-  }
-
-  @Override
   public void prepareExpression(BeanQueryRequest<?> request) {
     // do nothing
   }

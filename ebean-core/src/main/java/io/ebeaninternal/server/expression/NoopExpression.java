@@ -23,11 +23,6 @@ final class NoopExpression implements SpiExpression {
   }
 
   @Override
-  public void simplify() {
-    // do nothing
-  }
-
-  @Override
   public SpiExpression copyForPlanKey() {
     return this;
   }
