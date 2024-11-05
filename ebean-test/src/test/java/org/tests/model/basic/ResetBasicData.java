@@ -59,7 +59,7 @@ public class ResetBasicData {
     server.find(Country.class).findEach(c -> sb.append(' ').append(c.getCode()));
     sb.append(", Products:");
     server.find(Product.class).findEach(c -> sb.append(' ').append(c.getId()));
-    if(warning) {
+    if (warning) {
       System.err.println("WARNING: basic test data was modified. Current content:");
       System.err.println(sb);
     } else {
