@@ -149,7 +149,7 @@ public class TestLazyAddBeanList extends BaseTestCase {
     }
 
     LoggedSql.start();
-    List<Customer> custs = DB.find(Customer.class).where().startsWith("name", "batch").findList();
+    custs = DB.find(Customer.class).where().startsWith("name", "batch").findList();
     assertThat(custs).hasSize(10);
     assertThat(LoggedSql.stop()).hasSize(1);
 
