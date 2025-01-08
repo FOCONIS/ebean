@@ -284,4 +284,18 @@ public class TestNestedTransaction extends BaseTestCase {
     }
   }
 
+  @Test
+  public void test_txn_with_BatchMode() {
+
+    try (Transaction txn1 = DB.beginTransaction(TxScope.requiresNew())) {
+
+      try (Transaction txn2 = DB.beginTransaction()) {
+        txn2.setBatchMode(true);
+        txn2.commit();
+      }
+      // resume txn1
+      assertThat(txn1.isBatchMode()).isFalse();
+    }
+  }
+
 }
