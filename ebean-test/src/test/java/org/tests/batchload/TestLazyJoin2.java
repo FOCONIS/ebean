@@ -1,5 +1,6 @@
 package org.tests.batchload;
 
+import io.ebean.test.LoggedSql;
 import io.ebean.xtest.BaseTestCase;
 import io.ebean.DB;
 import org.junit.jupiter.api.Test;
@@ -56,15 +57,20 @@ public class TestLazyJoin2 extends BaseTestCase {
 
     assertNotNull(billingAddress);
 
-    List<Order> list = DB.find(Order.class).fetchLazy("customer", "name")
-      .fetch("customer.contacts", "firstName, lastName, phone, email").fetch("customer.shippingAddress")
-      .where().eq("status", Order.Status.NEW).order().asc("id").findList();
+    LoggedSql.start();
+    try {
+      List<Order> list = DB.find(Order.class).fetchLazy("customer", "name")
+        .fetch("customer.contacts", "firstName, lastName, phone, email").fetch("customer.shippingAddress")
+        .where().eq("status", Order.Status.NEW).order().asc("id").findList();
 
-    Order order2 = list.get(0);
-    Customer customer2 = order2.getCustomer();
-    // customer2.getStatus();
-    String name = customer2.getName();
-    assertNotNull(name);
+      Order order2 = list.get(0);
+      Customer customer2 = order2.getCustomer();
+      // customer2.getStatus();
+      String name = customer2.getName();
+      assertNotNull(name);
+    } finally {
+      LoggedSql.stop().forEach(System.out::println);
+    }
 
   }
 
