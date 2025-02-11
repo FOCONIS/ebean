@@ -1,14 +1,20 @@
 package org.tests.transaction;
 
-import io.ebean.TxScope;
+import io.ebean.*;
+import io.ebean.event.BeanPersistAdapter;
+import io.ebean.event.BeanPersistRequest;
 import io.ebean.xtest.BaseTestCase;
-import io.ebean.DB;
-import io.ebean.Transaction;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tests.model.basic.EBasic;
+import org.tests.model.basic.EBasicVer;
+import org.tests.model.json.EBasicJsonList;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -294,6 +300,77 @@ public class TestNestedTransaction extends BaseTestCase {
         }
         txn2.commit();
       }
+    }
+  }
+
+  @Test
+  public void test_txn_nextedWithInnerBatch() {
+    try (Transaction txn1 = DB.beginTransaction(TxScope.requiresNew())) {
+      assertThat(EBasicVerPersistController.txnIdentifiersInsert).isEmpty();
+      assertThat(EBasicVerPersistController.txnIdentifiersUpdate).isEmpty();
+      for (int i = 0; i < 3; i++) {
+        try (Transaction txn2 = DB.beginTransaction()) {
+          txn2.putUserObject("ebasicVerTransactionId", i);
+          txn2.setBatchMode(true);
+
+          EBasicVer fromDb = DB.find(EBasicVer.class, 999 + i);
+          if (fromDb != null) {
+            fromDb.setDescription("Updated description");
+            DB.save(fromDb);
+          }
+
+          txn2.flush();
+
+          EBasicVer basic = new EBasicVer("New name");
+          basic.setId(1000 + i);
+          basic.setDescription("New description");
+          DB.save(basic);
+
+          txn2.flush();
+
+          basic.setOther("Other" + i);
+          DB.save(basic);
+
+//          txn2.flush();
+          txn2.commit();
+        }
+
+        if (i == 0) {
+          assertThat(EBasicVerPersistController.txnIdentifiersInsert).containsExactly(0);
+          assertThat(EBasicVerPersistController.txnIdentifiersUpdate).containsExactly(0);
+        } else if (i == 1) {
+          assertThat(EBasicVerPersistController.txnIdentifiersInsert).containsExactly(0, 1);
+          assertThat(EBasicVerPersistController.txnIdentifiersUpdate).containsExactly(0, 1, 1);
+        } else if (i == 2) {
+          assertThat(EBasicVerPersistController.txnIdentifiersInsert).containsExactly(0, 1, 2);
+          assertThat(EBasicVerPersistController.txnIdentifiersUpdate).containsExactly(0, 1, 1, 2, 2);
+        } else {
+          throw new IllegalStateException("Unexpected index");
+        }
+      }
+    }
+  }
+
+  public static class EBasicVerPersistController extends BeanPersistAdapter {
+
+    static List<Integer> txnIdentifiersInsert = new ArrayList<>();
+    static List<Integer> txnIdentifiersUpdate = new ArrayList<>();
+
+    @Override
+    public boolean isRegisterFor(Class<?> cls) {
+      return EBasicVer.class.isAssignableFrom(cls);
+    }
+
+    @Override
+    public boolean preInsert(BeanPersistRequest<?> request) {
+      txnIdentifiersInsert.add((Integer) request.transaction().getUserObject("ebasicVerTransactionId"));
+      return true;
+    }
+
+    @Override
+    public boolean preUpdate(BeanPersistRequest<?> request) {
+      txnIdentifiersUpdate.add((Integer) request.transaction().getUserObject("ebasicVerTransactionId"));
+      return true;
     }
   }
 
