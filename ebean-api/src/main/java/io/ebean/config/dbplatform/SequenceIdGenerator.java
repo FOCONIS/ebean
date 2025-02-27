@@ -4,8 +4,8 @@ import io.avaje.applog.AppLog;
 import io.ebean.BackgroundExecutor;
 import io.ebean.Transaction;
 import io.ebean.util.JdbcClose;
-
 import jakarta.persistence.PersistenceException;
+
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -157,7 +157,7 @@ public abstract class SequenceIdGenerator implements PlatformIdGenerator {
       if (newIds.isEmpty()) {
         throw new PersistenceException("Always expecting more than 1 row from " + sql);
       }
-
+      connection.commit();
       return newIds;
 
     } catch (SQLException e) {
