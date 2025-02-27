@@ -442,6 +442,7 @@ public class QCustomerTest {
         .findList();
 
       assertThat(foo).hasSize(1);
+      connection.rollback();
     }
 
     Customer customer = DB.find(Customer.class, cust.getId());
