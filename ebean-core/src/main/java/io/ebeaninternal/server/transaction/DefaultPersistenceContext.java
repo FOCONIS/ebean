@@ -224,14 +224,26 @@ public final class DefaultPersistenceContext implements SpiPersistenceContext {
     return typeCache.computeIfAbsent(rootType, k -> new ClassContext(k, queue));
   }
 
-  interface ClassContextTracker {
+  public interface ClassContextTracker {
 
     int getThreshold(Class<?> rootType);
 
     int log(Class<?> rootType, int size, int threshold);
+
+    static ClassContextTracker INSTANCE = createInstance(); // = null;
+
+    static ClassContextTracker createInstance() {
+     return null;
+    }
+
+   // ClassContextTracker setInstance();
+
+//    default ClassContextTracker getInstance() {
+//      return INSTANCE;
+//    }
   }
 
-  static ClassContextTracker cct;
+  static ClassContextTracker cct = ClassContextTracker.INSTANCE;
 
   private static class ClassContext {
 
@@ -246,7 +258,7 @@ public final class DefaultPersistenceContext implements SpiPersistenceContext {
     private ClassContext(Class<?> rootType, ReferenceQueue<Object> queue) {
       this.rootType = rootType;
       this.queue = queue;
-      this.threshold = cct.getThreshold(rootType);
+      this.threshold = cct != null ? cct.getThreshold(rootType) : 0;
     }
 
     /**
