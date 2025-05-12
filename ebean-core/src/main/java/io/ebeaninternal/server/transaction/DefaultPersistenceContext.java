@@ -1,5 +1,6 @@
 package io.ebeaninternal.server.transaction;
 
+import io.ebean.bean.ClassContextTracker;
 import io.ebean.bean.EntityBean;
 import io.ebeaninternal.api.SpiBeanType;
 import io.ebeaninternal.api.SpiBeanTypeManager;
@@ -224,26 +225,6 @@ public final class DefaultPersistenceContext implements SpiPersistenceContext {
     return typeCache.computeIfAbsent(rootType, k -> new ClassContext(k, queue));
   }
 
-  public interface ClassContextTracker {
-
-    int getThreshold(Class<?> rootType);
-
-    int log(Class<?> rootType, int size, int threshold);
-
-    static ClassContextTracker INSTANCE = createInstance(); // = null;
-
-    static ClassContextTracker createInstance() {
-     return null;
-    }
-
-   // ClassContextTracker setInstance();
-
-//    default ClassContextTracker getInstance() {
-//      return INSTANCE;
-//    }
-  }
-
-  static ClassContextTracker cct = ClassContextTracker.INSTANCE;
 
   private static class ClassContext {
 
@@ -258,7 +239,7 @@ public final class DefaultPersistenceContext implements SpiPersistenceContext {
     private ClassContext(Class<?> rootType, ReferenceQueue<Object> queue) {
       this.rootType = rootType;
       this.queue = queue;
-      this.threshold = cct != null ? cct.getThreshold(rootType) : 0;
+      this.threshold = ClassContextTracker.INSTANCE.getThreshold(rootType);
     }
 
     /**
@@ -316,8 +297,8 @@ public final class DefaultPersistenceContext implements SpiPersistenceContext {
         ((BeanRef) existing).setReplaced();
         weakCount--;
       }
-      if (cct != null && threshold != -1 && map.size() > threshold) {
-        threshold = cct.log(rootType, map.size(), threshold);
+      if (threshold != -1 && map.size() > threshold) {
+        threshold = ClassContextTracker.INSTANCE.log(rootType, map.size(), threshold);
       }
     }
 
