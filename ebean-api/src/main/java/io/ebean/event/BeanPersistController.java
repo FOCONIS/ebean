@@ -144,5 +144,4 @@ public interface BeanPersistController {
    * Called after the soft delete was performed.
    */
   void postSoftDelete(BeanPersistRequest<?> request);
-
 }

@@ -41,6 +41,4 @@ final class DeleteIdsRequest implements BeanDeleteIdsRequest {
   public List<Object> ids() {
     return ids;
   }
-
-
 }

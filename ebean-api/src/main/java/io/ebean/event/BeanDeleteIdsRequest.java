@@ -6,7 +6,7 @@ import io.ebean.Transaction;
 import java.util.List;
 
 /**
- * A request to delete a bean by Id value.
+ * A request to delete beans by Id values.
  */
 public interface BeanDeleteIdsRequest {
 
