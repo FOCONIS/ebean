@@ -2,6 +2,8 @@ package io.ebean.event;
 
 import io.ebean.config.DatabaseConfig;
 
+import java.util.List;
+
 /**
  * A no operation implementation of BeanPersistController. Objects extending
  * this need to only override the methods they want to.
@@ -35,12 +37,22 @@ public abstract class BeanPersistAdapter implements BeanPersistController {
     return true;
   }
 
+  @Override
+  public void preDelete(List<BeanPersistRequest<?>> requests) {
+
+  }
+
   /**
    * Returns true indicating normal processing should continue.
    */
   @Override
   public boolean preInsert(BeanPersistRequest<?> request) {
     return true;
+  }
+
+  @Override
+  public void preInsert(List<BeanPersistRequest<?>> requests) {
+
   }
 
   /**
@@ -51,12 +63,22 @@ public abstract class BeanPersistAdapter implements BeanPersistController {
     return true;
   }
 
+  @Override
+  public void preUpdate(List<BeanPersistRequest<?>> requests) {
+
+  }
+
   /**
    * Returns true indicating normal processing should continue.
    */
   @Override
   public boolean preSoftDelete(BeanPersistRequest<?> request) {
     return true;
+  }
+
+  @Override
+  public void preSoftDelete(List<BeanPersistRequest<?>> requests) {
+
   }
 
   /**
@@ -92,6 +114,11 @@ public abstract class BeanPersistAdapter implements BeanPersistController {
    */
   @Override
   public void preDelete(BeanDeleteIdRequest request) {
+
+  }
+
+  @Override
+  public void preDeleteById(List<BeanDeleteIdRequest> requests) {
 
   }
 }

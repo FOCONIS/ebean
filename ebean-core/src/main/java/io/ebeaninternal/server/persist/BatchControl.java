@@ -1,6 +1,5 @@
 package io.ebeaninternal.server.persist;
 
-import io.ebean.event.BeanPersistBatchController;
 import io.ebean.event.BeanPersistController;
 import io.ebean.event.BeanPersistRequest;
 import io.ebeaninternal.api.SpiTransaction;
@@ -251,18 +250,18 @@ public final class BatchControl {
    * Notifies the extended BeanPersistBatchControllers, that they can prepare the batch.
    */
   private void prepareBatch(ArrayList<PersistRequest> list) {
-    Map<PersistRequest.Type, Map<BeanPersistBatchController, List<BeanPersistRequest<?>>>> controllers = null;
+    Map<PersistRequest.Type, Map<BeanPersistController, List<BeanPersistRequest<?>>>> controllers = null;
     for (PersistRequest request : list) {
       if (request instanceof PersistRequestBean<?>) {
         PersistRequestBean<?> persistRequest = (PersistRequestBean<?>) request;
         BeanPersistController controller = persistRequest.controller();
-        if (controller instanceof BeanPersistBatchController) {
+        if (controller instanceof BeanPersistController) {
           if (controllers == null) {
             controllers = new LinkedHashMap<>();
           }
           controllers
             .computeIfAbsent(persistRequest.type(), k -> new LinkedHashMap<>())
-            .computeIfAbsent((BeanPersistBatchController) controller, k -> new ArrayList<>())
+            .computeIfAbsent((BeanPersistController) controller, k -> new ArrayList<>())
             .add(persistRequest);
         }
       }
@@ -273,16 +272,16 @@ public final class BatchControl {
     controllers.forEach((type, map) -> {
       switch (type) {
         case INSERT:
-          map.forEach(BeanPersistBatchController::preInsert);
+          map.forEach(BeanPersistController::preInsert);
           break;
         case UPDATE:
-          map.forEach(BeanPersistBatchController::preUpdate);
+          map.forEach(BeanPersistController::preUpdate);
           break;
         case DELETE:
-          map.forEach(BeanPersistBatchController::preDelete);
+          map.forEach(BeanPersistController::preDelete);
           break;
         case DELETE_SOFT:
-          map.forEach(BeanPersistBatchController::preSoftDelete);
+          map.forEach(BeanPersistController::preSoftDelete);
           break;
         default:
           throw new RuntimeException("Invalid type " + type);

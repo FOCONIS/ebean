@@ -136,6 +136,13 @@ public final class ChainedBeanPersistController implements BeanPersistController
   }
 
   @Override
+  public void preDelete(List<BeanPersistRequest<?>> requests) {
+    for (BeanPersistController controller : chain) {
+      controller.preDelete(requests);
+    }
+  }
+
+  @Override
   public boolean preSoftDelete(BeanPersistRequest<?> request) {
     for (BeanPersistController controller : chain) {
       if (!controller.preSoftDelete(request)) {
@@ -146,9 +153,23 @@ public final class ChainedBeanPersistController implements BeanPersistController
   }
 
   @Override
+  public void preSoftDelete(List<BeanPersistRequest<?>> requests) {
+    for (BeanPersistController controller : chain) {
+      controller.preSoftDelete(requests);
+    }
+  }
+
+  @Override
   public void preDelete(BeanDeleteIdRequest request) {
     for (BeanPersistController controller : chain) {
       controller.preDelete(request);
+    }
+  }
+
+  @Override
+  public void preDeleteById(List<BeanDeleteIdRequest> requests) {
+    for (BeanPersistController controller : chain) {
+      controller.preDeleteById(requests);
     }
   }
 
@@ -163,6 +184,13 @@ public final class ChainedBeanPersistController implements BeanPersistController
   }
 
   @Override
+  public void preInsert(List<BeanPersistRequest<?>> requests) {
+    for (BeanPersistController controller : chain) {
+      controller.preInsert(requests);
+    }
+  }
+
+  @Override
   public boolean preUpdate(BeanPersistRequest<?> request) {
     for (BeanPersistController controller : chain) {
       if (!controller.preUpdate(request)) {
@@ -170,6 +198,13 @@ public final class ChainedBeanPersistController implements BeanPersistController
       }
     }
     return true;
+  }
+
+  @Override
+  public void preUpdate(List<BeanPersistRequest<?>> requests) {
+    for (BeanPersistController controller : chain) {
+      controller.preUpdate(requests);
+    }
   }
 
   /**
