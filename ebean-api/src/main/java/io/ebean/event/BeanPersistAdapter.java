@@ -1,5 +1,7 @@
 package io.ebean.event;
 
+import io.ebean.Database;
+import io.ebean.Transaction;
 import io.ebean.config.DatabaseConfig;
 
 import java.util.List;
@@ -111,14 +113,53 @@ public abstract class BeanPersistAdapter implements BeanPersistController {
 
   /**
    * Does nothing by default.
+   *
+   * @deprecated Use {@link #preDelete(BeanDeleteIdsRequest)} instead.
    */
   @Override
+  @Deprecated
   public void preDelete(BeanDeleteIdRequest request) {
 
   }
 
-  @Override
-  public void preDeleteById(List<BeanDeleteIdRequest> requests) {
+  @Deprecated
+  private static class BeanDeleteIdRequestWrapper implements BeanDeleteIdRequest {
+    private final BeanDeleteIdsRequest request;
+    private Object id;
 
+    public BeanDeleteIdRequestWrapper(BeanDeleteIdsRequest request) {
+      this.request = request;
+    }
+
+    @Override
+    public Database database() {
+      return request.database();
+    }
+
+    @Override
+    public Transaction transaction() {
+      return request.transaction();
+    }
+
+    @Override
+    public Class<?> beanType() {
+      return request.beanType();
+    }
+
+    @Override
+    public Object id() {
+      return id;
+    }
+  }
+
+  /**
+   * Compatibility wrapper.
+   */
+  public void preDelete(BeanDeleteIdsRequest request) {
+    BeanDeleteIdRequestWrapper wrapper = new BeanDeleteIdRequestWrapper(request);
+    for (Object id : request.ids()) {
+      wrapper.id = id;
+      preDelete(wrapper);
+    }
   }
 }

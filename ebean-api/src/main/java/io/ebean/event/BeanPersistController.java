@@ -117,12 +117,13 @@ public interface BeanPersistController {
   /**
    * Prior to a delete by id perform some action.
    */
+  @Deprecated
   void preDelete(BeanDeleteIdRequest request);
 
   /**
    * Prior to a delete by id perform some action. You can collect the ids in this step.
    */
-  void preDeleteById(List<BeanDeleteIdRequest> requests);
+  void preDelete(BeanDeleteIdsRequest request);
 
   /**
    * Called after the insert was performed.

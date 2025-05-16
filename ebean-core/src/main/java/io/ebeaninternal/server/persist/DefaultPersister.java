@@ -1,20 +1,48 @@
 package io.ebeaninternal.server.persist;
 
 import io.avaje.applog.AppLog;
-import io.ebean.*;
+import io.ebean.CallableSql;
+import io.ebean.InsertOptions;
+import io.ebean.Lists;
+import io.ebean.MergeOptions;
+import io.ebean.Query;
+import io.ebean.SqlUpdate;
+import io.ebean.Transaction;
+import io.ebean.Update;
 import io.ebean.bean.BeanCollection;
 import io.ebean.bean.BeanCollection.ModifyListenMode;
 import io.ebean.bean.EntityBean;
 import io.ebean.bean.PersistenceContext;
 import io.ebean.event.BeanPersistController;
 import io.ebean.meta.MetricVisitor;
-import io.ebeaninternal.api.*;
-import io.ebeaninternal.server.core.*;
+import io.ebeaninternal.api.CoreLog;
+import io.ebeaninternal.api.SpiEbeanServer;
+import io.ebeaninternal.api.SpiQuery;
+import io.ebeaninternal.api.SpiSqlUpdate;
+import io.ebeaninternal.api.SpiTransaction;
+import io.ebeaninternal.api.SpiUpdate;
+import io.ebeaninternal.server.core.PersistRequest;
 import io.ebeaninternal.server.core.PersistRequest.Type;
-import io.ebeaninternal.server.deploy.*;
+import io.ebeaninternal.server.core.PersistRequestBean;
+import io.ebeaninternal.server.core.PersistRequestCallableSql;
+import io.ebeaninternal.server.core.PersistRequestOrmUpdate;
+import io.ebeaninternal.server.core.PersistRequestUpdateSql;
+import io.ebeaninternal.server.core.Persister;
+import io.ebeaninternal.server.deploy.BeanDescriptor;
+import io.ebeaninternal.server.deploy.BeanDescriptorManager;
+import io.ebeaninternal.server.deploy.BeanManager;
+import io.ebeaninternal.server.deploy.BeanPropertyAssoc;
+import io.ebeaninternal.server.deploy.BeanPropertyAssocMany;
+import io.ebeaninternal.server.deploy.BeanPropertyAssocOne;
+import io.ebeaninternal.server.deploy.IntersectionRow;
 
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static java.lang.System.Logger.Level.DEBUG;
 import static java.lang.System.Logger.Level.TRACE;
@@ -869,15 +897,13 @@ public final class DefaultPersister implements Persister {
   private void notifyDeleteById(BeanDescriptor<?> descriptor, Object id, List<Object> idList, Transaction transaction) {
     BeanPersistController controller = descriptor.persistController();
     if (controller != null) {
-      DeleteIdRequest request = new DeleteIdRequest(server, transaction, descriptor.type(), id);
+      DeleteIdsRequest request;
       if (idList == null) {
-        controller.preDelete(request);
+        request = new DeleteIdsRequest(server, transaction, descriptor.type(), List.of(id));
       } else {
-        for (Object idValue : idList) {
-          request.setId(idValue);
-          controller.preDelete(request);
-        }
+        request = new DeleteIdsRequest(server, transaction, descriptor.type(), Collections.unmodifiableList(idList));
       }
+      controller.preDelete(request);
     }
   }
 

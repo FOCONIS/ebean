@@ -1,6 +1,7 @@
 package io.ebeaninternal.server.deploy;
 
 import io.ebean.event.BeanDeleteIdRequest;
+import io.ebean.event.BeanDeleteIdsRequest;
 import io.ebean.event.BeanPersistController;
 import io.ebean.event.BeanPersistRequest;
 
@@ -161,15 +162,13 @@ public final class ChainedBeanPersistController implements BeanPersistController
 
   @Override
   public void preDelete(BeanDeleteIdRequest request) {
-    for (BeanPersistController controller : chain) {
-      controller.preDelete(request);
-    }
+    throw new AbstractMethodError();
   }
 
   @Override
-  public void preDeleteById(List<BeanDeleteIdRequest> requests) {
+  public void preDelete(BeanDeleteIdsRequest request) {
     for (BeanPersistController controller : chain) {
-      controller.preDeleteById(requests);
+      controller.preDelete(request);
     }
   }
 
