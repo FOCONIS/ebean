@@ -1,5 +1,7 @@
 package io.ebean.event;
 
+import java.util.List;
+
 /**
  * Used to enhance or override the default bean persistence mechanism.
  * <p>
@@ -116,4 +118,5 @@ public interface BeanPersistController {
    * Called after the soft delete was performed.
    */
   void postSoftDelete(BeanPersistRequest<?> request);
+
 }
