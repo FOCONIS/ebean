@@ -775,6 +775,10 @@ class JdbcTransaction implements SpiTransaction, TxnProfileEventCodes {
    */
   @Override
   public Connection internalConnection() {
+    if (Thread.interrupted()) {
+      Thread.currentThread().interrupt();
+      throw new PersistenceException("Transaction is interrupted");
+    }
     return connection;
   }
 
