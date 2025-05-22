@@ -9,7 +9,7 @@
 
   <groupId>io.ebean</groupId>
   <artifactId>ebean-parent</artifactId>
-  <version>14.8.1-FOC12-SNAPSHOT</version>
+  <version>14.8.1-FOC13-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>ebean parent</name>

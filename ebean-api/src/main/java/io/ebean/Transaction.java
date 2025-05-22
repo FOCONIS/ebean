@@ -2,6 +2,7 @@ package io.ebean;
 
 import io.ebean.annotation.DocStoreMode;
 import io.ebean.annotation.PersistBatch;
+import io.ebean.bean.PersistenceContext;
 import io.ebean.config.DatabaseConfig;
 import io.ebean.config.DocStoreConfig;
 
@@ -520,7 +521,11 @@ public interface Transaction extends AutoCloseable {
    * <li>A getter method is called on a batched bean</li>
    * </ul>
    */
-  void flush() throws PersistenceException;
+  void flush(boolean resetPc) throws PersistenceException;
+
+  default void flush() throws PersistenceException {
+    flush(false);
+  }
 
   /**
    * Return the underlying Connection object.
@@ -569,4 +574,14 @@ public interface Transaction extends AutoCloseable {
   default Transaction root() {
     return this;
   }
+
+  /**
+   * Return the persistence context associated with this transaction.
+   * <p>
+   * You may wish to hold onto this and set it against another transaction
+   * later. This is along the lines of 'extended persistence context'
+   * behaviour.
+   */
+  PersistenceContext persistenceContext();
+
 }
