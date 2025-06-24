@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tests.model.basic.Customer;
+import org.tests.model.basic.Order;
 import org.tests.model.basic.ResetBasicData;
 
 import java.util.List;
@@ -46,6 +47,20 @@ class PathPropertiesTests extends BaseTestCase {
     List<String> sql = LoggedSql.stop();
     assertThat(sql).hasSize(1);
     assertThat(sql.get(0)).contains("select t0.id, t0.status, t0.name, t0.smallnote, t0.anniversary, t0.cretime, t0.updtime, t0.version, t0.shipping_address_id, t1.id, t1.line_1 from o_customer t0 left join o_address t1 on t1.id = t0.billing_address_id;");
+  }
+
+  @Test
+  void test_withToOne() {
+    ResetBasicData.reset();
+
+    PathProperties root = PathProperties.parse("*,customer(id)");
+    LoggedSql.start();
+    Query<Order> query = DB.find(Order.class).apply(root);
+    query.findList();
+    List<String> sql = LoggedSql.stop();
+    assertThat(sql).hasSize(1);
+    // select t0.id, t0.status, t0.order_date, t0.ship_date, t1.name, t0.cretime, t0.updtime, t1.id from o_order t0 join o_customer t1 on t1.id = t0.kcustomer_id
+    assertThat(sql.get(0)).contains("select t0.id, t0.status, t0.order_date, t0.ship_date, t1.name, t0.cretime, t0.updtime, t0.kcustomer_id from o_order t0");
   }
 
 }
