@@ -11,6 +11,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import static java.lang.System.Logger.Level.WARNING;
 
@@ -214,5 +218,12 @@ public final class BatchedPstmt implements SpiProfileTransactionEvent {
       }
       inputStreams = null;
     }
+  }
+
+  /**
+   * Returns a list of affected IDs.
+   */
+  List<Object> identifiers() {
+    return list.stream().map(BatchPostExecute::identifier).collect(Collectors.toList());
   }
 }

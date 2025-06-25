@@ -1,6 +1,7 @@
 package io.ebeaninternal.server.persist;
 
 import jakarta.persistence.PersistenceException;
+
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Collection;
@@ -138,7 +139,7 @@ public final class BatchedPstmtHolder {
       try {
         bs.executeBatch(getGeneratedKeys);
       } catch (SQLException ex) {
-        throw new BatchedSqlException("Error when batch flush on sql: " + bs.sql(), ex);
+        throw new BatchedSqlException("Error when batch flush on: " + bs.identifiers() + ", sql: " + bs.sql(), ex);
       }
     }
   }
@@ -150,7 +151,7 @@ public final class BatchedPstmtHolder {
   }
 
   private void closeStatements(Collection<BatchedPstmt> batchedStatements) {
-    for (BatchedPstmt bs: batchedStatements) {
+    for (BatchedPstmt bs : batchedStatements) {
       bs.close();
     }
   }
