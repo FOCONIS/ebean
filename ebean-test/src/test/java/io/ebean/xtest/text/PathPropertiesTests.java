@@ -53,14 +53,37 @@ class PathPropertiesTests extends BaseTestCase {
   void test_withToOne() {
     ResetBasicData.reset();
 
-    PathProperties root = PathProperties.parse("*,customer(id)");
+    PathProperties root = PathProperties.parse("status,customer(id)");
     LoggedSql.start();
     Query<Order> query = DB.find(Order.class).apply(root);
     query.findList();
     List<String> sql = LoggedSql.stop();
     assertThat(sql).hasSize(1);
-    // select t0.id, t0.status, t0.order_date, t0.ship_date, t1.name, t0.cretime, t0.updtime, t1.id from o_order t0 join o_customer t1 on t1.id = t0.kcustomer_id
-    assertThat(sql.get(0)).contains("select t0.id, t0.status, t0.order_date, t0.ship_date, t1.name, t0.cretime, t0.updtime, t0.kcustomer_id from o_order t0");
+    assertThat(sql.get(0)).contains("select t0.id, t0.status, t0.kcustomer_id from o_order t0");
+  }
+
+  @Test
+  void test_withSelect() {
+    ResetBasicData.reset();
+
+    LoggedSql.start();
+    Query<Order> query = DB.find(Order.class).select("status, customer");
+    query.findList();
+    List<String> sql = LoggedSql.stop();
+    assertThat(sql).hasSize(1);
+    assertThat(sql.get(0)).contains("select t0.id, t0.status, t0.kcustomer_id from o_order t0");
+  }
+
+  @Test
+  void test_withFetch() {
+    ResetBasicData.reset();
+
+    LoggedSql.start();
+    Query<Order> query = DB.find(Order.class).select("status").fetch("customer", "id");
+    query.findList();
+    List<String> sql = LoggedSql.stop();
+    assertThat(sql).hasSize(1);
+    assertThat(sql.get(0)).contains("select t0.id, t0.status, t0.kcustomer_id from o_order t0");
   }
 
 }
