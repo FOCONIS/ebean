@@ -7,7 +7,7 @@
     <version>14.8.1-FOC12-FX1-SNAPSHOT</version>
   </parent>
 
-  <version>14.8.2-RC13</version>
+  <version>14.8.1-FOC12-FX1-SNAPSHOT</version>
   <name>querybean generator</name>
   <artifactId>querybean-generator</artifactId>
   <description>Querybean generator</description>
