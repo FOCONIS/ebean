@@ -4,10 +4,10 @@
   <parent>
     <artifactId>ebean-parent</artifactId>
     <groupId>io.ebean</groupId>
-    <version>14.8.1-FOC12-FX1-SNAPSHOT</version>
+    <version>14.8.1-FOC12-FX1</version>
   </parent>
 
-  <version>14.8.1-FOC12-FX1-SNAPSHOT</version>
+  <version>14.8.1-FOC12-FX1</version>
   <name>querybean generator</name>
   <artifactId>querybean-generator</artifactId>
   <description>Querybean generator</description>
