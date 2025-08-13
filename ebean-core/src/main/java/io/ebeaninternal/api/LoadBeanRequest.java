@@ -146,6 +146,9 @@ public final class LoadBeanRequest extends LoadRequest {
           if (queryIds.contains(id)) {
             // assume this is logically deleted (hence not found)
             desc.markAsDeleted(ebi.owner());
+            if (CoreLog.markedAsDeleted.isLoggable(DEBUG)) {
+              CoreLog.markedAsDeleted.log(DEBUG, "(Lazy) loading failed for type {0}. queryIds: {1}, loadedIds: {2}", beanType(), queryIds, loadedIds);
+            }
           } else {
             // unexpected, added to batch during loading
             missedIds.add(id);
