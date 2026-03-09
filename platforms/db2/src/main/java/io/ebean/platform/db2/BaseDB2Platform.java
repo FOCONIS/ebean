@@ -30,7 +30,8 @@ public abstract class BaseDB2Platform extends DatabasePlatform {
         .addDuplicateKey("23505") // -803
         // .addDataIntegrity("-407","-530","-531","-532","-543","-544","-545","-603","-667")
         // we need SQLState, not code: https://www.ibm.com/support/knowledgecenter/en/SSEPEK_10.0.0/codes/src/tpc/db2z_n.html
-        .addDataIntegrity("23502","23503","23504","23511","23512","23511","42917","23515")
+        // https://www.ibm.com/docs/en/db2w-as-a-service?topic=messages-sqlstate
+        .addDataIntegrity("23001", "23502", "23503", "23504", "23511", "23512", "23515", "42917")
         .build();
 
     historySupport = new DB2HistorySupport();
