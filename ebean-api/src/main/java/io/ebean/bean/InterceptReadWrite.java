@@ -753,7 +753,11 @@ public final class InterceptReadWrite extends InterceptBase implements EntityBea
     }
     if (lazyLoadProperty == -1) {
       lazyLoadProperty = loadProperty;
-      loader.loadBean(this);
+      try {
+        loader.loadBean(this);
+      } finally {
+        lazyLoadProperty = -1;
+      }
       if (lazyLoadFailure) {
         // failed when lazy loading this bean
         throw new EntityNotFoundException("Lazy loading failed on type:" + owner.getClass().getName() + " id:" + ownerId + " - Bean has been deleted. BeanLoader: " + beanLoader);
