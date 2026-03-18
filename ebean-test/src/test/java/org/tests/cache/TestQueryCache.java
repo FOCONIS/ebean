@@ -13,6 +13,7 @@ import io.ebean.xtest.BaseTestCase;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.tests.model.basic.Customer;
+import org.tests.model.basic.EBasicVer;
 import org.tests.model.basic.ResetBasicData;
 import org.tests.model.cache.EColAB;
 
@@ -472,6 +473,30 @@ public class TestQueryCache extends BaseTestCase {
     sql = LoggedSql.stop();
 
     assertThat(sql).hasSize(1);
+  }
+
+  @Test
+  public void testDirtyUpCache() {
+    EBasicVer testDirty = new EBasicVer("testDirty");
+    testDirty.setSuperTags("fooo");
+    testDirty.save();
+    DB.cacheManager().clearAll();
+
+    EBasicVer fromDb = DB.find(EBasicVer.class).select("name,tags").setId(testDirty.getId()).findOne();
+    assertThat(fromDb).isNotNull();
+    assertThat(fromDb.getName()).isEqualTo("testDirty");
+    assertThat(DB.beanState(fromDb).loadedProps()).containsExactlyInAnyOrder("id", "name", "tags");
+    fromDb.getTags().add("tagtag");
+
+    assertThat(DB.beanState(fromDb).loadedProps()).containsExactlyInAnyOrder("id", "name", "tags");
+
+    // trigger lazy load
+    assertThat(fromDb.getSuperTags()).isEqualTo("fooo");
+//    assertThat(DB.beanState(fromDb).loadedProps()).containsExactlyInAnyOrder("id", "name", "description", "other"); // failed noch
+
+    EBasicVer fromDb2 = DB.find(EBasicVer.class).setId(testDirty.getId()).findOne();
+    assertThat(fromDb2).isNotNull();
+    assertThat(fromDb2.getTags()).isEmpty();
   }
 
   @Test

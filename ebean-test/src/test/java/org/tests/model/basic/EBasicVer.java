@@ -2,13 +2,14 @@ package org.tests.model.basic;
 
 import io.ebean.Model;
 import io.ebean.annotation.Cache;
+import io.ebean.annotation.DbJson;
 import io.ebean.annotation.Identity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import jakarta.persistence.Version;
+import jakarta.persistence.*;
+
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 
 import static io.ebean.annotation.IdentityGenerated.BY_DEFAULT;
 
@@ -25,6 +26,12 @@ public class EBasicVer extends Model {
   String description;
 
   String other;
+
+  @DbJson
+  List<String> tags = new ArrayList<>();
+
+  @Lob
+  String superTags;
 
   @Version
   Timestamp lastUpdate;
@@ -73,4 +80,19 @@ public class EBasicVer extends Model {
     this.lastUpdate = lastUpdate;
   }
 
+  public List<String> getTags() {
+    return tags;
+  }
+
+  public void setTags(List<String> tags) {
+    this.tags = tags;
+  }
+
+  public String getSuperTags() {
+    return superTags;
+  }
+
+  public void setSuperTags(String superTags) {
+    this.superTags = superTags;
+  }
 }
