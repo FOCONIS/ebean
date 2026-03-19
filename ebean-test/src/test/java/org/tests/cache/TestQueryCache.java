@@ -476,9 +476,9 @@ public class TestQueryCache extends BaseTestCase {
   }
 
   @Test
-  public void testDirtyUpCache() {
+  public void testDirtyUpCacheJsonMutationDetectionSource() {
     EBasicVer testDirty = new EBasicVer("testDirty");
-    testDirty.setSuperTags("fooo");
+    testDirty.setDescription("desc");
     testDirty.save();
     DB.cacheManager().clearAll();
 
@@ -491,12 +491,36 @@ public class TestQueryCache extends BaseTestCase {
     assertThat(DB.beanState(fromDb).loadedProps()).containsExactlyInAnyOrder("id", "name", "tags");
 
     // trigger lazy load
-    assertThat(fromDb.getSuperTags()).isEqualTo("fooo");
-//    assertThat(DB.beanState(fromDb).loadedProps()).containsExactlyInAnyOrder("id", "name", "description", "other"); // failed noch
+    assertThat(fromDb.getDescription()).isEqualTo("desc");
 
     EBasicVer fromDb2 = DB.find(EBasicVer.class).setId(testDirty.getId()).findOne();
     assertThat(fromDb2).isNotNull();
-    assertThat(fromDb2.getTags()).isEmpty();
+    assertThat(fromDb2).isNotSameAs(fromDb);
+    assertThat(fromDb2.getTags()).isNullOrEmpty();
+  }
+
+  @Test
+  public void testDirtyUpCacheJsonMutationDetectionDefault() {
+    EBasicVer testDirty = new EBasicVer("testDirty");
+    testDirty.setDescription("desc");
+    testDirty.save();
+    DB.cacheManager().clearAll();
+
+    EBasicVer fromDb = DB.find(EBasicVer.class).select("name,superTags").setId(testDirty.getId()).findOne();
+    assertThat(fromDb).isNotNull();
+    assertThat(fromDb.getName()).isEqualTo("testDirty");
+    assertThat(DB.beanState(fromDb).loadedProps()).containsExactlyInAnyOrder("id", "name", "superTags");
+    fromDb.getSuperTags().add("tagtag");
+
+    assertThat(DB.beanState(fromDb).loadedProps()).containsExactlyInAnyOrder("id", "name", "superTags");
+
+    // trigger lazy load
+    assertThat(fromDb.getDescription()).isEqualTo("desc");
+
+    EBasicVer fromDb2 = DB.find(EBasicVer.class).setId(testDirty.getId()).findOne();
+    assertThat(fromDb2).isNotNull();
+    assertThat(fromDb2).isNotSameAs(fromDb);
+    assertThat(fromDb2.getSuperTags()).isNullOrEmpty();
   }
 
   @Test

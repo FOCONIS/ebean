@@ -5,6 +5,7 @@ import io.ebean.annotation.Cache;
 import io.ebean.annotation.DbJson;
 import io.ebean.annotation.Identity;
 
+import io.ebean.annotation.MutationDetection;
 import jakarta.persistence.*;
 
 import java.sql.Timestamp;
@@ -27,11 +28,11 @@ public class EBasicVer extends Model {
 
   String other;
 
-  @DbJson
+  @DbJson(mutationDetection = MutationDetection.SOURCE)
   List<String> tags = new ArrayList<>();
 
-  @Lob
-  String superTags;
+  @DbJson(mutationDetection = MutationDetection.DEFAULT)
+  List<String> superTags = new ArrayList<>();
 
   @Version
   Timestamp lastUpdate;
@@ -88,11 +89,11 @@ public class EBasicVer extends Model {
     this.tags = tags;
   }
 
-  public String getSuperTags() {
+  public List<String> getSuperTags() {
     return superTags;
   }
 
-  public void setSuperTags(String superTags) {
+  public void setSuperTags(List<String> superTags) {
     this.superTags = superTags;
   }
 }

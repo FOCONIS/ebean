@@ -24,18 +24,15 @@ public final class CachedBeanDataFromBean {
     }
 
     // extract all the non-many properties
-    final boolean dirty = ebi.isDirty();
     for (BeanProperty prop : desc.propertiesNonMany()) {
-      if (dirty && ebi.isDirtyProperty(prop.propertyIndex())) {
+      if (ebi.isLoadedProperty(prop.propertyIndex())) {
         data.put(prop.name(), prop.getCacheDataValueOrig(ebi));
-      } else if (ebi.isLoadedProperty(prop.propertyIndex())) {
-        data.put(prop.name(), prop.getCacheDataValue(bean));
       }
     }
 
     for (BeanPropertyAssocMany<?> prop : desc.propertiesMany()) {
       if (prop.isElementCollection()) {
-        data.put(prop.name(), prop.getCacheDataValue(bean));
+        data.put(prop.name(), prop.getCacheDataValueOrig(ebi));
       }
     }
 
