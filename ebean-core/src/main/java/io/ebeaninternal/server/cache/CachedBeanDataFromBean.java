@@ -1,5 +1,6 @@
 package io.ebeaninternal.server.cache;
 
+import io.ebean.ModifyAwareType;
 import io.ebean.bean.EntityBean;
 import io.ebean.bean.EntityBeanIntercept;
 import io.ebeaninternal.server.deploy.BeanDescriptor;
@@ -24,15 +25,29 @@ public final class CachedBeanDataFromBean {
     }
 
     // extract all the non-many properties
+    final boolean dirty = ebi.isDirty();
     for (BeanProperty prop : desc.propertiesNonMany()) {
-      if (ebi.isLoadedProperty(prop.propertyIndex())) {
+      if (!dirty) {
+        if (ebi.value(prop.propertyIndex()) instanceof ModifyAwareType && ((ModifyAwareType) ebi.value(prop.propertyIndex())).isMarkedDirty()) {
+          data.put(prop.name(), prop.getCacheDataValueOrig(ebi));
+        } else if (ebi.isLoadedProperty(prop.propertyIndex())) {
+          data.put(prop.name(), prop.getCacheDataValue(bean));
+        }
+      } else if (ebi.isDirtyProperty(prop.propertyIndex())
+        || ebi.value(prop.propertyIndex()) instanceof ModifyAwareType && ((ModifyAwareType) ebi.value(prop.propertyIndex())).isMarkedDirty()) {
         data.put(prop.name(), prop.getCacheDataValueOrig(ebi));
+      } else if (ebi.isLoadedProperty(prop.propertyIndex())) {
+        data.put(prop.name(), prop.getCacheDataValue(bean));
       }
     }
 
     for (BeanPropertyAssocMany<?> prop : desc.propertiesMany()) {
       if (prop.isElementCollection()) {
-        data.put(prop.name(), prop.getCacheDataValueOrig(ebi));
+        if (ebi.isChangedProperty(prop.propertyIndex())) {
+          data.put(prop.name(), prop.getCacheDataValueOrig(ebi));
+        } else {
+          data.put(prop.name(), prop.getCacheDataValue(bean));
+        }
       }
     }
 
