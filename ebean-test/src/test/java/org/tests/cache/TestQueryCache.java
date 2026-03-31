@@ -10,10 +10,9 @@ import io.ebean.bean.BeanCollection;
 import io.ebean.cache.ServerCache;
 import io.ebean.test.LoggedSql;
 import io.ebean.xtest.BaseTestCase;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.tests.model.basic.Customer;
-import org.tests.model.basic.EBasicVer;
+import org.tests.model.basic.EBasicJsonCache;
 import org.tests.model.basic.ResetBasicData;
 import org.tests.model.cache.EColAB;
 
@@ -477,12 +476,13 @@ public class TestQueryCache extends BaseTestCase {
 
   @Test
   public void testDirtyUpCacheJsonMutationDetectionSource() {
-    EBasicVer testDirty = new EBasicVer("testDirty");
+    EBasicJsonCache testDirty = new EBasicJsonCache();
+    testDirty.setName("testDirty");
     testDirty.setDescription("desc");
     testDirty.save();
     DB.cacheManager().clearAll();
 
-    EBasicVer fromDb = DB.find(EBasicVer.class).select("name,tags").setId(testDirty.getId()).findOne();
+    EBasicJsonCache fromDb = DB.find(EBasicJsonCache.class).select("name,tags").setId(testDirty.getId()).findOne();
     assertThat(fromDb).isNotNull();
     assertThat(fromDb.getName()).isEqualTo("testDirty");
     assertThat(DB.beanState(fromDb).loadedProps()).containsExactlyInAnyOrder("id", "name", "tags");
@@ -493,7 +493,7 @@ public class TestQueryCache extends BaseTestCase {
     // trigger lazy load
     assertThat(fromDb.getDescription()).isEqualTo("desc");
 
-    EBasicVer fromDb2 = DB.find(EBasicVer.class).setId(testDirty.getId()).findOne();
+    EBasicJsonCache fromDb2 = DB.find(EBasicJsonCache.class).setId(testDirty.getId()).findOne();
     assertThat(fromDb2).isNotNull();
     assertThat(fromDb2).isNotSameAs(fromDb);
     assertThat(fromDb2.getTags()).isNullOrEmpty();
@@ -501,12 +501,13 @@ public class TestQueryCache extends BaseTestCase {
 
   @Test
   public void testDirtyUpCacheJsonMutationDetectionDefault() {
-    EBasicVer testDirty = new EBasicVer("testDirty");
+    EBasicJsonCache testDirty = new EBasicJsonCache();
+    testDirty.setName("testDirty");
     testDirty.setDescription("desc");
     testDirty.save();
     DB.cacheManager().clearAll();
 
-    EBasicVer fromDb = DB.find(EBasicVer.class).select("name,superTags").setId(testDirty.getId()).findOne();
+    EBasicJsonCache fromDb = DB.find(EBasicJsonCache.class).select("name,superTags").setId(testDirty.getId()).findOne();
     assertThat(fromDb).isNotNull();
     assertThat(fromDb.getName()).isEqualTo("testDirty");
     assertThat(DB.beanState(fromDb).loadedProps()).containsExactlyInAnyOrder("id", "name", "superTags");
@@ -517,7 +518,7 @@ public class TestQueryCache extends BaseTestCase {
     // trigger lazy load
     assertThat(fromDb.getDescription()).isEqualTo("desc");
 
-    EBasicVer fromDb2 = DB.find(EBasicVer.class).setId(testDirty.getId()).findOne();
+    EBasicJsonCache fromDb2 = DB.find(EBasicJsonCache.class).setId(testDirty.getId()).findOne();
     assertThat(fromDb2).isNotNull();
     assertThat(fromDb2).isNotSameAs(fromDb);
     assertThat(fromDb2.getSuperTags()).isNullOrEmpty();

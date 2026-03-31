@@ -2,36 +2,39 @@ package org.tests.model.basic;
 
 import io.ebean.Model;
 import io.ebean.annotation.Cache;
+import io.ebean.annotation.DbJson;
 import io.ebean.annotation.Identity;
+import io.ebean.annotation.MutationDetection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import jakarta.persistence.Version;
 
-import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 
 import static io.ebean.annotation.IdentityGenerated.BY_DEFAULT;
 
+/**
+ * @author Jonas Pöhler, Foconis Analytics GmbH
+ */
 @Cache(enableQueryCache = true)
 @Entity
-@Table(name = "e_basicver")
-public class EBasicVer extends Model {
+@Table(name = "e_basic_json_cache")
+public class EBasicJsonCache extends Model {
 
-  @Id @Identity(generated = BY_DEFAULT)
+  @Id
+  @Identity(generated = BY_DEFAULT)
   Integer id;
 
   String name;
 
   String description;
 
-  String other;
+  @DbJson(mutationDetection = MutationDetection.SOURCE)
+  List<String> tags = new ArrayList<>();
 
-  @Version
-  Timestamp lastUpdate;
-
-  public EBasicVer(String name) {
-    this.name = name;
-  }
+  @DbJson(mutationDetection = MutationDetection.DEFAULT)
+  List<String> superTags = new ArrayList<>();
 
   public Integer getId() {
     return id;
@@ -57,20 +60,19 @@ public class EBasicVer extends Model {
     this.description = description;
   }
 
-  public String getOther() {
-    return other;
+  public List<String> getTags() {
+    return tags;
   }
 
-  public void setOther(String other) {
-    this.other = other;
+  public void setTags(List<String> tags) {
+    this.tags = tags;
   }
 
-  public Timestamp getLastUpdate() {
-    return lastUpdate;
+  public List<String> getSuperTags() {
+    return superTags;
   }
 
-  public void setLastUpdate(Timestamp lastUpdate) {
-    this.lastUpdate = lastUpdate;
+  public void setSuperTags(List<String> superTags) {
+    this.superTags = superTags;
   }
-
 }
