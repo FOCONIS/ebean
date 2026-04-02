@@ -27,16 +27,20 @@ public final class CachedBeanDataFromBean {
     // extract all the non-many properties
     final boolean dirty = ebi.isDirty();
     for (BeanProperty prop : desc.propertiesNonMany()) {
-      if (!dirty) {
-        if (ebi.value(prop.propertyIndex()) instanceof ModifyAwareType && ((ModifyAwareType) ebi.value(prop.propertyIndex())).isMarkedDirty()) {
-          data.put(prop.name(), prop.getCacheDataValueOrig(ebi));
-        } else if (ebi.isLoadedProperty(prop.propertyIndex())) {
-          data.put(prop.name(), prop.getCacheDataValue(bean));
-        }
-      } else if (ebi.isDirtyProperty(prop.propertyIndex())
-        || ebi.value(prop.propertyIndex()) instanceof ModifyAwareType && ((ModifyAwareType) ebi.value(prop.propertyIndex())).isMarkedDirty()) {
+      if (!ebi.isLoadedProperty(prop.propertyIndex())) {
+        continue;
+      }
+      boolean useOriginalValue = false;
+      // For ModifyAwareType (especially JSON) there is a constellation where the entity might not yet be dirty, but the property
+      // has still changed. This would result in modified data being put into cache
+      if (ebi.value(prop.propertyIndex()) instanceof ModifyAwareType) {
+        useOriginalValue = ((ModifyAwareType) ebi.value(prop.propertyIndex())).isMarkedDirty();
+      } else if (dirty && ebi.isDirtyProperty(prop.propertyIndex())) {
+        useOriginalValue = true;
+      }
+      if (useOriginalValue) {
         data.put(prop.name(), prop.getCacheDataValueOrig(ebi));
-      } else if (ebi.isLoadedProperty(prop.propertyIndex())) {
+      } else {
         data.put(prop.name(), prop.getCacheDataValue(bean));
       }
     }
