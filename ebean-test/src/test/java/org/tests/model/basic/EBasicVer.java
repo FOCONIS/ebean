@@ -3,11 +3,11 @@ package org.tests.model.basic;
 import io.ebean.Model;
 import io.ebean.annotation.Cache;
 import io.ebean.annotation.Identity;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
-
 import java.sql.Timestamp;
 
 import static io.ebean.annotation.IdentityGenerated.BY_DEFAULT;

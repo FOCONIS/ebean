@@ -15,6 +15,8 @@ import java.util.List;
 import static io.ebean.annotation.IdentityGenerated.BY_DEFAULT;
 
 /**
+ * Test entity for making sure json mutation detection works with cache correctly.
+ *
  * @author Jonas Pöhler, Foconis Analytics GmbH
  */
 @Cache(enableQueryCache = true)
