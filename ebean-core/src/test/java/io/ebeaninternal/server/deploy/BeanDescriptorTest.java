@@ -142,6 +142,24 @@ public class BeanDescriptorTest extends BaseTest {
   }
 
   @Test
+  public void merge_reference_bean() {
+
+    Customer from = new Customer();
+    from.setId(42);
+    from.setName("rob");
+
+    Customer to = spiEbeanServer().reference(Customer.class, from.getId());
+    spiEbeanServer().beanState(to).setDisableLazyLoad(true);
+
+    customerDesc.mergeBeans((EntityBean) from, (EntityBean) to, null);
+
+    assertThat(to.getId()).isEqualTo(42);
+    assertThat(to.getName()).isEqualTo("rob");
+    assertThat(((EntityBean) to)._ebean_intercept().isReference()).isFalse();
+    assertThat(((EntityBean) to)._ebean_intercept().loadedPropertyNames()).containsExactly("id", "name");
+  }
+
+  @Test
   public void isIdTypeExternal_when_externalId() {
 
     BeanDescriptor<Country> countryDesc = spiEbeanServer().descriptor(Country.class);
