@@ -146,7 +146,7 @@ class BeanMergeHelp {
    * <ul>
    *   <li><code>null</code> if bean was null</li>
    *   <li><code>context bean</code> if found in context
-   *   <li><code>existing</code> if existing war not null</li>
+   *   <li><code>existing</code> if existing was not null</li>
    *   <li><code>new instance</code> if existing was null</li>
    * </ul>
    */
@@ -154,6 +154,8 @@ class BeanMergeHelp {
     if (bean == null) {
       return null;
     }
+    boolean wasReference = existing != null && desc.isReference(existing._ebean_intercept());
+
     Object id = desc.id(bean);
     if (!isNullOrZero(id)) {
       EntityBean contextBean = (EntityBean) desc.contextGet(persistenceContext, id);
@@ -184,7 +186,13 @@ class BeanMergeHelp {
     for (BeanProperty prop : desc.propertiesAll()) {
       if (checkMerge(prop, bean, existing)) {
         prop.merge(bean, existing, this);
+        if (wasReference) {
+          existing._ebean_intercept().setPropertyLoaded(prop.name(), true);
+        }
       }
+    }
+    if (wasReference && !desc.isReference(bean._ebean_getIntercept())) {
+      existing._ebean_intercept().setLoaded();
     }
 
     return existing;
