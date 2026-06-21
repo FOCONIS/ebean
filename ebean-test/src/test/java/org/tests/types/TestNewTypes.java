@@ -289,6 +289,70 @@ public class TestNewTypes extends BaseTestCase {
     localDateAt(LocalDate.of(1900, 1, 1));
   }
 
+  @Test
+  public void testNullComparisons() {
+
+    DB.find(SomeNewTypesBean.class).delete();
+
+    SomeNewTypesBean bean = new SomeNewTypesBean();
+
+    DB.save(bean);
+
+    List<SomeNewTypesBean> list = DB.find(SomeNewTypesBean.class).where().leOrNull("localDate", null).findList();
+    assertThat(list).isNotEmpty();
+
+    list = DB.find(SomeNewTypesBean.class).where().ltOrNull("localDateTime", null).findList();
+    assertThat(list).isNotEmpty();
+
+    list = DB.find(SomeNewTypesBean.class).where().ltOrNull("offsetDateTime", null).findList();
+    assertThat(list).isNotEmpty();
+
+    list = DB.find(SomeNewTypesBean.class).where().ltOrNull("zonedDateTime", null).findList();
+    assertThat(list).isNotEmpty();
+
+    list = DB.find(SomeNewTypesBean.class).where().eqOrNull("sqlDate", null).findList();
+    assertThat(list).isNotEmpty();
+
+    list = DB.find(SomeNewTypesBean.class).where().eqOrNull("sqlTime", null).findList();
+    assertThat(list).isNotEmpty();
+
+    list = DB.find(SomeNewTypesBean.class).where().leOrNull("localTime", null).findList();
+    assertThat(list).isNotEmpty();
+
+    list = DB.find(SomeNewTypesBean.class).where().eqOrNull("zoneId", null).findList();
+    assertThat(list).isNotEmpty();
+
+    list = DB.find(SomeNewTypesBean.class).where().eqOrNull("zoneOffset", null).findList();
+    assertThat(list).isNotEmpty();
+
+    list = DB.find(SomeNewTypesBean.class).where().leOrNull("yearMonth", null).findList();
+    assertThat(list).isNotEmpty();
+
+    list = DB.find(SomeNewTypesBean.class).where().leOrNull("monthDay", null).findList();
+    assertThat(list).isNotEmpty();
+
+    list = DB.find(SomeNewTypesBean.class).where().leOrNull("year", null).findList();
+    assertThat(list).isNotEmpty();
+
+    list = DB.find(SomeNewTypesBean.class).where().leOrNull("month", null).findList();
+    assertThat(list).isNotEmpty();
+
+    list = DB.find(SomeNewTypesBean.class).where().eqOrNull("path", null).findList();
+    assertThat(list).isNotEmpty();
+
+    list = DB.find(SomeNewTypesBean.class).where().eqOrNull("period", null).findList();
+    assertThat(list).isNotEmpty();
+
+    list = DB.find(SomeNewTypesBean.class).where().eqOrNull("duration", null).findList();
+    assertThat(list).isNotEmpty();
+
+    list = DB.find(SomeNewTypesBean.class).where().leOrNull("calendar", null).findList();
+    assertThat(list).isNotEmpty();
+
+    list = DB.find(SomeNewTypesBean.class).where().ltOrNull("instant", null).findList();
+    assertThat(list).isNotEmpty();
+  }
+
   private void localDateAt(LocalDate localDate) {
 
     SomeNewTypesBean bean = new SomeNewTypesBean();
