@@ -231,6 +231,7 @@ public class BeanPropertyAssocMany<T> extends BeanPropertyAssoc<T> implements ST
           }
         } else {
           toBC = createEmpty(existing);
+          toBC.setDisableLazyLoad(true);
           setValueIntercept(existing, toBC);
         }
 
