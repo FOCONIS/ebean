@@ -44,7 +44,7 @@ public class CachedBeanDataFromBeanTest {
     assertEquals(cacheData.getData("id"), "42");
     assertEquals(cacheData.getData("name"), "Rob");
     assertEquals(cacheData.getData("billingAddress"), "12");
-    assertEquals(cacheData.getData("anniversary"), "9223372036825200000");
+    assertEquals(cacheData.getData("anniversary"), "+292278994-08-17");
   }
 
 
