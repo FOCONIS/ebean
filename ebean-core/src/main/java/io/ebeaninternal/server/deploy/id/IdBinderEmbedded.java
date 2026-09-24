@@ -452,11 +452,13 @@ public final class IdBinderEmbedded implements IdBinder {
     final EntityBean bean = (EntityBean)value;
     final StringBuilder sb = new StringBuilder(80);
     for (BeanProperty prop : props) {
+      if (sb.length() > 0) {
+        sb.append('|');
+      }
       Object val = prop.getValue(bean);
       if (val != null) {
         sb.append(prop.format(val));
       }
-      sb.append('|');
     }
     return sb.toString();
   }

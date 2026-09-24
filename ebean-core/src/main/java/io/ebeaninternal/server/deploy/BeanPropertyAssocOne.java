@@ -19,6 +19,7 @@ import io.ebeaninternal.server.cache.CacheChangeSet;
 import io.ebeaninternal.server.cache.CachedBeanData;
 import io.ebeaninternal.server.cache.CachedBeanId;
 import io.ebeaninternal.server.core.DefaultSqlUpdate;
+import io.ebeaninternal.server.deploy.id.IdBinderEmbedded;
 import io.ebeaninternal.server.deploy.id.ImportedId;
 import io.ebeaninternal.server.deploy.meta.DeployBeanPropertyAssocOne;
 import io.ebeaninternal.server.el.ElPropertyChainBuilder;
@@ -47,6 +48,7 @@ public class BeanPropertyAssocOne<T> extends BeanPropertyAssoc<T> implements STr
 
   private AssocOneHelp localHelp;
   final BeanProperty[] embeddedProps;
+  private IdBinderEmbedded embeddedIdBinder;
   private final HashMap<String, BeanProperty> embeddedPropsMap;
   ImportedId importedId;
   private String deleteByParentIdSql;
@@ -112,6 +114,8 @@ public class BeanPropertyAssocOne<T> extends BeanPropertyAssoc<T> implements STr
       for (BeanProperty embeddedProp : embeddedProps) {
         embeddedProp.initialise(initContext);
       }
+      embeddedIdBinder = new IdBinderEmbedded(false, this);
+      embeddedIdBinder.initialise();
       initContext.setEmbeddedPrefix(null);
     }
   }
@@ -439,7 +443,18 @@ public class BeanPropertyAssocOne<T> extends BeanPropertyAssoc<T> implements STr
 
   @Override
   public String format(Object value) {
+    if (embedded) {
+      return embeddedIdBinder.cacheKey(value);
+    }
     return targetDescriptor.idBinder().cacheKey(value);
+  }
+
+  @Override
+  public Object parse(String value) {
+    if (embedded) {
+      return embeddedIdBinder.convertId(value);
+    }
+    return super.parse(value);
   }
 
   @Override
