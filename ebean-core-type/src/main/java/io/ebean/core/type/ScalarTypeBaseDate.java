@@ -65,8 +65,12 @@ public abstract class ScalarTypeBaseDate<T> extends ScalarTypeBase<T> {
 
   @Override
   public String formatValue(T value) {
-    final Date date = convertToDate(value);
-    return Long.toString(date.getTime());
+    if (mode == JsonConfig.Date.ISO8601) {
+      return toIsoFormat(value);
+    } else {
+      final Date date = convertToDate(value);
+      return Long.toString(date.getTime());
+    }
   }
 
   @Override
