@@ -13,6 +13,7 @@ import org.tests.model.basic.Customer;
 
 import java.sql.Date;
 import java.util.Map;
+import java.util.TimeZone;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -26,6 +27,7 @@ public class CachedBeanDataFromBeanTest {
 
     BeanDescriptor<Customer> desc = server.descriptor(Customer.class);
 
+    TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
     Date largeDate = new Date(9223372036825200000L);
 
     Customer customer = new Customer();
@@ -44,7 +46,7 @@ public class CachedBeanDataFromBeanTest {
     assertEquals(cacheData.getData("id"), "42");
     assertEquals(cacheData.getData("name"), "Rob");
     assertEquals(cacheData.getData("billingAddress"), "12");
-    assertEquals(cacheData.getData("anniversary"), "+292278994-08-17");
+    assertEquals(cacheData.getData("anniversary"), "+292278994-08-16");
   }
 
 
