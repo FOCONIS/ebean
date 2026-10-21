@@ -241,6 +241,7 @@ public final class BatchControl {
         list.get(i).executeNow();
       }
       flushPstmtHolder();
+      postBatch(list);
     } finally {
       transaction.setFlushOnQuery(old);
     }
@@ -289,6 +290,28 @@ public final class BatchControl {
     });
 
 
+  }
+
+  private void postBatch(List<PersistRequest> list) {
+    Map<PersistRequest.Type, Map<BeanPersistController, List<BeanPersistRequest<?>>>> controllers = new LinkedHashMap<>();
+    for (PersistRequest request : list) {
+      if (request instanceof PersistRequestBean<?>) {
+        PersistRequestBean<?> persistRequest = (PersistRequestBean<?>) request;
+        if (persistRequest.controller() != null) {
+          controllers
+            .computeIfAbsent(persistRequest.type(), k -> new LinkedHashMap<>())
+            .computeIfAbsent(persistRequest.controller(), k -> new ArrayList<>())
+            .add(persistRequest);
+        }
+      }
+    }
+    controllers.forEach((type, map) -> map.forEach((controller, requests) -> {
+      if (type == PersistRequest.Type.INSERT) {
+        controller.postInsert(requests);
+      } else if (type == PersistRequest.Type.UPDATE) {
+        controller.postUpdate(requests);
+      }
+    }));
   }
 
   public void flushOnCommit() throws BatchedSqlException {

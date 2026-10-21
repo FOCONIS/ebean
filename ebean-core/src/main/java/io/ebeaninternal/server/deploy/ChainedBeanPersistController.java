@@ -113,9 +113,23 @@ public final class ChainedBeanPersistController implements BeanPersistController
   }
 
   @Override
+  public void postInsert(List<BeanPersistRequest<?>> requests) {
+    for (BeanPersistController controller : chain) {
+      controller.postInsert(requests);
+    }
+  }
+
+  @Override
   public void postUpdate(BeanPersistRequest<?> request) {
     for (BeanPersistController controller : chain) {
       controller.postUpdate(request);
+    }
+  }
+
+  @Override
+  public void postUpdate(List<BeanPersistRequest<?>> requests) {
+    for (BeanPersistController controller : chain) {
+      controller.postUpdate(requests);
     }
   }
 

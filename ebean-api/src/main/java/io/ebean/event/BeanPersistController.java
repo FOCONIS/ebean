@@ -131,9 +131,19 @@ public interface BeanPersistController {
   void postInsert(BeanPersistRequest<?> request);
 
   /**
+   * Called after a batch of inserts was performed.
+   */
+  void postInsert(List<BeanPersistRequest<?>> requests);
+
+  /**
    * Called after the update was performed.
    */
   void postUpdate(BeanPersistRequest<?> request);
+
+  /**
+   * Called after a batch of updates was performed.
+   */
+  void postUpdate(List<BeanPersistRequest<?>> requests);
 
   /**
    * Called after the delete was performed.

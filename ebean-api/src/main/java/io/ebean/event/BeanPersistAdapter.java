@@ -101,7 +101,21 @@ public abstract class BeanPersistAdapter implements BeanPersistController {
    * Does nothing by default.
    */
   @Override
+  public void postInsert(List<BeanPersistRequest<?>> requests) {
+  }
+
+  /**
+   * Does nothing by default.
+   */
+  @Override
   public void postUpdate(BeanPersistRequest<?> request) {
+  }
+
+  /**
+   * Does nothing by default.
+   */
+  @Override
+  public void postUpdate(List<BeanPersistRequest<?>> requests) {
   }
 
   /**
