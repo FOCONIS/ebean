@@ -310,6 +310,10 @@ public final class BatchControl {
         controller.postInsert(requests);
       } else if (type == PersistRequest.Type.UPDATE) {
         controller.postUpdate(requests);
+      } else if (type == PersistRequest.Type.DELETE) {
+        controller.postDelete(requests);
+      } else if (type == PersistRequest.Type.DELETE_SOFT) {
+        controller.postSoftDelete(requests);
       }
     }));
   }

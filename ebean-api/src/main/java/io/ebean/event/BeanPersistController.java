@@ -151,7 +151,17 @@ public interface BeanPersistController {
   void postDelete(BeanPersistRequest<?> request);
 
   /**
+   * Called after a batch of deletes was performed.
+   */
+  void postDelete(List<BeanPersistRequest<?>> requests);
+
+  /**
    * Called after the soft delete was performed.
    */
   void postSoftDelete(BeanPersistRequest<?> request);
+
+  /**
+   * Called after a batch of soft deletes was performed.
+   */
+  void postSoftDelete(List<BeanPersistRequest<?>> requests);
 }

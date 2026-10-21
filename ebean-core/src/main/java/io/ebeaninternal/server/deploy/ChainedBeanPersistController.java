@@ -106,6 +106,13 @@ public final class ChainedBeanPersistController implements BeanPersistController
   }
 
   @Override
+  public void postDelete(List<BeanPersistRequest<?>> requests) {
+    for (BeanPersistController controller : chain) {
+      controller.postDelete(requests);
+    }
+  }
+
+  @Override
   public void postInsert(BeanPersistRequest<?> request) {
     for (BeanPersistController controller : chain) {
       controller.postInsert(request);
@@ -137,6 +144,13 @@ public final class ChainedBeanPersistController implements BeanPersistController
   public void postSoftDelete(BeanPersistRequest<?> request) {
     for (BeanPersistController controller : chain) {
       controller.postSoftDelete(request);
+    }
+  }
+
+  @Override
+  public void postSoftDelete(List<BeanPersistRequest<?>> requests) {
+    for (BeanPersistController controller : chain) {
+      controller.postSoftDelete(requests);
     }
   }
 

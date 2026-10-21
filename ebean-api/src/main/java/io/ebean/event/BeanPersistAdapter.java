@@ -94,6 +94,13 @@ public abstract class BeanPersistAdapter implements BeanPersistController {
    * Does nothing by default.
    */
   @Override
+  public void postDelete(List<BeanPersistRequest<?>> requests) {
+  }
+
+  /**
+   * Does nothing by default.
+   */
+  @Override
   public void postInsert(BeanPersistRequest<?> request) {
   }
 
@@ -123,6 +130,13 @@ public abstract class BeanPersistAdapter implements BeanPersistController {
    */
   @Override
   public void postSoftDelete(BeanPersistRequest<?> request) {
+  }
+
+  /**
+   * Does nothing by default.
+   */
+  @Override
+  public void postSoftDelete(List<BeanPersistRequest<?>> requests) {
   }
 
   /**
